@@ -1,0 +1,602 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Mail Merge Chứng Nhận Sức Khỏe - A4 thẻ lớn 14.6x9.9cm</title>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <style>
+    :root { --ink:#111; --border:#222; --paper:#fff; --ui:#0f766e; }
+    * { box-sizing: border-box; }
+    body { margin:0; font-family: Arial, sans-serif; background:#f2f4f7; color:#111; }
+    .toolbar { position: sticky; top: 0; z-index: 5; background: #fff; border-bottom: 1px solid #ddd; padding: 14px 18px; box-shadow: 0 2px 12px rgba(0,0,0,.06); }
+    .toolbar h1 { margin:0 0 8px; font-size:20px; color:#0f172a; }
+    .toolbar p { margin:0 0 12px; color:#475569; font-size:13px; }
+    .grid { display:grid; grid-template-columns: repeat(4, minmax(180px, 1fr)); gap:10px; align-items:end; }
+    label { font-size:12px; font-weight:700; color:#334155; display:flex; flex-direction:column; gap:4px; }
+    input, select, button { font: inherit; border:1px solid #cbd5e1; border-radius:8px; padding:8px 10px; background:#fff; min-height:38px; }
+    input[type="number"] { width:110px; }
+    button { cursor:pointer; border:none; background:var(--ui); color:white; font-weight:700; }
+    button.secondary { background:#1e293b; }
+    button.ghost { background:#e2e8f0; color:#0f172a; }
+    .row { display:flex; flex-wrap:wrap; gap:10px; align-items:end; margin-top:10px; }
+    .hint { font-size:12px; color:#64748b; margin-top:8px; }
+    .status { font-size:13px; font-weight:700; color:#0f766e; margin-top:8px; }
+
+    .data-panel { margin-top:10px; border:1px solid #cbd5e1; border-radius:12px; background:#f8fafc; overflow:hidden; }
+    .data-panel summary { list-style:none; cursor:pointer; padding:10px 12px; background:#0f766e; color:white; font-weight:700; border-radius:12px; user-select:none; display:inline-flex; align-items:center; gap:8px; margin:10px; }
+    .data-panel summary::-webkit-details-marker { display:none; }
+    .data-panel summary::before { content:'▶'; font-size:12px; }
+    .data-panel[open] summary::before { content:'▼'; }
+    .data-panel .panel-body { padding:0 12px 12px; }
+    .template-grid { display:grid; grid-template-columns: repeat(4, minmax(180px, 1fr)); gap:10px; align-items:end; }
+    .template-grid input { width:100%; min-width:0; }
+    @media screen and (max-width: 900px) { .template-grid { grid-template-columns: repeat(1, minmax(180px, 1fr)); } }
+    .preview-wrap { padding:22px; display:flex; flex-direction:column; align-items:center; gap:18px; }
+    .empty { padding:40px; background:#fff; border-radius:14px; border:1px dashed #94a3b8; color:#64748b; max-width:850px; text-align:center; }
+
+    .page { width:29.7cm; height:21cm; background:var(--paper); display:grid; grid-template-columns:14.6cm 14.6cm; grid-template-rows:9.9cm 9.9cm; column-gap:0; row-gap:0; padding:.60cm .25cm; page-break-after:always; box-shadow: 0 6px 28px rgba(15,23,42,.12); transform-origin:top center; }
+    .card { width:14.6cm; height:9.9cm; border:1px solid var(--border); position:relative; overflow:hidden; background:white; unicode-bidi:embed; font-family:'Times New Roman','Arial','Tahoma','Segoe UI',sans-serif; color:var(--ink); }
+    .card::after { content:""; position:absolute; inset:.07cm; border:0.45px solid var(--border); pointer-events:none; }
+    .logo { position:absolute; left:.28cm; top:.20cm; width:.78cm; height:.88cm; object-fit:contain; z-index:1; }
+    .company { position:absolute; left:1.05cm; top:.18cm; width:4.15cm; text-align:center; font-size:8.4pt; line-height:1.03; font-weight:400; overflow:hidden; }
+    .company b { font-size:8.7pt; }
+    .cert-no { position:absolute; left:1.60cm; top:1.28cm; width:4.55cm; font-size:11.2pt; white-space:nowrap; overflow:hidden; }
+    .cert-no b { font-weight:700; }
+    .nation { position:absolute; right:.25cm; top:.18cm; width:6.75cm; text-align:center; font-size:8.45pt; font-weight:700; line-height:1.05; overflow:hidden; }
+    .nation .sub { display:block; font-weight:700; font-size:8.25pt; margin-top:.04cm; }
+    .ornament { display:flex; justify-content:center; align-items:center; margin-top:.02cm; }
+    .ornament img { width:2.65cm; height:auto; display:block; object-fit:contain; }
+    .title { position:absolute; right:.25cm; top:1.26cm; width:6.65cm; height:.85cm; text-align:center; font-size:13.2pt; line-height:1.28; font-weight:700; letter-spacing:.15px; overflow:visible; padding-top:.04cm; }
+    .photo-box { position:absolute; left:.36cm; top:2.18cm; width:3.10cm; height:4.45cm; border:1px solid var(--border); }
+    .fields { position:absolute; left:3.65cm; top:2.10cm; width:10.50cm; height:6.40cm; font-size:11.2pt; line-height:1.28; overflow:visible; }
+    .fields .line { white-space:normal; overflow-wrap:normal; word-break:normal; margin-bottom:.08cm; max-width:10.50cm; }
+    .fields b { overflow-wrap:normal; word-break:normal; }
+    .fields b { font-weight:700; }
+    .fields .line:nth-child(4), .fields .line:nth-child(5) { line-height:1.25; max-width:10.50cm; }
+    .signature { position:absolute; right:.50cm; top:6.15cm; width:3.30cm; text-align:center; font-size:10.15pt; line-height:1.05; font-weight:700; z-index:2; }
+    .doctor { position:absolute; right:.25cm; bottom:.30cm; width:6.20cm; text-align:right; font-size:10.1pt; font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:clip; }
+    @media screen and (max-width: 1300px) { .preview-wrap { align-items:flex-start; overflow:auto; } .page { zoom:.75; } }
+    @media screen and (max-width: 900px) { .page { zoom:.55; } }
+    .break { break-after:page; }
+
+    @page { size:A4 landscape; margin:0; }
+    @media print {
+      html,body,*{
+        font-kerning: normal;
+        text-rendering: geometricPrecision;
+        -webkit-font-smoothing: antialiased;
+      }
+      body { background:white; }
+      .toolbar, .hint, .empty { display:none !important; }
+      .preview-wrap { padding:0; gap:0; display:block; }
+      .page { margin:0; box-shadow:none; page-break-after:always; zoom:1 !important; transform:none !important; }
+    }
+  </style>
+</head>
+<body>
+  <section class="toolbar">
+    <h1>App Mail Merge thẻ Chứng Nhận Sức Khỏe</h1>
+    <p>Đọc Excel ngay trên trình duyệt → chọn sheet → map cột → in A4 ngang, 4 thẻ/trang, mỗi thẻ lớn 14.6 × 9.9 cm.</p>
+    <div class="grid">
+      <label>File Excel (.xlsx)
+        <input id="fileInput" type="file" accept=".xlsx,.xls" />
+      </label>
+      <label>Sheet dữ liệu
+        <select id="sheetSelect"><option>Chưa có file</option></select>
+      </label>
+      <label>Dòng tiêu đề cột
+        <input id="headerRow" type="number" min="1" value="1" />
+      </label>
+      <label>Logo khác (không bắt buộc)
+        <input id="logoInput" type="file" accept="image/*" />
+      </label>
+    </div>
+
+    <div class="grid" style="margin-top:10px">
+      <label>Cột Code <select id="colCode"></select></label>
+      <label>Cột Tên <select id="colName"></select></label>
+      <label>Cột Năm sinh <select id="colBirth"></select></label>
+      <label>Cột Giới tính <select id="colGender"></select></label>
+      <label>Cột Địa chỉ <select id="colAddress"></select></label>
+      <label>Cột Đơn vị <select id="colUnit"></select></label>
+      <label>Cột Ngày khám <select id="colDate"></select></label>
+      <label>Ngày khám nhập tay
+        <input id="manualDate" placeholder="VD: 29/05/2026" />
+      </label>
+      <label>Lịch chọn ngày khám
+        <input id="manualDatePicker" type="date" />
+      </label>
+    </div>
+
+    <div class="row">
+      <label>Chế độ ngày khám
+        <select id="dateMode">
+          <option value="manual">Dùng ngày nhập tay cho tất cả</option>
+          <option value="column">Lấy theo cột Ngày khám trong Excel</option>
+        </select>
+      </label>
+      <label>Người ký
+        <select id="signMode">
+          <option value="alternate">Luân phiên 2 người ký</option>
+          <option value="director">Tất cả: GIÁM ĐỐC</option>
+          <option value="vice">Tất cả: PHÓ GIÁM ĐỐC</option>
+        </select>
+      </label>
+      <label>Chức danh 1 <input id="role1" value="GIÁM ĐỐC" /></label>
+      <label>Tên ký 1 <input id="signer1" value="BS. CKI. NGUYỄN THỊ HIỀN" /></label>
+      <label>Chức danh 2 <input id="role2" value="PHÓ GIÁM ĐỐC" /></label>
+      <label>Tên ký 2 <input id="signer2" value="BS. CKI. LÊ THỊ THU BA" /></label>
+      <button id="renderBtn">Tạo thẻ</button>
+      <button id="printBtn" class="secondary">In / Lưu PDF</button>
+      <button id="clearBtn" class="ghost">Xóa preview</button>
+    </div>
+
+
+    <details class="data-panel">
+      <summary>Nhập dữ liệu mẫu / Thu nhỏ - Mở rộng</summary>
+      <div class="panel-body">
+        <div class="template-grid">
+          <label>Dòng công ty <input id="tplCompanyLine1" value="CTY TNHH PKĐK NHƠN TÂM" /></label>
+          <label>Dòng phòng khám 1 <input id="tplCompanyLine2" value="PHÒNG KHÁM ĐA KHOA" /></label>
+          <label>Dòng phòng khám 2 <input id="tplCompanyLine3" value="NHƠN TÂM" /></label>
+          <label>Chữ trước mã Code <input id="tplCertPrefix" value="Số:" /></label>
+          <label>Chữ sau mã Code <input id="tplCertSuffix" value="/26/CNSKTX" /></label>
+          <label>Quốc hiệu <input id="tplNation" value="CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM" /></label>
+          <label>Tiêu ngữ <input id="tplNationSub" value="Độc lập – Tự do – Hạnh phúc" /></label>
+          <label>Tiêu đề thẻ <input id="tplTitle" value="CHỨNG NHẬN SỨC KHỎE" /></label>
+          <label>Nhãn Họ tên <input id="tplLabelName" value="Họ tên:" /></label>
+          <label>Nhãn Sinh năm <input id="tplLabelBirth" value="Sinh năm:" /></label>
+          <label>Nhãn Giới tính <input id="tplLabelGender" value="Giới tính:" /></label>
+          <label>Nhãn Hiện cư ngụ <input id="tplLabelAddress" value="Hiện cư ngụ tại:" /></label>
+          <label>Nhãn Đơn vị <input id="tplLabelUnit" value="Đơn vị:" /></label>
+          <label>Nhãn Ngày khám <input id="tplLabelExamDate" value="Kiểm tra sức khỏe ngày:" /></label>
+          <label>Nhãn Kết luận <input id="tplLabelConclusion" value="Kết luận:" /></label>
+          <label>Nội dung Kết luận <input id="tplConclusion" value="ĐỦ SỨC KHỎE" /></label>
+          <label>Chữ mẫu khi trống - Code <input id="tplDefaultCode" value="Code" /></label>
+          <label>Chữ mẫu khi trống - Tên <input id="tplDefaultName" value="Tên" /></label>
+          <label>Chữ mẫu khi trống - Năm sinh <input id="tplDefaultBirth" value="Năm Sinh" /></label>
+          <label>Chữ mẫu khi trống - Giới tính <input id="tplDefaultGender" value="Giới Tính" /></label>
+          <label>Chữ mẫu khi trống - Địa chỉ <input id="tplDefaultAddress" value="ĐC" /></label>
+          <label>Chữ mẫu khi trống - Đơn vị <input id="tplDefaultUnit" value="Đơn vị" /></label>
+        </div>
+        <div class="hint">Các dòng trong khung này có thể sửa tự do. Sau khi sửa, bấm “Tạo thẻ” để cập nhật vào mẫu in.</div>
+      </div>
+    </details>
+    <div class="hint">Tip ngon: khi in nhớ chọn khổ A4, Landscape/Ngang, Scale 100%, tắt Header & Footer của trình duyệt.</div>
+    <div id="status" class="status"></div>
+  </section>
+
+  <main class="preview-wrap" id="preview">
+    <div class="empty">Upload file Excel rồi chọn sheet + map cột là chạy được nha.</div>
+  </main>
+
+<script>
+const defaultLogo = 'data:image/png;base64,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';
+let currentLogo = defaultLogo;
+let workbook = null;
+let currentRows = [];
+let headers = [];
+
+const $ = id => document.getElementById(id);
+const mapIds = ['colCode','colName','colBirth','colGender','colAddress','colUnit','colDate'];
+const aliases = {
+  colCode: ['code','mã','ma','số','so'],
+  colName: ['họ tên','ho ten','tên','ten','name'],
+  colBirth: ['năm sinh','nam sinh','birth','dob','sinh'],
+  colGender: ['giới tính','gioi tinh','gender','sex'],
+  colAddress: ['địa chỉ','dia chi','hiện cư ngụ','hien cu ngu','dc','address'],
+  colUnit: ['đơn vị','don vi','công ty','cong ty','unit'],
+  colDate: ['ngày khám','ngay kham','ngày','ngay','date']
+};
+
+function norm(v) {
+  return String(v || '').trim().toLowerCase()
+    .normalize('NFD').replace(/[̀-ͯ]/g,'')
+    .replace(/đ/g,'d').replace(/\s+/g,' ');
+}
+function escapeHtml(v) {
+  return String(v ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+}
+function val(row, selectId) {
+  const key = $(selectId).value;
+  return key ? (row[key] ?? '') : '';
+}
+function displayVal(row, selectId) {
+  const raw = val(row, selectId);
+  if (raw instanceof Date && !isNaN(raw)) return formatDate(raw);
+  let text = String(raw ?? '').replace(/\s+/g, ' ').trim();
+  // SheetJS đôi khi trả ngày dạng số serial nếu file Excel không đánh format date.
+  if ((selectId === 'colDate' || selectId === 'colBirth') && /^\d+(\.\d+)?$/.test(text)) {
+    const n = Number(text);
+    if (n > 20000 && n < 70000) return excelDateToText(n);
+  }
+  return text;
+}
+function formatDate(d) {
+  const dd = String(d.getDate()).padStart(2,'0');
+  const mm = String(d.getMonth() + 1).padStart(2,'0');
+  const yyyy = d.getFullYear();
+  return `${dd}/${mm}/${yyyy}`;
+}
+function setStatus(text) { $('status').textContent = text || ''; }
+
+function isoToVnDate(iso) {
+  if (!iso) return '';
+  const parts = String(iso).split('-');
+  if (parts.length !== 3) return '';
+  return `${parts[2]}/${parts[1]}/${parts[0]}`;
+}
+function vnDateToIso(text) {
+  const s = String(text || '').trim();
+  let m = s.match(/^(\d{1,2})[\/\-.](\d{1,2})[\/\-.](\d{4})$/);
+  if (m) {
+    const dd = m[1].padStart(2,'0');
+    const mm = m[2].padStart(2,'0');
+    const yyyy = m[3];
+    return `${yyyy}-${mm}-${dd}`;
+  }
+  m = s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/);
+  if (m) {
+    return `${m[1]}-${m[2].padStart(2,'0')}-${m[3].padStart(2,'0')}`;
+  }
+  return '';
+}
+
+
+// Bộ đọc .xlsx nội bộ: giúp app vẫn đọc Excel khi không tải được thư viện CDN.
+// Hỗ trợ tốt file .xlsx tiêu chuẩn: nhiều sheet, shared string, inline string, số, ngày tháng cơ bản.
+async function readXlsxWorkbookInternal(arrayBuffer) {
+  if (!('DecompressionStream' in window)) {
+    throw new Error('Trình duyệt này chưa hỗ trợ đọc Excel offline. Hãy dùng Chrome/Edge bản mới hoặc mở app khi có mạng để tải SheetJS.');
+  }
+  const files = await unzipXlsxFiles(arrayBuffer);
+  const workbookXml = files['xl/workbook.xml'];
+  const relsXml = files['xl/_rels/workbook.xml.rels'];
+  if (!workbookXml || !relsXml) throw new Error('File không đúng định dạng .xlsx. Nếu là .xls cũ, hãy Save As thành .xlsx.' );
+
+  const parser = new DOMParser();
+  const wbDoc = parser.parseFromString(workbookXml, 'application/xml');
+  const relDoc = parser.parseFromString(relsXml, 'application/xml');
+  const relMap = {};
+  [...relDoc.getElementsByTagName('Relationship')].forEach(r => {
+    relMap[r.getAttribute('Id')] = normalizeZipPath('xl/' + r.getAttribute('Target'));
+  });
+
+  const sharedStrings = parseSharedStrings(files['xl/sharedStrings.xml'] || '');
+  const dateStyleSet = parseDateStyles(files['xl/styles.xml'] || '');
+  const sheets = {};
+  const sheetNames = [];
+
+  [...wbDoc.getElementsByTagName('sheet')].forEach(sh => {
+    const name = sh.getAttribute('name') || `Sheet ${sheetNames.length + 1}`;
+    const rid = sh.getAttribute('r:id') || sh.getAttribute('id');
+    const path = relMap[rid];
+    if (!path || !files[path]) return;
+    sheets[name] = { aoa: parseSheetXml(files[path], sharedStrings, dateStyleSet) };
+    sheetNames.push(name);
+  });
+
+  return { __mode:'internal', SheetNames: sheetNames, __sheets: sheets };
+}
+
+function normalizeZipPath(path) {
+  const parts = [];
+  path.replace(/\\/g,'/').split('/').forEach(part => {
+    if (!part || part === '.') return;
+    if (part === '..') parts.pop(); else parts.push(part);
+  });
+  return parts.join('/');
+}
+
+async function unzipXlsxFiles(arrayBuffer) {
+  const view = new DataView(arrayBuffer);
+  const u8 = new Uint8Array(arrayBuffer);
+  const decoder = new TextDecoder('utf-8');
+  const eocdSig = 0x06054b50;
+  let eocd = -1;
+  for (let i = u8.length - 22; i >= Math.max(0, u8.length - 66000); i--) {
+    if (view.getUint32(i, true) === eocdSig) { eocd = i; break; }
+  }
+  if (eocd < 0) throw new Error('Không tìm thấy cấu trúc ZIP trong file .xlsx.');
+  const total = view.getUint16(eocd + 10, true);
+  let cdOffset = view.getUint32(eocd + 16, true);
+  const files = {};
+
+  for (let n = 0; n < total; n++) {
+    if (view.getUint32(cdOffset, true) !== 0x02014b50) break;
+    const method = view.getUint16(cdOffset + 10, true);
+    const compSize = view.getUint32(cdOffset + 20, true);
+    const nameLen = view.getUint16(cdOffset + 28, true);
+    const extraLen = view.getUint16(cdOffset + 30, true);
+    const commentLen = view.getUint16(cdOffset + 32, true);
+    const localOffset = view.getUint32(cdOffset + 42, true);
+    const name = decoder.decode(u8.slice(cdOffset + 46, cdOffset + 46 + nameLen));
+
+    const lfNameLen = view.getUint16(localOffset + 26, true);
+    const lfExtraLen = view.getUint16(localOffset + 28, true);
+    const dataStart = localOffset + 30 + lfNameLen + lfExtraLen;
+    const compressed = u8.slice(dataStart, dataStart + compSize);
+
+    if (!name.endsWith('/')) {
+      let data;
+      if (method === 0) data = compressed;
+      else if (method === 8) data = new Uint8Array(await inflateRaw(compressed));
+      else throw new Error(`File Excel dùng kiểu nén chưa hỗ trợ (${method}).`);
+      if (name.endsWith('.xml') || name.endsWith('.rels')) files[name] = decoder.decode(data);
+    }
+    cdOffset += 46 + nameLen + extraLen + commentLen;
+  }
+  return files;
+}
+
+async function inflateRaw(bytes) {
+  const ds = new DecompressionStream('deflate-raw');
+  const writer = ds.writable.getWriter();
+  await writer.write(bytes);
+  await writer.close();
+  return await new Response(ds.readable).arrayBuffer();
+}
+
+function parseSharedStrings(xml) {
+  if (!xml) return [];
+  const doc = new DOMParser().parseFromString(xml, 'application/xml');
+  return [...doc.getElementsByTagName('si')].map(si => [...si.getElementsByTagName('t')].map(t => t.textContent || '').join(''));
+}
+
+function parseDateStyles(xml) {
+  const dateIds = new Set([14,15,16,17,18,19,20,21,22,27,30,36,45,46,47,50,57]);
+  const result = new Set();
+  if (!xml) return result;
+  const doc = new DOMParser().parseFromString(xml, 'application/xml');
+  const custom = {};
+  [...doc.getElementsByTagName('numFmt')].forEach(n => {
+    const id = Number(n.getAttribute('numFmtId'));
+    const code = String(n.getAttribute('formatCode') || '').toLowerCase();
+    if (/[dmyhs]/.test(code) && !/[#0]/.test(code.replace(/\[[^\]]+\]|"[^"]+"/g,''))) custom[id] = true;
+    if (/[dy]/.test(code)) custom[id] = true;
+  });
+  const cellXfs = doc.getElementsByTagName('cellXfs')[0];
+  if (cellXfs) [...cellXfs.getElementsByTagName('xf')].forEach((xf, idx) => {
+    const id = Number(xf.getAttribute('numFmtId'));
+    if (dateIds.has(id) || custom[id]) result.add(idx);
+  });
+  return result;
+}
+
+function parseSheetXml(xml, sharedStrings, dateStyleSet) {
+  const doc = new DOMParser().parseFromString(xml, 'application/xml');
+  const rows = [];
+  [...doc.getElementsByTagName('row')].forEach(rowEl => {
+    const rowIndex = Math.max(0, Number(rowEl.getAttribute('r') || rows.length + 1) - 1);
+    const row = rows[rowIndex] || [];
+    [...rowEl.getElementsByTagName('c')].forEach(c => {
+      const ref = c.getAttribute('r') || '';
+      const colIndex = colLettersToIndex(ref.replace(/[0-9]/g,''));
+      const type = c.getAttribute('t');
+      const style = Number(c.getAttribute('s') || -1);
+      const vNode = c.getElementsByTagName('v')[0];
+      let value = '';
+      if (type === 'inlineStr') {
+        const isNode = c.getElementsByTagName('is')[0];
+        value = isNode ? [...isNode.getElementsByTagName('t')].map(t => t.textContent || '').join('') : '';
+      } else {
+        const raw = vNode ? (vNode.textContent || '') : '';
+        if (type === 's') value = sharedStrings[Number(raw)] ?? '';
+        else if (type === 'b') value = raw === '1' ? 'TRUE' : 'FALSE';
+        else if (raw !== '' && dateStyleSet.has(style) && !Number.isNaN(Number(raw))) value = excelDateToText(Number(raw));
+        else value = raw;
+      }
+      row[colIndex] = value;
+    });
+    rows[rowIndex] = row;
+  });
+  return rows.map(r => r || []);
+}
+
+function colLettersToIndex(letters) {
+  let n = 0;
+  for (const ch of letters) n = n * 26 + ch.toUpperCase().charCodeAt(0) - 64;
+  return Math.max(0, n - 1);
+}
+
+function excelDateToText(serial) {
+  const utcDays = Math.floor(serial - 25569);
+  const utcValue = utcDays * 86400;
+  const dateInfo = new Date(utcValue * 1000);
+  const dd = String(dateInfo.getUTCDate()).padStart(2,'0');
+  const mm = String(dateInfo.getUTCMonth() + 1).padStart(2,'0');
+  const yyyy = dateInfo.getUTCFullYear();
+  return `${dd}/${mm}/${yyyy}`;
+}
+
+$('fileInput').addEventListener('change', async (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+  try {
+    setStatus('Đang đọc file Excel...');
+    const buf = await file.arrayBuffer();
+
+    // Ưu tiên SheetJS nếu máy có mạng tải được CDN. Nếu không có mạng, dùng bộ đọc .xlsx nội bộ bên dưới.
+    if (window.XLSX && XLSX.read) {
+      workbook = XLSX.read(buf, { type:'array', cellDates:true });
+      workbook.__mode = 'sheetjs';
+    } else {
+      workbook = await readXlsxWorkbookInternal(buf);
+    }
+
+    $('sheetSelect').innerHTML = workbook.SheetNames.map(n => `<option value="${escapeHtml(n)}">${escapeHtml(n)}</option>`).join('');
+    if (!workbook.SheetNames.length) throw new Error('Không tìm thấy sheet trong file Excel.');
+    $('sheetSelect').value = workbook.SheetNames[0];
+    loadSheet();
+  } catch (err) {
+    console.error(err);
+    workbook = null;
+    currentRows = [];
+    headers = [];
+    $('sheetSelect').innerHTML = '<option>Không đọc được file</option>';
+    populateColumnSelects();
+    setStatus('Lỗi đọc Excel: ' + (err?.message || err));
+  }
+});
+
+$('sheetSelect').addEventListener('change', loadSheet);
+$('headerRow').addEventListener('change', loadSheet);
+
+$('manualDatePicker').addEventListener('change', () => {
+  $('manualDate').value = isoToVnDate($('manualDatePicker').value);
+  if (currentRows.length) renderCards();
+});
+$('manualDate').addEventListener('input', () => {
+  const iso = vnDateToIso($('manualDate').value);
+  if (iso) $('manualDatePicker').value = iso;
+});
+$('manualDate').addEventListener('change', () => {
+  const iso = vnDateToIso($('manualDate').value);
+  if (iso) $('manualDatePicker').value = iso;
+  if (currentRows.length) renderCards();
+});
+
+$('logoInput').addEventListener('change', (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = () => { currentLogo = reader.result; renderCards(); };
+  reader.readAsDataURL(file);
+});
+
+function loadSheet() {
+  if (!workbook) return;
+  try {
+    let aoa = [];
+    const sheetName = $('sheetSelect').value;
+    if (workbook.__mode === 'internal') {
+      aoa = workbook.__sheets[sheetName]?.aoa || [];
+    } else {
+      const sheet = workbook.Sheets[sheetName];
+      aoa = XLSX.utils.sheet_to_json(sheet, { header:1, raw:false, defval:'', dateNF:'dd/mm/yyyy' });
+    }
+    const headerIndex = Math.max(0, Number($('headerRow').value || 1) - 1);
+    headers = (aoa[headerIndex] || []).map((h, i) => String(h || `Cột ${i+1}`).trim());
+    currentRows = aoa.slice(headerIndex + 1)
+      .filter(r => r.some(c => String(c ?? '').trim() !== ''))
+      .map(r => Object.fromEntries(headers.map((h,i) => [h, r[i] ?? ''])));
+    populateColumnSelects();
+    setStatus(`Đã đọc ${currentRows.length} dòng từ sheet “${sheetName}”.`);
+  } catch (err) {
+    console.error(err);
+    setStatus('Lỗi đọc sheet: ' + (err?.message || err));
+  }
+}
+
+function populateColumnSelects() {
+  mapIds.forEach(id => {
+    const sel = $(id);
+    sel.innerHTML = '<option value="">-- bỏ trống --</option>' + headers.map(h => `<option value="${escapeHtml(h)}">${escapeHtml(h)}</option>`).join('');
+    const choices = aliases[id].map(norm);
+    const found = headers.find(h => choices.some(a => norm(h).includes(a)));
+    if (found) sel.value = found;
+  });
+}
+
+
+function tpl(id, fallback) {
+  const el = $(id);
+  const text = el ? String(el.value || '').replace(/\s+/g, ' ').trim() : '';
+  return escapeHtml(text || fallback);
+}
+
+function getSigner(index) {
+  const mode = $('signMode').value;
+  const s1 = { role: $('role1').value || 'GIÁM ĐỐC', name: $('signer1').value || 'BS. CKI. NGUYỄN THỊ HIỀN' };
+  const s2 = { role: $('role2').value || 'PHÓ GIÁM ĐỐC', name: $('signer2').value || 'BS. CKI. LÊ THỊ THU BA' };
+  if (mode === 'director') return s1;
+  if (mode === 'vice') return s2;
+  return index % 2 === 0 ? s1 : s2;
+}
+
+function cardHtml(row, i) {
+  const code = escapeHtml(displayVal(row, 'colCode'));
+  const name = escapeHtml(displayVal(row, 'colName'));
+  const birth = escapeHtml(displayVal(row, 'colBirth'));
+  const gender = escapeHtml(displayVal(row, 'colGender'));
+  const address = escapeHtml(displayVal(row, 'colAddress'));
+  const unit = escapeHtml(displayVal(row, 'colUnit'));
+  const examDate = $('dateMode').value === 'column' ? escapeHtml(displayVal(row, 'colDate')) : escapeHtml(String($('manualDate').value || '').replace(/\s+/g, ' ').trim());
+  const signer = getSigner(i);
+  return `<section class="card">
+    <img class="logo" src="${currentLogo}" alt="logo" />
+    <div class="company">${tpl('tplCompanyLine1','CTY TNHH PKĐK NHƠN TÂM')}<br><b>${tpl('tplCompanyLine2','PHÒNG KHÁM ĐA KHOA')}<br>${tpl('tplCompanyLine3','NHƠN TÂM')}</b></div>
+    <div class="cert-no">${tpl('tplCertPrefix','Số:')} <b>${code || tpl('tplDefaultCode','Code')}</b> &nbsp;&nbsp; ${tpl('tplCertSuffix','/26/CNSKTX')}</div>
+    <div class="nation">${tpl('tplNation','CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM')}<span class="sub">${tpl('tplNationSub','Độc lập – Tự do – Hạnh phúc')}</span><span class="ornament"><img src="data:image/png;base64,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" alt="hoa văn" /></span></div>
+    <div class="title">${tpl('tplTitle','CHỨNG NHẬN SỨC KHỎE')}</div>
+    <div class="photo-box"></div>
+    <div class="fields">
+      <div class="line">${tpl('tplLabelName','Họ tên:')} <b>${name || tpl('tplDefaultName','Tên')}</b></div>
+      <div class="line">${tpl('tplLabelBirth','Sinh năm:')} <b>${birth || tpl('tplDefaultBirth','Năm Sinh')}</b></div>
+      <div class="line">${tpl('tplLabelGender','Giới tính:')} &nbsp;<b>${gender || tpl('tplDefaultGender','Giới Tính')}</b></div>
+      <div class="line">${tpl('tplLabelAddress','Hiện cư ngụ tại:')} <b>${address || tpl('tplDefaultAddress','ĐC')}</b></div>
+      <div class="line">${tpl('tplLabelUnit','Đơn vị:')} <b>${unit || tpl('tplDefaultUnit','Đơn vị')}</b></div>
+      <div class="line">${tpl('tplLabelExamDate','Kiểm tra sức khỏe ngày:')} <b>${examDate}</b></div>
+      <div class="line">${tpl('tplLabelConclusion','Kết luận:')} <b>${tpl('tplConclusion','ĐỦ SỨC KHỎE')}</b></div>
+    </div>
+    <div class="signature">${escapeHtml(signer.role)}</div>
+    <div class="doctor">${escapeHtml(signer.name)}</div>
+  </section>`;
+}
+
+function renderCards() {
+  if (!currentRows.length) {
+    $('preview').innerHTML = '<div class="empty">Chưa có dữ liệu để tạo thẻ.</div>';
+    return;
+  }
+  const pages = [];
+  for (let i = 0; i < currentRows.length; i += 4) {
+    const slice = currentRows.slice(i, i + 4);
+    const cards = slice.map((row, offset) => cardHtml(row, i + offset)).join('');
+    pages.push(`<div class="page">${cards}</div>`);
+  }
+  $('preview').innerHTML = pages.join('');
+  requestAnimationFrame(fitAllCards);
+  setStatus(`Đã tạo ${currentRows.length} thẻ / ${pages.length} trang A4.`);
+}
+
+function shrinkToFit(el, minPt = 7.2, step = 0.2) {
+  if (!el) return;
+  const computed = getComputedStyle(el);
+  let px = parseFloat(computed.fontSize);
+  const minPx = minPt * 96 / 72;
+  el.style.fontSize = '';
+  el.style.lineHeight = '';
+  px = parseFloat(getComputedStyle(el).fontSize);
+  let guard = 0;
+  while (guard++ < 30 && px > minPx && (el.scrollHeight > el.clientHeight + 1 || el.scrollWidth > el.clientWidth + 1)) {
+    px -= step * 96 / 72;
+    el.style.fontSize = px + 'px';
+    el.style.lineHeight = '1.12';
+  }
+}
+
+function fitAllCards() {
+  document.querySelectorAll('.fields').forEach(el => { el.style.lineHeight = '1.28'; });
+  document.querySelectorAll('.title').forEach(el => { el.style.lineHeight = '1.28'; });
+  document.querySelectorAll('.nation').forEach(el => shrinkToFit(el, 7.2, 0.2));
+  document.querySelectorAll('.company').forEach(el => shrinkToFit(el, 7.2, 0.2));
+  document.querySelectorAll('.doctor').forEach(el => shrinkToFit(el, 8.2, 0.2));
+}
+
+
+document.addEventListener('input', (e) => {
+  if (e.target && String(e.target.id || '').startsWith('tpl') && currentRows.length) {
+    renderCards();
+  }
+});
+
+window.addEventListener('resize', () => requestAnimationFrame(fitAllCards));
+
+$('renderBtn').addEventListener('click', renderCards);
+$('printBtn').addEventListener('click', () => window.print());
+$('clearBtn').addEventListener('click', () => { $('preview').innerHTML = '<div class="empty">Đã xóa preview.</div>'; });
+</script>
+</body>
+</html>
