@@ -1,0 +1,2457 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+    />
+    <meta name="theme-color" content="#0f766e" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-title" content="Lịch tiêm" />
+    <meta
+      name="apple-mobile-web-app-status-bar-style"
+      content="black-translucent"
+    />
+    <meta name="application-name" content="Lịch tiêm vắc xin" />
+    <title>TÍNH LỊCH TIÊM VẮC XIN PKĐK NHƠN TÂM</title>
+    <style>
+      :root {
+        --primary: #0f766e;
+        --primary2: #14b8a6;
+        --bg: #f4f7f8;
+        --card: #fff;
+        --text: #123;
+        --muted: #64748b;
+        --border: #dbe4e8;
+        --danger: #dc2626;
+        --warn: #f59e0b;
+        --ok: #16a34a;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+        background: var(--bg);
+        color: var(--text);
+        font-size: 15px;
+      }
+
+      .wrap {
+        max-width: 1400px;
+        margin: auto;
+        padding: 12px;
+      }
+
+      .header {
+        background: linear-gradient(135deg, var(--primary), var(--primary2));
+        color: #fff;
+        border-radius: 18px;
+        padding: 18px;
+        margin-bottom: 12px;
+        box-shadow: 0 8px 20px #0001;
+      }
+
+      .header h1 {
+        font-size: 22px;
+        margin: 0 0 6px;
+      }
+
+      .header p {
+        margin: 0;
+        opacity: 0.95;
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(12, 1fr);
+        gap: 12px;
+      }
+
+      .card {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        padding: 14px;
+        box-shadow: 0 4px 16px #0000000d;
+      }
+
+      .col-4 {
+        grid-column: span 4;
+      }
+
+      .col-8 {
+        grid-column: span 8;
+      }
+
+      .col-12 {
+        grid-column: span 12;
+      }
+
+      label {
+        font-weight: 700;
+        display: block;
+        margin: 8px 0 5px;
+      }
+
+      input,
+      select,
+      textarea,
+      button {
+        font-family: inherit;
+        font-size: 15px;
+      }
+
+      input,
+      select,
+      textarea {
+        width: 100%;
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 10px;
+        background: #fff;
+      }
+
+      textarea {
+        min-height: 80px;
+        resize: vertical;
+      }
+
+      .row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+      }
+
+      .btns {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        margin-top: 10px;
+      }
+
+      button {
+        border: 0;
+        border-radius: 10px;
+        padding: 10px 12px;
+        background: var(--primary);
+        color: #fff;
+        font-weight: 700;
+        cursor: pointer;
+      }
+
+      button.secondary {
+        background: #475569;
+      }
+
+      button.light {
+        background: #e2e8f0;
+        color: #111827;
+      }
+
+      button.danger {
+        background: var(--danger);
+      }
+
+      button:hover {
+        filter: brightness(0.95);
+      }
+
+      .hint {
+        font-size: 13px;
+        color: var(--muted);
+        margin-top: 5px;
+      }
+
+      .protocolBox {
+        white-space: pre-wrap;
+        background: #f8fafc;
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 10px;
+        line-height: 1.45;
+        max-height: 260px;
+        overflow: auto;
+      }
+
+      .status {
+        font-weight: 700;
+        padding: 8px 10px;
+        border-radius: 10px;
+        background: #ecfeff;
+        color: #0f766e;
+        margin-top: 8px;
+      }
+
+      .tableWrap {
+        overflow: auto;
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        background: #fff;
+      }
+
+      table {
+        border-collapse: collapse;
+        width: 100%;
+        min-width: 760px;
+      }
+
+      th,
+      td {
+        border-bottom: 1px solid var(--border);
+        padding: 9px;
+        text-align: left;
+        vertical-align: top;
+      }
+
+      th {
+        position: sticky;
+        top: 0;
+        background: #e0f2f1;
+        color: #073b3a;
+        z-index: 2;
+      }
+
+      tr.selected {
+        background: #fff7ed;
+      }
+
+      .doseName {
+        font-weight: 700;
+      }
+
+      .small {
+        font-size: 13px;
+        color: var(--muted);
+      }
+
+      .dueToday {
+        background: #dcfce7;
+      }
+
+      .overdue {
+        background: #fee2e2;
+      }
+
+      .upcoming {
+        background: #fef3c7;
+      }
+
+      .pill {
+        display: inline-block;
+        border-radius: 999px;
+        padding: 3px 8px;
+        background: #eef2ff;
+        color: #3730a3;
+        font-size: 12px;
+        margin: 2px;
+      }
+
+      .footer {
+        font-size: 13px;
+        color: var(--muted);
+        padding: 10px 2px;
+      }
+
+      .hidden {
+        display: none;
+      }
+
+      .dateFlex {
+        display: flex;
+        gap: 6px;
+        align-items: center;
+      }
+
+      .dateFlex input[type="text"] {
+        flex: 1;
+      }
+
+      .dateFlex input[type="date"] {
+        position: absolute;
+        opacity: 0;
+        width: 1px;
+        height: 1px;
+        pointer-events: none;
+      }
+
+      .dueFlex {
+        display: flex;
+        gap: 6px;
+        align-items: center;
+      }
+
+      .dueFlex input[type="text"] {
+        flex: 1;
+        min-width: 120px;
+      }
+
+      .dueFlex input[type="date"] {
+        position: absolute;
+        opacity: 0;
+        width: 1px;
+        height: 1px;
+        pointer-events: none;
+      }
+
+      .dateBtn {
+        width: auto;
+        min-width: 46px;
+        padding: 10px 11px;
+        background: #0f766e;
+      }
+
+      .mobileCards {
+        display: none;
+      }
+
+      .doseCard {
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        padding: 10px;
+        margin-bottom: 10px;
+        background: #fff;
+      }
+
+      .doseCard h3 {
+        margin: 0 0 8px;
+        font-size: 16px;
+        color: var(--primary);
+      }
+
+      @media (max-width: 820px) {
+        .grid {
+          display: block;
+        }
+
+        .card {
+          margin-bottom: 12px;
+        }
+
+        .row {
+          grid-template-columns: 1fr;
+        }
+
+        .header h1 {
+          font-size: 19px;
+        }
+
+        .tableWrap {
+          display: none;
+        }
+
+        .mobileCards {
+          display: block;
+        }
+
+        .wrap {
+          padding: 8px;
+        }
+
+        button {
+          width: 100%;
+        }
+
+        .btns button {
+          width: auto;
+          flex: 1 1 130px;
+        }
+
+        .dateFlex .dateBtn {
+          width: auto;
+          flex: 0 0 46px;
+        }
+      }
+
+      .installBar {
+        position: sticky;
+        top: 0;
+        z-index: 20;
+        background: #ecfeff;
+        border: 1px solid #99f6e4;
+        border-radius: 14px;
+        padding: 10px;
+        margin-bottom: 12px;
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        justify-content: space-between;
+        box-shadow: 0 6px 18px #0001;
+      }
+
+      .installBar b {
+        color: #0f766e;
+      }
+
+      .installBar .installText {
+        font-size: 14px;
+        line-height: 1.35;
+      }
+
+      .installBar button {
+        white-space: nowrap;
+      }
+
+      .appTips {
+        background: #f0fdf4;
+        border: 1px solid #bbf7d0;
+        color: #14532d;
+        border-radius: 14px;
+        padding: 10px;
+        margin-top: 10px;
+        font-size: 14px;
+        line-height: 1.45;
+      }
+
+      .appTips summary {
+        font-weight: 700;
+        cursor: pointer;
+      }
+
+      .safeArea {
+        padding-bottom: env(safe-area-inset-bottom);
+      }
+
+      @media (max-width: 820px) {
+        body {
+          font-size: 16px;
+          background: #eef7f7;
+        }
+
+        .header {
+          border-radius: 0;
+          margin: -8px -8px 10px;
+          padding: 16px 12px calc(14px + env(safe-area-inset-top));
+          position: sticky;
+          top: 0;
+          z-index: 10;
+        }
+
+        .header p {
+          font-size: 13px;
+        }
+
+        .card {
+          border-radius: 14px;
+          padding: 12px;
+        }
+
+        .installBar {
+          position: relative;
+          top: auto;
+          display: block;
+        }
+
+        .installBar button {
+          margin-top: 8px;
+          width: 100%;
+        }
+
+        input,
+        select,
+        textarea {
+          font-size: 16px;
+          min-height: 44px;
+        }
+
+        .dateBtn {
+          min-height: 44px;
+        }
+
+        .protocolBox {
+          max-height: 220px;
+        }
+
+        .doseCard {
+          box-shadow: 0 3px 12px #0000000d;
+        }
+
+        .doseCard h3 {
+          font-size: 17px;
+        }
+
+        .status {
+          font-size: 14px;
+        }
+
+        .footer {
+          padding-bottom: 72px;
+        }
+
+        .mobileBottom {
+          position: fixed;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          z-index: 30;
+          background: #fff;
+          border-top: 1px solid var(--border);
+          padding: 8px calc(8px + env(safe-area-inset-right))
+            calc(8px + env(safe-area-inset-bottom))
+            calc(8px + env(safe-area-inset-left));
+          display: flex;
+          gap: 8px;
+          box-shadow: 0 -8px 24px #0002;
+        }
+
+        .mobileBottom button {
+          flex: 1;
+          padding: 12px 8px;
+        }
+
+        .desktopOnly {
+          display: none !important;
+        }
+      }
+
+      @media (min-width: 821px) {
+        .mobileBottom {
+          display: none !important;
+        }
+      }
+
+      @media print {
+        .noPrint,
+        .btns {
+          display: none !important;
+        }
+
+        .wrap {
+          max-width: none;
+        }
+
+        .card {
+          box-shadow: none;
+        }
+
+        .tableWrap {
+          display: block;
+        }
+
+        body {
+          background: #fff;
+        }
+      }
+
+      /* PWA mobile improvements for most Android/iPhone screens */
+      html {
+        height: 100%;
+        -webkit-text-size-adjust: 100%;
+      }
+
+      body {
+        min-height: 100%;
+        padding: env(safe-area-inset-top) env(safe-area-inset-right)
+          env(safe-area-inset-bottom) env(safe-area-inset-left);
+      }
+
+      input,
+      select,
+      textarea {
+        font-size: 16px;
+      }
+
+      button,
+      input,
+      select,
+      textarea {
+        -webkit-tap-highlight-color: transparent;
+      }
+
+      @media (max-width: 480px) {
+        body {
+          font-size: 16px;
+        }
+
+        .header {
+          border-radius: 0;
+          margin: -8px -8px 10px;
+          padding: 16px 12px;
+        }
+
+        .card {
+          border-radius: 14px;
+          padding: 12px;
+        }
+
+        .btns {
+          position: sticky;
+          bottom: 0;
+          background: #ffffffee;
+          padding: 8px 0;
+          backdrop-filter: blur(6px);
+          z-index: 5;
+        }
+
+        .btns button {
+          min-height: 44px;
+        }
+
+        input,
+        select,
+        textarea {
+          min-height: 44px;
+        }
+      }
+
+      @media (orientation: landscape) and (max-height: 520px) {
+        .protocolBox {
+          max-height: 150px;
+        }
+      }
+    
+img, table, textarea, input, select {
+  max-width: 100%;
+}
+
+.custom-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  max-height: 280px;
+  overflow-y: auto;
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  z-index: 100;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+  margin-top: 4px;
+}
+.custom-dropdown.hidden {
+  display: none;
+}
+.dropdown-item {
+  padding: 12px 14px;
+  cursor: pointer;
+  border-bottom: 1px solid #f1f5f9;
+  font-size: 15px;
+  color: var(--text);
+}
+.dropdown-item:last-child {
+  border-bottom: none;
+}
+.dropdown-item:hover {
+  background: #f8fafc;
+  color: var(--primary);
+  font-weight: 500;
+}
+
+</style>
+
+    <meta name="theme-color" content="#0f766e" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="Lịch tiêm" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <link rel="manifest" href="manifest.webmanifest" />
+    <link rel="apple-touch-icon" href="icons/icon-192.png" />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="192x192"
+      href="icons/icon-192.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="512x512"
+      href="icons/icon-512.png"
+    />
+  </head>
+
+  <body>
+    <div class="wrap safeArea">
+      <div id="installBar" class="installBar noPrint">
+        <div class="installText">
+          <b>Dùng như app trên điện thoại:</b> bấm “Cài app / Thêm vào màn hình
+          chính”, lần sau mở ngay ngoài màn hình điện thoại.
+        </div>
+        <button id="installBtn" type="button" onclick="installAppNow()">
+          📲 Cài app
+        </button>
+      </div>
+      <div class="header">
+        <h1>TÍNH LỊCH TIÊM VẮC XIN PKĐK NHƠN TÂM</h1>
+        <p>
+          Tách riêng từng tên vắc xin theo file Excel. Có thể nhập/sửa ngày tiêm
+          bất kỳ, app tự tính mũi kế tiếp.
+        </p>
+      </div>
+      <div class="grid">
+        <section class="card col-4">
+          <h2 style="margin: 0 0 8px; font-size: 18px">
+            1. Thông tin khách hàng
+          </h2>
+          <div class="row">
+            <div>
+              <label>Ngày sinh</label>
+              <div class="dateFlex">
+                <input
+                  id="dob"
+                  inputmode="numeric"
+                  maxlength="10"
+                  placeholder="dd/mm/yyyy"
+                /><input id="dobPicker" type="date" /><button
+                  type="button"
+                  class="dateBtn"
+                  onclick="openDobPicker()"
+                  title="Chọn ngày theo lịch"
+                >
+                  📅
+                </button>
+              </div>
+            </div>
+            <div>
+              <label>Giới tính</label
+              ><select id="gender">
+                <option></option>
+                <option>Nam</option>
+                <option>Nữ</option>
+              </select>
+            </div>
+          </div>
+          <label>Tên vắc xin</label>
+          <div style="position: relative;">
+            <input
+              id="vaccineInput"
+              placeholder="Gõ tìm nhanh hoặc chọn: Gardasil 9..."
+              autocomplete="off"
+              style="padding-right: 30px;"
+            />
+            <span style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); pointer-events: none; color: var(--muted); font-size: 12px;">▼</span>
+            <div id="vaccineDropdown" class="custom-dropdown hidden"></div>
+          </div>
+          <label>Chọn phác đồ phù hợp</label
+          ><select id="protocolSelect"></select>
+          <div id="ageInfo" class="status">
+            Nhập ngày sinh để app tự chọn phác đồ theo tuổi.
+          </div>
+        </section>
+        <section class="card col-8">
+          <h2 style="margin: 0 0 8px; font-size: 18px">2. Phác đồ đang dùng</h2>
+
+          <div class="row" style="margin-bottom: 10px">
+            <div><label>Tên vắc xin</label><input id="editVaccineName" /></div>
+            <div><label>Đối tượng</label><input id="editObject" /></div>
+          </div>
+          <label>Đường dùng</label>
+          <textarea id="editRoute"></textarea>
+          <label>Lịch tiêm / Phác đồ</label>
+          <textarea id="editSchedule" style="min-height: 160px"></textarea>
+          <div class="btns noPrint">
+            <button type="button" onclick="saveProtocolPermanent()">
+              💾 Lưu phác đồ
+            </button>
+            <button
+              type="button"
+              class="secondary"
+              onclick="createProtocolNew()"
+            >
+              ➕ Tạo phác đồ mới
+            </button>
+            <button
+              type="button"
+              class="danger"
+              onclick="deleteProtocolCurrent()"
+            >
+              🗑️ Xóa phác đồ
+            </button>
+          </div>
+          <div id="protocolDetails" class="protocolBox">
+            Chọn tên vắc xin để xem phác đồ.
+          </div>
+
+          <div class="hint">
+            Lưu ý: App tính lịch theo nội dung phác đồ trong file Excel. Các
+            trường hợp đặc biệt vẫn nên kiểm tra lại chuyên môn trước khi hẹn
+            khách.
+          </div>
+        </section>
+        <section class="card col-12">
+          <h2 style="margin: 0 0 8px; font-size: 18px">
+            3. Ngày tiêm và ngày hẹn
+          </h2>
+          <div class="btns noPrint" style="margin-bottom: 10px">
+            <button onclick="calculateAll()">Tính hẹn</button>
+            <button class="light" onclick="clearDates()">Xóa ngày tiêm</button>
+            <button class="danger" onclick="resetAll()">Reset</button>
+            <button onclick="saveNow()">Lưu</button>
+            <button class="secondary" onclick="window.print()">
+              In / Lưu PDF
+            </button>
+            <label style="margin: 0" class="light"
+              ><input
+                type="file"
+                id="importFile"
+                accept="application/json"
+                style="display: none"
+                onchange="importJson(event)"
+              /><button
+                class="light"
+                onclick="document.getElementById('importFile').click()"
+                type="button"
+              >
+                Khôi phục
+              </button></label
+            >
+          </div>
+          <div class="hint">
+            Nhập ngày tiêm mũi 1, hoặc sửa ngày tiêm ở bất kỳ mũi nào. Các mũi
+            sau sẽ tự tính lại theo phác đồ. Chấp nhận dd/mm/yyyy hoặc
+            yyyy-mm-dd. Khi nhập tay chỉ cần gõ số, app tự thêm dấu / giữa
+            ngày/tháng/năm.
+          </div>
+          <div class="tableWrap">
+            <table id="doseTable">
+              <thead>
+                <tr>
+                  <th style="width: 120px">Mũi</th>
+                  <th>Ngày tiêm thực tế</th>
+                  <th>Ngày hẹn tự tính</th>
+                  <th>Đường dùng</th>
+                  <th>Khoảng cách</th>
+                  <th>Ghi chú</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+          <div id="mobileDoseCards" class="mobileCards"></div>
+
+          <div id="saveStatus" class="hint">
+            Tự lưu sau mỗi thay đổi và mỗi 10 giây.
+          </div>
+        </section>
+      </div>
+      <details class="appTips noPrint">
+        <summary>Hướng dẫn mở nhanh trên điện thoại</summary>
+        <div>
+          Android/Chrome: mở file hoặc đường dẫn app → bấm nút ⋮ →
+          <b>Thêm vào màn hình chính</b>. iPhone/Safari: bấm nút Chia sẻ →
+          <b>Thêm vào MH chính</b>. Dữ liệu vẫn tự lưu trong máy đang dùng.
+        </div>
+      </details>
+      <div class="mobileBottom noPrint">
+        <button onclick="calculateAll()">Tính hẹn</button
+        ><button class="secondary" onclick="saveNow()">Lưu</button
+        ><button
+          class="light"
+          onclick="window.scrollTo({ top: 0, behavior: 'smooth' })"
+        >
+          Lên đầu
+        </button>
+      </div>
+      <div class="footer">
+        Bản HTML/PWA chạy độc lập trên điện thoại Android, iPhone và máy tính.
+        Dữ liệu lưu trong trình duyệt hiện tại.
+      </div>
+      <div
+        class="footer noPrint"
+        style="
+          background: #ecfeff;
+          border: 1px solid #99f6e4;
+          border-radius: 12px;
+          padding: 10px;
+          margin-top: 8px;
+          color: #0f766e;
+        "
+      >
+        <b>Dùng trên điện thoại:</b> Android mở bằng Chrome → ⋮ → Thêm vào màn
+        hình chính. iPhone mở bằng Safari → Chia sẻ → Thêm vào Màn hình chính.
+        Sau đó bấm biểu tượng ngoài màn hình để mở như app.
+      </div>
+    </div>
+    <script>
+      const DATA = {
+        protocols: [
+          {
+            id: "P2_0",
+            vaccine: "Prevenar 13",
+            disease:
+              "PHẾ CẦU 13 ( Phòng viêm tai giữa, viêm phổi, viêm màng não, nhiễm trùng huyết,… của 13 chủng phế cầu khác nhau là 1,3, 4, 5, 6A, 7F, 9V, 14, 18C, 19A, 19F và 23F )",
+            object: "Trẻ được 6 tuần đến dưới 7 tháng tuổi",
+            schedule:
+              "Mũi 1: Tiêm lần đầu\nMũi 2: 1 tháng sau mũi 1\nMũi 3: 1 tháng sau mũi 2\nMũi 4: 8 tháng sau mũi 3",
+            route:
+              "Trẻ nhỏ: Tiêm bắp mặt trước bên đùi Trẻ lớn: Tiêm bắp cơ Delta cánh tay",
+            sourceRow: 2,
+          },
+          {
+            id: "P3_1",
+            vaccine: "Prevenar 13",
+            disease:
+              "1.PHẾ CẦU 13 ( Phòng viêm tai giữa, viêm phổi, viêm màng não, nhiễm trùng huyết,… của 13 chủng phế cầu khác nhau là 1,3, 4, 5, 6A, 7F, 9V, 14, 18C, 19A, 19F và 23F )",
+            object:
+              "Từ 7 tháng đến dưới 12 tháng tuổi (chưa từng được tiêm trước đó)",
+            schedule:
+              "Mũi 1: Tiêm lần đầu\nMũi 2: 1 tháng sau mũi 1\nMũi 3: 6 tháng sau mũi 2",
+            route:
+              "Trẻ nhỏ: Tiêm bắp mặt trước bên đùi Trẻ lớn: Tiêm bắp cơ Delta cánh tay",
+            sourceRow: 3,
+          },
+          {
+            id: "P4_2",
+            vaccine: "Prevenar 13",
+            disease:
+              "2.PHẾ CẦU 13 ( Phòng viêm tai giữa, viêm phổi, viêm màng não, nhiễm trùng huyết,… của 13 chủng phế cầu khác nhau là 1,3, 4, 5, 6A, 7F, 9V, 14, 18C, 19A, 19F và 23F )",
+            object:
+              "Từ 12 tháng đến 24 tháng tuổi (chưa từng được tiêm trước đó)",
+            schedule: "Mũi 1: Tiêm lần đầu\nMũi 2: 2 tháng sau mũi 1",
+            route:
+              "Trẻ nhỏ: Tiêm bắp mặt trước bên đùi Trẻ lớn: Tiêm bắp cơ Delta cánh tay",
+            sourceRow: 4,
+          },
+          {
+            id: "P5_3",
+            vaccine: "Abhayrab",
+            disease: "1.Dại",
+            object: "Người bình thường chưa tiêm",
+            schedule:
+              "Mũi 1: Tiêm lần đầu (ngày 0)\nMũi 2: 3 ngày sau mũi 1 (ngày 3)\nMũi 3: 4 ngày sau mũi 2 (ngày 7)\nMũi 4: 7 ngày sau mũi 3 (ngày 14)",
+            route:
+              "Tiêm bắp (hoặc tiêm dưới da) - TE: Tiêm khu vực 2 bên phía trước ngoài của bắp đùi. - Người lớn: vùng cơ Delta hoặc tiêm dưới da",
+            sourceRow: 5,
+          },
+          {
+            id: "P5_4",
+            vaccine: " Abhayrab",
+            disease: "2.Dại",
+            object: "Suy giảm miễn dịch",
+            schedule:
+              "Mũi 1: Tiêm lần đầu (ngày 0)\nMũi 2: 3 ngày sau mũi 1 (ngày 3)\nMũi 3: 4 ngày sau mũi 2 (ngày 7)\nMũi 4: 7 ngày sau mũi 3 (ngày 14)\nMũi 5: 14 ngày sau mũi 4 (ngày 28)",
+            route:
+              "Tiêm bắp (hoặc tiêm dưới da) - TE: Tiêm khu vực 2 bên phía trước ngoài của bắp đùi. - Người lớn: vùng cơ Delta hoặc tiêm dưới da",
+            sourceRow: 5,
+          },
+          {
+            id: "P5_5",
+            vaccine: "Abhayrab",
+            disease: "3.Dại",
+            object: "Đã tiêm trước đó",
+            schedule: "Mũi 1: Tiêm lần đầu (ngày 0)\nMũi 2: 3 ngày sau mũi 1 (ngày 3)",
+            route:
+              "Tiêm bắp (hoặc tiêm dưới da) - TE: Tiêm khu vực 2 bên phía trước ngoài của bắp đùi. - Người lớn: vùng cơ Delta hoặc tiêm dưới da",
+            sourceRow: 5,
+          },
+          {
+            id: "P5_6",
+            vaccine: "Abhayrab",
+            disease: "4.Dại",
+            object: "Phơi nhiễm độ III (vết cắn chảy máu da/niêm mạc)",
+            schedule:
+              "Mũi 1: Tiêm lần đầu (ngày 0)\nMũi 2: 3 ngày sau mũi 1 (ngày 3)\nMũi 3: 4 ngày sau mũi 2 (ngày 7)\nMũi 4: 7 ngày sau mũi 3 (ngày 14)",
+            route:
+              "Tiêm bắp (hoặc tiêm dưới da) - TE: Tiêm khu vực 2 bên phía trước ngoài của bắp đùi. - Người lớn: vùng cơ Delta hoặc tiêm dưới da",
+            sourceRow: 5,
+          },
+          {
+            id: "P6_7",
+            vaccine: "Indirad",
+            disease: "1.Dại",
+            object: "Người bình thường chưa tiêm",
+            schedule:
+              "Mũi 1: Tiêm lần đầu (ngày 0)\nMũi 2: 3 ngày sau mũi 1 (ngày 3)\nMũi 3: 4 ngày sau mũi 2 (ngày 7)\nMũi 4: 7 ngày sau mũi 3 (ngày 14)",
+            route:
+              "Tiêm bắp (hoặc tiêm dưới da) - TE: Tiêm khu vực 2 bên phía trước ngoài của bắp đùi. - Người lớn: vùng cơ Delta hoặc tiêm dưới da",
+            sourceRow: 6,
+          },
+          {
+            id: "P6_8",
+            vaccine: " Indirad ",
+            disease: "2.Dại",
+            object: "Suy giảm miễn dịch",
+            schedule:
+              "Mũi 1: Tiêm lần đầu (ngày 0)\nMũi 2: 3 ngày sau mũi 1 (ngày 3)\nMũi 3: 4 ngày sau mũi 2 (ngày 7)\nMũi 4: 7 ngày sau mũi 3 (ngày 14)\nMũi 5: 14 ngày sau mũi 4 (ngày 28)",
+            route:
+              "Tiêm bắp (hoặc tiêm dưới da) - TE: Tiêm khu vực 2 bên phía trước ngoài của bắp đùi. - Người lớn: vùng cơ Delta hoặc tiêm dưới da",
+            sourceRow: 6,
+          },
+          {
+            id: "P6_9",
+            vaccine: "Indirad",
+            disease: "3.Dại",
+            object: "Đã tiêm trước đó",
+            schedule: "Mũi 1: Tiêm lần đầu (ngày 0)\nMũi 2: 3 ngày sau mũi 1 (ngày 3)",
+            route:
+              "Tiêm bắp (hoặc tiêm dưới da) - TE: Tiêm khu vực 2 bên phía trước ngoài của bắp đùi. - Người lớn: vùng cơ Delta hoặc tiêm dưới da",
+            sourceRow: 6,
+          },
+          {
+            id: "P6_10",
+            vaccine: "Indirad",
+            disease: "4.Dại",
+            object: "Phơi nhiễm độ III (vết cắn chảy máu da/niêm mạc)",
+            schedule:
+              "Mũi 1: Tiêm lần đầu (ngày 0)\nMũi 2: 3 ngày sau mũi 1 (ngày 3)\nMũi 3: 4 ngày sau mũi 2 (ngày 7)\nMũi 4: 7 ngày sau mũi 3 (ngày 14)",
+            route:
+              "Tiêm bắp (hoặc tiêm dưới da) - TE: Tiêm khu vực 2 bên phía trước ngoài của bắp đùi. - Người lớn: vùng cơ Delta hoặc tiêm dưới da",
+            sourceRow: 6,
+          },
+          {
+            id: "P7_11",
+            vaccine: "Avaxim 160UI/ 1ml",
+            disease: "2.Viêm Gan A",
+            object: "Từ 16 tuổi trở lên",
+            schedule: "Mũi 1: Lần tiêm đầu tiên\nMũi 2: 6 tháng sau mũi 1",
+            route: "Tiêm bắp 0,5 ml cơ delta cánh tay",
+            sourceRow: 7,
+          },
+          {
+            id: "P8_12",
+            vaccine: "Avaxim 80UI/ 0.5ml",
+            disease: "3.Viêm Gan A",
+            object: "Trên 12 tháng tuổi đến 16 tuổi",
+            schedule: "Mũi 1: Lần tiêm đầu tiên\nMũi 2: 6 tháng sau mũi 1",
+            route: "Tiêm bắp 0,5ml cơ delta cánh tay",
+            sourceRow: 8,
+          },
+          {
+            id: "P9_13",
+            vaccine: "Gardasil 4",
+            disease: "Ung thư cổ tử cung",
+            object: "Từ 9 tuổi đến 26 tuổi",
+            schedule:
+              "Mũi 1: Lần tiêm đầu tiên \nMũi 2: 2 tháng sau mũi 1\nMũi 3: 6 tháng sau mũi 1",
+            route:
+              "Tiêm bắp 0,5ml cơ Dellta cánh tay/ vùng trước bên của phía trên đùi",
+            sourceRow: 9,
+          },
+          {
+            id: "P10_14",
+            vaccine: "Gardasil 9",
+            disease:
+              "Ung thư cổ tử cung ((phòng UTCTC, âm hộ, âm đạo của tuýp 16 và 18; và các tổn thương tiền ung thư, loạn sản; mụn cóc sinh dục(sùi mào gà sinh dục của tuýp 6 và 11)… do HPV gây ra))",
+            object: "Từ 9 đến 45 tuổi",
+            schedule:
+              "Mũi 1: Lần tiêm đầu tiên \nMũi 2: 2 tháng sau mũi 1\nMũi 3: 6 tháng sau mũi 1\nNote: Nếu tiêm không đúng phát đồ trên có thể tiêm:\nMũi 1: Lần tiêm đầu tiên \nMũi 2: 2 tháng sau mũi 1\nMũi 3: 3 tháng sau mũi 2",
+            route:
+              "Tiêm bắp 0,5ml cơ Dellta cánh tay/ vùng trước bên của phía trên đùi",
+            sourceRow: 10,
+          },
+          {
+            id: "P11_15",
+            vaccine: "GCFLU Quadrivalent",
+            disease: "1.Cúm mùa",
+            object:
+              "Từ 6 tháng tuổi đến dưới 9 tuổi ( Chưa tiêm phòng cúm trước đó )",
+            schedule: "Mũi 1: Lần tiêm đầu tiên\nMũi 2: 1 tháng sau mũi 1",
+            route: "Tiêm bắp",
+            sourceRow: 11,
+          },
+          {
+            id: "P12_16",
+            vaccine: "GCFLU Quadrivalent",
+            disease: "2.Cúm mùa",
+            object: "Trên 9 tuổi - Người lớn",
+            schedule: "Mũi 1: Lần tiêm đầu tiên\nMũi 2: 12 tháng sau mũi 1",
+            route: "Tiêm bắp",
+            sourceRow: 12,
+          },
+          {
+            id: "P13_17",
+            vaccine: "Influvac Tetra",
+            disease: "1.Cúm mùa",
+            object:
+              "Từ 6 tháng tuổi đến dưới 9 tuổi ( Chưa tiêm phòng cúm trước đó )",
+            schedule: "Mũi 1: Lần tiêm đầu tiên\nMũi 2: 1 tháng sau mũi 1",
+            route: "Tiêm bắp",
+            sourceRow: 13,
+          },
+          {
+            id: "P14_18",
+            vaccine: "Influvac Tetra",
+            disease: "2.Cúm mùa",
+            object: "Trên 9 tuổi - Người lớn",
+            schedule: "Mũi 1: Lần tiêm đầu tiên\nMũi 2: 12 tháng sau mũi 1",
+            route: "Tiêm bắp",
+            sourceRow: 14,
+          },
+          {
+            id: "P15_19",
+            vaccine: "Havax 0.5ml",
+            disease: "1.Viêm Gan A",
+            object: "Từ 2 tuổi đến 18 tuổi",
+            schedule: "Mũi 1: Lần tiêm đầu tiên\nMũi 2: 6 tháng sau mũi 1",
+            route: "Tiêm bắp cơ delta",
+            sourceRow: 15,
+          },
+          {
+            id: "P16_20",
+            vaccine: "Heberbiovac",
+            disease: "Viêm gan B",
+            object: "Trẻ từ 2 tuổi - Người lớn ( Chưa có kháng thể )",
+            schedule:
+              " Mũi 1: Lần tiêm đầu tiên \nMũi 2: 1 tháng sau mũi 1\nMũi 3: 6 tháng sau mũi 1\nMũi 4: 5 năm sau mũi 1 ( Có thể xét nghiệm kiểm tra kháng thể trước khi tiêm nhắc )",
+            route:
+              "Tiêm bắp sâu cơ delta Trẻ nhỏ tiêm ở mặt trước ngoài của đùi",
+            sourceRow: 16,
+          },
+          {
+            id: "P17_21",
+            vaccine: "Gene - Hbvac",
+            disease: "Viêm gan B",
+            object: "Trẻ từ 2 tuổi - Người lớn ( Chưa có kháng thể )",
+            schedule:
+              " Mũi 1: Lần tiêm đầu tiên \nMũi 2: 1 tháng sau mũi 1\nMũi 3: 6 tháng sau mũi 1\nMũi 4: 5 năm sau mũi 1 ( Có thể xét nghiệm kiểm tra kháng thể trước khi tiêm nhắc )",
+            route:
+              "Tiêm bắp sâu cơ delta Trẻ nhỏ tiêm ở mặt trước ngoài của đùi",
+            sourceRow: 17,
+          },
+          {
+            id: "P18_22",
+            vaccine: "Hexaxim",
+            disease:
+              "Bạch hầu, ho gà, uốn ván, bại liệt, Hib và VGB ( 6 trong 1 )",
+            object:
+              "Từ 2 tháng tuổi đến 2 tuổi ( Hoàn thành trước 24 tháng tuổi )",
+            schedule:
+              "Mũi 1: lần tiêm đầu tiên\nMũi 2: 1 tháng sau mũi 1\nMũi 3: 1 tháng sau mũi 2\nMũi 4: 12 tháng sau mũi 3(cách tối thiểu 6 tháng).",
+            route: "Tiêm bắp 0,5ml mặt trước ngoài đùi",
+            sourceRow: 18,
+          },
+          {
+            id: "P19_23",
+            vaccine: "Infanrix Hexa",
+            disease:
+              "Bạch hầu, ho gà, uốn ván, bại liệt, Hib và VGB ( 6 trong 1 )",
+            object:
+              "Từ 2 tháng tuổi đến 2 tuổi ( Hoàn thành trước 18 tháng tuổi )",
+            schedule:
+              "Mũi 1: lần tiêm đầu tiên\nMũi 2: 1 tháng sau mũi 1\nMũi 3: 1 tháng sau mũi 2\nMũi 4: 12 tháng sau mũi 3 (cách tối thiểu 6 tháng).",
+            route: "Tiêm bắp 0,5ml mặt trước ngoài đùi",
+            sourceRow: 19,
+          },
+          {
+            id: "P20_24",
+            vaccine: "Ivacflu - S",
+            disease: "1.Cúm mùa",
+            object: "Trên 6 tháng tuổi đến dưới 9 tuổi",
+            schedule: "Mũi 1: Lần tiêm đầu tiên\nMũi 2: 1 tháng sau mũi 1",
+            route: "Tiêm bắp 0,25ml ( nửa ống )",
+            sourceRow: 20,
+          },
+          {
+            id: "P21_25",
+            vaccine: "Ivacflu - S",
+            disease: "2.Cúm mùa",
+            object: "Trên 9 tuổi - Người lớn",
+            schedule: "Mũi 1: Lần tiêm đầu tiên\nMũi 2: 12 tháng sau mũi 1",
+            route: "Tiêm bắp 0,5ml ( 1 ống )",
+            sourceRow: 21,
+          },
+          {
+            id: "P22_26",
+            vaccine: "Jeev 3mcg/0.5ml",
+            disease: "3.Viêm não Nhật Bản",
+            object: "Trên 1 tuổi đến dưới 3 tuổi",
+            schedule: "Mũi 1: Lần tiêm đầu tiên\nMũi 2: 1 tháng sau mũi 1",
+            route: "Tiêm bắp vào vùng trước đùi",
+            sourceRow: 22,
+          },
+          {
+            id: "P23_27",
+            vaccine: "Jeev 6mcg/0.5ml",
+            disease: "4.Viêm não Nhật Bản",
+            object: "Trên 3 tuổi đến dưới 49 tuổi",
+            schedule: "Mũi 1: Lần tiêm đầu tiên\nMũi 2: 1 tháng sau mũi 1",
+            route: "Tiêm bắp cơ delta cánh tay",
+            sourceRow: 23,
+          },
+          {
+            id: "P24_28",
+            vaccine: "Jevax/0.5ml",
+            disease: "1.Viêm não Nhật Bản",
+            object: "Trên 12 tháng tuổi đến dưới 36 tháng tuổi",
+            schedule:
+              "Mũi 1: Lần tiêm đầu tiên\nMũi 2: 2 tuần sau mũi 1\nMũi 3: 1 năm sau mũi 1\nMũi 4: 3 năm sau mũi 1",
+            route: "Tiêm dưới da 0,5ml",
+            sourceRow: 24,
+          },
+          {
+            id: "P25_29",
+            vaccine: "Jevax/1ml",
+            disease: "2.Viêm não Nhật Bản",
+            object: "Trên 36 tháng tuổi - Người lớn",
+            schedule:
+              "Mũi 1: Lần tiêm đầu tiên\nMũi 2: 2 tuần sau mũi 1\nMũi 3: 1 năm sau mũi 1\nMũi 4: 3 năm sau mũi 1",
+            route: "Tiêm dưới da 1ml",
+            sourceRow: 25,
+          },
+          {
+            id: "P26_30",
+            vaccine: "Menactra",
+            disease:
+              "1.Viêm màng não, nhiễm khuẩn huyết, viêm phổi do não mô cầu khuẩn nhóm A,C,Y,W-135",
+            object: "Từ 9 tháng dưới 24 tháng tuổi",
+            schedule: "Mũi 1: Lần tiêm đầu tiên\nMũi 2: 3 tháng sau mũi 1",
+            route: "Tiêm bắp cơ delta Hoặc mặt trước ngoài của đùi",
+            sourceRow: 26,
+          },
+          {
+            id: "P27_31",
+            vaccine: "Menactra",
+            disease:
+              "2.Viêm màng não, nhiễm khuẩn huyết, viêm phổi do não mô cầu khuẩn nhóm A,C,Y,W-135",
+            object: "Từ 2 tuổi đến 55 tuổi",
+            schedule: "1 liều duy nhất",
+            route: "Tiêm bắp cơ delta",
+            sourceRow: 27,
+          },
+          {
+            id: "P28_32",
+            vaccine: "Pemtaxim",
+            disease:
+              "Bạch hầu, ho gà, uốn ván, bại liệt và Hib ( 5 trong 1 ) ( Tiêm ở trạm Y Tế )",
+            object: "2 tháng tuổi",
+            schedule:
+              "Mũi 1: lần tiêm đầu tiên.\nMũi 2: 1 tháng sau mũi 1.\nMũi 3: 1 tháng sau mũi 2.\nMũi 4: 12 tháng sau mũi 1 ( trên 1 tuổi )",
+            route: "Tiêm bắp 0,5ml mặt trước ngoài đùi",
+            sourceRow: 28,
+          },
+          {
+            id: "P29_33",
+            vaccine: "Qdenga",
+            disease: "Sốt xuất huyết do virus Dengue gây ra",
+            object: "Từ 4 tuổi trở lên",
+            schedule:
+              "Mũi 1: lần tiêm đầu tiên trong độ tuổi \nMũi 2: cách mũi đầu tiên 3 tháng.",
+            route: "Tiêm dưới da, tốt nhất là ở cánh tay trên ở vùng cơ delta.",
+            sourceRow: 29,
+          },
+          {
+            id: "P30_34",
+            vaccine: "Quimi - Hib",
+            disease: "Viêm phổi và viêm màng não mũ do Hib",
+            object: "2 tháng tuổi",
+            schedule:
+              "Mũi 1: Lần tiêm đầu tiên ( từ 2 tháng tuổi )\nMũi 2: 18 tháng sau mũi 1\nNote: nếu ≥ 15 tháng tuổi mà chưa tiêm thì tiêm 1 mũi",
+            route: "Tiêm bắp",
+            sourceRow: 30,
+          },
+          {
+            id: "P31_35",
+            vaccine: "Rotarix",
+            disease: "1.Tiêu chảy",
+            object: "Từ 2 tháng đến 6 tháng tuổi",
+            schedule:
+              "Liều 1: 6 tuần tuổi\nLiều 2: 1 tháng sau liều 1 ( hoàn thành trước 6 tháng tuổi )",
+            route: "Uống 1,5ml",
+            sourceRow: 31,
+          },
+          {
+            id: "P32_36",
+            vaccine: "Rotateq",
+            disease:
+              "2.Tiêu chảy ( Phòng bệnh dạ dày - ruột do rotavirus type huyết thanh G1 và không phải G1( như G2,G3,G4, G9 )",
+            object: "Từ 2 tháng đến 8 tháng tuổi",
+            schedule:
+              "Liều 1: 7,5 tuần tuổi\nLiều 2: 1 tháng sau liều 1\nLiều 3: 1 tháng sau liều 2 ( hoàn thành trước 8 tháng tuổi )",
+            route: "Uống 2ml",
+            sourceRow: 32,
+          },
+          {
+            id: "P33_37",
+            vaccine: "Rotavin",
+            disease: "3.Tiêu chảy",
+            object: "Từ 2 tháng đến 6 tháng tuổi",
+            schedule:
+              "Liều 1: 6 tuần tuổi\nLiều 2: 1 tháng sau liều 1 ( hoàn thành trước 6 tháng tuổi )",
+            route: "Uống 2ml",
+            sourceRow: 33,
+          },
+          {
+            id: "P34_38",
+            vaccine: "SAT",
+            disease:
+              "Huyết thanh kháng uốn ván ( Dự phòng bệnh uốn ván trong trường hợp bị các vết thương, vết cắn súc vật. Điều trị bệnh nhân bị bệnh uốn ván (khi đã có triệu chứng bệnh )",
+            object:
+              "Dự phòng cho trẻ em và người lớn: Vết thương có nguy cơ nhiễm nha bào vi trùng uốn ván Vết thương đã được tiêm phòng trước đó >10 năm Vết thương có chế độ tiêm phòng không đầy đủ/ Không chắc chắn",
+            schedule:
+              "Tiêm càng sớm càng tốt sau bị thương\nTăng gấp đôi với vết thương dễ gây uốn ván/ Chậm trễ sau bị thương/ Người có trọng lượng quá cao\nNote: Điều trị\nUốn ván sơ sinh: 5.000-10.000đvqt\nTrẻ em, người lớn: 50.000-100.000đvqt, tiêm dưới da nửa liều và tiêm bắp nửa liều còn lại",
+            route:
+              "Phương pháp Besredka: Tiêm 0,1ml, chờ 30 phút tiêm 0,25ml, chờ 30 phút nếu không phản ứng thì tiêm hết liều còn lại",
+            sourceRow: 34,
+          },
+          {
+            id: "P35_39",
+            vaccine: "Synfloric",
+            disease:
+              "1.PHẾ CẦU 10 (phòng bệnh do phế cầu như viêm phổi, viêm màng não, viêm tai giữa, nhiễm khuẩn huyết )",
+            object: "Từ 2 tháng đến 6 tháng tuổi",
+            schedule:
+              "Phác đồ 3+1\nMũi 1: lần tiêm đầu tiên (6 tuần tuổi đến 2 tháng tuổi)\nMũi 2: 1 tháng sau mũi 1\nMũi 3: 1 tháng sau mũi 2\nMũi 4: 6 tháng sau mũi 3\nTrẻ sinh non (ít nhất 27 tuần tuổi thai) chủng ngừa khi được 2 tháng tuổi và sử dụng phát đồ 3+1 trên",
+            route:
+              "Trẻ nhỏ: Tiêm bắp mặt trước bên đùi Trẻ lớn: Tiêm bắp cơ Delta cánh tay",
+            sourceRow: 35,
+          },
+          {
+            id: "P36_40",
+            vaccine: "Synfloric",
+            disease:
+              "2.PHẾ CẦU 10 (phòng bệnh do phế cầu như viêm phổi, viêm màng não, viêm tai giữa, nhiễm khuẩn huyết )",
+            object: "7 tháng đến 11 tháng tuổi ( chưa được tiêm trước đó)",
+            schedule:
+              "Mũi 1: Tiêm lần đầu\nMũi 2: 1 tháng sau mũi 1\nMũi 3: 2 tháng sau mũi 2 ( Trên 1 tuổi )",
+            route:
+              "Trẻ nhỏ: Tiêm bắp 0,5ml mặt trước bên đùi Trẻ lớn: Tiêm bắp 0,5ml cơ Delta cánh tay",
+            sourceRow: 36,
+          },
+          {
+            id: "P37_41",
+            vaccine: "Synfloric",
+            disease:
+              "3.PHẾ CẦU 10 (phòng bệnh do phế cầu như viêm phổi, viêm màng não, viêm tai giữa, nhiễm khuẩn huyết )",
+            object: "Trên 12 tháng tuổi đến 5 tuổi ( chưa được tiêm trước đó)",
+            schedule: "Mũi 1: Tiêm lần đầu \nMũi 2: 2 tháng sau mũi 1",
+            route:
+              "Trẻ nhỏ: Tiêm bắp 0,5ml mặt trước bên đùi Trẻ lớn: Tiêm bắp 0,5ml cơ Delta cánh tay",
+            sourceRow: 37,
+          },
+          {
+            id: "P38_42",
+            vaccine:
+              "Vacxin Measles, Mumps and Rubella live, Attenuated-M.M.R 0.5ML",
+            disease: "1.Sởi , Quai bị , Rubella",
+            object: "12 tháng đến 7 tuổi ( Nếu trước đó đã tiêm sởi đơn)",
+            schedule: "Mũi 1: Lần tiêm đầu tiên\nMũi 2: 3 năm sau mũi 1",
+            route: "Tiêm dưới da 0,5ml",
+            sourceRow: 35,
+          },
+          {
+            id: "P39_43",
+            vaccine:
+              "Vacxin Measles, Mumps and Rubella live, Attenuated-M.M.R 0.5ML",
+            disease: "2.Sởi , Quai bị , Rubella",
+            object: "Trên 7 tuổi - Người lớn ( chưa tiêm chủng)",
+            schedule:
+              "Mũi 1: Lần tiêm đầu tiên \nMũi 2: 1 tháng sau mũi 1\nNote: Phụ nữ tiêm trước mang thai ít nhất 3 tháng",
+            route: "Tiêm dưới da 0,5ml",
+            sourceRow: 39,
+          },
+          {
+            id: "P40_44",
+            vaccine: "MMR II",
+            disease: "1.Sởi , Quai bị , Rubella",
+            object: "12 tháng đến 7 tuổi ( Nếu trước đó đã tiêm sởi đơn)",
+            schedule: "Mũi 1: Lần tiêm đầu tiên\nMũi 2: 3 năm sau mũi 1",
+            route: "Tiêm dưới da 0,5ml",
+            sourceRow: 40,
+          },
+          {
+            id: "P41_45",
+            vaccine: "MMR II",
+            disease: "2.Sởi , Quai bị , Rubella",
+            object: "Trên 7 tuổi - Người lớn ( chưa tiêm chủng)",
+            schedule:
+              "Mũi 1: Lần tiêm đầu tiên \nMũi 2: 1 tháng sau mũi 1\nNote: Phụ nữ tiêm trước mang thai ít nhất 3 tháng",
+            route: "Tiêm dưới da 0,5ml",
+            sourceRow: 41,
+          },
+          {
+            id: "P42_46",
+            vaccine: "VA-Mengoc-BC",
+            disease: "Viêm màng não, não mô cầu",
+            object: "Từ 6 tháng tuổi đến 45 tuổi",
+            schedule: "Mũi 1: Lần tiêm đầu tiên\nMũi 2: 2 tháng sau mũi 1",
+            route:
+              "Tiêm bắp sâu cơ delta cánh tay Trẻ nhỏ tiêm ở mặt trước ngoài của đùi",
+            sourceRow: 42,
+          },
+          {
+            id: "P43_47",
+            vaccine: "Varivax",
+            disease: "1.Thủy Đậu",
+            object: "Trên 12 tháng - 12 tuổi",
+            schedule: "Mũi 1: Lần tiêm đầu tiên\nMũi 2: 3 tháng sau mũi 1",
+            route: "Tiêm dưới da 0,5ml",
+            sourceRow: 43,
+          },
+          {
+            id: "P44_48",
+            vaccine: "Varivax",
+            disease: "2.Thủy Đậu",
+            object: "Trên 13 tuổi - Người lớn",
+            schedule: "Mũi 1: Lần tiêm đầu tiên\nMũi 2: 1 tháng sau mũi 1",
+            route: "Tiêm dưới da 0,5ml",
+            sourceRow: 44,
+          },
+          {
+            id: "P45_49",
+            vaccine: "Varicella",
+            disease: "1.Thủy Đậu",
+            object: "Trên 12 tháng - 12 tuổi",
+            schedule: "Mũi 1: Lần tiêm đầu tiên\nMũi 2: 3 tháng sau mũi 1",
+            route: "Tiêm dưới da 0,5ml",
+            sourceRow: 45,
+          },
+          {
+            id: "P46_50",
+            vaccine: "Varicella",
+            disease: "2.Thủy Đậu",
+            object: "Trên 13 tuổi - Người lớn",
+            schedule: "Mũi 1: Lần tiêm đầu tiên\nMũi 2: 1 tháng sau mũi 1",
+            route: "Tiêm dưới da 0,5ml",
+            sourceRow: 46,
+          },
+          {
+            id: "P47_51",
+            vaccine: "VAT",
+            disease: "1.Uốn ván hấp thụ",
+            object:
+              "Tiêm khi vết thương có nguy cơ uốn ván (có thể sử dụng huyết thanh cùng lúc nếu vết thương lớn, hoặc tiền sử tiêm ngừa không rõ ràng, không đầy đủ)",
+            schedule:
+              "Mũi 1: Lần tiêm đầu tiên \nMũi 2: 1 tháng sau mũi 1\nMũi 3: 6 tháng sau mũi 2\nMũi 4: 120 tháng sau mũi 1",
+            route: "Tiêm bắp sâu 0,5ml hoặc dưới da",
+            sourceRow: 47,
+          },
+          {
+            id: "P48_52",
+            vaccine: "VAT",
+            disease: "2.Uốn ván hấp thụ",
+            object:
+              "Phụ nữ mang thai lần đầu ( Tiêm vào 3 tháng giữa thai kỳ )",
+            schedule:
+              "Mũi 1: Tiêm sớm khi phát hiện có thai\nMũi 2: 1 tháng sau mũi 1 ( Trước ngày dự sinh ít nhất 1 tháng )",
+            route: "Tiêm bắp sâu 0,5ml",
+            sourceRow: 48,
+          },
+          {
+            id: "P49_53",
+            vaccine: "VAT",
+            disease: "3.Uốn ván hấp thụ",
+            object:
+              "Phụ nữ mang thai lần 2,3,4 ( Tiêm vào 3 tháng giữa thai kỳ )",
+            schedule: "Tiêm 1 mũi ( Trước dự sinh ít nhất 1 tháng )",
+            route: "Tiêm bắp sâu 0,5ml",
+            sourceRow: 49,
+          },
+          {
+            id: "P50_54",
+            vaccine: "Prevenar 20",
+            disease: "1.Phế cầu 20",
+            object: "Trẻ từ 2 tháng tuổi - dưới 7 tháng tuổi",
+            schedule:
+              " Mũi 1: Lần tiêm đầu tiên \nMũi 2: 1 tháng sau mũi 1\nMũi 3: 1 tháng sau mũi 2\nMũi 4: 8 tháng sau mũi 3 (khi trẻ từ 1 tuổi, mũi 4 có thể cách mũi 3 tối thiểu 2 tháng",
+            route: "Tiêm bắp sâu 0,5ml",
+            sourceRow: 50,
+          },
+          {
+            id: "P51_55",
+            vaccine: "Prevenar 20",
+            disease: "1.Phế cầu 20",
+            object: "Trẻ từ tròn 7 tháng tuổi - dưới 12 tháng tuổi",
+            schedule:
+              " Mũi 1: Lần tiêm đầu tiên \nMũi 2: 1 tháng sau mũi 1\nMũi 3: 6 tháng sau mũi 2 ( khi trẻ từ 1 tuổi, mũi 3 có thể cách mũi 2 tối thiểu 2 tháng",
+            route: "Tiêm bắp sâu 0,5ml",
+            sourceRow: 51,
+          },
+          {
+            id: "P52_56",
+            vaccine: "Prevenar 20",
+            disease: "1.Phế cầu 20",
+            object: "Trẻ từ tròn 12 tháng tuổi - dưới 24 tháng tuổi",
+            schedule: " Mũi 1: Lần tiêm đầu tiên \nMũi 2: 2 tháng sau mũi 1",
+            route: "Tiêm bắp sâu 0, 5ml",
+            sourceRow: 52,
+          },
+          {
+            id: "P53_57",
+            vaccine: "Prevenar 20",
+            disease: "1.Phế cầu 20",
+            object: "Trẻ từ tròn 24 tháng tuổi trở lên và người lớn",
+            schedule: "1 mũi duy nhất",
+            route: "Tiêm bắp sâu 0,5ml",
+            sourceRow: 53,
+          },
+        ],
+        vaccines: [
+          "Abhayrab",
+          "Indirad",
+          "Avaxim 160UI/ 1ml",
+          "Avaxim 80UI/ 0.5ml",
+          "Heberbiovac",
+          "Gene - Hbvac",
+          "Gardasil 4",
+          "Gardasil 9",
+          "GCFLU Quadrivalent",
+          "Influvac Tetra",
+          "Ivacflu - S",
+          "Havax 0.5ml",
+          "Hexaxim",
+          "Infanrix Hexa",
+          "Jeev 3mcg/0.5ml",
+          "Jeev 6mcg/0.5ml",
+          "Jevax/0.5ml",
+          "Jevax/1ml",
+          "Menactra",
+          "MMR II",
+          "Pemtaxim",
+          "Qdenga",
+          "Quimi - Hib",
+          "Rotarix",
+          "Rotateq",
+          "Rotavin",
+          "Synfloric",
+          "Prevenar 13",
+          "Prevenar 20",
+          "VA-Mengoc-BC",
+          "Vacxin Measles, Mumps and Rubella live, Attenuated-M.M.R 0.5ML",
+          "Varicella",
+          "Varivax",
+          "VAT",
+          "SAT",
+        ],
+      };
+      const DOSE_LABELS = [
+        "Mũi 1",
+        "Mũi 2",
+        "Mũi 3",
+        "Mũi 4",
+        "Mũi 5",
+        "Mũi nhắc",
+      ];
+      let currentPlan = null;
+      let state = {
+        dob: "",
+        gender: "",
+        vaccine: "",
+        protocolId: "",
+        dates: Array(6).fill(""),
+        dueOverrides: Array(6).fill(""),
+        notes: Array(6).fill(""),
+      };
+      const $ = (id) => document.getElementById(id);
+      function norm(s) {
+        return (s || "")
+          .toString()
+          .normalize("NFD")
+          .replace(/[\u0300-\u036f]/g, "")
+          .toLowerCase()
+          .replace(/[^a-z0-9]+/g, " ")
+          .trim();
+      }
+      function parseDate(v) {
+        v = (v || "").trim();
+        if (!v) return null;
+        let m = v.match(/^(\d{1,2})[\/\-.](\d{1,2})[\/\-.](\d{4})$/);
+        if (m) {
+          let d = new Date(+m[3], +m[2] - 1, +m[1]);
+          return isValidDate(d) ? d : null;
+        }
+        
+        return null;
+      }
+      function isValidDate(d) {
+        return d instanceof Date && !isNaN(d) && d.getFullYear() > 1900;
+      }
+      function fmtDate(d) {
+        if (!isValidDate(d)) return "";
+        return (
+          String(d.getDate()).padStart(2, "0") +
+          "/" +
+          String(d.getMonth() + 1).padStart(2, "0") +
+          "/" +
+          d.getFullYear()
+        );
+      }
+      function fmtDateIso(d) {
+        if (!isValidDate(d)) return "";
+        return (
+          d.getFullYear() +
+          "-" +
+          String(d.getMonth() + 1).padStart(2, "0") +
+          "-" +
+          String(d.getDate()).padStart(2, "0")
+        );
+      }
+      function maskDateText(v) {
+        let digits = (v || "").replace(/\D/g, "").slice(0, 8);
+        let out = "";
+        if (digits.length <= 2) out = digits;
+        else if (digits.length <= 4)
+          out = digits.slice(0, 2) + "/" + digits.slice(2);
+        else
+          out =
+            digits.slice(0, 2) +
+            "/" +
+            digits.slice(2, 4) +
+            "/" +
+            digits.slice(4);
+        return out;
+      }
+      function openDobPicker() {
+        const p = $("dobPicker");
+        if (!p) return;
+        const d = parseDate($("dob").value);
+        if (d) p.value = fmtDateIso(d);
+        if (typeof p.showPicker === "function") p.showPicker();
+        else { p.focus(); p.click(); }
+      }
+      function setupDobDateField() {
+        const dob = $("dob"),
+          picker = $("dobPicker");
+        if (!dob || !picker) return;
+        dob.addEventListener("input", () => {
+          let pos = dob.selectionStart;
+          dob.value = maskDateText(dob.value);
+          const d = parseDate(dob.value);
+          picker.value = d ? fmtDateIso(d) : "";
+        });
+        dob.addEventListener("blur", () => {
+          dob.value = toInputDate(dob.value);
+          const d = parseDate(dob.value);
+          picker.value = d ? fmtDateIso(d) : "";
+        });
+        picker.addEventListener("change", () => {
+          if (picker.value) {
+            let [y, m, d] = picker.value.split("-").map(Number);
+            dob.value = fmtDate(new Date(y, m - 1, d));
+            onInput();
+          }
+        });
+      }
+      function toInputDate(v) {
+        const d = parseDate(v);
+        return d ? fmtDate(d) : v;
+      }
+      function addInterval(d, it) {
+        let x = new Date(d);
+        if (!it) return null;
+        if (it.unit === "day") x.setDate(x.getDate() + it.value);
+        if (it.unit === "week") x.setDate(x.getDate() + it.value * 7);
+        if (it.unit === "month") x.setMonth(x.getMonth() + it.value);
+        if (it.unit === "year") x.setFullYear(x.getFullYear() + it.value);
+        return x;
+      }
+      function monthsAge(dob, at) {
+        return (
+          (at.getFullYear() - dob.getFullYear()) * 12 +
+          (at.getMonth() - dob.getMonth()) -
+          (at.getDate() < dob.getDate() ? 1 : 0)
+        );
+      }
+      function parseAgeRange(text) {
+        let t = norm(text);
+        let min = null,
+          max = null;
+        const nums = [...t.matchAll(/(\d+(?:[.,]\d+)?)/g)].map((m) =>
+          parseFloat(m[1].replace(",", ".")),
+        );
+        function setMin(v, u) {
+          let m = u.startsWith("nam")
+            ? v * 12
+            : u.startsWith("tuan")
+              ? v / 4.345
+              : v;
+          if (min === null || m < min) min = m;
+        }
+        function setMax(v, u) {
+          let m = u.startsWith("nam")
+            ? v * 12
+            : u.startsWith("tuan")
+              ? v / 4.345
+              : v;
+          if (max === null || m > max) max = m;
+        }
+        for (const m of t.matchAll(
+          /(?:tu|tren|duoc|sau|>=)\s*(\d+(?:[.,]\d+)?)\s*(tuan|thang|nam|tuoi)/g,
+        ))
+          setMin(parseFloat(m[1].replace(",", ".")), m[2]);
+        for (const m of t.matchAll(
+          /(?:duoi|<|den duoi|toi duoi)\s*(\d+(?:[.,]\d+)?)\s*(tuan|thang|nam|tuoi)/g,
+        ))
+          setMax(parseFloat(m[1].replace(",", ".")), m[2]);
+        if (t.includes("nguoi lon")) min = min ?? 192;
+        return { min, max };
+      }
+      function parseSchedule(s) {
+        let raw = s || "";
+        let t = norm(raw);
+        let intervals = Array(6).fill(null),
+          labels = [...DOSE_LABELS];
+        let notes = Array(6).fill("");
+        let dash =
+          raw.match(
+            /ngày\s*0\s*[-–,]\s*3\s*[-–,]\s*7\s*[-–,]\s*14\s*[-–,]\s*28/i,
+          ) ||
+          raw.match(
+            /ngay\s*0\s*[-–,]\s*3\s*[-–,]\s*7\s*[-–,]\s*14\s*[-–,]\s*28/i,
+          );
+        if (dash) {
+          [0, 3, 7, 14, 28].forEach(
+            (v, i) =>
+              (intervals[i] = {
+                from: 0,
+                value: v,
+                unit: "day",
+                desc: "Ngày " + v + " sau mũi 1",
+              }),
+          );
+          return { labels, intervals, notes };
+        }
+        let monthSeq = t.match(
+          /(?:0|o)\s*[,\-]\s*(\d+)\s*[,\-]\s*(\d+)\s*thang/,
+        );
+        if (monthSeq) {
+          intervals[0] = { from: 0, value: 0, unit: "day", desc: "Mũi đầu" };
+          intervals[1] = {
+            from: 0,
+            value: +monthSeq[1],
+            unit: "month",
+            desc: monthSeq[1] + " tháng sau mũi 1",
+          };
+          intervals[2] = {
+            from: 0,
+            value: +monthSeq[2],
+            unit: "month",
+            desc: monthSeq[2] + " tháng sau mũi 1",
+          };
+        }
+        raw.split(/\n|;/).forEach((line) => {
+          let l = norm(line);
+          let idx = null;
+          let mm = l.match(/mui\s*(\d+)/);
+          if (mm) idx = +mm[1] - 1;
+          else if (l.includes("mui nhac")) idx = 5;
+          if (idx === null || idx < 0 || idx > 5) return;
+          notes[idx] = line.trim();
+          if (l.includes("lan dau") || l.includes("ngay 0"))
+            intervals[idx] = intervals[idx] || {
+              from: 0,
+              value: 0,
+              unit: "day",
+              desc: "Mũi đầu",
+            };
+          let r = l.match(/(\d+)\s*(ngay|tuan|thang|nam)\s*sau\s*mui\s*(\d+)/);
+          if (r) {
+            intervals[idx] = {
+              from: +r[3] - 1,
+              value: +r[1],
+              unit:
+                r[2] === "ngay"
+                  ? "day"
+                  : r[2] === "tuan"
+                    ? "week"
+                    : r[2] === "nam"
+                      ? "year"
+                      : "month",
+              desc: r[1] + " " + r[2] + " sau mũi " + r[3],
+            };
+          }
+          let r2 = l.match(
+            /cach\s*mui\s*(\d+)\s*(\d+)\s*(ngay|tuan|thang|nam)/,
+          );
+          if (r2) {
+            intervals[idx] = {
+              from: +r2[1] - 1,
+              value: +r2[2],
+              unit:
+                r2[3] === "ngay"
+                  ? "day"
+                  : r2[3] === "tuan"
+                    ? "week"
+                    : r2[3] === "nam"
+                      ? "year"
+                      : "month",
+              desc: r2[2] + " " + r2[3] + " sau mũi " + r2[1],
+            };
+          }
+        });
+        // fill common sequential gaps if text says each dose one month apart
+        if (
+          t.includes("1 thang sau mui 1") &&
+          !intervals[2] &&
+          t.includes("1 thang sau mui 2")
+        )
+          intervals[2] = {
+            from: 1,
+            value: 1,
+            unit: "month",
+            desc: "1 tháng sau mũi 2",
+          };
+        return { labels, intervals, notes };
+      }
+      function vaccineDisplayName(v) {
+        let p = DATA.protocols.find((x) => x.vaccine === v);
+        if (!p) return v;
+        let disease = (p.disease || "").replace(/^\d+\./, "");
+        disease = disease.split("(")[0].trim();
+        return disease ? disease + " - " + v : v;
+      }
+      
+      function setupVaccineDropdown() {
+        const input = $("vaccineInput");
+        const dropdown = $("vaccineDropdown");
+        if (!input || !dropdown) return;
+
+        function renderList(filter = "") {
+          dropdown.innerHTML = "";
+          const items = [...new Set(DATA.vaccines.map(v => vaccineDisplayName(v)))].sort();
+          const q = norm(filter);
+          
+          const filtered = items.filter(v => norm(v).includes(q));
+          
+          if (filtered.length === 0) {
+            const div = document.createElement("div");
+            div.className = "dropdown-item";
+            div.style.color = "var(--muted)";
+            div.textContent = "Không tìm thấy kết quả";
+            dropdown.appendChild(div);
+            return;
+          }
+
+          filtered.forEach(v => {
+            const div = document.createElement("div");
+            div.className = "dropdown-item";
+            div.textContent = v;
+            // Dùng mousedown để click ăn ngay lập tức trước khi input mất focus
+            div.onmousedown = (e) => {
+              e.preventDefault();
+              input.value = v;
+              dropdown.classList.add("hidden");
+              onInput();
+            };
+            // Thêm click để backup trên mobile
+            div.onclick = (e) => {
+              input.value = v;
+              dropdown.classList.add("hidden");
+              onInput();
+            };
+            dropdown.appendChild(div);
+          });
+        }
+
+        input.addEventListener("focus", () => {
+          input.select();
+          renderList(input.value);
+          dropdown.classList.remove("hidden");
+        });
+
+        input.addEventListener("input", () => {
+          renderList(input.value);
+          dropdown.classList.remove("hidden");
+        });
+
+        // Ẩn dropdown khi click ra ngoài thay vì dùng blur dễ gây lỗi trên mobile
+        document.addEventListener("mousedown", (e) => {
+          if (e.target !== input && !dropdown.contains(e.target)) {
+            dropdown.classList.add("hidden");
+          }
+        });
+        document.addEventListener("touchstart", (e) => {
+          if (e.target !== input && !dropdown.contains(e.target)) {
+            dropdown.classList.add("hidden");
+          }
+        });
+      }
+
+      function init() {
+        setupDobDateField();
+        setupVaccineDropdown();
+        ["dob", "gender", "vaccineInput"].forEach((id) =>
+          $(id).addEventListener("input", onInput),
+        );
+        $("protocolSelect").addEventListener("change", () => {
+          state.protocolId = $("protocolSelect").value;
+          renderProtocol();
+          calculateAll();
+          saveNow(false);
+        });
+        load();
+        renderDoseTable();
+        updateProtocols();
+        calculateAll();
+        setInterval(() => saveNow(false), 30000);
+      }
+      function onInput() {
+        state.dob = $("dob").value;
+        state.gender = $("gender").value;
+        state.vaccine = $("vaccineInput").value;
+        if (document.getElementById("editVaccineName"))
+          document.getElementById("editVaccineName").value = state.vaccine;
+        updateProtocols();
+        calculateAll();
+        saveNow(false);
+      }
+      function matchingProtocols() {
+        let raw = $("vaccineInput").value || "";
+        let q = norm(raw.includes(" - ") ? raw.split(" - ").slice(-1)[0] : raw);
+        if (!q) return [];
+        return DATA.protocols.filter(
+          (p) =>
+            norm(p.vaccine) === q ||
+            norm(p.vaccine).includes(q) ||
+            q.includes(norm(p.vaccine)),
+        );
+      }
+      function updateProtocols() {
+        let list = matchingProtocols();
+        let sel = $("protocolSelect");
+        let old = state.protocolId || sel.value;
+        sel.innerHTML = "";
+        if (!list.length) {
+          sel.innerHTML = '<option value="">Không tìm thấy phác đồ</option>';
+          $("protocolDetails").textContent =
+            "Chưa có phác đồ phù hợp với tên vắc xin đang nhập.";
+          currentPlan = null;
+          return;
+        }
+        let dob = parseDate($("dob").value),
+          at = todayOrFirstDose();
+        let age = dob ? monthsAge(dob, at) : null;
+        let best = list[0];
+        if (age !== null) {
+          let fit = list.find((p) => {
+            let r = parseAgeRange(p.object);
+            return (
+              (r.min === null || age >= r.min) &&
+              (r.max === null || age < r.max)
+            );
+          });
+          if (fit) best = fit;
+        }
+        list.forEach((p) => {
+          let o = document.createElement("option");
+          o.value = p.id;
+          let r = parseAgeRange(p.object);
+          let fit =
+            age === null
+              ? ""
+              : (r.min === null || age >= r.min) &&
+                  (r.max === null || age < r.max)
+                ? " ✓ phù hợp tuổi"
+                : "";
+          o.textContent = `${p.vaccine} — ${p.object || "Không ghi đối tượng"}${fit}`;
+          sel.appendChild(o);
+        });
+        sel.value = list.some((p) => p.id === old) ? old : best.id;
+        state.protocolId = sel.value;
+        renderProtocol();
+      }
+      function todayOrFirstDose() {
+        return parseDate(state.dates[0]) || new Date();
+      }
+      function renderProtocol() {
+        let p = DATA.protocols.find((x) => x.id === $("protocolSelect").value);
+        currentPlan = p;
+        if (!p) return;
+        let dob = parseDate($("dob").value);
+        let ageText = "";
+        if (dob) {
+          let m = monthsAge(dob, todayOrFirstDose());
+          ageText = `Tuổi tại mũi 1/hiện tại: ${m} tháng (~${(m / 12).toFixed(1)} tuổi).`;
+        }
+        $("ageInfo").textContent =
+          ageText || "Nhập ngày sinh để app tự chọn phác đồ theo tuổi.";
+        if (document.getElementById("editVaccineName")) {
+          document.getElementById("editVaccineName").value =
+            state.vaccine || p.vaccine || "";
+        }
+        $("protocolDetails").textContent =
+          `Tên vắc xin: ${state.vaccine || p.vaccine}\nPhòng bệnh: ${p.disease}\nĐối tượng: ${p.object}\nĐường dùng: ${p.route}\n\nLịch tiêm:\n${p.schedule}`;
+      }
+      function clearFollowingDueOverrides(i) {
+        state.dueOverrides = Array.isArray(state.dueOverrides)
+          ? state.dueOverrides
+          : Array(6).fill("");
+        for (let j = i + 1; j < state.dueOverrides.length; j++)
+          state.dueOverrides[j] = "";
+      }
+      function actualDateControlHtml(i) {
+        return `<div class="dateFlex"><input data-i="${i}" class="dateInput" inputmode="numeric" maxlength="10" placeholder="dd/mm/yyyy"><input data-date-picker="${i}" type="date"><button type="button" class="dateBtn" onclick="openActualPicker(${i})" title="Chọn ngày tiêm thực tế theo lịch">📅</button></div>`;
+      }
+      function renderDoseTable() {
+        let tb = document.querySelector("#doseTable tbody");
+        tb.innerHTML = "";
+        let cards = $("mobileDoseCards");
+        cards.innerHTML = "";
+        DOSE_LABELS.forEach((lab, i) => {
+          let dueHtml =
+            i >= 1
+              ? `<div class="dueFlex"><input data-due="${i}" class="dueInput" inputmode="numeric" maxlength="10" placeholder="dd/mm/yyyy"><input data-due-picker="${i}" type="date"><button type="button" class="dateBtn" onclick="openDuePicker(${i})" title="Chọn ngày hẹn theo lịch">📅</button></div>`
+              : `<span id="dueText${i}"></span>`;
+          let tr = document.createElement("tr");
+          tr.innerHTML = `<td class="doseName">${lab}</td><td>${actualDateControlHtml(i)}</td><td id="due${i}">${dueHtml}</td><td id="route${i}" class="small"></td><td id="gap${i}" class="small"></td><td><input data-note="${i}" placeholder="Ghi chú"></td>`;
+          tb.appendChild(tr);
+          let mobileDueHtml =
+            i >= 1
+              ? `<div class="dueFlex"><input data-due="${i}" class="dueInput" inputmode="numeric" maxlength="10" placeholder="dd/mm/yyyy"><input data-due-picker="${i}" type="date"><button type="button" class="dateBtn" onclick="openDuePicker(${i})" title="Chọn ngày hẹn theo lịch">📅</button></div>`
+              : `<div id="mdueText${i}" class="status"></div>`;
+          let c = document.createElement("div");
+          c.className = "doseCard";
+          c.innerHTML = `<h3>${lab}</h3><label>Ngày tiêm thực tế</label>${actualDateControlHtml(i)}<label>Ngày hẹn tự tính</label>${mobileDueHtml}<label>Đường dùng</label><div id="mroute${i}" class="small"></div><div id="mgap${i}" class="small"></div><label>Ghi chú</label><input data-note="${i}" placeholder="Ghi chú">`;
+          cards.appendChild(c);
+        });
+        document.querySelectorAll(".dateInput").forEach((el) =>
+          el.addEventListener("input", (e) => {
+            let i = +e.target.dataset.i;
+            let v = maskDateText(e.target.value);
+            e.target.value = v;
+            state.dates[i] = v;
+            clearFollowingDueOverrides(i);
+            syncInputs();
+            calculateAll();
+            saveNow(false);
+          }),
+        );
+        document.querySelectorAll("[data-date-picker]").forEach((el) =>
+          el.addEventListener("change", (e) => {
+            let i = +e.target.dataset.datePicker;
+            if (e.target.value) {
+              let [y, m, d] = e.target.value.split("-").map(Number);
+              state.dates[i] = fmtDate(new Date(y, m - 1, d));
+              clearFollowingDueOverrides(i);
+              syncInputs();
+              calculateAll();
+              saveNow(false);
+            }
+          }),
+        );
+        document.querySelectorAll(".dueInput").forEach((el) =>
+          el.addEventListener("input", (e) => {
+            let i = +e.target.dataset.due;
+            let v = maskDateText(e.target.value);
+            e.target.value = v;
+            state.dueOverrides[i] = v;
+            syncInputs();
+            calculateAll();
+            saveNow(false);
+          }),
+        );
+        document.querySelectorAll("[data-due-picker]").forEach((el) =>
+          el.addEventListener("change", (e) => {
+            let i = +e.target.dataset.duePicker;
+            if (e.target.value) {
+              let [y, m, d] = e.target.value.split("-").map(Number);
+              state.dueOverrides[i] = fmtDate(new Date(y, m - 1, d));
+              syncInputs();
+              calculateAll();
+              saveNow(false);
+            }
+          }),
+        );
+        document.querySelectorAll("[data-note]").forEach((el) =>
+          el.addEventListener("input", (e) => {
+            state.notes[+e.target.dataset.note] = e.target.value;
+            syncInputs();
+            saveNow(false);
+          }),
+        );
+        syncInputs();
+      }
+      function openActualPicker(i) {
+        let p = document.querySelector(`[data-date-picker="${i}"]`);
+        if (!p) return;
+        const d = parseDate((state.dates || [])[i] || "");
+        if (d) p.value = fmtDateIso(d);
+        if (typeof p.showPicker === "function") p.showPicker();
+        else { p.focus(); p.click(); }
+      }
+      function openDuePicker(i) {
+        let p = document.querySelector(`[data-due-picker="${i}"]`);
+        if (!p) return;
+        const d = parseDate((state.dueOverrides || [])[i] || "");
+        if (d) p.value = fmtDateIso(d);
+        if (typeof p.showPicker === "function") p.showPicker();
+        else { p.focus(); p.click(); }
+      }
+      function syncInputs() {
+        document.querySelectorAll(".dateInput").forEach((el) => {
+          let i = +el.dataset.i;
+          if (document.activeElement !== el) el.value = state.dates[i] || "";
+          let p = document.querySelector(`[data-date-picker="${i}"]`);
+          let d = parseDate((state.dates || [])[i] || "");
+          if (p) p.value = d ? fmtDateIso(d) : "";
+        });
+        document.querySelectorAll(".dueInput").forEach((el) => {
+          let i = +el.dataset.due;
+          if (document.activeElement !== el)
+            el.value = (state.dueOverrides || [])[i] || "";
+          let p = document.querySelector(`[data-due-picker="${i}"]`);
+          let d = parseDate((state.dueOverrides || [])[i] || "");
+          if (p) p.value = d ? fmtDateIso(d) : "";
+        });
+        document.querySelectorAll("[data-note]").forEach((el) => {
+          let i = +el.dataset.note;
+          if (document.activeElement !== el) el.value = state.notes[i] || "";
+        });
+      }
+      function intervalUnitText(u) {
+        return u === "day"
+          ? "ngày"
+          : u === "week"
+            ? "tuần"
+            : u === "year"
+              ? "năm"
+              : "tháng";
+      }
+      function sequentialInterval(plan, i) {
+        const it = plan.intervals[i];
+        if (!it) return null;
+        // Nếu phác đồ đã ghi rõ mũi hiện tại cách mũi liền trước, dùng đúng khoảng cách đó.
+        if (it.from === i - 1)
+          return {
+            ...it,
+            desc:
+              it.desc ||
+              `${it.value} ${intervalUnitText(it.unit)} sau mũi ${i}`,
+          };
+        const prev = plan.intervals[i - 1];
+        // Nếu nhiều mũi đều ghi theo mốc mũi 1, suy ra khoảng cách giữa 2 mũi liền kề
+        // để khi người dùng sửa ngày tiêm mũi 2 trở đi, mũi sau tự chạy theo ngày mới.
+        if (
+          prev &&
+          prev.from === it.from &&
+          prev.unit === it.unit &&
+          typeof prev.value === "number" &&
+          typeof it.value === "number" &&
+          it.value >= prev.value
+        ) {
+          const v = it.value - prev.value;
+          return {
+            from: i - 1,
+            value: v,
+            unit: it.unit,
+            desc: `${v} ${intervalUnitText(it.unit)} sau mũi ${i}`,
+          };
+        }
+        return it;
+      }
+      function calculateAll() {
+        if (!currentPlan) renderProtocol();
+        let p = currentPlan;
+        if (!p) return;
+        state.dueOverrides = Array.isArray(state.dueOverrides)
+          ? state.dueOverrides
+          : Array(6).fill("");
+        let plan = parseSchedule(p.schedule);
+        let computed = Array(6).fill(null);
+        for (let i = 0; i < 6; i++) {
+          let actual = parseDate(state.dates[i]);
+          let override = parseDate(state.dueOverrides[i]);
+          if (actual) computed[i] = actual;
+          else if (i >= 1 && override) computed[i] = override;
+          else {
+            let it = plan.intervals[i];
+            if (i === 0) computed[i] = null;
+            else {
+              let prevActual =
+                parseDate(state.dates[i - 1]) ||
+                parseDate(state.dueOverrides[i - 1]);
+              let seq = prevActual ? sequentialInterval(plan, i) : null;
+              if (seq && computed[i - 1])
+                computed[i] = addInterval(computed[i - 1], seq);
+              else if (it && computed[it.from])
+                computed[i] = addInterval(computed[it.from], it);
+            }
+          }
+        }
+        let today = new Date();
+        today.setHours(0, 0, 0, 0);
+        for (let i = 0; i < 6; i++) {
+          let actual = parseDate(state.dates[i]);
+          let override = parseDate(state.dueOverrides[i]);
+          let due = computed[i] && !actual ? computed[i] : null;
+          let dueText = due ? fmtDate(due) : "";
+          let prevActual =
+            parseDate(state.dates[i - 1]) ||
+            parseDate(state.dueOverrides[i - 1]);
+          let seq = prevActual ? sequentialInterval(plan, i) : null;
+          let gap =
+            (seq && seq.desc) ||
+            (plan.intervals[i] && plan.intervals[i].desc) ||
+            plan.notes[i] ||
+            "";
+          if (i >= 1 && dueText && !state.dueOverrides[i])
+            state.dueOverrides[i] = dueText;
+          ["dueText" + i, "mdueText" + i].forEach((id) => {
+            let el = $(id);
+            if (!el) return;
+            el.textContent = actual
+              ? "Đã tiêm: " + toInputDate(state.dates[i])
+              : dueText || "";
+            el.className = "status";
+            if (due) {
+              let diff = Math.round((due - today) / 86400000);
+              if (diff < 0) el.className = "status overdue";
+              else if (diff === 0) el.className = "status dueToday";
+              else if (diff <= 7) el.className = "status upcoming";
+            }
+          });
+          ["route" + i, "mroute" + i].forEach((id) => {
+            let el = $(id);
+            if (el) el.textContent = p.route || "";
+          });
+          ["gap" + i, "mgap" + i].forEach((id) => {
+            let el = $(id);
+            if (el) el.textContent = gap;
+          });
+        }
+        syncInputs();
+      }
+      function clearDates() {
+        state.dates = Array(6).fill("");
+        state.dueOverrides = Array(6).fill("");
+        renderDoseTable();
+        calculateAll();
+        saveNow();
+      }
+      function resetAll() {
+        if (!confirm("Xóa toàn bộ dữ liệu đang nhập?")) return;
+        localStorage.removeItem("vac_app_v3");
+        state = {
+          dob: "",
+          gender: "",
+          vaccine: "",
+          protocolId: "",
+          dates: Array(6).fill(""),
+          dueOverrides: Array(6).fill(""),
+          notes: Array(6).fill(""),
+        };
+        loadToForm();
+        updateProtocols();
+        renderDoseTable();
+        calculateAll();
+      }
+      function loadToForm() {
+        $("dob").value = toInputDate(state.dob || "");
+        let d = parseDate($("dob").value);
+        if ($("dobPicker")) $("dobPicker").value = d ? fmtDateIso(d) : "";
+        $("gender").value = state.gender || "";
+        $("vaccineInput").value = state.vaccine || "";
+      }
+      function saveNow(show = true) {
+        state.dob = $("dob").value;
+        state.gender = $("gender").value;
+        state.vaccine = $("vaccineInput").value;
+        state.protocolId = $("protocolSelect").value || state.protocolId;
+        localStorage.setItem("vac_app_v3", JSON.stringify(state));
+        if (show)
+          $("saveStatus").textContent =
+            "Đã lưu lúc " + new Date().toLocaleTimeString("vi-VN");
+      }
+      function load() {
+        try {
+          let s = localStorage.getItem("vac_app_v3");
+          if (s) state = { ...state, ...JSON.parse(s) };
+        } catch (e) {}
+        state.dueOverrides = Array.isArray(state.dueOverrides)
+          ? state.dueOverrides
+          : Array(6).fill("");
+        loadToForm();
+      }
+      function exportJson() {
+        saveNow(false);
+        let blob = new Blob([JSON.stringify(state, null, 2)], {
+          type: "application/json",
+        });
+        let a = document.createElement("a");
+        a.href = URL.createObjectURL(blob);
+        a.download = "sao-luu-lich-tiem.json";
+        a.click();
+      }
+      function importJson(e) {
+        let f = e.target.files[0];
+        if (!f) return;
+        let r = new FileReader();
+        r.onload = () => {
+          try {
+            state = { ...state, ...JSON.parse(r.result) };
+            loadToForm();
+            updateProtocols();
+            renderDoseTable();
+            calculateAll();
+            saveNow();
+          } catch (err) {
+            alert("File khôi phục không hợp lệ");
+          }
+        };
+        r.readAsText(f);
+      }
+
+      function saveProtocolPermanent() {
+        if (!currentPlan) return alert("Chưa chọn phác đồ");
+        currentPlan.vaccine =
+          document.getElementById("editVaccineName").value ||
+          currentPlan.vaccine;
+        currentPlan.object = document.getElementById("editObject").value || "";
+        currentPlan.route = document.getElementById("editRoute").value || "";
+        currentPlan.schedule =
+          document.getElementById("editSchedule").value || "";
+        localStorage.setItem(
+          "vac_protocols_custom",
+          JSON.stringify(DATA.protocols),
+        );
+        updateProtocols();
+        renderProtocol();
+        calculateAll();
+        alert("Đã lưu phác đồ vĩnh viễn trên trình duyệt");
+      }
+      function createProtocolNew() {
+        let name = prompt("Tên vắc xin mới:");
+        if (!name) return;
+        let p = {
+          id: "CUSTOM_" + Date.now(),
+          vaccine: name,
+          disease: "",
+          object: "",
+          schedule: "Mũi 1: Lần tiêm đầu tiên",
+          route: "",
+          sourceRow: 99999,
+        };
+        DATA.protocols.push(p);
+        if (!DATA.vaccines.includes(name)) DATA.vaccines.push(name);
+        localStorage.setItem(
+          "vac_protocols_custom",
+          JSON.stringify(DATA.protocols),
+        );
+        document.getElementById("vaccineInput").value = name;
+        updateProtocols();
+      }
+      function deleteProtocolCurrent() {
+        if (!currentPlan) return;
+        if (!confirm("Xóa phác đồ hiện tại?")) return;
+        DATA.protocols = DATA.protocols.filter((x) => x.id !== currentPlan.id);
+        localStorage.setItem(
+          "vac_protocols_custom",
+          JSON.stringify(DATA.protocols),
+        );
+        updateProtocols();
+      }
+      const oldRenderProtocol = renderProtocol;
+      renderProtocol = function () {
+        oldRenderProtocol();
+        if (currentPlan) {
+          document.getElementById("editVaccineName").value =
+            currentPlan.vaccine || "";
+          document.getElementById("editObject").value =
+            currentPlan.object || "";
+          document.getElementById("editRoute").value = currentPlan.route || "";
+          document.getElementById("editSchedule").value =
+            currentPlan.schedule || "";
+        }
+      };
+      window.addEventListener("load", () => {
+        try {
+          const c = localStorage.getItem("vac_protocols_custom");
+          if (c) {
+            DATA.protocols = JSON.parse(c);
+            DATA.vaccines = [...new Set(DATA.protocols.map((x) => x.vaccine))];
+          }
+        } catch (e) {}
+      });
+
+      let deferredInstallPrompt = null;
+      function makeIcon(size) {
+        const c = document.createElement("canvas");
+        c.width = c.height = size;
+        const ctx = c.getContext("2d");
+        const g = ctx.createLinearGradient(0, 0, size, size);
+        g.addColorStop(0, "#0f766e");
+        g.addColorStop(1, "#14b8a6");
+        ctx.fillStyle = g;
+        ctx.fillRect(0, 0, size, size);
+        ctx.fillStyle = "white";
+        ctx.font = "bold " + Math.round(size * 0.16) + "px Arial";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText("LỊCH", size / 2, size * 0.42);
+        ctx.fillText("TIÊM", size / 2, size * 0.6);
+        return c.toDataURL("image/png");
+      }
+      (function setupStandaloneApp() {
+        try {
+          const manifest = {
+            name: "TÍNH LỊCH TIÊM VẮC XIN PKĐK NHƠN TÂM",
+            short_name: "Lịch tiêm",
+            start_url: ".",
+            scope: ".",
+            display: "standalone",
+            background_color: "#f4f7f8",
+            theme_color: "#0f766e",
+            orientation: "portrait",
+            icons: [
+              { src: makeIcon(192), sizes: "192x192", type: "image/png" },
+              { src: makeIcon(512), sizes: "512x512", type: "image/png" },
+            ],
+          };
+          const blob = new Blob([JSON.stringify(manifest)], {
+            type: "application/manifest+json",
+          });
+          const url = URL.createObjectURL(blob);
+          const link = document.createElement("link");
+          link.rel = "manifest";
+          link.href = url;
+          document.head.appendChild(link);
+          const apple = document.createElement("link");
+          apple.rel = "apple-touch-icon";
+          apple.href = makeIcon(180);
+          document.head.appendChild(apple);
+        } catch (e) {}
+        window.addEventListener("beforeinstallprompt", (e) => {
+          e.preventDefault();
+          deferredInstallPrompt = e;
+          const b = $("installBtn");
+          if (b) b.textContent = "📲 Cài app";
+        });
+        window.addEventListener("appinstalled", () => {
+          const bar = $("installBar");
+          if (bar) bar.style.display = "none";
+        });
+        setTimeout(() => {
+          if (
+            window.matchMedia("(display-mode: standalone)").matches ||
+            window.navigator.standalone
+          ) {
+            const bar = $("installBar");
+            if (bar) bar.style.display = "none";
+          }
+        }, 500);
+      })();
+      async function installAppNow() {
+        if (deferredInstallPrompt) {
+          deferredInstallPrompt.prompt();
+          await deferredInstallPrompt.userChoice;
+          deferredInstallPrompt = null;
+          return;
+        }
+        alert(
+          "Nếu máy chưa hiện nút cài: Android/Chrome bấm dấu ⋮ rồi chọn “Thêm vào màn hình chính”. iPhone/Safari bấm Chia sẻ rồi chọn “Thêm vào MH chính”.",
+        );
+      }
+
+      init();
+    </script>
+
+    <script>
+      if ("serviceWorker" in navigator) {
+        window.addEventListener("load", function () {
+          navigator.serviceWorker
+            .register("./service-worker.js")
+            .catch(function (err) {
+              console.log("SW registration failed", err);
+            });
+        });
+      }
+    </script>
+  
+<script>
+(function(){
+  try{
+    const testKey='__storage_test__';
+    localStorage.setItem(testKey,'1');
+    localStorage.removeItem(testKey);
+  }catch(e){
+    alert('Thiết bị hoặc trình duyệt đang chặn lưu dữ liệu. Hãy tắt chế độ riêng tư hoặc dùng trình duyệt khác.');
+  }
+})();
+</script>
+
+</body>
+</html>
