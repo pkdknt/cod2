@@ -1,0 +1,250 @@
+<script>
+const DBKEY='kho_ultimate';
+const db=()=>JSON.parse(localStorage.getItem(DBKEY)||'{"items":[],"tx":[]}');
+const save=d=>localStorage.setItem(DBKEY,JSON.stringify(d));
+
+function fillDVT(){
+ let d=db();
+ let item=d.items.find(x=>x.ten===tenhang.value);
+ if(item){ document.getElementById('dvt_tx').value=item.dvt||''; }
+}
+
+function refreshItems(){
+ let d=db();
+ items.innerHTML=d.items.map(x=>`<option value="${typeof x==='string'?x:x.ten}">`).join('');
+ let el=document.getElementById('itemList');
+ if(el) el.innerHTML='<b>Danh mục:</b> '+d.items.map(x=> (typeof x==='string'?x:(x.ten+' ('+x.dvt+')'))).join(' | ');
+}
+
+function deleteItem(){
+ let name=prompt('Nhập chính xác tên hàng cần xóa khỏi danh mục');
+ if(!name) return;
+ let d=db();
+ d.items=d.items.filter(x=>{
+   if(typeof x==='string') return x!==name;
+   return x.ten!==name;
+ });
+ save(d);
+ refreshItems();
+ alert('Đã xóa khỏi danh mục: '+name);
+}
+
+function addItem(){
+ let d=db();
+ if(itemName.value){
+   d.items.push({ten:itemName.value,dvt:(itemDvt.value||'')});
+   save(d);
+   refreshItems();
+   itemName.value='';
+   itemDvt.value='';
+ }
+}
+
+function saveTx(){
+ let d=db();
+ d.tx.push({ngay:ngay.value,ten:tenhang.value,dvt:document.getElementById('dvt_tx').value,loai:loai.value,sl:+sl.value,dg:+dg.value});
+ save(d); alert('Đã lưu');
+}
+
+function report(){
+ let d=db(),m=+thang.value,y=+nam.value;
+ let days=new Date(y,m,0).getDate();
+ let itemsU=[...new Set(d.tx.map(x=>x.ten))];
+ let h='<table><tr><th>Tên hàng</th><th>ĐVT</th>';
+ for(let i=1;i<=days;i++) h+='<th>'+i+'</th>';
+ h+='<th>Tồn đầu</th><th>Ngày nhập</th><th>SL nhập</th><th>ĐG nhập</th><th>TT nhập</th><th>SL xuất</th><th>ĐG xuất</th><th>TT xuất</th><th>Tồn cuối</th><th class="noprint">Xóa</th></tr>';
+ itemsU.forEach(it=>{
+  let month=d.tx.filter(t=>t.ten===it && new Date(t.ngay).getMonth()+1===m && new Date(t.ngay).getFullYear()===y);
+  let tondau=month.filter(x=>x.loai==='Tồn đầu');
+  let nh=month.filter(x=>x.loai==='Nhập');
+  let xu=month.filter(x=>x.loai==='Xuất');
+  let td=tondau.reduce((a,b)=>a+b.sl,0);
+  let sln=nh.reduce((a,b)=>a+b.sl,0), slx=xu.reduce((a,b)=>a+b.sl,0);
+  let dgn=nh.length?nh.at(-1).dg:0, dgx=xu.length?xu.at(-1).dg:dgn;
+  let dvt=(month.find(x=>x.dvt)||{}).dvt||''; h+='<tr><td>'+it+'</td><td>'+dvt+'</td>';
+  for(let i=1;i<=days;i++){ let v=xu.filter(x=>new Date(x.ngay).getDate()===i).reduce((a,b)=>a+b.sl,0); h+='<td>'+(v||'')+'</td>'; }
+  h+=`<td contenteditable>${td}</td><td contenteditable>${nh.length?nh.at(-1).ngay:''}</td>
+  <td contenteditable>${sln}</td><td contenteditable>${dgn}</td><td contenteditable>${sln*dgn}</td>
+  <td contenteditable>${slx}</td><td contenteditable>${dgx}</td><td contenteditable>${slx*dgx}</td>
+  <td>${td+sln-slx}</td><td class="noprint"><button onclick="deleteReportRow(this)">🗑</button></td></tr>`;
+ });
+ h+='</table>'; document.getElementById('report').innerHTML=h;
+}
+
+function exportExcel(){
+ let table=document.querySelector('#report table');
+ if(!table){alert('Hãy tạo báo cáo trước');return;}
+ let appName=localStorage.getItem('appName')||document.title||'QUẢN LÝ KHO';
+ let html='<html><head><meta charset="utf-8"></head><body><h2>'+appName+'</h2><h3>Tháng '+document.getElementById('thang').value+' / '+document.getElementById('nam').value+'</h3>'+table.outerHTML+'</body></html>';
+ let blob=new Blob([html],{type:'application/vnd.ms-excel'});
+ let a=document.createElement('a');
+ a.href=URL.createObjectURL(blob);
+ a.download='BaoCao.xls';
+ a.click();
+}
+
+function saveAppName(){
+ const name=document.getElementById('appName').value||'QUẢN LÝ KHO PRO ULTIMATE';
+ localStorage.setItem('appName',name);
+ document.querySelector('header h2').textContent=name;
+ document.title=name;
+}
+(function(){
+ const n=localStorage.getItem('appName');
+ if(n){
+   document.querySelector('header h2').textContent=n;
+   document.title=n;
+   setTimeout(()=>{let e=document.getElementById('appName'); if(e) e.value=n;},100);
+ }
+})();
+
+function toggleDanhMuc(){
+ const el=document.getElementById('itemList');
+ if(!el) return;
+ el.style.display = (el.style.display==='none') ? 'block' : 'none';
+}
+
+function getStock(item){
+ let d=db();
+ let nh=d.tx.filter(x=>x.ten===item && x.loai==='Nhập').reduce((a,b)=>a+b.sl,0);
+ let xu=d.tx.filter(x=>x.ten===item && x.loai==='Xuất').reduce((a,b)=>a+b.sl,0);
+ return nh-xu;
+}
+
+function showManager(){
+ let d=db();
+ let h='<table><tr><th>Tên hàng</th><th>ĐVT</th><th>Tồn kho</th><th>Xóa</th></tr>';
+ d.items.forEach(it=>{
+   let ten=typeof it==='string'?it:it.ten;
+   let dvt=typeof it==='string'?'':(it.dvt||'');
+   h+=`<tr><td>${ten}</td><td>${dvt}</td><td>${getStock(ten)}</td>
+   <td><button onclick="deleteFast('${ten}')">🗑</button></td></tr>`;
+ });
+ h+='</table>';
+ document.getElementById('manager').innerHTML=h;
+}
+
+function deleteFast(name){
+ if(!confirm('Xóa '+name+' ?')) return;
+ let d=db();
+ d.items=d.items.filter(x=>(typeof x==='string'?x:x.ten)!==name);
+ save(d);
+ refreshItems();
+ showManager();
+}
+
+function showTransactions(){
+ let d=db();
+ let h='<table><tr><th>Ngày</th><th>Hàng</th><th>Loại</th><th>SL</th><th>ĐG</th><th>Xóa</th></tr>';
+ d.tx.forEach((t,i)=>{
+   h+=`<tr><td>${t.ngay}</td><td>${t.ten}</td><td>${t.loai}</td><td>${t.sl}</td><td>${t.dg}</td>
+   <td><button onclick="deleteTx(${i})">🗑</button></td></tr>`;
+ });
+ h+='</table>';
+ document.getElementById('txManager').innerHTML=h;
+}
+
+function deleteTx(i){
+ let d=db();
+ if(!confirm('Xóa phiếu này?')) return;
+ d.tx.splice(i,1);
+ save(d);
+ showTransactions();
+}
+
+function backupData(){
+ let blob=new Blob([localStorage.getItem(DBKEY)||'{}'],{type:'application/json'});
+ let a=document.createElement('a');
+ a.href=URL.createObjectURL(blob);
+ a.download='QuanLyKho_Backup.json';
+ a.click();
+}
+
+function restoreData(e){
+ let f=e.target.files[0];
+ if(!f) return;
+ let r=new FileReader();
+ r.onload=function(){
+   localStorage.setItem(DBKEY,r.result);
+   refreshItems();
+   alert('Khôi phục thành công');
+ };
+ r.readAsText(f);
+}
+
+function toggleManager(){
+ const el=document.getElementById('manager');
+ if(!el) return;
+ el.style.display=(el.style.display==='none')?'block':'none';
+}
+
+function deleteReportRow(btn){
+ if(confirm('Xóa dòng này khỏi bảng báo cáo?')){
+   btn.closest('tr').remove();
+ }
+}
+
+window.addEventListener('beforeprint',function(){
+ var t=document.getElementById('printTitle');
+ if(t) t.innerHTML=(localStorage.getItem('appName')||document.title||'QUẢN LÝ KHO')+'<br>Tháng '+document.getElementById('thang').value+' / '+document.getElementById('nam').value;
+});
+
+function toggleAppSettings(){
+ const el=document.getElementById('appSettings');
+ if(!el) return;
+ el.style.display=(el.style.display==='none')?'block':'none';
+}
+
+function toggleReportSettings(){
+ const el=document.getElementById('reportSettings');
+ if(!el) return;
+ el.style.display=(el.style.display==='none')?'block':'none';
+}
+
+function saveCurrentReport(){
+ const report=document.getElementById('report');
+ if(!report || !report.innerHTML.trim()){
+   alert('Hãy tạo hoặc chỉnh sửa báo cáo trước khi lưu');
+   return;
+ }
+ localStorage.setItem('REPORT_SAVED_HTML', report.innerHTML);
+ alert('Đã lưu trạng thái báo cáo mới nhất');
+}
+
+function loadSavedReport(){
+ const saved=localStorage.getItem('REPORT_SAVED_HTML');
+ if(saved){
+   document.getElementById('report').innerHTML=saved;
+ }
+}
+
+document.addEventListener('DOMContentLoaded', loadSavedReport);
+
+const oldAddItem=addItem;
+addItem=function(){
+ let d=db();
+ let ten=(itemName.value||'').trim();
+ if(!ten) return;
+
+ let trung=d.items.some(x=>(typeof x==='string'?x:x.ten).toLowerCase()===ten.toLowerCase());
+ if(trung){
+   alert('Tên hàng đã tồn tại');
+   return;
+ }
+ oldAddItem();
+}
+
+const oldSaveTx=saveTx;
+saveTx=function(){
+ let ton=getStock(tenhang.value);
+ let soluong=+sl.value||0;
+
+ if(loai.value==='Xuất' && soluong>ton){
+   alert('Không được xuất vượt tồn kho ('+ton+')');
+   return;
+ }
+ oldSaveTx();
+}
+
+refreshItems();
+</script></body></html>

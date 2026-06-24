@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="vi"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>QL Kho PRO Ultimate</title>
+<style>
+body{font-family:Arial;margin:0} header{background:#2e7d32;color:#fff;padding:10px;text-align:center}
+.wrap{padding:10px} input,button,select{padding:6px;margin:3px}
+table{border-collapse:collapse;width:100%;font-size:12px} th,td{border:1px solid #999;padding:4px}
+@media print{
+ @page{size:A4 landscape;margin:1cm;}
+ body{margin:0}
+ .noprint{display:none}
+ table{page-break-inside:auto}
+ tr{break-inside:avoid}
+}
+
+#printTitle{display:none;text-align:center;font-size:22px;font-weight:bold;margin:10px 0;}
+@media print{
+ header,.noprint,.wrap:not(#report),#manager,#txManager,h3,button,input,select{display:none !important;}
+ #printTitle{display:block !important;}
+ #report{display:block !important;}
+}
+
+</style></head>
+<body>
+<header><h2>QUẢN LÝ KHO PRO ULTIMATE</h2></header>
+<div class="wrap noprint">
+
+<h3>Cài đặt ứng dụng</h3><button onclick="toggleAppSettings()">Ẩn/Hiện cài đặt</button><div id="appSettings">
+<input id="appName" placeholder="Tên ứng dụng">
+<button onclick="saveAppName()">Lưu tên app</button>
+
+</div><h3>Danh mục hàng hóa</h3>
+<input id="itemName" placeholder="Tên hàng"><input id="itemDvt" placeholder="ĐVT"><button onclick="addItem()">Thêm</button>
+<button onclick="deleteItem()">Xóa tên hàng</button>
+<datalist id="items"></datalist>
+<button onclick="toggleDanhMuc()">Ẩn/Hiện danh mục</button><div id="itemList"></div>
+
+<h3>Nhập/Xuất</h3>
+<input type="date" id="ngay">
+<input list="items" id="tenhang" placeholder="Gõ để tìm tên hàng" onchange="fillDVT()">
+<select id="loai"><option>Nhập</option><option>Xuất</option><option>Tồn đầu</option></select>
+<input id="sl" type="number" placeholder="SL">
+<input id="dvt_tx" placeholder="ĐVT (tự động, cho phép sửa tay)"><input id="dg" type="number" placeholder="Đơn giá">
+<button onclick="saveTx()">Lưu</button>
+
+<h3>Báo cáo</h3><button onclick="toggleReportSettings()">Ẩn/Hiện cài đặt báo cáo</button><div id="reportSettings">
+<input id="thang" type="number" min="1" max="12" value="6">
+<input id="nam" type="number" value="2026">
+<button onclick="report()">Xem báo cáo</button>
+<button onclick="window.print()">In A4 ngang</button>
+<button onclick="exportExcel()">Xuất Excel</button></div>
+</div>
+
+<div class="wrap">
+<h3>Tiện ích PRO 2026</h3>
+<button onclick="showManager()">Quản lý danh mục</button><button onclick="saveCurrentReport()">Lưu báo cáo</button><button onclick="toggleManager()">Ẩn/Hiện danh mục PRO</button>
+<button onclick="showTransactions()">Quản lý phiếu</button>
+<button onclick="backupData()">Sao lưu</button>
+<input type="file" id="restoreFile" onchange="restoreData(event)">
+<div id="manager"></div>
+<div id="txManager"></div>
+</div>
+<div id="printTitle"></div><div class="wrap" id="report"></div>
+
+<script>
+const DBKEY='kho_ultimate';
+const db=()=>JSON.parse(localStorage.getItem(DBKEY)||'{"items":[],"tx":[]}');
+const save=d=>localStorage.setItem(DBKEY,JSON.stringify(d));
+
+function fillDVT(){
+ let d=db();
+ let item=d.items.find(x=>x.ten===tenhang.value);
+ if(item){ document.getElementById('dvt_tx').value=item.dvt||''; }
+}
+
+function refreshItems(){
+ let d=db();
+ items.innerHTML=d.items.map(x=>`<option value="${typeof x==='string'?x:x.ten}">`).join('');
+ let el=document.getElementById('itemList');
+ if(el) el.innerHTML='<b>Danh mục:</b> '+d.items.map(x=> (typeof x==='string'?x:(x.ten+' ('+x.dvt+')'))).join(' | ');
+}
+
+function deleteItem(){
+ let name=prompt('Nhập chính xác tên hàng cần xóa khỏi danh mục');
+ if(!name) return;
+ let d=db();
+ d.items=d.items.filter(x=>{
+   if(typeof x==='string') return x!==name;
+   return x.ten!==name;
+ });
+ save(d);
+ refreshItems();
+ alert('Đã xóa khỏi danh mục: '+name);
+}
+
+function addItem(){
+ let d=db();
+ if(itemName.value){
+   d.items.push({ten:itemName.value,dvt:(itemDvt.value||'')});
+   save(d);
+   refreshItems();
+   itemName.value='';
+   itemDvt.value='';
+ }
+}
+
+function saveTx(){
+ let d=db();
+ d.tx.push({ngay:ngay.value,ten:tenhang.value,dvt:document.getElementById('dvt_tx').value,loai:loai.value,sl:+sl.value,dg:+dg.value});
+ save(d); alert('Đã lưu');
+}
+
+const parseNum = s => parseFloat(String(s).replace(/\./g, '').replace(/,/g, '').replace(/\s/g, '')) || 0;
+const fmt = n => n ? Number(n).toLocaleString('vi-VN') : '';
+
+function report(){
+ let d=db(),m=+thang.value,y=+nam.value;
+ let days=new Date(y,m,0).getDate();
+ let itemsU=[...new Set(d.tx.map(x=>x.ten))];
+ let h='<table><tr><th>Tên hàng</th><th>ĐVT</th>';
+ for(let i=1;i<=days;i++) h+='<th>'+i+'</th>';
+ h+='<th>Tồn đầu</th><th>Ngày nhập</th><th>SL nhập</th><th>ĐG nhập</th><th>TT nhập</th><th>SL xuất</th><th>ĐG xuất</th><th>TT xuất</th><th>Tồn cuối</th><th class="noprint">Xóa</th></tr>';
+ itemsU.forEach(it=>{
+  let month=d.tx.filter(t=>t.ten===it && new Date(t.ngay).getMonth()+1===m && new Date(t.ngay).getFullYear()===y);
+  let tondau=month.filter(x=>x.loai==='Tồn đầu');
+  let nh=month.filter(x=>x.loai==='Nhập');
+  let xu=month.filter(x=>x.loai==='Xuất');
+  let td=tondau.reduce((a,b)=>a+b.sl,0);
+  let sln=nh.reduce((a,b)=>a+b.sl,0), slx=xu.reduce((a,b)=>a+b.sl,0);
+  let dgn=nh.length?nh.at(-1).dg:0, dgx=xu.length?xu.at(-1).dg:dgn;
+  let dvt=(month.find(x=>x.dvt)||{}).dvt||''; h+='<tr><td>'+it+'</td><td>'+dvt+'</td>';
+  for(let i=1;i<=days;i++){ let v=xu.filter(x=>new Date(x.ngay).getDate()===i).reduce((a,b)=>a+b.sl,0); h+='<td contenteditable class="calc-day fmt-num">'+fmt(v)+'</td>'; }
+  h+=`<td contenteditable class="calc-td fmt-num">${fmt(td)}</td><td contenteditable>${nh.length?nh.at(-1).ngay:''}</td>
+  <td contenteditable class="calc-sln fmt-num">${fmt(sln)}</td><td contenteditable class="calc-dgn fmt-num">${fmt(dgn)}</td><td contenteditable class="calc-ttn fmt-num">${fmt(sln*dgn)}</td>
+  <td contenteditable class="calc-slx fmt-num">${fmt(slx)}</td><td contenteditable class="calc-dgx fmt-num">${fmt(dgx)}</td><td contenteditable class="calc-ttx fmt-num">${fmt(slx*dgx)}</td>
+  <td contenteditable class="calc-tc fmt-num">${fmt(td+sln-slx)}</td><td class="noprint"><button onclick="deleteReportRow(this)">🗑</button></td></tr>`;
+ });
+ h+='</table>'; document.getElementById('report').innerHTML=h;
+}
+
+function exportExcel(){
+ let table=document.querySelector('#report table');
+ if(!table){alert('Hãy tạo báo cáo trước');return;}
+ let appName=localStorage.getItem('appName')||document.title||'QUẢN LÝ KHO';
+ let html='<html><head><meta charset="utf-8"></head><body><h2>'+appName+'</h2><h3>Tháng '+document.getElementById('thang').value+' / '+document.getElementById('nam').value+'</h3>'+table.outerHTML+'</body></html>';
+ let blob=new Blob([html],{type:'application/vnd.ms-excel'});
+ let a=document.createElement('a');
+ a.href=URL.createObjectURL(blob);
+ a.download='BaoCao.xls';
+ a.click();
+}
+
+function saveAppName(){
+ const name=document.getElementById('appName').value||'QUẢN LÝ KHO PRO ULTIMATE';
+ localStorage.setItem('appName',name);
+ document.querySelector('header h2').textContent=name;
+ document.title=name;
+}
+(function(){
+ const n=localStorage.getItem('appName');
+ if(n){
+   document.querySelector('header h2').textContent=n;
+   document.title=n;
+   setTimeout(()=>{let e=document.getElementById('appName'); if(e) e.value=n;},100);
+ }
+})();
+
+function toggleDanhMuc(){
+ const el=document.getElementById('itemList');
+ if(!el) return;
+ el.style.display = (el.style.display==='none') ? 'block' : 'none';
+}
+
+function getStock(item){
+ let d=db();
+ let nh=d.tx.filter(x=>x.ten===item && x.loai==='Nhập').reduce((a,b)=>a+b.sl,0);
+ let xu=d.tx.filter(x=>x.ten===item && x.loai==='Xuất').reduce((a,b)=>a+b.sl,0);
+ return nh-xu;
+}
+
+function showManager(){
+ let d=db();
+ let h='<table><tr><th>Tên hàng</th><th>ĐVT</th><th>Tồn kho</th><th>Xóa</th></tr>';
+ d.items.forEach(it=>{
+   let ten=typeof it==='string'?it:it.ten;
+   let dvt=typeof it==='string'?'':(it.dvt||'');
+   h+=`<tr><td>${ten}</td><td>${dvt}</td><td>${getStock(ten)}</td>
+   <td><button onclick="deleteFast('${ten}')">🗑</button></td></tr>`;
+ });
+ h+='</table>';
+ document.getElementById('manager').innerHTML=h;
+}
+
+function deleteFast(name){
+ if(!confirm('Xóa '+name+' ?')) return;
+ let d=db();
+ d.items=d.items.filter(x=>(typeof x==='string'?x:x.ten)!==name);
+ save(d);
+ refreshItems();
+ showManager();
+}
+
+function showTransactions(){
+ let d=db();
+ let h='<table><tr><th>Ngày</th><th>Hàng</th><th>Loại</th><th>SL</th><th>ĐG</th><th>Xóa</th></tr>';
+ d.tx.forEach((t,i)=>{
+   h+=`<tr><td>${t.ngay}</td><td>${t.ten}</td><td>${t.loai}</td><td>${t.sl}</td><td>${t.dg}</td>
+   <td><button onclick="deleteTx(${i})">🗑</button></td></tr>`;
+ });
+ h+='</table>';
+ document.getElementById('txManager').innerHTML=h;
+}
+
+function deleteTx(i){
+ let d=db();
+ if(!confirm('Xóa phiếu này?')) return;
+ d.tx.splice(i,1);
+ save(d);
+ showTransactions();
+}
+
+function backupData(){
+ let blob=new Blob([localStorage.getItem(DBKEY)||'{}'],{type:'application/json'});
+ let a=document.createElement('a');
+ a.href=URL.createObjectURL(blob);
+ a.download='QuanLyKho_Backup.json';
+ a.click();
+}
+
+function restoreData(e){
+ let f=e.target.files[0];
+ if(!f) return;
+ let r=new FileReader();
+ r.onload=function(){
+   localStorage.setItem(DBKEY,r.result);
+   refreshItems();
+   alert('Khôi phục thành công');
+ };
+ r.readAsText(f);
+}
+
+function toggleManager(){
+ const el=document.getElementById('manager');
+ if(!el) return;
+ el.style.display=(el.style.display==='none')?'block':'none';
+}
+
+function deleteReportRow(btn){
+ if(confirm('Xóa dòng này khỏi bảng báo cáo?')){
+   btn.closest('tr').remove();
+ }
+}
+
+window.addEventListener('beforeprint',function(){
+ var t=document.getElementById('printTitle');
+ if(t) t.innerHTML=(localStorage.getItem('appName')||document.title||'QUẢN LÝ KHO')+'<br>Tháng '+document.getElementById('thang').value+' / '+document.getElementById('nam').value;
+});
+
+function toggleAppSettings(){
+ const el=document.getElementById('appSettings');
+ if(!el) return;
+ el.style.display=(el.style.display==='none')?'block':'none';
+}
+
+function toggleReportSettings(){
+ const el=document.getElementById('reportSettings');
+ if(!el) return;
+ el.style.display=(el.style.display==='none')?'block':'none';
+}
+
+function saveCurrentReport(){
+ const report=document.getElementById('report');
+ if(!report || !report.innerHTML.trim()){
+   alert('Hãy tạo hoặc chỉnh sửa báo cáo trước khi lưu');
+   return;
+ }
+ 
+ localStorage.setItem('REPORT_SAVED_HTML', report.innerHTML);
+ 
+ let m = +document.getElementById('thang').value;
+ let y = +document.getElementById('nam').value;
+ let d = db();
+ let days = new Date(y, m, 0).getDate();
+ 
+ d.tx = d.tx.filter(x => {
+    let date = new Date(x.ngay);
+    return !(date.getMonth() + 1 === m && date.getFullYear() === y);
+ });
+ 
+ let table = report.querySelector('table');
+ if(table) {
+    let rows = table.querySelectorAll('tr');
+    for(let i=1; i<rows.length; i++){
+        let cells = rows[i].cells;
+        if(cells.length < days + 10) continue;
+        
+        let ten = cells[0].innerText.trim();
+        let dvt = cells[1].innerText.trim();
+        
+        let td = parseNum(cells[days + 2].innerText);
+        if(td > 0) d.tx.push({ngay: `${y}-${String(m).padStart(2,'0')}-01`, ten, dvt, loai: 'Tồn đầu', sl: td, dg: 0});
+        
+        let ngay_nhap = cells[days + 3].innerText.trim() || `${y}-${String(m).padStart(2,'0')}-01`;
+        let sln = parseNum(cells[days + 4].innerText);
+        let dgn = parseNum(cells[days + 5].innerText);
+        if(sln > 0) d.tx.push({ngay: ngay_nhap, ten, dvt, loai: 'Nhập', sl: sln, dg: dgn});
+        
+        let dgx = parseNum(cells[days + 8].innerText);
+        let hasDaily = false;
+        for(let d_idx = 1; d_idx <= days; d_idx++){
+            let val = parseNum(cells[d_idx + 1].innerText);
+            if(val > 0){
+                let ngay_xuat = `${y}-${String(m).padStart(2,'0')}-${String(d_idx).padStart(2,'0')}`;
+                d.tx.push({ngay: ngay_xuat, ten, dvt, loai: 'Xuất', sl: val, dg: dgx});
+                hasDaily = true;
+            }
+        }
+        
+        if(!hasDaily) {
+            let slx = parseNum(cells[days + 7].innerText);
+            if(slx > 0) {
+                d.tx.push({ngay: `${y}-${String(m).padStart(2,'0')}-${String(days).padStart(2,'0')}`, ten, dvt, loai: 'Xuất', sl: slx, dg: dgx});
+            }
+        }
+    }
+ }
+ 
+ save(d);
+ refreshItems();
+ alert('Đã lưu trạng thái báo cáo và cập nhật dữ liệu gốc thành công!');
+}
+
+function loadSavedReport(){
+ const saved=localStorage.getItem('REPORT_SAVED_HTML');
+ if(saved){
+   document.getElementById('report').innerHTML=saved;
+ }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  loadSavedReport();
+
+  function recalcRow(tr, targetCell) {
+    let m = +document.getElementById('thang').value;
+    let y = +document.getElementById('nam').value;
+    let days = new Date(y, m, 0).getDate();
+    let cells = tr.cells;
+    if(cells.length < days + 10) return;
+
+    let tdCell = cells[days + 2];
+    let slnCell = cells[days + 4];
+    let dgnCell = cells[days + 5];
+    let ttnCell = cells[days + 6];
+    let slxCell = cells[days + 7];
+    let dgxCell = cells[days + 8];
+    let ttxCell = cells[days + 9];
+    let tcCell = cells[days + 10];
+
+    let hasDays = false;
+    let sumDays = 0;
+    let isDayCell = false;
+    for(let i=1; i<=days; i++){
+      let txt = cells[1+i].innerText.trim();
+      if(txt) { hasDays = true; sumDays += parseNum(txt); }
+      if(cells[1+i] === targetCell) isDayCell = true;
+    }
+
+    let td = parseNum(tdCell.innerText);
+    let sln = parseNum(slnCell.innerText);
+    let dgn = parseNum(dgnCell.innerText);
+    let slx = parseNum(slxCell.innerText);
+    let dgx = parseNum(dgxCell.innerText);
+
+    if (isDayCell) {
+      slx = sumDays;
+      if (targetCell !== slxCell) slxCell.innerText = fmt(slx);
+    }
+
+    let ttn = sln * dgn;
+    let ttx = slx * dgx;
+    let tc = td + sln - slx;
+
+    if(targetCell !== ttnCell) ttnCell.innerText = fmt(ttn);
+    if(targetCell !== ttxCell) ttxCell.innerText = fmt(ttx);
+    if(targetCell !== tcCell) tcCell.innerText = fmt(tc);
+  }
+
+  const reportEl = document.getElementById('report');
+  
+  reportEl.addEventListener('input', function(e) {
+    if(e.target.hasAttribute('contenteditable')) {
+      let tr = e.target.closest('tr');
+      if(tr) recalcRow(tr, e.target);
+    }
+  });
+
+  reportEl.addEventListener('blur', function(e) {
+    if(e.target.hasAttribute('contenteditable') && e.target.classList.contains('fmt-num')) {
+      let val = parseNum(e.target.innerText);
+      e.target.innerText = fmt(val);
+      let tr = e.target.closest('tr');
+      if(tr) recalcRow(tr, null);
+    }
+  }, true);
+});
+
+const oldAddItem=addItem;
+addItem=function(){
+ let d=db();
+ let ten=(itemName.value||'').trim();
+ if(!ten) return;
+
+ let trung=d.items.some(x=>(typeof x==='string'?x:x.ten).toLowerCase()===ten.toLowerCase());
+ if(trung){
+   alert('Tên hàng đã tồn tại');
+   return;
+ }
+ oldAddItem();
+}
+
+const oldSaveTx=saveTx;
+saveTx=function(){
+ let ton=getStock(tenhang.value);
+ let soluong=+sl.value||0;
+
+ if(loai.value==='Xuất' && soluong>ton){
+   alert('Không được xuất vượt tồn kho ('+ton+')');
+   return;
+ }
+ oldSaveTx();
+}
+
+refreshItems();
+</script></body></html>
