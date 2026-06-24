@@ -1,0 +1,1916 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>App nhập Excel nhắc BHYT - Sắp xếp cột bảng</title>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <style>
+    :root {
+      --primary: #0f766e;
+      --primary-dark: #115e59;
+      --bg: #f4f7f8;
+      --card: #ffffff;
+      --text: #102027;
+      --muted: #667085;
+      --line: #d9e2e6;
+      --soft: #e8f5f3;
+      --danger: #b42318;
+      --warn: #b54708;
+      --ok: #047857;
+      --shadow: 0 8px 24px rgba(16, 32, 39, 0.08);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      color: var(--text);
+      background: linear-gradient(180deg, #e9f7f5 0%, var(--bg) 280px);
+    }
+
+    .app {
+      width: min(1480px, calc(100vw - 24px));
+      margin: 16px auto 32px;
+    }
+
+    .hero {
+      background: linear-gradient(135deg, #0f766e, #0d9488);
+      color: white;
+      border-radius: 20px;
+      padding: 22px;
+      box-shadow: var(--shadow);
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .hero h1 {
+      margin: 0 0 8px;
+      font-size: clamp(22px, 3vw, 34px);
+      letter-spacing: -0.5px;
+    }
+
+    .hero p { margin: 0; opacity: 0.94; line-height: 1.5; }
+
+    .hero-summary {
+      font-size: 15px;
+    }
+
+    .hero-details {
+      margin-top: 8px !important;
+      font-size: 13px;
+      opacity: 0.9 !important;
+      max-width: 980px;
+    }
+
+    .hero-details.is-hidden {
+      display: none;
+    }
+
+    .hero-toggle {
+      margin-top: 8px;
+      background: rgba(255,255,255,0.16);
+      border: 1px solid rgba(255,255,255,0.28);
+      color: white;
+    }
+
+    .hero-toggle:hover {
+      background: rgba(255,255,255,0.24);
+    }
+
+    .status-pill {
+      background: rgba(255,255,255,0.16);
+      border: 1px solid rgba(255,255,255,0.28);
+      border-radius: 999px;
+      padding: 10px 14px;
+      white-space: nowrap;
+      font-weight: bold;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 360px 1fr;
+      gap: 16px;
+      margin-top: 16px;
+      align-items: start;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 16px;
+      box-shadow: var(--shadow);
+    }
+
+    .card h2 {
+      margin: 0 0 12px;
+      font-size: 18px;
+    }
+
+    .card h3 {
+      margin: 16px 0 8px;
+      font-size: 15px;
+      color: var(--primary-dark);
+    }
+
+    .hint {
+      margin: 8px 0 0;
+      color: var(--muted);
+      line-height: 1.5;
+      font-size: 13px;
+    }
+
+    label {
+      display: block;
+      font-size: 13px;
+      color: #344054;
+      font-weight: bold;
+      margin: 10px 0 6px;
+    }
+
+    input[type="file"], input[type="number"], input[type="text"], textarea, select {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 10px 11px;
+      background: white;
+      font-size: 14px;
+      outline: none;
+    }
+
+    textarea {
+      min-height: 108px;
+      resize: vertical;
+      line-height: 1.5;
+    }
+
+    input:focus, textarea:focus, select:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.12);
+    }
+
+    .btn-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    button {
+      border: 0;
+      border-radius: 12px;
+      padding: 10px 13px;
+      font-weight: bold;
+      cursor: pointer;
+      font-size: 14px;
+      transition: 0.15s ease;
+      background: #e7edf0;
+      color: #1f2937;
+    }
+
+    button:hover { transform: translateY(-1px); }
+    button:disabled { cursor: not-allowed; opacity: 0.55; transform: none; }
+
+    .primary { background: var(--primary); color: white; }
+    .primary:hover { background: var(--primary-dark); }
+    .danger { background: #fee4e2; color: var(--danger); }
+    .ghost { background: #f2f4f7; }
+    .ok { background: #dcfce7; color: var(--ok); }
+    .warn { background: #fff1d6; color: var(--warn); }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(120px, 1fr));
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    .stat {
+      background: #f8fbfb;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 12px;
+    }
+
+    .stat small { color: var(--muted); display: block; }
+    .stat strong { font-size: 22px; display: block; margin-top: 4px; }
+
+    .toolbar {
+      display: grid;
+      grid-template-columns: minmax(220px, 1fr) 160px 150px 160px 150px auto;
+      gap: 10px;
+      align-items: end;
+      margin-bottom: 12px;
+    }
+
+    .toolbar label { margin-top: 0; }
+
+    .scroll-help {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      margin: 0 0 8px;
+      padding: 9px 11px;
+      border: 1px dashed #98a2b3;
+      border-radius: 12px;
+      background: #f8fbfb;
+      color: #475467;
+      font-size: 13px;
+      line-height: 1.4;
+    }
+
+    .table-wrap {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      overflow-x: scroll;
+      overflow-y: scroll;
+      width: 100%;
+      max-width: 100%;
+      min-height: 430px;
+      max-height: calc(100vh - 320px);
+      background: white;
+      position: relative;
+      scrollbar-gutter: stable both-edges;
+      overscroll-behavior: contain;
+    }
+
+    .table-wrap::-webkit-scrollbar {
+      width: 16px;
+      height: 16px;
+    }
+
+    .table-wrap::-webkit-scrollbar-thumb {
+      background: #98a2b3;
+      border: 3px solid white;
+      border-radius: 999px;
+    }
+
+    .table-wrap::-webkit-scrollbar-track {
+      background: #eef4f4;
+      border-radius: 999px;
+    }
+
+    table {
+      border-collapse: separate;
+      border-spacing: 0;
+      width: max-content;
+      min-width: 1280px;
+      font-size: 13px;
+    }
+
+    th, td {
+      border-right: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+      padding: 8px 9px;
+      vertical-align: top;
+      white-space: nowrap;
+      background: white;
+    }
+
+    th:nth-child(1), td:nth-child(1) { min-width: 72px; width: 72px; }
+    th:nth-child(2), td:nth-child(2) { min-width: 180px; }
+    th:nth-child(3), td:nth-child(3) { min-width: 700px; }
+    th:nth-child(4), td:nth-child(4) { min-width: 210px; }
+    th:nth-child(5), td:nth-child(5) { min-width: 170px; }
+
+    th:first-child, td:first-child {
+      position: sticky;
+      left: 0;
+      z-index: 3;
+      background: #ffffff;
+    }
+
+    th:first-child {
+      z-index: 5;
+      background: #ecfdf5;
+    }
+
+    th {
+      position: sticky;
+      top: 0;
+      z-index: 2;
+      background: #ecfdf5;
+      color: #064e3b;
+      text-align: left;
+      font-weight: bold;
+    }
+
+
+    .sort-btn {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      border: 0;
+      padding: 0;
+      background: transparent;
+      color: inherit;
+      font: inherit;
+      text-align: left;
+      cursor: pointer;
+      transform: none !important;
+    }
+
+    .sort-btn:hover {
+      color: var(--primary-dark);
+      text-decoration: underline;
+    }
+
+    .sort-icon {
+      color: #667085;
+      font-size: 12px;
+      min-width: 18px;
+      text-align: right;
+    }
+
+    .sort-btn.is-active .sort-icon {
+      color: var(--primary-dark);
+      font-weight: bold;
+    }
+
+    td.msg {
+      white-space: normal;
+      min-width: 700px;
+      max-width: 900px;
+      line-height: 1.45;
+    }
+
+    td.editable {
+      cursor: text;
+      min-width: 150px;
+    }
+
+    td.editable:focus {
+      outline: 2px solid rgba(15, 118, 110, 0.35);
+      outline-offset: -2px;
+      background: #f8fffd;
+    }
+
+    .empty {
+      padding: 36px 16px;
+      text-align: center;
+      color: var(--muted);
+    }
+
+    .mapping-row {
+      display: grid;
+      grid-template-columns: 112px 1fr;
+      gap: 8px;
+      align-items: start;
+      margin-bottom: 10px;
+    }
+
+    .mapping-row b { font-size: 13px; padding-top: 10px; }
+
+    .mapping-control {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 6px;
+    }
+
+    .manual-input-note {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.35;
+    }
+
+    .alert {
+      border-radius: 14px;
+      padding: 11px 12px;
+      margin-top: 12px;
+      line-height: 1.45;
+      font-size: 13px;
+      display: none;
+    }
+
+    .alert.show { display: block; }
+    .alert.ok { background: #ecfdf3; color: #067647; border: 1px solid #abefc6; }
+    .alert.warn { background: #fffaeb; color: #93370d; border: 1px solid #fedf89; }
+    .alert.err { background: #fef3f2; color: #b42318; border: 1px solid #fecdca; }
+
+    .footer-note {
+      color: var(--muted);
+      font-size: 12px;
+      margin-top: 10px;
+      line-height: 1.5;
+    }
+
+    .progress {
+      height: 9px;
+      border-radius: 999px;
+      background: #edf2f4;
+      overflow: hidden;
+      margin-top: 12px;
+    }
+
+    .progress span {
+      display: block;
+      height: 100%;
+      width: 0%;
+      background: var(--primary);
+      transition: width 0.2s ease;
+    }
+
+    .pagination {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 10px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .pagination .btn-row { margin-top: 0; }
+
+    .fixed-actions {
+      position: sticky;
+      bottom: 0;
+      background: linear-gradient(180deg, rgba(255,255,255,0.75), #fff 30%);
+      padding-top: 10px;
+      margin-top: 10px;
+    }
+
+
+
+    .app-title-panel {
+      margin-top: 12px;
+      padding: 12px;
+      border-radius: 14px;
+      background: #f8fbfb;
+      border: 1px solid rgba(255,255,255,0.35);
+    }
+
+    .hero .app-title-panel {
+      background: rgba(255,255,255,0.12);
+      border-color: rgba(255,255,255,0.25);
+    }
+
+    .app-title-panel label {
+      color: inherit;
+      opacity: 0.95;
+      margin-top: 0;
+    }
+
+    .app-title-panel input {
+      background: rgba(255,255,255,0.95);
+      color: #102027;
+    }
+
+    .app-title-panel .btn-row {
+      margin-top: 8px;
+    }
+
+    .app-title-hidden #appTitlePanel {
+      display: none;
+    }
+
+    @media (max-width: 980px) {
+      .grid { grid-template-columns: 1fr; }
+      .hero { grid-template-columns: 1fr; }
+      .status-pill { width: fit-content; }
+      .stats { grid-template-columns: repeat(2, 1fr); }
+      .toolbar { grid-template-columns: 1fr 1fr; }
+      .table-wrap { min-height: 360px; max-height: 65vh; }
+      table { min-width: 1180px; }
+      .scroll-help { align-items: flex-start; flex-direction: column; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <section class="hero">
+      <div>
+        <h1 id="appTitleDisplay">APP NHẬP EXCEL NHẮC BHYT</h1>
+        <p class="hero-summary"><b>Nhập Excel → lọc BHYT còn hạn ≤ 30 ngày → xuất Excel chuẩn FPT SMS.</b></p>
+        <p id="heroDetails" class="hero-details is-hidden">Nhập Excel bất kỳ, không giới hạn dòng. App tự dò cột <b>phone / Ho_Ten / Ngay_Het_Han</b>; cột <b>Template</b> mặc định dùng câu mẫu cố định ở mục 3. Ngay_Het_Han ưu tiên cột <b>“Thời hạn sử dụng thẻ đến ngày”</b>; Số ngày còn lại mặc định lấy từ cột T. Ho_Ten tự chuyển sang <b>không dấu và IN HOA TOÀN BỘ</b>.</p>
+        <button class="hero-toggle" id="btnToggleHeroDesc" type="button">Hiện mô tả</button>
+        <button class="hero-toggle" id="btnToggleAppTitle" type="button">Ẩn đổi tên app</button>
+        <div class="app-title-panel" id="appTitlePanel">
+          <label>Đổi tên app</label>
+          <input id="appTitleInput" type="text" placeholder="Nhập tên app muốn hiển thị" />
+          <div class="btn-row">
+            <button class="primary" id="btnSaveAppTitle" type="button">Lưu tên app</button>
+          </div>
+        </div>
+      </div>
+      <div class="status-pill" id="driveStatus">Google Drive: chưa chọn thư mục</div>
+    </section>
+
+    <div class="grid">
+      <aside class="card">
+        <h2>1. Nhập dữ liệu Excel</h2>
+        <label>Chọn file Excel (.xlsx, .xls, .csv)</label>
+        <input id="excelFile" type="file" accept=".xlsx,.xls,.csv" />
+
+        <label>Sheet</label>
+        <select id="sheetSelect" disabled></select>
+
+        <label>Dòng tiêu đề trong Excel</label>
+        <input id="headerRow" type="number" min="1" value="1" />
+        <p class="hint">Ví dụ dòng đầu tiên là tiêu đề thì nhập <b>1</b>. Nếu tiêu đề nằm dòng 3 thì nhập <b>3</b>.</p>
+        <p class="hint"><b>Không giới hạn số dòng nhập vào:</b> app sẽ đọc toàn bộ dòng có dữ liệu trong file. File lớn sẽ được phân trang khi xem để tránh treo trình duyệt.</p>
+
+        <div class="btn-row">
+          <button class="primary" id="btnReadAgain" disabled>Đọc lại file</button>
+          <button class="ghost" id="btnLoadJson">Mở dữ liệu đã lưu</button>
+          <input id="jsonFile" type="file" accept=".json" style="display:none" />
+        </div>
+
+        <div class="progress" aria-label="Tiến trình"><span id="progressBar"></span></div>
+        <div class="alert" id="alertBox"></div>
+
+        <h3>2. Chọn đúng cột cần lấy</h3>
+        <div id="mappingBox">
+          <p class="hint">Sau khi nhập Excel, app sẽ tự chọn cột gần giống với mẫu. Riêng Ngay_Het_Han ưu tiên chọn cột “Thời hạn sử dụng thẻ đến ngày”, nếu không có thì mới lấy cột R. Số ngày còn lại mặc định lấy từ cột T.</p>
+          <p class="hint">Với mỗi dòng ở mục 2, có thể <b>chọn cột bằng xổ xuống</b> hoặc <b>nhập tay giá trị cố định</b> nếu file ngoài đưa vào khác mẫu mặc định. Ô nhập tay nếu có nội dung sẽ được ưu tiên hơn cột đã chọn.</p>
+          <p class="hint">Cột <b>Ho_Ten</b> trong app sẽ tự đổi sang không dấu và IN HOA TOÀN BỘ, ví dụ: <b>Nguyễn Văn A</b> → <b>NGUYEN VAN A</b>.</p>
+        </div>
+        <div class="btn-row">
+          <button class="primary" id="btnSaveMapping">Lưu vùng chọn cột</button>
+          <button class="danger" id="btnResetMapping">Reset vùng chọn cột</button>
+          <button class="ghost" id="btnUndoMapping" disabled>Quay lại vùng chọn cột</button>
+        </div>
+        <p class="hint">Reset vùng này chỉ đưa phần <b>chọn cột và ô nhập tay</b> về tự dò mặc định, không đổi mẫu Template và không xóa dữ liệu Excel đã nhập.</p>
+
+        <h3>3. Mẫu tự điền cho cột Template</h3>
+        <textarea id="defaultTemplate">The BHYT cua QK [Ho_Ten] het han ngay [Ngay_Het_Han]. QK den Phong 3 cua PK trong gio HC de duoc gia han. LH 0987519115.</textarea>
+        <p class="hint">Chỉ dòng nào có <b>Số ngày còn lại ≤ 30</b> mới tự điền nguyên văn mẫu này vào cột <b>Template</b>. App <b>không tự thay</b> [Ho_Ten] và [Ngay_Het_Han] bằng dữ liệu thật.</p>
+        <div class="btn-row">
+          <button class="warn" id="btnFillTemplate" disabled>Điền Template theo ngày còn lại ≤ 30</button>
+        </div>
+        <div class="btn-row">
+          <button class="primary" id="btnSaveTemplateConfig">Lưu vùng Template</button>
+          <button class="danger" id="btnResetTemplateConfig">Reset vùng Template</button>
+          <button class="ghost" id="btnUndoTemplateConfig" disabled>Quay lại vùng Template</button>
+        </div>
+        <p class="hint">Reset vùng này chỉ đưa <b>mẫu Template</b> về câu gốc, không đổi phần chọn cột và không xóa dữ liệu Excel đã nhập.</p>
+
+        <div class="fixed-actions">
+          <h3>4. Lưu Google Drive</h3>
+          <div class="btn-row">
+            <button class="ok" id="btnPickDrive">Chọn thư mục Drive</button>
+            <button class="ok" id="btnSaveDrive" disabled>Lưu dữ liệu</button>
+          </div>
+          <p class="footer-note">Chọn thư mục Google Drive đã đồng bộ trên máy tính. App HTML thuần sẽ ghi file JSON vào thư mục đó. Tính năng này chạy tốt nhất trên Chrome / Edge.</p>
+
+          <div class="btn-row">
+            <button class="primary" id="btnExport" disabled>Xuất Excel chuẩn FPT</button>
+            <button class="warn" id="btnCopyVisible" disabled>Copy Template trang này</button>
+            <button class="danger" id="btnReset">Reset</button>
+          </div>
+        </div>
+      </aside>
+
+      <main class="card">
+        <div class="stats">
+          <div class="stat"><small>Tổng dòng đã nhập</small><strong id="statRows">0</strong></div>
+          <div class="stat"><small>Số cột file gốc</small><strong id="statCols">0</strong></div>
+          <div class="stat"><small>Có số điện thoại</small><strong id="statPhone">0</strong></div>
+          <div class="stat"><small>Template đã điền</small><strong id="statMsg">0</strong></div>
+        </div>
+
+        <div class="toolbar">
+          <div>
+            <label>Tìm kiếm</label>
+            <input id="searchInput" type="text" placeholder="Tìm số điện thoại, Template, họ tên, ngày hết hạn..." />
+          </div>
+          <div>
+            <label>Sắp xếp theo</label>
+            <select id="sortField">
+              <option value="">-- Không sắp xếp --</option>
+              <option value="STT">STT</option>
+              <option value="phone">phone</option>
+              <option value="Template">Template</option>
+              <option value="Ho_Ten">Ho_Ten</option>
+              <option value="Ngay_Het_Han">Ngay_Het_Han</option>
+            </select>
+          </div>
+          <div>
+            <label>Thứ tự</label>
+            <select id="sortDirection">
+              <option value="asc">Tăng dần</option>
+              <option value="desc">Giảm dần</option>
+            </select>
+          </div>
+          <div>
+            <label>Số dòng/trang</label>
+            <select id="pageSize">
+              <option value="50">50</option>
+              <option value="100" selected>100</option>
+              <option value="200">200</option>
+              <option value="500">500</option>
+              <option value="1000">1000</option>
+              <option value="2000">2.000</option>
+              <option value="5000">5.000</option>
+              <option value="10000">10.000</option>
+            </select>
+          </div>
+          <div>
+            <label>Trang</label>
+            <input id="pageNumber" type="number" min="1" value="1" />
+          </div>
+          <div class="btn-row">
+            <button id="btnPrev">Trước</button>
+            <button id="btnNext">Sau</button>
+          </div>
+        </div>
+
+        <div class="scroll-help">
+          <span><b>Kéo thanh ngang ở đáy bảng</b> để xem hết các cột. Có thể dùng ô <b>Sắp xếp theo</b> hoặc <b>bấm tiêu đề cột</b> để sắp xếp tăng/giảm.</span>
+          <span>Xuất Excel chuẩn FPT chỉ gồm 1 sheet, 4 cột mặc định và chỉ lấy các dòng có Template.</span>
+        </div>
+
+        <div class="table-wrap" id="tableWrap">
+          <div class="empty">Chưa có dữ liệu. Hãy nhập file Excel để bắt đầu.</div>
+        </div>
+        <div class="pagination">
+          <span id="pageInfo">0 dòng</span>
+          <span>Chỉ hiển thị theo trang để file nhiều dòng vẫn nhẹ. Khi xuất Excel chuẩn FPT sẽ lấy các dòng có Template.</span>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <script>
+    const STORAGE_KEY = 'APP_NHAC_BHYT_EXCEL_STATE_V2_TEMPLATE_LITERAL';
+    const DEFAULT_APP_TITLE = 'APP NHẬP EXCEL NHẮC BHYT';
+    const APP_TITLE_STORAGE_KEY = 'APP_NHAC_BHYT_APP_TITLE_V1';
+    const APP_TITLE_VISIBLE_STORAGE_KEY = 'APP_NHAC_BHYT_APP_TITLE_VISIBLE_V1';
+    const APP_DESC_VISIBLE_STORAGE_KEY = 'APP_NHAC_BHYT_APP_DESC_VISIBLE_V1';
+    const CONFIG_MAPPING_STORAGE_KEY = 'APP_NHAC_BHYT_CONFIG_MAPPING_SAVED_V1';
+    const CONFIG_MAPPING_UNDO_KEY = 'APP_NHAC_BHYT_CONFIG_MAPPING_UNDO_V1';
+    const CONFIG_TEMPLATE_STORAGE_KEY = 'APP_NHAC_BHYT_CONFIG_TEMPLATE_SAVED_V1';
+    const CONFIG_TEMPLATE_UNDO_KEY = 'APP_NHAC_BHYT_CONFIG_TEMPLATE_UNDO_V1';
+    const LOCAL_STORAGE_MAX_CHARS = 4_000_000;
+    const EXCEL_COL_R_INDEX = 17;
+    const EXCEL_COL_T_INDEX = 19;
+    const FIXED_TEMPLATE = 'The BHYT cua QK [Ho_Ten] het han ngay [Ngay_Het_Han]. QK den Phong 3 cua PK trong gio HC de duoc gia han. LH 0987519115.';
+
+    const TARGET_FIELDS = [
+      { key: 'phone', label: 'phone', aliases: ['phone', 'sdt', 'so dien thoai', 'so dt', 'dien thoai', 'mobile', 'tel', 'telephone', 'so phone', 'số điện thoại'] },
+      { key: 'Template', label: 'Template', aliases: ['template', 'mau tin', 'mau sms', 'noi dung', 'noi dung tin nhan', 'tin nhan', 'sms', 'content'] },
+      { key: 'Ho_Ten', label: 'Ho_Ten', aliases: ['ho ten', 'ho_ten', 'hoten', 'ten', 'ten khach hang', 'khach hang', 'nguoi dung', 'hovaten', 'họ tên'] },
+      { key: 'Ngay_Het_Han', label: 'Ngay_Het_Han', aliases: ['thoi han su dung the den ngay', 'thời hạn sử dụng thẻ đến ngày', 'thoi han su dung the', 'thời hạn sử dụng thẻ', 'den ngay', 'đến ngày', 'ngay het han', 'ngay_het_han', 'ngayhethan', 'han the', 'han bhyt', 'ngay het han bhyt', 'hsd', 'expiration', 'expiry', 'ngày hết hạn'] },
+      { key: 'So_Ngay_Con_Lai', label: 'Số ngày còn lại', aliases: ['so ngay con lai', 'so_ngay_con_lai', 'songayconlai', 'ngay con lai', 'con lai', 'ngay con', 'remaining days', 'days remaining', 'remain', 'remaining', 'số ngày còn lại'] }
+    ];
+
+    const state = {
+      appTitle: DEFAULT_APP_TITLE,
+      appTitleVisible: true,
+      appDescVisible: false,
+      workbook: null,
+      workbookName: '',
+      sheetName: '',
+      sheetNames: [],
+      rawRows: [],
+      headers: [],
+      dataRows: [],
+      mapping: {},
+      manualValues: {},
+      records: [],
+      defaultTemplate: FIXED_TEMPLATE,
+      currentPage: 1,
+      pageSize: 100,
+      search: '',
+      sortKey: '',
+      sortDir: 'asc',
+      lastSaved: ''
+    };
+
+    const SORT_LABELS = {
+      STT: 'STT',
+      phone: 'phone',
+      Template: 'Template',
+      Ho_Ten: 'Ho_Ten',
+      Ngay_Het_Han: 'Ngay_Het_Han'
+    };
+
+    let driveDirHandle = null;
+    let autosaveTimer = null;
+
+    const el = {
+      excelFile: document.getElementById('excelFile'),
+      sheetSelect: document.getElementById('sheetSelect'),
+      headerRow: document.getElementById('headerRow'),
+      btnReadAgain: document.getElementById('btnReadAgain'),
+      btnLoadJson: document.getElementById('btnLoadJson'),
+      jsonFile: document.getElementById('jsonFile'),
+      mappingBox: document.getElementById('mappingBox'),
+      appTitleDisplay: document.getElementById('appTitleDisplay'),
+      appTitleInput: document.getElementById('appTitleInput'),
+      btnSaveAppTitle: document.getElementById('btnSaveAppTitle'),
+      btnToggleAppTitle: document.getElementById('btnToggleAppTitle'),
+      heroDetails: document.getElementById('heroDetails'),
+      btnToggleHeroDesc: document.getElementById('btnToggleHeroDesc'),
+      defaultTemplate: document.getElementById('defaultTemplate'),
+      btnPickDrive: document.getElementById('btnPickDrive'),
+      btnSaveDrive: document.getElementById('btnSaveDrive'),
+      btnExport: document.getElementById('btnExport'),
+      btnFillTemplate: document.getElementById('btnFillTemplate'),
+      btnSaveMapping: document.getElementById('btnSaveMapping'),
+      btnResetMapping: document.getElementById('btnResetMapping'),
+      btnUndoMapping: document.getElementById('btnUndoMapping'),
+      btnSaveTemplateConfig: document.getElementById('btnSaveTemplateConfig'),
+      btnResetTemplateConfig: document.getElementById('btnResetTemplateConfig'),
+      btnUndoTemplateConfig: document.getElementById('btnUndoTemplateConfig'),
+      btnReset: document.getElementById('btnReset'),
+      btnCopyVisible: document.getElementById('btnCopyVisible'),
+      driveStatus: document.getElementById('driveStatus'),
+      alertBox: document.getElementById('alertBox'),
+      progressBar: document.getElementById('progressBar'),
+      statRows: document.getElementById('statRows'),
+      statCols: document.getElementById('statCols'),
+      statPhone: document.getElementById('statPhone'),
+      statMsg: document.getElementById('statMsg'),
+      searchInput: document.getElementById('searchInput'),
+      sortField: document.getElementById('sortField'),
+      sortDirection: document.getElementById('sortDirection'),
+      pageSize: document.getElementById('pageSize'),
+      pageNumber: document.getElementById('pageNumber'),
+      btnPrev: document.getElementById('btnPrev'),
+      btnNext: document.getElementById('btnNext'),
+      tableWrap: document.getElementById('tableWrap'),
+      pageInfo: document.getElementById('pageInfo')
+    };
+
+
+    function cleanAppTitle(value) {
+      const title = String(value ?? '').replace(/\s+/g, ' ').trim();
+      return title || DEFAULT_APP_TITLE;
+    }
+
+    function applyAppTitleUi() {
+      state.appTitle = cleanAppTitle(state.appTitle);
+      state.appTitleVisible = state.appTitleVisible !== false;
+
+      if (el.appTitleDisplay) el.appTitleDisplay.textContent = state.appTitle;
+      if (el.appTitleInput) el.appTitleInput.value = state.appTitle;
+      if (el.btnToggleAppTitle) el.btnToggleAppTitle.textContent = state.appTitleVisible ? 'Ẩn đổi tên app' : 'Hiện đổi tên app';
+
+      document.title = state.appTitle;
+      document.body.classList.toggle('app-title-hidden', !state.appTitleVisible);
+    }
+
+    function saveAppTitleSettings(showMessage = true) {
+      state.appTitle = cleanAppTitle(el.appTitleInput ? el.appTitleInput.value : state.appTitle);
+      localStorage.setItem(APP_TITLE_STORAGE_KEY, state.appTitle);
+      localStorage.setItem(APP_TITLE_VISIBLE_STORAGE_KEY, state.appTitleVisible ? '1' : '0');
+      applyAppTitleUi();
+      scheduleSave();
+      if (showMessage) showAlert('Đã lưu tên app.', 'ok');
+    }
+
+    function toggleAppTitleVisibility() {
+      state.appTitleVisible = !state.appTitleVisible;
+      localStorage.setItem(APP_TITLE_VISIBLE_STORAGE_KEY, state.appTitleVisible ? '1' : '0');
+      applyAppTitleUi();
+      scheduleSave();
+      showAlert(state.appTitleVisible ? 'Đã hiện vùng đổi tên app.' : 'Đã ẩn vùng đổi tên app.', 'ok');
+    }
+
+    function loadAppTitleSettings() {
+      const savedTitle = localStorage.getItem(APP_TITLE_STORAGE_KEY);
+      const savedVisible = localStorage.getItem(APP_TITLE_VISIBLE_STORAGE_KEY);
+      state.appTitle = cleanAppTitle(savedTitle || state.appTitle || DEFAULT_APP_TITLE);
+      state.appTitleVisible = savedVisible === null ? true : savedVisible !== '0';
+      applyAppTitleUi();
+    }
+
+    function applyHeroDescriptionUi() {
+      state.appDescVisible = state.appDescVisible === true;
+      if (el.heroDetails) el.heroDetails.classList.toggle('is-hidden', !state.appDescVisible);
+      if (el.btnToggleHeroDesc) el.btnToggleHeroDesc.textContent = state.appDescVisible ? 'Ẩn mô tả' : 'Hiện mô tả';
+    }
+
+    function toggleHeroDescription() {
+      state.appDescVisible = !state.appDescVisible;
+      localStorage.setItem(APP_DESC_VISIBLE_STORAGE_KEY, state.appDescVisible ? '1' : '0');
+      applyHeroDescriptionUi();
+    }
+
+    function loadHeroDescriptionSettings() {
+      const savedVisible = localStorage.getItem(APP_DESC_VISIBLE_STORAGE_KEY);
+      state.appDescVisible = savedVisible === '1';
+      applyHeroDescriptionUi();
+    }
+
+    function normalizeText(value) {
+      return String(value ?? '')
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .replace(/đ/g, 'd')
+        .replace(/Đ/g, 'D')
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, ' ')
+        .trim();
+    }
+
+
+    function removeVietnameseTone(value) {
+      return String(value ?? '')
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .replace(/đ/g, 'd')
+        .replace(/Đ/g, 'D');
+    }
+
+    function normalizeFullNameForSms(value) {
+      return removeVietnameseTone(value)
+        .replace(/[^A-Za-z0-9\s.'-]/g, ' ')
+        .replace(/\s+/g, ' ')
+        .trim()
+        .toUpperCase();
+    }
+
+
+    function normalizePhoneForExport(value) {
+      // Giữ số điện thoại ở dạng chữ để Excel/FPT không làm mất số 0 đầu.
+      return String(value ?? '')
+        .replace(/[\u200B-\u200D\uFEFF]/g, '')
+        .replace(/^['\s]+|\s+$/g, '')
+        .replace(/[\s.-]+/g, '')
+        .trim();
+    }
+
+    function forceSheetAsPlainText(ws) {
+      // File xuất cho FPT là bảng thường: A1:Dn, 1 sheet, tất cả ô là text.
+      const range = XLSX.utils.decode_range(ws['!ref'] || 'A1:D1');
+      for (let R = range.s.r; R <= range.e.r; R++) {
+        for (let C = range.s.c; C <= range.e.c; C++) {
+          const addr = XLSX.utils.encode_cell({ r: R, c: C });
+          if (!ws[addr]) ws[addr] = { t: 's', v: '' };
+          ws[addr].t = 's';
+          ws[addr].v = String(ws[addr].v ?? '');
+          ws[addr].z = '@';
+        }
+      }
+      ws['!cols'] = [
+        { wch: 18 },
+        { wch: 105 },
+        { wch: 28 },
+        { wch: 18 }
+      ];
+      return ws;
+    }
+
+    function showAlert(message, type = 'ok') {
+      el.alertBox.className = 'alert show ' + type;
+      el.alertBox.innerHTML = message;
+    }
+
+    function hideAlert() {
+      el.alertBox.className = 'alert';
+      el.alertBox.innerHTML = '';
+    }
+
+    function setProgress(percent) {
+      el.progressBar.style.width = `${Math.max(0, Math.min(100, percent))}%`;
+    }
+
+    function colName(index) {
+      let n = index + 1;
+      let s = '';
+      while (n > 0) {
+        const m = (n - 1) % 26;
+        s = String.fromCharCode(65 + m) + s;
+        n = Math.floor((n - m) / 26);
+      }
+      return s;
+    }
+
+    function uniqueHeaders(headers) {
+      const seen = new Map();
+      return headers.map((h, idx) => {
+        const raw = String(h ?? '').trim() || `Cột ${colName(idx)}`;
+        const count = seen.get(raw) || 0;
+        seen.set(raw, count + 1);
+        return count === 0 ? raw : `${raw} (${count + 1})`;
+      });
+    }
+
+    function formatExcelSerialDate(value) {
+      const n = Number(value);
+      if (!Number.isFinite(n) || n <= 0) return '';
+      const utcDays = Math.floor(n - 25569);
+      const date = new Date(utcDays * 86400 * 1000);
+      if (Number.isNaN(date.getTime())) return '';
+      const dd = String(date.getUTCDate()).padStart(2, '0');
+      const mm = String(date.getUTCMonth() + 1).padStart(2, '0');
+      const yy = date.getUTCFullYear();
+      return `${dd}/${mm}/${yy}`;
+    }
+
+    function formatCell(value) {
+      if (value === null || value === undefined) return '';
+      if (value instanceof Date && !Number.isNaN(value.getTime())) {
+        const dd = String(value.getDate()).padStart(2, '0');
+        const mm = String(value.getMonth() + 1).padStart(2, '0');
+        return `${dd}/${mm}/${value.getFullYear()}`;
+      }
+      return String(value).trim();
+    }
+
+    function escapeHtml(value) {
+      return String(value ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    function scoreHeader(header, aliases) {
+      let bestScore = 0;
+      const headerNorm = normalizeText(header);
+      aliases.map(normalizeText).forEach(alias => {
+        if (!alias) return;
+        let score = 0;
+        if (headerNorm === alias) score = 100;
+        else if (headerNorm.includes(alias) || alias.includes(headerNorm)) score = 70;
+        else {
+          const words = alias.split(' ').filter(Boolean);
+          const matched = words.filter(w => headerNorm.includes(w)).length;
+          if (words.length && matched === words.length) score = 55;
+          else if (matched > 0) score = matched * 15;
+        }
+        bestScore = Math.max(bestScore, score);
+      });
+      return bestScore;
+    }
+
+    function findBestHeaderIndex(field) {
+      let bestIndex = -1;
+      let bestScore = 0;
+      state.headers.forEach((header, idx) => {
+        const score = scoreHeader(header, field.aliases);
+        if (score > bestScore) {
+          bestScore = score;
+          bestIndex = idx;
+        }
+      });
+      return { bestIndex, bestScore };
+    }
+
+    function findHeaderIndexByExactNormalizedNames(names) {
+      const targets = names.map(normalizeText).filter(Boolean);
+      return state.headers.findIndex(header => targets.includes(normalizeText(header)));
+    }
+
+    function autoMapHeaders() {
+      const mapping = {};
+
+      TARGET_FIELDS.forEach(field => {
+        const { bestIndex, bestScore } = findBestHeaderIndex(field);
+
+        // Template: mặc định KHÔNG tự bắt cột Template từ file ngoài.
+        // Nhờ vậy cột Template trong app luôn tự điền câu mẫu cố định ở mục 3.
+        // Nếu thật sự cần dùng mẫu ngoài, người dùng vẫn có thể chọn cột Template hoặc nhập tay ở mục 2.
+        if (field.key === 'Template') {
+          mapping[field.key] = -1;
+          return;
+        }
+
+        // Ngay_Het_Han: ưu tiên đúng cột “Thời hạn sử dụng thẻ đến ngày”; nếu không có thì dò tên tương tự; cuối cùng mới mặc định cột R.
+        if (field.key === 'Ngay_Het_Han') {
+          const exactExpiryIndex = findHeaderIndexByExactNormalizedNames([
+            'Thời hạn sử dụng thẻ đến ngày',
+            'Thời hạn sử dụng thẻ  đến ngày',
+            'thoi han su dung the den ngay'
+          ]);
+          mapping[field.key] = exactExpiryIndex >= 0
+            ? exactExpiryIndex
+            : (bestScore >= 45 ? bestIndex : (state.headers.length > EXCEL_COL_R_INDEX ? EXCEL_COL_R_INDEX : -1));
+          return;
+        }
+
+        if (field.key === 'So_Ngay_Con_Lai') {
+          mapping[field.key] = bestScore >= 45 ? bestIndex : (state.headers.length > EXCEL_COL_T_INDEX ? EXCEL_COL_T_INDEX : -1);
+          return;
+        }
+
+        mapping[field.key] = bestScore >= 45 ? bestIndex : -1;
+      });
+
+      state.mapping = mapping;
+    }
+
+    function getManualPlaceholder(fieldKey) {
+      const placeholders = {
+        phone: 'Nhập số điện thoại cố định nếu file ngoài không có cột phone',
+        Template: 'Nhập mẫu ngoài nếu không dùng mẫu mặc định ở mục 3',
+        Ho_Ten: 'Nhập họ tên cố định nếu file ngoài không có cột họ tên',
+        Ngay_Het_Han: 'Nhập ngày hết hạn cố định nếu file ngoài không có cột ngày',
+        So_Ngay_Con_Lai: 'Nhập số ngày còn lại cố định, ví dụ: 30'
+      };
+      return placeholders[fieldKey] || 'Nhập giá trị cố định nếu cần';
+    }
+
+    function getManualNote(fieldKey) {
+      if (fieldKey === 'Template') return 'Mặc định app dùng câu mẫu ở mục 3. Chỉ chọn cột/nhập tay khi muốn dùng mẫu ngoài.';
+      if (fieldKey === 'So_Ngay_Con_Lai') return 'Dòng có số ngày còn lại ≤ 30 mới được điền Template. Có thể nhập 30 để áp dụng cho toàn bộ dòng.';
+      if (fieldKey === 'Ho_Ten') return 'Giá trị lấy từ cột hoặc nhập tay đều tự chuyển thành không dấu và IN HOA.';
+      return 'Nếu ô nhập tay có nội dung, app sẽ ưu tiên dùng nội dung này thay cho cột đã chọn.';
+    }
+
+    function renderMappingBox() {
+      if (!state.headers.length) {
+        el.mappingBox.innerHTML = '<p class="hint">Sau khi nhập Excel, app sẽ tự chọn cột gần giống với mẫu. Riêng Ngay_Het_Han ưu tiên chọn cột “Thời hạn sử dụng thẻ đến ngày”, nếu không có thì mới lấy cột R. Số ngày còn lại mặc định lấy từ cột T.</p><p class="hint">Ở mục 2, mỗi trường sẽ có <b>xổ xuống chọn cột</b> và <b>ô nhập tay</b> để dùng khi file ngoài khác mẫu mặc định. Ô nhập tay nếu có nội dung sẽ được ưu tiên hơn cột đã chọn.</p><p class="hint">Cột <b>Ho_Ten</b> trong app sẽ tự đổi sang không dấu và IN HOA TOÀN BỘ.</p>';
+        return;
+      }
+
+      const options = ['<option value="-1">-- Không dùng / để trống --</option>']
+        .concat(state.headers.map((h, i) => `<option value="${i}">${escapeHtml(colName(i))} - ${escapeHtml(h)}</option>`))
+        .join('');
+
+      const manualValues = state.manualValues || {};
+      el.mappingBox.innerHTML = TARGET_FIELDS.map(field => `
+        <div class="mapping-row">
+          <b>${escapeHtml(field.label)}</b>
+          <div class="mapping-control">
+            <select data-map-field="${field.key}">${options}</select>
+            <input type="text" data-manual-field="${field.key}" value="${escapeHtml(manualValues[field.key] || '')}" placeholder="${escapeHtml(getManualPlaceholder(field.key))}" />
+            <div class="manual-input-note">${escapeHtml(getManualNote(field.key))}</div>
+          </div>
+        </div>
+      `).join('');
+
+      el.mappingBox.querySelectorAll('select[data-map-field]').forEach(select => {
+        const field = select.dataset.mapField;
+        select.value = String(state.mapping[field] ?? -1);
+        select.addEventListener('change', () => {
+          state.mapping[field] = Number(select.value);
+          rebuildRecords();
+          scheduleSave();
+        });
+      });
+
+      el.mappingBox.querySelectorAll('input[data-manual-field]').forEach(input => {
+        const field = input.dataset.manualField;
+        input.addEventListener('change', () => {
+          state.manualValues[field] = input.value.trim();
+          rebuildRecords();
+          scheduleSave();
+        });
+        input.addEventListener('blur', () => {
+          state.manualValues[field] = input.value.trim();
+          rebuildRecords();
+          scheduleSave();
+        });
+      });
+    }
+
+    function getByMap(row, key) {
+      const manual = String((state.manualValues || {})[key] || '').trim();
+      if (manual) return manual;
+      const idx = state.mapping[key];
+      if (idx === undefined || idx === null || idx < 0) return '';
+      return formatCell(row[idx]);
+    }
+
+    function getAutoTemplate() {
+      const current = String(el.defaultTemplate.value || '').trim();
+      return current || FIXED_TEMPLATE;
+    }
+
+    function parseRemainingDays(value) {
+      const text = String(value ?? '').trim();
+      if (!text) return null;
+      const normalized = text.replace(/,/g, '.').replace(/\s+/g, ' ');
+      const match = normalized.match(/-?\d+(?:\.\d+)?/);
+      if (!match) return null;
+      const num = Number(match[0]);
+      return Number.isFinite(num) ? num : null;
+    }
+
+    function isWithin30Days(value) {
+      const days = parseRemainingDays(value);
+      return days !== null && days <= 30;
+    }
+
+    function buildTemplateForRecord(record) {
+      // QUAN TRỌNG: Giữ nguyên mẫu Template, KHÔNG tự điền Ho_Ten / Ngay_Het_Han / phone.
+      // Mặc định luôn dùng câu mẫu ở mục 3:
+      // The BHYT cua QK [Ho_Ten] het han ngay [Ngay_Het_Han]. QK den Phong 3 cua PK trong gio HC de duoc gia han. LH 0987519115.
+      // Chỉ khi người dùng cố tình chọn cột Template hoặc nhập mẫu ở mục 2 thì mới dùng mẫu ngoài.
+      const externalTemplate = String(record && record._sourceTemplate ? record._sourceTemplate : '').trim();
+      return externalTemplate || getAutoTemplate();
+    }
+
+    function applyTemplateRule(record, force = false) {
+      const eligible = isWithin30Days(record.So_Ngay_Con_Lai);
+      record._eligible = eligible;
+      record._daysRemaining = parseRemainingDays(record.So_Ngay_Con_Lai);
+
+      if (eligible) {
+        if (force || !record._manualTemplate) {
+          record.Template = buildTemplateForRecord(record);
+          record._autoTemplate = true;
+          record._manualTemplate = false;
+        }
+      } else if (force || !record._manualTemplate) {
+        record.Template = '';
+        record._autoTemplate = false;
+        record._manualTemplate = false;
+      }
+      return record;
+    }
+
+    function rebuildRecords() {
+      state.defaultTemplate = el.defaultTemplate.value || FIXED_TEMPLATE;
+      state.records = state.dataRows
+        .filter(row => row.some(cell => String(cell ?? '').trim() !== ''))
+        .map((row, index) => {
+          const record = {
+            STT: index + 1,
+            phone: getByMap(row, 'phone'),
+            Template: '',
+            _sourceTemplate: getByMap(row, 'Template'),
+            Ho_Ten: normalizeFullNameForSms(getByMap(row, 'Ho_Ten')),
+            Ngay_Het_Han: getByMap(row, 'Ngay_Het_Han'),
+            So_Ngay_Con_Lai: getByMap(row, 'So_Ngay_Con_Lai'),
+            _raw: row,
+            _manualTemplate: false,
+            _autoTemplate: false,
+            _eligible: false,
+            _daysRemaining: null
+          };
+          return applyTemplateRule(record, true);
+        });
+
+      state.currentPage = 1;
+      el.pageNumber.value = '1';
+      updateStats();
+      renderTable();
+      updateButtons();
+    }
+
+    function refreshAutoTemplates() {
+      state.defaultTemplate = el.defaultTemplate.value || FIXED_TEMPLATE;
+      state.records.forEach(record => {
+        if (!record._manualTemplate) applyTemplateRule(record, true);
+      });
+      updateStats();
+      renderTable();
+      scheduleSave();
+    }
+
+    function updateStats() {
+      el.statRows.textContent = state.records.length.toLocaleString('vi-VN');
+      el.statCols.textContent = state.headers.length.toLocaleString('vi-VN');
+      el.statPhone.textContent = state.records.filter(r => String(r.phone).trim()).length.toLocaleString('vi-VN');
+      el.statMsg.textContent = state.records.filter(r => String(r.Template).trim()).length.toLocaleString('vi-VN');
+    }
+
+    function parseDateForSort(value) {
+      const text = String(value ?? '').trim();
+      if (!text) return null;
+
+      const vn = text.match(/^(\d{1,2})[\/\-.](\d{1,2})[\/\-.](\d{2,4})$/);
+      if (vn) {
+        const d = Number(vn[1]);
+        const m = Number(vn[2]) - 1;
+        let y = Number(vn[3]);
+        if (y < 100) y += 2000;
+        const date = new Date(y, m, d);
+        if (!Number.isNaN(date.getTime())) return date.getTime();
+      }
+
+      const iso = Date.parse(text);
+      return Number.isNaN(iso) ? null : iso;
+    }
+
+    function getSortValue(record, key) {
+      if (key === 'STT') return Number(record.STT || 0);
+      if (key === 'Ngay_Het_Han') {
+        const time = parseDateForSort(record.Ngay_Het_Han);
+        if (time !== null) return time;
+      }
+      if (key === 'So_Ngay_Con_Lai') {
+        const days = parseRemainingDays(record.So_Ngay_Con_Lai);
+        if (days !== null) return days;
+      }
+      return normalizeText(record[key] ?? '');
+    }
+
+    function sortRecords(rows) {
+      const key = state.sortKey;
+      if (!key) return rows;
+      const dir = state.sortDir === 'desc' ? -1 : 1;
+      return rows.slice().sort((a, b) => {
+        const av = getSortValue(a, key);
+        const bv = getSortValue(b, key);
+        const aEmpty = av === '' || av === null || av === undefined;
+        const bEmpty = bv === '' || bv === null || bv === undefined;
+        if (aEmpty && bEmpty) return Number(a.STT || 0) - Number(b.STT || 0);
+        if (aEmpty) return 1;
+        if (bEmpty) return -1;
+        if (typeof av === 'number' && typeof bv === 'number') {
+          return (av - bv || Number(a.STT || 0) - Number(b.STT || 0)) * dir;
+        }
+        return (String(av).localeCompare(String(bv), 'vi', { numeric: true }) || Number(a.STT || 0) - Number(b.STT || 0)) * dir;
+      });
+    }
+
+    function filteredRecords() {
+      const q = normalizeText(state.search);
+      const rows = q
+        ? state.records.filter(r => normalizeText(`${r.phone} ${r.Template} ${r.Ho_Ten} ${r.Ngay_Het_Han} ${r.So_Ngay_Con_Lai}`).includes(q))
+        : state.records;
+      return sortRecords(rows);
+    }
+
+    function sortHeaderButton(key, label) {
+      const active = state.sortKey === key;
+      const icon = active ? (state.sortDir === 'desc' ? '▼' : '▲') : '↕';
+      const title = active
+        ? `Đang sắp xếp ${label} ${state.sortDir === 'desc' ? 'giảm dần' : 'tăng dần'}. Bấm để đổi chiều.`
+        : `Bấm để sắp xếp theo ${label}`;
+      return `<button type="button" class="sort-btn${active ? ' is-active' : ''}" data-sort-key="${escapeHtml(key)}" title="${escapeHtml(title)}"><span>${escapeHtml(label)}</span><span class="sort-icon">${icon}</span></button>`;
+    }
+
+    function updateSortControls() {
+      if (el.sortField) el.sortField.value = state.sortKey || '';
+      if (el.sortDirection) el.sortDirection.value = state.sortDir === 'desc' ? 'desc' : 'asc';
+    }
+
+    function showSortStatus() {
+      if (!state.sortKey) {
+        showAlert('Đã tắt sắp xếp, bảng trở về thứ tự dữ liệu hiện tại.', 'ok');
+        return;
+      }
+      showAlert(`Đã sắp xếp cột <b>${escapeHtml(SORT_LABELS[state.sortKey] || state.sortKey)}</b> theo thứ tự <b>${state.sortDir === 'desc' ? 'giảm dần' : 'tăng dần'}</b>.`, 'ok');
+    }
+
+    function applySortFromToolbar() {
+      state.sortKey = el.sortField ? el.sortField.value : '';
+      state.sortDir = el.sortDirection && el.sortDirection.value === 'desc' ? 'desc' : 'asc';
+      state.currentPage = 1;
+      renderTable();
+      scheduleSave();
+      showSortStatus();
+    }
+
+    function handleSortClick(key) {
+      if (state.sortKey === key) {
+        state.sortDir = state.sortDir === 'asc' ? 'desc' : 'asc';
+      } else {
+        state.sortKey = key;
+        state.sortDir = 'asc';
+      }
+      state.currentPage = 1;
+      updateSortControls();
+      renderTable();
+      scheduleSave();
+      showSortStatus();
+    }
+
+    function renderTable() {
+      updateSortControls();
+      const rows = filteredRecords();
+      const pageSize = Number(state.pageSize || 100);
+      const totalPages = Math.max(1, Math.ceil(rows.length / pageSize));
+      state.currentPage = Math.min(Math.max(1, Number(state.currentPage || 1)), totalPages);
+      el.pageNumber.value = String(state.currentPage);
+
+      if (!rows.length) {
+        el.tableWrap.innerHTML = '<div class="empty">Không có dữ liệu phù hợp.</div>';
+        el.pageInfo.textContent = '0 dòng';
+        return;
+      }
+
+      const start = (state.currentPage - 1) * pageSize;
+      const pageRows = rows.slice(start, start + pageSize);
+      const body = pageRows.map((r, visibleIndex) => {
+        const realIndex = state.records.indexOf(r);
+        return `<tr data-record-index="${realIndex}">
+          <td>${start + visibleIndex + 1}</td>
+          <td class="editable" contenteditable="true" data-edit="phone">${escapeHtml(r.phone)}</td>
+          <td class="editable msg" contenteditable="true" data-edit="Template">${escapeHtml(r.Template)}</td>
+          <td class="editable" contenteditable="true" data-edit="Ho_Ten">${escapeHtml(r.Ho_Ten)}</td>
+          <td class="editable" contenteditable="true" data-edit="Ngay_Het_Han">${escapeHtml(r.Ngay_Het_Han)}</td>
+        </tr>`;
+      }).join('');
+
+      el.tableWrap.innerHTML = `<table>
+        <thead>
+          <tr>
+            <th>${sortHeaderButton('STT', 'STT')}</th>
+            <th>${sortHeaderButton('phone', 'phone')}</th>
+            <th>${sortHeaderButton('Template', 'Template')}</th>
+            <th>${sortHeaderButton('Ho_Ten', 'Ho_Ten')}</th>
+            <th>${sortHeaderButton('Ngay_Het_Han', 'Ngay_Het_Han')}</th>
+          </tr>
+        </thead>
+        <tbody>${body}</tbody>
+      </table>`;
+
+      el.tableWrap.querySelectorAll('button[data-sort-key]').forEach(button => {
+        button.addEventListener('click', () => handleSortClick(button.dataset.sortKey));
+      });
+
+      el.tableWrap.querySelectorAll('[contenteditable][data-edit]').forEach(cell => {
+        cell.addEventListener('blur', () => {
+          const tr = cell.closest('tr');
+          const record = state.records[Number(tr.dataset.recordIndex)];
+          if (!record) return;
+          const field = cell.dataset.edit;
+          let value = cell.textContent.trim();
+          if (field === 'Ho_Ten') value = normalizeFullNameForSms(value);
+          record[field] = value;
+          if (field === 'Template') {
+            record._manualTemplate = true;
+            record._autoTemplate = false;
+          } else if (record._eligible && !record._manualTemplate) {
+            applyTemplateRule(record, false);
+          }
+          renderTable();
+          updateStats();
+          scheduleSave();
+        });
+      });
+
+      const sortText = state.sortKey ? ` | Sắp xếp: ${state.sortKey} ${state.sortDir === 'desc' ? 'giảm dần' : 'tăng dần'}` : '';
+      el.pageInfo.textContent = `Hiển thị ${start + 1}-${Math.min(start + pageSize, rows.length)} / ${rows.length.toLocaleString('vi-VN')} dòng${sortText}`;
+    }
+
+    function updateButtons() {
+      const hasData = state.records.length > 0;
+      el.btnExport.disabled = !hasData;
+      el.btnCopyVisible.disabled = !hasData;
+      el.btnFillTemplate.disabled = !hasData;
+      el.btnReadAgain.disabled = !state.workbook;
+      el.btnSaveDrive.disabled = !driveDirHandle;
+      el.sheetSelect.disabled = !state.workbook;
+    }
+
+    async function readExcelFile(file) {
+      if (!window.XLSX) {
+        showAlert('Không tải được thư viện đọc Excel. Hãy mở app khi có Internet hoặc kiểm tra lại kết nối.', 'err');
+        return;
+      }
+
+      try {
+        setProgress(8);
+        hideAlert();
+        state.workbookName = file.name;
+        const data = await file.arrayBuffer();
+        setProgress(35);
+        state.workbook = XLSX.read(data, { type: 'array', cellDates: true, sheetRows: 0 });
+        state.sheetNames = state.workbook.SheetNames || [];
+        state.sheetName = state.sheetNames[0] || '';
+        setProgress(70);
+        renderSheetSelect();
+        loadSelectedSheet();
+        setProgress(100);
+        showAlert(`Đã đọc file <b>${escapeHtml(file.name)}</b>. Tổng dòng dữ liệu: <b>${state.records.length.toLocaleString('vi-VN')}</b>. Template mặc định dùng câu mẫu cố định ở mục 3, Ho_Ten đã tự chuyển không dấu và IN HOA.`, 'ok');
+        scheduleSave();
+        setTimeout(() => setProgress(0), 900);
+      } catch (err) {
+        console.error(err);
+        showAlert('Không đọc được file Excel/CSV. Hãy kiểm tra lại file hoặc dòng tiêu đề.', 'err');
+        setProgress(0);
+      }
+    }
+
+    function renderSheetSelect() {
+      el.sheetSelect.innerHTML = state.sheetNames.map(name => `<option value="${escapeHtml(name)}">${escapeHtml(name)}</option>`).join('');
+      el.sheetSelect.value = state.sheetName;
+      updateButtons();
+    }
+
+    function loadSelectedSheet() {
+      if (!state.workbook || !state.sheetName) return;
+      const ws = state.workbook.Sheets[state.sheetName];
+      const rows = XLSX.utils.sheet_to_json(ws, { header: 1, defval: '', raw: false, blankrows: false });
+      const headerIndex = Math.max(0, Number(el.headerRow.value || 1) - 1);
+      const maxCols = rows.reduce((max, row) => Math.max(max, Array.isArray(row) ? row.length : 0), 0);
+      const headerRow = rows[headerIndex] || [];
+      const paddedHeaders = Array.from({ length: maxCols }, (_, i) => headerRow[i] ?? '');
+      state.rawRows = rows;
+      state.headers = uniqueHeaders(paddedHeaders);
+      state.dataRows = rows.slice(headerIndex + 1);
+      autoMapHeaders();
+      renderMappingBox();
+      rebuildRecords();
+    }
+
+    function exportWorkbook(downloadOnly = true) {
+      if (!window.XLSX) {
+        showAlert('Không tải được thư viện xuất Excel.', 'err');
+        return null;
+      }
+
+      // Xuất chuẩn FPT SMS: 1 sheet duy nhất, bảng thường, đúng 4 cột mặc định.
+      // Chỉ xuất dòng có Template để tránh FPT nhận dòng rỗng/không có nội dung gửi.
+      const resultRows = sortRecords(state.records)
+        .filter(r => String(r.Template || '').trim())
+        .map(r => ({
+          phone: normalizePhoneForExport(r.phone),
+          Template: String(r.Template || '').trim(),
+          Ho_Ten: normalizeFullNameForSms(r.Ho_Ten),
+          Ngay_Het_Han: String(r.Ngay_Het_Han || '').trim()
+        }));
+
+      if (!resultRows.length) {
+        showAlert('Chưa có dòng nào có Template để xuất FPT. Hãy kiểm tra cột Số ngày còn lại hoặc bấm “Điền Template theo ngày còn lại ≤ 30”.', 'warn');
+        return null;
+      }
+
+      const wb = XLSX.utils.book_new();
+      const headers = ['phone', 'Template', 'Ho_Ten', 'Ngay_Het_Han'];
+      const rows = [headers].concat(resultRows.map(r => headers.map(h => r[h] ?? '')));
+      const resultSheet = XLSX.utils.aoa_to_sheet(rows);
+      forceSheetAsPlainText(resultSheet);
+      XLSX.utils.book_append_sheet(wb, resultSheet, 'FPT_SMS');
+
+      const fileName = `FPT_SMS_Nhac_BHYT_${new Date().toISOString().slice(0, 10)}.xlsx`;
+      if (downloadOnly) {
+        XLSX.writeFile(wb, fileName);
+        showAlert(`Đã xuất Excel chuẩn FPT: <b>${escapeHtml(fileName)}</b>. File chỉ có 1 sheet <b>FPT_SMS</b> và 4 cột: phone, Template, Ho_Ten, Ngay_Het_Han.`, 'ok');
+      }
+      return { wb, fileName };
+    }
+
+    function getSerializableState() {
+      return {
+        appTitle: state.appTitle || DEFAULT_APP_TITLE,
+        appTitleVisible: state.appTitleVisible !== false,
+        appDescVisible: state.appDescVisible === true,
+        workbookName: state.workbookName,
+        sheetName: state.sheetName,
+        headers: state.headers,
+        dataRows: state.dataRows,
+        mapping: state.mapping,
+        manualValues: state.manualValues,
+        records: state.records.map(({ _raw, ...rest }) => rest),
+        defaultTemplate: state.defaultTemplate || el.defaultTemplate.value || FIXED_TEMPLATE,
+        sortKey: state.sortKey,
+        sortDir: state.sortDir,
+        lastSaved: new Date().toISOString()
+      };
+    }
+
+    function saveLocal() {
+      const data = getSerializableState();
+      const json = JSON.stringify(data);
+      state.lastSaved = data.lastSaved;
+
+      if (json.length > LOCAL_STORAGE_MAX_CHARS) {
+        localStorage.removeItem(STORAGE_KEY);
+        return false;
+      }
+
+      localStorage.setItem(STORAGE_KEY, json);
+      return true;
+    }
+
+    function restoreFromData(data) {
+      if (data && (data.appTitle || data.appTitleVisible !== undefined || data.appDescVisible !== undefined)) {
+        state.appTitle = cleanAppTitle(data.appTitle || localStorage.getItem(APP_TITLE_STORAGE_KEY) || DEFAULT_APP_TITLE);
+        state.appTitleVisible = data.appTitleVisible === undefined ? state.appTitleVisible !== false : data.appTitleVisible !== false;
+        state.appDescVisible = data.appDescVisible === undefined ? state.appDescVisible === true : data.appDescVisible === true;
+        localStorage.setItem(APP_TITLE_STORAGE_KEY, state.appTitle);
+        localStorage.setItem(APP_TITLE_VISIBLE_STORAGE_KEY, state.appTitleVisible ? '1' : '0');
+        localStorage.setItem(APP_DESC_VISIBLE_STORAGE_KEY, state.appDescVisible ? '1' : '0');
+        applyAppTitleUi();
+        applyHeroDescriptionUi();
+      }
+      state.workbook = null;
+      state.workbookName = data.workbookName || 'Dữ liệu đã lưu';
+      state.sheetName = data.sheetName || '';
+      state.sheetNames = state.sheetName ? [state.sheetName] : [];
+      state.headers = data.headers || [];
+      state.dataRows = data.dataRows || [];
+      state.mapping = data.mapping || {};
+      state.manualValues = data.manualValues || {};
+      state.sortKey = data.sortKey || '';
+      state.sortDir = data.sortDir === 'desc' ? 'desc' : 'asc';
+      state.defaultTemplate = data.defaultTemplate || FIXED_TEMPLATE;
+      el.defaultTemplate.value = state.defaultTemplate;
+      state.records = (data.records || []).map((r, i) => {
+        const record = {
+          STT: i + 1,
+          phone: r.phone || '',
+          Template: r.Template || '',
+          _sourceTemplate: r._sourceTemplate || '',
+          Ho_Ten: normalizeFullNameForSms(r.Ho_Ten || ''),
+          Ngay_Het_Han: r.Ngay_Het_Han || '',
+          So_Ngay_Con_Lai: r.So_Ngay_Con_Lai || '',
+          _raw: [],
+          _manualTemplate: Boolean(r._manualTemplate),
+          _autoTemplate: Boolean(r._autoTemplate),
+          _eligible: Boolean(r._eligible),
+          _daysRemaining: r._daysRemaining ?? null
+        };
+
+        if (!record._manualTemplate) applyTemplateRule(record, true);
+        return record;
+      });
+
+      if (!state.records.length && state.dataRows.length && state.headers.length) rebuildRecords();
+      renderSheetSelect();
+      renderMappingBox();
+      updateStats();
+      renderTable();
+      updateButtons();
+    }
+
+    function loadLocalIfAny() {
+      try {
+        const saved = localStorage.getItem(STORAGE_KEY);
+        if (!saved) return;
+        const data = JSON.parse(saved);
+        if (!data || (!data.records && !data.dataRows)) return;
+        restoreFromData(data);
+        showAlert('Đã khôi phục dữ liệu lưu tạm trong trình duyệt.', 'ok');
+      } catch (err) {
+        console.warn(err);
+      }
+    }
+
+    function scheduleSave() {
+      clearTimeout(autosaveTimer);
+      autosaveTimer = setTimeout(() => {
+        try { saveLocal(); } catch (err) { console.warn(err); }
+      }, 500);
+    }
+
+    async function saveToDrive() {
+      if (!driveDirHandle) {
+        showAlert('Bạn chưa chọn thư mục Google Drive.', 'warn');
+        return;
+      }
+
+      try {
+        const data = getSerializableState();
+        const fileHandle = await driveDirHandle.getFileHandle('App_Nhac_BHYT_du_lieu.json', { create: true });
+        const writable = await fileHandle.createWritable();
+        await writable.write(JSON.stringify(data, null, 2));
+        await writable.close();
+        state.lastSaved = data.lastSaved;
+        showAlert('Đã lưu dữ liệu JSON vào thư mục đã chọn.', 'ok');
+      } catch (err) {
+        console.error(err);
+        showAlert('Không lưu được vào thư mục đã chọn. Hãy cấp quyền lại hoặc chọn thư mục khác.', 'err');
+      }
+    }
+
+
+    function getHeaderSignature() {
+      return state.headers.map(header => normalizeText(header)).join('|');
+    }
+
+    function readConfigSnapshot(key) {
+      try {
+        const raw = localStorage.getItem(key);
+        if (!raw) return null;
+        const data = JSON.parse(raw);
+        if (!data || typeof data !== 'object') return null;
+        return data;
+      } catch (err) {
+        console.warn('Không đọc được cấu hình đã lưu:', err);
+        return null;
+      }
+    }
+
+    function writeConfigSnapshot(key, snapshot) {
+      localStorage.setItem(key, JSON.stringify(snapshot));
+      updateAreaConfigButtons();
+    }
+
+    function getMappingSnapshot() {
+      return {
+        mapping: { ...state.mapping },
+        manualValues: { ...(state.manualValues || {}) },
+        headerSignature: getHeaderSignature(),
+        savedAt: new Date().toISOString()
+      };
+    }
+
+    function applyMappingSnapshot(snapshot, options = {}) {
+      if (!snapshot || typeof snapshot !== 'object') return false;
+      const { skipHeaderCheck = true } = options;
+
+      if (!skipHeaderCheck && snapshot.headerSignature && snapshot.headerSignature !== getHeaderSignature()) {
+        return false;
+      }
+
+      state.mapping = { ...(snapshot.mapping || {}) };
+      state.manualValues = { ...(snapshot.manualValues || {}) };
+      renderMappingBox();
+      if (state.headers.length && state.dataRows.length) {
+        rebuildRecords();
+      } else {
+        updateStats();
+        renderTable();
+        updateButtons();
+      }
+      scheduleSave();
+      updateAreaConfigButtons();
+      return true;
+    }
+
+    function saveMappingConfig() {
+      writeConfigSnapshot(CONFIG_MAPPING_STORAGE_KEY, getMappingSnapshot());
+      scheduleSave();
+      showAlert('Đã lưu riêng vùng chọn cột.', 'ok');
+    }
+
+    function resetMappingConfig() {
+      const ok = confirm('Reset riêng vùng chọn cột? App sẽ tự dò lại phone / Ho_Ten / Ngay_Het_Han / Số ngày còn lại, xóa các ô nhập tay ở mục 2 và đưa Template về dùng mẫu cố định ở mục 3. Dữ liệu Excel đã nhập KHÔNG bị xóa.');
+      if (!ok) return;
+
+      writeConfigSnapshot(CONFIG_MAPPING_UNDO_KEY, getMappingSnapshot());
+      state.manualValues = {};
+      if (state.headers.length) {
+        autoMapHeaders();
+      } else {
+        state.mapping = {};
+      }
+      renderMappingBox();
+      if (state.headers.length && state.dataRows.length) {
+        rebuildRecords();
+      } else {
+        updateStats();
+        renderTable();
+        updateButtons();
+      }
+      scheduleSave();
+      updateAreaConfigButtons();
+      showAlert('Đã reset riêng vùng chọn cột. Nếu lỡ tay, bấm <b>Quay lại vùng chọn cột</b>.', 'warn');
+    }
+
+    function undoResetMappingConfig() {
+      const snapshot = readConfigSnapshot(CONFIG_MAPPING_UNDO_KEY);
+      if (!snapshot) {
+        showAlert('Chưa có bản khôi phục cho vùng chọn cột.', 'warn');
+        updateAreaConfigButtons();
+        return;
+      }
+      applyMappingSnapshot(snapshot, { skipHeaderCheck: true });
+      showAlert('Đã quay lại vùng chọn cột trước khi Reset.', 'ok');
+    }
+
+    function getTemplateSnapshot() {
+      return {
+        defaultTemplate: String(el.defaultTemplate.value || FIXED_TEMPLATE),
+        savedAt: new Date().toISOString()
+      };
+    }
+
+    function applyTemplateSnapshot(snapshot) {
+      if (!snapshot || typeof snapshot !== 'object') return false;
+      state.defaultTemplate = String(snapshot.defaultTemplate || FIXED_TEMPLATE);
+      el.defaultTemplate.value = state.defaultTemplate;
+      refreshAutoTemplates();
+      scheduleSave();
+      updateAreaConfigButtons();
+      return true;
+    }
+
+    function saveTemplateConfig() {
+      writeConfigSnapshot(CONFIG_TEMPLATE_STORAGE_KEY, getTemplateSnapshot());
+      scheduleSave();
+      showAlert('Đã lưu riêng vùng Template.', 'ok');
+    }
+
+    function resetTemplateConfig() {
+      const ok = confirm('Reset riêng vùng Template? App chỉ đưa mẫu Template về câu gốc. Phần chọn cột và dữ liệu Excel đã nhập KHÔNG bị xóa.');
+      if (!ok) return;
+
+      writeConfigSnapshot(CONFIG_TEMPLATE_UNDO_KEY, getTemplateSnapshot());
+      state.defaultTemplate = FIXED_TEMPLATE;
+      el.defaultTemplate.value = FIXED_TEMPLATE;
+      refreshAutoTemplates();
+      updateAreaConfigButtons();
+      showAlert('Đã reset riêng vùng Template. Nếu lỡ tay, bấm <b>Quay lại vùng Template</b>.', 'warn');
+    }
+
+    function undoResetTemplateConfig() {
+      const snapshot = readConfigSnapshot(CONFIG_TEMPLATE_UNDO_KEY);
+      if (!snapshot) {
+        showAlert('Chưa có bản khôi phục cho vùng Template.', 'warn');
+        updateAreaConfigButtons();
+        return;
+      }
+      applyTemplateSnapshot(snapshot);
+      showAlert('Đã quay lại vùng Template trước khi Reset.', 'ok');
+    }
+
+    function updateAreaConfigButtons() {
+      if (el.btnUndoMapping) {
+        el.btnUndoMapping.disabled = !localStorage.getItem(CONFIG_MAPPING_UNDO_KEY);
+      }
+      if (el.btnUndoTemplateConfig) {
+        el.btnUndoTemplateConfig.disabled = !localStorage.getItem(CONFIG_TEMPLATE_UNDO_KEY);
+      }
+    }
+
+    function fillTemplatesByRule() {
+      state.records.forEach(record => applyTemplateRule(record, true));
+      updateStats();
+      renderTable();
+      scheduleSave();
+      showAlert('Đã điền lại Template theo quy tắc: Số ngày còn lại ≤ 30 thì điền mẫu ngoài ở mục 2 nếu có, nếu không thì dùng mẫu ở mục 3; còn lại để trống.', 'ok');
+    }
+
+    async function copyVisibleTemplates() {
+      const text = filteredRecords()
+        .slice((state.currentPage - 1) * state.pageSize, state.currentPage * state.pageSize)
+        .map(r => String(r.Template || '').trim())
+        .filter(Boolean)
+        .join('\n');
+
+      if (!text) {
+        showAlert('Trang hiện tại chưa có Template để copy.', 'warn');
+        return;
+      }
+
+      try {
+        await navigator.clipboard.writeText(text);
+        showAlert('Đã copy Template của trang hiện tại.', 'ok');
+      } catch (err) {
+        const ta = document.createElement('textarea');
+        ta.value = text;
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand('copy');
+        ta.remove();
+        showAlert('Đã copy Template của trang hiện tại.', 'ok');
+      }
+    }
+
+    function resetAll() {
+      if (!confirm('Bạn có chắc muốn reset toàn bộ dữ liệu đã nhập/lưu tạm không?')) return;
+      localStorage.removeItem(STORAGE_KEY);
+      state.workbook = null;
+      state.workbookName = '';
+      state.sheetName = '';
+      state.sheetNames = [];
+      state.rawRows = [];
+      state.headers = [];
+      state.dataRows = [];
+      state.mapping = {};
+      state.manualValues = {};
+      state.records = [];
+      state.currentPage = 1;
+      state.search = '';
+      state.sortKey = '';
+      state.sortDir = 'asc';
+      state.defaultTemplate = FIXED_TEMPLATE;
+      el.defaultTemplate.value = FIXED_TEMPLATE;
+      el.excelFile.value = '';
+      el.sheetSelect.innerHTML = '';
+      el.searchInput.value = '';
+      el.pageNumber.value = '1';
+      updateSortControls();
+      renderMappingBox();
+      updateStats();
+      renderTable();
+      updateButtons();
+      showAlert('Đã reset dữ liệu.', 'ok');
+    }
+
+
+    el.btnSaveAppTitle.addEventListener('click', () => saveAppTitleSettings(true));
+    el.btnToggleAppTitle.addEventListener('click', toggleAppTitleVisibility);
+    el.btnToggleHeroDesc.addEventListener('click', toggleHeroDescription);
+    el.appTitleInput.addEventListener('keydown', event => {
+      if (event.key === 'Enter') {
+        event.preventDefault();
+        saveAppTitleSettings(true);
+      }
+    });
+
+    el.excelFile.addEventListener('change', event => {
+      const file = event.target.files && event.target.files[0];
+      if (file) readExcelFile(file);
+    });
+
+    el.sheetSelect.addEventListener('change', () => {
+      state.sheetName = el.sheetSelect.value;
+      loadSelectedSheet();
+      scheduleSave();
+    });
+
+    el.headerRow.addEventListener('change', () => {
+      loadSelectedSheet();
+      scheduleSave();
+    });
+
+    el.btnReadAgain.addEventListener('click', () => {
+      if (state.workbook) {
+        loadSelectedSheet();
+        showAlert('Đã đọc lại sheet hiện tại.', 'ok');
+      }
+    });
+
+    el.defaultTemplate.addEventListener('change', refreshAutoTemplates);
+    el.defaultTemplate.addEventListener('blur', refreshAutoTemplates);
+
+    el.searchInput.addEventListener('input', () => {
+      state.search = el.searchInput.value;
+      state.currentPage = 1;
+      renderTable();
+    });
+
+    el.sortField.addEventListener('change', applySortFromToolbar);
+    el.sortDirection.addEventListener('change', () => {
+      if (!state.sortKey && el.sortField) {
+        state.sortKey = el.sortField.value || 'STT';
+        el.sortField.value = state.sortKey;
+      }
+      applySortFromToolbar();
+    });
+
+    el.pageSize.addEventListener('change', () => {
+      state.pageSize = Number(el.pageSize.value || 100);
+      state.currentPage = 1;
+      renderTable();
+      scheduleSave();
+    });
+
+    el.pageNumber.addEventListener('change', () => {
+      state.currentPage = Math.max(1, Number(el.pageNumber.value || 1));
+      renderTable();
+    });
+
+    el.btnPrev.addEventListener('click', () => {
+      state.currentPage = Math.max(1, state.currentPage - 1);
+      renderTable();
+    });
+
+    el.btnNext.addEventListener('click', () => {
+      state.currentPage += 1;
+      renderTable();
+    });
+
+    el.btnSaveMapping.addEventListener('click', saveMappingConfig);
+    el.btnResetMapping.addEventListener('click', resetMappingConfig);
+    el.btnUndoMapping.addEventListener('click', undoResetMappingConfig);
+    el.btnSaveTemplateConfig.addEventListener('click', saveTemplateConfig);
+    el.btnResetTemplateConfig.addEventListener('click', resetTemplateConfig);
+    el.btnUndoTemplateConfig.addEventListener('click', undoResetTemplateConfig);
+    el.btnFillTemplate.addEventListener('click', fillTemplatesByRule);
+    el.btnCopyVisible.addEventListener('click', copyVisibleTemplates);
+    el.btnExport.addEventListener('click', () => exportWorkbook(true));
+    el.btnReset.addEventListener('click', resetAll);
+
+    el.btnPickDrive.addEventListener('click', async () => {
+      if (!window.showDirectoryPicker) {
+        showAlert('Trình duyệt này chưa hỗ trợ chọn thư mục. Hãy dùng Chrome hoặc Edge bản mới.', 'warn');
+        return;
+      }
+
+      try {
+        driveDirHandle = await window.showDirectoryPicker({ mode: 'readwrite' });
+        el.driveStatus.textContent = 'Google Drive: đã chọn thư mục';
+        updateButtons();
+        await saveToDrive();
+      } catch (err) {
+        console.warn(err);
+        showAlert('Chưa chọn thư mục hoặc chưa cấp quyền ghi file.', 'warn');
+      }
+    });
+
+    el.btnSaveDrive.addEventListener('click', saveToDrive);
+
+    el.btnLoadJson.addEventListener('click', () => el.jsonFile.click());
+    el.jsonFile.addEventListener('change', async event => {
+      const file = event.target.files && event.target.files[0];
+      if (!file) return;
+      try {
+        const text = await file.text();
+        const data = JSON.parse(text);
+        restoreFromData(data);
+        showAlert('Đã mở dữ liệu JSON đã lưu.', 'ok');
+        scheduleSave();
+      } catch (err) {
+        console.error(err);
+        showAlert('File JSON không đúng định dạng dữ liệu của app.', 'err');
+      } finally {
+        el.jsonFile.value = '';
+      }
+    });
+
+    window.addEventListener('beforeunload', () => {
+      try { saveLocal(); } catch (err) { console.warn(err); }
+    });
+
+    loadAppTitleSettings();
+    loadHeroDescriptionSettings();
+    el.defaultTemplate.value = FIXED_TEMPLATE;
+    loadLocalIfAny();
+    updateSortControls();
+    updateButtons();
+    updateAreaConfigButtons();
+  </script>
+</body>
+</html>

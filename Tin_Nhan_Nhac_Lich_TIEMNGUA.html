@@ -1,0 +1,1154 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>App nhắc lịch tiêm ngừa</title>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <style>
+    :root {
+      --primary: #0f766e;
+      --primary-dark: #115e59;
+      --bg: #f4f7f8;
+      --card: #ffffff;
+      --text: #102027;
+      --muted: #667085;
+      --line: #d9e2e6;
+      --soft: #e8f5f3;
+      --danger: #b42318;
+      --warn: #b54708;
+      --ok: #047857;
+      --shadow: 0 8px 24px rgba(16, 32, 39, 0.08);
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      color: var(--text);
+      background: linear-gradient(180deg, #e9f7f5 0%, var(--bg) 280px);
+    }
+    .app { width: min(1560px, calc(100vw - 24px)); margin: 16px auto 32px; }
+    .hero {
+      background: linear-gradient(135deg, #0f766e, #0d9488);
+      color: white;
+      border-radius: 20px;
+      padding: 20px 22px;
+      box-shadow: var(--shadow);
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 12px;
+      align-items: center;
+    }
+    .hero h1 { margin: 0 0 8px; font-size: clamp(22px, 3vw, 34px); letter-spacing: -0.5px; }
+    .hero p { margin: 0; opacity: 0.94; line-height: 1.5; }
+    .hero .short-desc { margin-top: 8px; max-width: 1080px; }
+    .hero .long-desc { margin-top: 10px; max-width: 1180px; display: none; }
+    .hero .long-desc.show { display: block; }
+    .status-pill {
+      background: rgba(255,255,255,0.16);
+      border: 1px solid rgba(255,255,255,0.28);
+      border-radius: 999px;
+      padding: 10px 14px;
+      white-space: nowrap;
+      font-weight: bold;
+    }
+    .hero-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
+    .hero-actions button { background: rgba(255,255,255,0.18); color: white; border: 1px solid rgba(255,255,255,0.28); }
+    .rename-panel {
+      margin-top: 12px;
+      display: grid;
+      grid-template-columns: minmax(240px, 420px) auto;
+      gap: 8px;
+      align-items: end;
+      max-width: 620px;
+    }
+    .rename-panel.hidden { display: none; }
+    .rename-panel label { color: rgba(255,255,255,0.92); margin: 0 0 6px; }
+
+    .grid { display: grid; grid-template-columns: 390px 1fr; gap: 16px; margin-top: 16px; align-items: start; }
+    .card { background: var(--card); border: 1px solid var(--line); border-radius: 18px; padding: 16px; box-shadow: var(--shadow); }
+    .card h2 { margin: 0 0 12px; font-size: 18px; }
+    .card h3 { margin: 16px 0 8px; font-size: 15px; color: var(--primary-dark); }
+    .hint { margin: 8px 0 0; color: var(--muted); line-height: 1.5; font-size: 13px; }
+    label { display: block; font-size: 13px; color: #344054; font-weight: bold; margin: 10px 0 6px; }
+    input[type="file"], input[type="number"], input[type="text"], textarea, select {
+      width: 100%; border: 1px solid var(--line); border-radius: 12px; padding: 10px 11px; background: white; font-size: 14px; outline: none;
+    }
+    textarea { min-height: 104px; resize: vertical; line-height: 1.5; }
+    input:focus, textarea:focus, select:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.12); }
+    .btn-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+    button {
+      border: 0; border-radius: 12px; padding: 10px 13px; font-weight: bold; cursor: pointer; font-size: 14px; transition: 0.15s ease; background: #e7edf0; color: #1f2937;
+    }
+    button:hover { transform: translateY(-1px); }
+    button:disabled { cursor: not-allowed; opacity: 0.55; transform: none; }
+    .primary { background: var(--primary); color: white; }
+    .primary:hover { background: var(--primary-dark); }
+    .danger { background: #fee4e2; color: var(--danger); }
+    .ghost { background: #f2f4f7; }
+    .ok { background: #dcfce7; color: var(--ok); }
+    .warn { background: #fff1d6; color: var(--warn); }
+
+    .stats { display: grid; grid-template-columns: repeat(4, minmax(120px, 1fr)); gap: 10px; margin-bottom: 14px; }
+    .stat { background: #f8fbfb; border: 1px solid var(--line); border-radius: 14px; padding: 12px; }
+    .stat small { color: var(--muted); display: block; }
+    .stat strong { font-size: 22px; display: block; margin-top: 4px; }
+    .toolbar { display: grid; grid-template-columns: minmax(260px, 1fr) 165px 135px 160px 120px auto; gap: 10px; align-items: end; margin-bottom: 12px; }
+    .toolbar label { margin-top: 0; }
+    .scroll-help { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin: 0 0 8px; padding: 9px 11px; border: 1px dashed #98a2b3; border-radius: 12px; background: #f8fbfb; color: #475467; font-size: 13px; line-height: 1.4; }
+    .table-wrap { border: 1px solid var(--line); border-radius: 14px; overflow-x: scroll; overflow-y: scroll; width: 100%; max-width: 100%; min-height: 430px; max-height: calc(100vh - 320px); background: white; position: relative; scrollbar-gutter: stable both-edges; overscroll-behavior: contain; }
+    .table-wrap::-webkit-scrollbar { width: 16px; height: 16px; }
+    .table-wrap::-webkit-scrollbar-thumb { background: #98a2b3; border: 3px solid white; border-radius: 999px; }
+    .table-wrap::-webkit-scrollbar-track { background: #eef4f4; border-radius: 999px; }
+    table { border-collapse: separate; border-spacing: 0; width: max-content; min-width: 1480px; font-size: 13px; }
+    th, td { border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); padding: 8px 9px; vertical-align: top; white-space: nowrap; background: white; }
+    th:nth-child(1), td:nth-child(1) { min-width: 72px; width: 72px; }
+    th:nth-child(2), td:nth-child(2) { min-width: 170px; }
+    th:nth-child(3), td:nth-child(3) { min-width: 640px; }
+    th:nth-child(4), td:nth-child(4) { min-width: 210px; }
+    th:nth-child(5), td:nth-child(5) { min-width: 230px; }
+    th:nth-child(6), td:nth-child(6) { min-width: 130px; }
+    th:nth-child(7), td:nth-child(7) { min-width: 160px; }
+    th:first-child, td:first-child { position: sticky; left: 0; z-index: 3; background: #ffffff; }
+    th:first-child { z-index: 5; background: #ecfdf5; }
+    th { position: sticky; top: 0; z-index: 2; background: #ecfdf5; color: #064e3b; text-align: left; font-weight: bold; user-select: none; }
+    th.sortable { cursor: pointer; }
+    th.sortable:hover { background: #d9f8eb; }
+    th .sort-icon { color: #0f766e; font-size: 11px; margin-left: 4px; }
+    td.msg { white-space: normal; min-width: 640px; max-width: 900px; line-height: 1.45; }
+    td.editable { cursor: text; min-width: 150px; }
+    td.editable:focus { outline: 2px solid rgba(15, 118, 110, 0.35); outline-offset: -2px; background: #f8fffd; }
+    .empty { padding: 36px 16px; text-align: center; color: var(--muted); }
+    .mapping-row { display: grid; grid-template-columns: 96px 1fr; gap: 8px; align-items: start; margin-bottom: 10px; border: 1px solid #eef2f4; border-radius: 12px; padding: 9px; background: #fbfdfd; }
+    .mapping-row b { font-size: 13px; padding-top: 11px; }
+    .mapping-controls { display: grid; grid-template-columns: 1fr; gap: 6px; }
+    .mapping-controls small { color: var(--muted); font-size: 12px; }
+    .alert { border-radius: 14px; padding: 11px 12px; margin-top: 12px; line-height: 1.45; font-size: 13px; display: none; }
+    .alert.show { display: block; }
+    .alert.ok { background: #ecfdf3; color: #067647; border: 1px solid #abefc6; }
+    .alert.warn { background: #fffaeb; color: #93370d; border: 1px solid #fedf89; }
+    .alert.err { background: #fef3f2; color: #b42318; border: 1px solid #fecdca; }
+    .footer-note { color: var(--muted); font-size: 12px; margin-top: 10px; line-height: 1.5; }
+    .progress { height: 9px; border-radius: 999px; background: #edf2f4; overflow: hidden; margin-top: 12px; }
+    .progress span { display: block; height: 100%; width: 0%; background: var(--primary); transition: width 0.2s ease; }
+    .pagination { display: flex; gap: 8px; align-items: center; justify-content: space-between; margin-top: 10px; color: var(--muted); font-size: 13px; }
+    .pagination .btn-row { margin-top: 0; }
+    .fixed-actions { position: sticky; bottom: 0; background: linear-gradient(180deg, rgba(255,255,255,0.75), #fff 30%); padding-top: 10px; margin-top: 10px; }
+
+    @media (max-width: 980px) {
+      .grid { grid-template-columns: 1fr; }
+      .hero { grid-template-columns: 1fr; }
+      .status-pill { width: fit-content; }
+      .stats { grid-template-columns: repeat(2, 1fr); }
+      .toolbar { grid-template-columns: 1fr 1fr; }
+      .table-wrap { min-height: 360px; max-height: 65vh; }
+      table { min-width: 1380px; }
+      .scroll-help { align-items: flex-start; flex-direction: column; }
+      .rename-panel { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <section class="hero">
+      <div>
+        <h1 id="appTitle">APP NHẬP EXCEL NHẮC LỊCH TIÊM NGỪA</h1>
+        <p class="short-desc">Nhập Excel nhắc lịch tiêm ngừa, tự dò cột và xuất file chuẩn FPT SMS.</p>
+        <p class="long-desc" id="longDesc">App đọc Excel bất kỳ, không giới hạn dòng nhập vào trong app, tự dò các cột <b>phone / Template / Ho_Ten / Vacxin / Mui_Tiem / Ngay_Tiem</b>. Mục 2 có thể chọn cột bằng xổ xuống hoặc nhập tay giá trị cố định khi file ngoài khác mẫu. Cột <b>Ho_Ten</b> tự chuyển tiếng Việt có dấu sang không dấu và IN HOA TOÀN BỘ. Khi xuất Excel, app tạo 1 bảng dữ liệu bình thường để đưa lên FPT SMS.</p>
+        <div class="hero-actions">
+          <button id="btnToggleDesc">Hiện mô tả</button>
+          <button id="btnToggleRename">Ẩn đổi tên app</button>
+        </div>
+        <div class="rename-panel" id="renamePanel">
+          <div>
+            <label>Đổi tên app</label>
+            <input id="appNameInput" type="text" placeholder="Nhập tên app muốn hiển thị" />
+          </div>
+          <div class="btn-row" style="margin-top:0">
+            <button class="ok" id="btnSaveAppName">Lưu tên app</button>
+          </div>
+        </div>
+      </div>
+      <div class="status-pill" id="driveStatus">Google Drive: chưa chọn thư mục</div>
+    </section>
+
+    <div class="grid">
+      <aside class="card">
+        <h2>1. Nhập dữ liệu Excel</h2>
+        <label>Chọn file Excel (.xlsx, .xls, .csv)</label>
+        <input id="excelFile" type="file" accept=".xlsx,.xls,.csv" />
+        <label>Sheet</label>
+        <select id="sheetSelect" disabled></select>
+        <label>Dòng tiêu đề trong Excel</label>
+        <input id="headerRow" type="number" min="1" value="1" />
+        <p class="hint">Ví dụ dòng đầu tiên là tiêu đề thì nhập <b>1</b>. Nếu tiêu đề nằm dòng 3 thì nhập <b>3</b>.</p>
+        <div class="btn-row">
+          <button class="primary" id="btnReadAgain" disabled>Đọc lại file</button>
+          <button class="ghost" id="btnLoadJson">Mở dữ liệu đã lưu</button>
+          <button class="danger" id="btnResetData">Reset vùng 1</button>
+          <button class="warn" id="btnUndoResetData" disabled>Quay lại vùng 1</button>
+          <input id="jsonFile" type="file" accept=".json" style="display:none" />
+        </div>
+        <div class="progress" aria-label="Tiến trình"><span id="progressBar"></span></div>
+        <div class="alert" id="alertBox"></div>
+
+        <h3>2. Chọn đúng cột cần lấy</h3>
+        <div id="mappingBox"><p class="hint">Sau khi nhập Excel, app sẽ tự chọn cột gần giống với mẫu. Có thể chọn lại bằng xổ xuống hoặc nhập tay giá trị cố định.</p></div>
+        <div class="btn-row">
+          <button class="ok" id="btnSaveMapping">Lưu vùng chọn cột</button>
+          <button class="danger" id="btnResetMapping">Reset vùng chọn cột</button>
+          <button class="warn" id="btnUndoResetMapping" disabled>Quay lại vùng chọn cột</button>
+        </div>
+
+        <h3>3. Mẫu tự điền cho cột Template</h3>
+        <textarea id="defaultTemplate">QK [Ho_Ten] co lich tiem ngua [Vacxin] mui [Mui_Tiem] ngay [Ngay_Tiem]. Vui long bo qua tin neu da tiem. LH 0987519115</textarea>
+        <p class="hint">Template giữ nguyên biến <b>[Ho_Ten]</b>, <b>[Vacxin]</b>, <b>[Mui_Tiem]</b>, <b>[Ngay_Tiem]</b> để FPT SMS tự lấy dữ liệu theo cột khi gửi.</p>
+        <div class="btn-row">
+          <button class="warn" id="btnFillTemplate" disabled>Điền lại Template</button>
+          <button class="ok" id="btnSaveTemplate">Lưu vùng Template</button>
+          <button class="danger" id="btnResetTemplate">Reset vùng Template</button>
+          <button class="warn" id="btnUndoResetTemplate" disabled>Quay lại vùng Template</button>
+        </div>
+
+        <div class="fixed-actions">
+          <h3>4. Lưu Google Drive</h3>
+          <div class="btn-row">
+            <button class="ok" id="btnPickDrive">Chọn thư mục Drive</button>
+            <button class="ok" id="btnSaveDrive" disabled>Lưu dữ liệu</button>
+          </div>
+          <p class="footer-note">Chọn thư mục Google Drive đã đồng bộ trên máy tính. Sau mỗi thao tác, app sẽ tự lưu dữ liệu JSON vào thư mục đã chọn sau 5 giây. Có thể bấm Lưu dữ liệu để lưu ngay. Tính năng này chạy tốt nhất trên Chrome / Edge.</p>
+          <div class="btn-row">
+            <button class="primary" id="btnExport" disabled>Xuất Excel chuẩn FPT</button>
+            <button class="warn" id="btnCopyVisible" disabled>Copy Template trang này</button>
+            <button class="danger" id="btnResetAll">Reset toàn bộ</button>
+          </div>
+        </div>
+      </aside>
+
+      <main class="card">
+        <div class="stats">
+          <div class="stat"><small>Tổng dòng đã nhập</small><strong id="statRows">0</strong></div>
+          <div class="stat"><small>Có số điện thoại</small><strong id="statPhone">0</strong></div>
+          <div class="stat"><small>Có ngày tiêm</small><strong id="statDate">0</strong></div>
+          <div class="stat"><small>Template đã điền</small><strong id="statMsg">0</strong></div>
+        </div>
+        <div class="toolbar">
+          <div>
+            <label>Tìm kiếm</label>
+            <input id="searchInput" type="text" placeholder="Tìm số điện thoại, Template, họ tên, vắc xin, mũi tiêm, ngày tiêm..." />
+          </div>
+          <div>
+            <label>Sắp xếp theo</label>
+            <select id="sortField">
+              <option value="">Mặc định</option>
+              <option value="STT">STT</option>
+              <option value="phone">phone</option>
+              <option value="Template">Template</option>
+              <option value="Ho_Ten">Ho_Ten</option>
+              <option value="Vacxin">Vacxin</option>
+              <option value="Mui_Tiem">Mui_Tiem</option>
+              <option value="Ngay_Tiem">Ngay_Tiem</option>
+            </select>
+          </div>
+          <div>
+            <label>Thứ tự</label>
+            <select id="sortDirection">
+              <option value="asc">Tăng dần</option>
+              <option value="desc">Giảm dần</option>
+            </select>
+          </div>
+          <div>
+            <label>Số dòng/trang</label>
+            <select id="pageSize">
+              <option value="50">50</option>
+              <option value="100" selected>100</option>
+              <option value="200">200</option>
+              <option value="500">500</option>
+              <option value="1000">1000</option>
+              <option value="2000">2.000</option>
+              <option value="5000">5.000</option>
+              <option value="10000">10.000</option>
+            </select>
+          </div>
+          <div>
+            <label>Trang</label>
+            <input id="pageNumber" type="number" min="1" value="1" />
+          </div>
+          <div class="btn-row">
+            <button id="btnPrev">Trước</button>
+            <button id="btnNext">Sau</button>
+          </div>
+        </div>
+        <div class="scroll-help">
+          <span><b>Bấm tiêu đề cột</b> hoặc dùng ô <b>Sắp xếp theo</b> để sắp xếp tăng/giảm dần. <b>Kéo thanh ngang</b> để xem hết các cột.</span>
+          <span>Xuất Excel sẽ xuất theo thứ tự đang sắp xếp.</span>
+        </div>
+        <div class="table-wrap" id="tableWrap"><div class="empty">Chưa có dữ liệu. Hãy nhập file Excel để bắt đầu.</div></div>
+        <div class="pagination">
+          <span id="pageInfo">0 dòng</span>
+          <span>Chỉ hiển thị theo trang để file nhiều dòng vẫn nhẹ. Khi xuất Excel sẽ xuất toàn bộ dữ liệu hợp lệ.</span>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <script>
+    const STORAGE_KEY = 'APP_NHAC_LICH_TIEM_NGUA_STATE_V1';
+    const CONFIG_KEY = 'APP_NHAC_LICH_TIEM_NGUA_CONFIG_V1';
+    const UI_KEY = 'APP_NHAC_LICH_TIEM_NGUA_UI_V1';
+    const LOCAL_STORAGE_MAX_CHARS = 4_000_000;
+    const GOOGLE_DRIVE_AUTO_SAVE_DELAY_MS = 5000;
+    const DEFAULT_APP_NAME = 'APP NHẬP EXCEL NHẮC LỊCH TIÊM NGỪA';
+    const FIXED_TEMPLATE = 'QK [Ho_Ten] co lich tiem ngua [Vacxin] mui [Mui_Tiem] ngay [Ngay_Tiem]. Vui long bo qua tin neu da tiem. LH 0987519115';
+    const EXPORT_HEADERS = ['phone', 'Template', 'Ho_Ten', 'Vacxin', 'Mui_Tiem', 'Ngay_Tiem'];
+
+    const TARGET_FIELDS = [
+      { key: 'phone', label: 'phone', aliases: ['phone', 'sdt', 'so dien thoai', 'so dt', 'dien thoai', 'mobile', 'tel', 'telephone', 'số điện thoại'] },
+      { key: 'Template', label: 'Template', aliases: ['template', 'mau tin', 'mau sms', 'noi dung', 'noi dung tin nhan', 'tin nhan', 'sms', 'content'] },
+      { key: 'Ho_Ten', label: 'Ho_Ten', aliases: ['ho ten', 'ho_ten', 'hoten', 'ten', 'ten khach hang', 'khach hang', 'hovaten', 'họ tên'] },
+      { key: 'Vacxin', label: 'Vacxin', aliases: ['vacxin', 'vaccine', 'vac xin', 'vắc xin', 'ten vacxin', 'ten vac xin', 'ten vaccine', 'loai vacxin', 'loai vac xin', 'tên vắc xin'] },
+      { key: 'Mui_Tiem', label: 'Mui_Tiem', aliases: ['mui tiem', 'mũi tiêm', 'mui', 'mũi', 'mui thu', 'mũi thứ', 'lan tiem', 'lần tiêm', 'dose', 'dose number'] },
+      { key: 'Ngay_Tiem', label: 'Ngay_Tiem', aliases: ['ngay tiem', 'ngày tiêm', 'ngay_tiem', 'ngay hen tiem', 'ngày hẹn tiêm', 'lich tiem', 'lịch tiêm', 'ngay nhac', 'ngày nhắc', 'date'] }
+    ];
+
+    const state = {
+      workbook: null,
+      workbookName: '',
+      sheetName: '',
+      sheetNames: [],
+      rawRows: [],
+      headers: [],
+      dataRows: [],
+      mapping: {},
+      manualValues: {},
+      records: [],
+      defaultTemplate: FIXED_TEMPLATE,
+      currentPage: 1,
+      pageSize: 100,
+      search: '',
+      sortKey: '',
+      sortDir: 'asc',
+      lastSaved: ''
+    };
+
+    let driveDirHandle = null;
+    let autosaveTimer = null;
+    let dataResetSnapshot = null;
+    let mappingResetSnapshot = null;
+    let templateResetSnapshot = null;
+
+    const el = {
+      appTitle: document.getElementById('appTitle'),
+      appNameInput: document.getElementById('appNameInput'),
+      renamePanel: document.getElementById('renamePanel'),
+      btnSaveAppName: document.getElementById('btnSaveAppName'),
+      btnToggleRename: document.getElementById('btnToggleRename'),
+      btnToggleDesc: document.getElementById('btnToggleDesc'),
+      longDesc: document.getElementById('longDesc'),
+      excelFile: document.getElementById('excelFile'),
+      sheetSelect: document.getElementById('sheetSelect'),
+      headerRow: document.getElementById('headerRow'),
+      btnReadAgain: document.getElementById('btnReadAgain'),
+      btnLoadJson: document.getElementById('btnLoadJson'),
+      jsonFile: document.getElementById('jsonFile'),
+      btnResetData: document.getElementById('btnResetData'),
+      btnUndoResetData: document.getElementById('btnUndoResetData'),
+      mappingBox: document.getElementById('mappingBox'),
+      btnSaveMapping: document.getElementById('btnSaveMapping'),
+      btnResetMapping: document.getElementById('btnResetMapping'),
+      btnUndoResetMapping: document.getElementById('btnUndoResetMapping'),
+      defaultTemplate: document.getElementById('defaultTemplate'),
+      btnFillTemplate: document.getElementById('btnFillTemplate'),
+      btnSaveTemplate: document.getElementById('btnSaveTemplate'),
+      btnResetTemplate: document.getElementById('btnResetTemplate'),
+      btnUndoResetTemplate: document.getElementById('btnUndoResetTemplate'),
+      btnPickDrive: document.getElementById('btnPickDrive'),
+      btnSaveDrive: document.getElementById('btnSaveDrive'),
+      btnExport: document.getElementById('btnExport'),
+      btnResetAll: document.getElementById('btnResetAll'),
+      btnCopyVisible: document.getElementById('btnCopyVisible'),
+      driveStatus: document.getElementById('driveStatus'),
+      alertBox: document.getElementById('alertBox'),
+      progressBar: document.getElementById('progressBar'),
+      statRows: document.getElementById('statRows'),
+      statPhone: document.getElementById('statPhone'),
+      statDate: document.getElementById('statDate'),
+      statMsg: document.getElementById('statMsg'),
+      searchInput: document.getElementById('searchInput'),
+      sortField: document.getElementById('sortField'),
+      sortDirection: document.getElementById('sortDirection'),
+      pageSize: document.getElementById('pageSize'),
+      pageNumber: document.getElementById('pageNumber'),
+      btnPrev: document.getElementById('btnPrev'),
+      btnNext: document.getElementById('btnNext'),
+      tableWrap: document.getElementById('tableWrap'),
+      pageInfo: document.getElementById('pageInfo')
+    };
+
+    function normalizeText(value) {
+      return String(value ?? '')
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .replace(/đ/g, 'd')
+        .replace(/Đ/g, 'D')
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, ' ')
+        .trim();
+    }
+
+    function normalizeName(value) {
+      return String(value ?? '')
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .replace(/đ/g, 'd')
+        .replace(/Đ/g, 'D')
+        .replace(/\s+/g, ' ')
+        .trim()
+        .toUpperCase();
+    }
+
+    function showAlert(message, type = 'ok') {
+      el.alertBox.className = 'alert show ' + type;
+      el.alertBox.innerHTML = message;
+    }
+    function hideAlert() { el.alertBox.className = 'alert'; el.alertBox.innerHTML = ''; }
+    function setProgress(percent) { el.progressBar.style.width = `${Math.max(0, Math.min(100, percent))}%`; }
+    function escapeHtml(value) {
+      return String(value ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+    function colName(index) {
+      let n = index + 1;
+      let s = '';
+      while (n > 0) {
+        const m = (n - 1) % 26;
+        s = String.fromCharCode(65 + m) + s;
+        n = Math.floor((n - m) / 26);
+      }
+      return s;
+    }
+    function uniqueHeaders(headers) {
+      const seen = new Map();
+      return headers.map((h, idx) => {
+        const raw = String(h ?? '').trim() || `Cột ${colName(idx)}`;
+        const count = seen.get(raw) || 0;
+        seen.set(raw, count + 1);
+        return count === 0 ? raw : `${raw} (${count + 1})`;
+      });
+    }
+    function formatCell(value) {
+      if (value === null || value === undefined) return '';
+      if (value instanceof Date && !Number.isNaN(value.getTime())) {
+        const dd = String(value.getDate()).padStart(2, '0');
+        const mm = String(value.getMonth() + 1).padStart(2, '0');
+        return `${dd}/${mm}/${value.getFullYear()}`;
+      }
+      return String(value).trim();
+    }
+    function scoreHeader(header, aliases) {
+      let bestScore = 0;
+      const headerNorm = normalizeText(header);
+      aliases.map(normalizeText).forEach(alias => {
+        if (!alias) return;
+        let score = 0;
+        if (headerNorm === alias) score = 100;
+        else if (headerNorm.includes(alias) || alias.includes(headerNorm)) score = 70;
+        else {
+          const words = alias.split(' ').filter(Boolean);
+          const matched = words.filter(w => headerNorm.includes(w)).length;
+          if (words.length && matched === words.length) score = 55;
+          else if (matched > 0) score = matched * 15;
+        }
+        bestScore = Math.max(bestScore, score);
+      });
+      return bestScore;
+    }
+    function findBestHeaderIndex(field) {
+      let bestIndex = -1;
+      let bestScore = 0;
+      state.headers.forEach((header, idx) => {
+        const score = scoreHeader(header, field.aliases);
+        if (score > bestScore) { bestScore = score; bestIndex = idx; }
+      });
+      return { bestIndex, bestScore };
+    }
+    function autoMapHeaders() {
+      const mapping = {};
+      TARGET_FIELDS.forEach(field => {
+        if (field.key === 'Template') {
+          // Giữ mặc định Template ở mục 3, không tự bắt cột Template để tránh mất mẫu cố định.
+          mapping[field.key] = -1;
+          return;
+        }
+        const { bestIndex, bestScore } = findBestHeaderIndex(field);
+        mapping[field.key] = bestScore >= 45 ? bestIndex : -1;
+      });
+      state.mapping = mapping;
+      TARGET_FIELDS.forEach(field => {
+        if (state.manualValues[field.key] === undefined) state.manualValues[field.key] = '';
+      });
+    }
+
+    function renderMappingBox() {
+      if (!state.headers.length) {
+        el.mappingBox.innerHTML = '<p class="hint">Sau khi nhập Excel, app sẽ tự chọn cột gần giống với mẫu. Có thể bấm chọn lại hoặc nhập tay giá trị cố định nếu file ngoài khác mẫu.</p>';
+        return;
+      }
+      const options = ['<option value="-1">-- Không dùng / để trống --</option>']
+        .concat(state.headers.map((h, i) => `<option value="${i}">${escapeHtml(colName(i))} - ${escapeHtml(h)}</option>`))
+        .join('');
+      el.mappingBox.innerHTML = TARGET_FIELDS.map(field => `
+        <div class="mapping-row">
+          <b>${escapeHtml(field.label)}</b>
+          <div class="mapping-controls">
+            <select data-map-field="${field.key}">${options}</select>
+            <input type="text" data-manual-field="${field.key}" placeholder="Nhập tay nếu muốn dùng giá trị cố định cho ${escapeHtml(field.label)}" value="${escapeHtml(state.manualValues[field.key] || '')}" />
+            <small>Ưu tiên ô nhập tay nếu có nội dung. Nếu để trống, app dùng cột đã chọn.</small>
+          </div>
+        </div>`).join('');
+      el.mappingBox.querySelectorAll('select[data-map-field]').forEach(select => {
+        const field = select.dataset.mapField;
+        select.value = String(state.mapping[field] ?? -1);
+        select.addEventListener('change', () => {
+          state.mapping[field] = Number(select.value);
+          rebuildRecords();
+          scheduleSave();
+        });
+      });
+      el.mappingBox.querySelectorAll('input[data-manual-field]').forEach(input => {
+        const field = input.dataset.manualField;
+        input.addEventListener('input', () => {
+          state.manualValues[field] = input.value;
+          rebuildRecords();
+          scheduleSave();
+        });
+      });
+    }
+
+    function getMappedCell(row, key) {
+      const manual = String(state.manualValues[key] ?? '').trim();
+      if (manual) return manual;
+      const idx = state.mapping[key];
+      if (idx === undefined || idx === null || idx < 0) return '';
+      return formatCell(row[idx]);
+    }
+    function getTemplateForRow(row) {
+      const manual = String(state.manualValues.Template ?? '').trim();
+      if (manual) return manual;
+      const idx = state.mapping.Template;
+      if (idx !== undefined && idx !== null && idx >= 0) {
+        const fromCell = formatCell(row[idx]);
+        if (fromCell) return fromCell;
+      }
+      return String(el.defaultTemplate.value || FIXED_TEMPLATE).trim() || FIXED_TEMPLATE;
+    }
+    function buildRecord(row, index) {
+      const record = {
+        STT: index + 1,
+        phone: getMappedCell(row, 'phone'),
+        Template: getTemplateForRow(row),
+        Ho_Ten: normalizeName(getMappedCell(row, 'Ho_Ten')),
+        Vacxin: getMappedCell(row, 'Vacxin'),
+        Mui_Tiem: getMappedCell(row, 'Mui_Tiem'),
+        Ngay_Tiem: getMappedCell(row, 'Ngay_Tiem'),
+        _raw: row,
+        _manualTemplate: false
+      };
+      return record;
+    }
+    function rebuildRecords() {
+      state.defaultTemplate = el.defaultTemplate.value || FIXED_TEMPLATE;
+      state.records = state.dataRows
+        .filter(row => row.some(cell => String(cell ?? '').trim() !== ''))
+        .map((row, index) => buildRecord(row, index));
+      state.currentPage = 1;
+      el.pageNumber.value = '1';
+      updateStats();
+      renderTable();
+      updateButtons();
+    }
+    function fillTemplatesByRule() {
+      state.records.forEach(record => {
+        record.Template = getTemplateForRow(record._raw || []);
+        record._manualTemplate = false;
+      });
+      updateStats();
+      renderTable();
+      scheduleSave();
+      showAlert('Đã điền lại Template cho toàn bộ dòng dữ liệu.', 'ok');
+    }
+    function refreshAutoTemplates() {
+      state.defaultTemplate = el.defaultTemplate.value || FIXED_TEMPLATE;
+      state.records.forEach(record => {
+        if (!record._manualTemplate) record.Template = getTemplateForRow(record._raw || []);
+      });
+      updateStats();
+      renderTable();
+      scheduleSave();
+    }
+    function updateStats() {
+      el.statRows.textContent = state.records.length.toLocaleString('vi-VN');
+      el.statPhone.textContent = state.records.filter(r => String(r.phone).trim()).length.toLocaleString('vi-VN');
+      el.statDate.textContent = state.records.filter(r => String(r.Ngay_Tiem).trim()).length.toLocaleString('vi-VN');
+      el.statMsg.textContent = state.records.filter(r => String(r.Template).trim()).length.toLocaleString('vi-VN');
+    }
+
+    function parseDateValue(value) {
+      const text = String(value ?? '').trim();
+      if (!text) return 0;
+      const m = text.match(/(\d{1,2})[\/\-\.](\d{1,2})[\/\-\.](\d{2,4})/);
+      if (m) {
+        const day = Number(m[1]);
+        const month = Number(m[2]) - 1;
+        let year = Number(m[3]);
+        if (year < 100) year += 2000;
+        const d = new Date(year, month, day);
+        return Number.isNaN(d.getTime()) ? 0 : d.getTime();
+      }
+      const d = new Date(text);
+      return Number.isNaN(d.getTime()) ? 0 : d.getTime();
+    }
+    function compareValues(a, b, key) {
+      if (key === 'STT') return Number(a.STT || 0) - Number(b.STT || 0);
+      if (key === 'Ngay_Tiem') return parseDateValue(a.Ngay_Tiem) - parseDateValue(b.Ngay_Tiem);
+      if (key === 'Mui_Tiem') {
+        const na = Number(String(a.Mui_Tiem ?? '').match(/\d+/)?.[0] ?? NaN);
+        const nb = Number(String(b.Mui_Tiem ?? '').match(/\d+/)?.[0] ?? NaN);
+        if (Number.isFinite(na) && Number.isFinite(nb) && na !== nb) return na - nb;
+      }
+      return String(a[key] ?? '').localeCompare(String(b[key] ?? ''), 'vi', { numeric: true, sensitivity: 'base' });
+    }
+    function sortedRows(rows) {
+      if (!state.sortKey) return rows;
+      const dir = state.sortDir === 'desc' ? -1 : 1;
+      return [...rows].sort((a, b) => compareValues(a, b, state.sortKey) * dir);
+    }
+    function filteredRecords() {
+      const q = normalizeText(state.search);
+      let rows = state.records;
+      if (q) rows = rows.filter(r => normalizeText(`${r.phone} ${r.Template} ${r.Ho_Ten} ${r.Vacxin} ${r.Mui_Tiem} ${r.Ngay_Tiem}`).includes(q));
+      return sortedRows(rows);
+    }
+    function sortIcon(key) {
+      if (state.sortKey !== key) return '';
+      return state.sortDir === 'asc' ? ' ▲' : ' ▼';
+    }
+    function renderHeader(key, label) {
+      return `<th class="sortable" data-sort="${key}" title="Bấm để sắp xếp theo ${escapeHtml(label)}">${escapeHtml(label)}<span class="sort-icon">${sortIcon(key)}</span></th>`;
+    }
+    function syncSortControls() {
+      if (!el.sortField || !el.sortDirection) return;
+      el.sortField.value = state.sortKey || '';
+      el.sortDirection.value = state.sortDir || 'asc';
+      el.sortDirection.disabled = !state.sortKey;
+    }
+    function setSort(key, dir) {
+      state.sortKey = key || '';
+      state.sortDir = state.sortKey ? (dir || 'asc') : 'asc';
+      state.currentPage = 1;
+      syncSortControls();
+      renderTable();
+      scheduleSave();
+    }
+    function renderTable() {
+      const rows = filteredRecords();
+      const pageSize = Number(state.pageSize || 100);
+      const totalPages = Math.max(1, Math.ceil(rows.length / pageSize));
+      state.currentPage = Math.min(Math.max(1, Number(state.currentPage || 1)), totalPages);
+      el.pageNumber.value = String(state.currentPage);
+      syncSortControls();
+      if (!rows.length) {
+        el.tableWrap.innerHTML = '<div class="empty">Không có dữ liệu phù hợp.</div>';
+        el.pageInfo.textContent = '0 dòng';
+        return;
+      }
+      const start = (state.currentPage - 1) * pageSize;
+      const pageRows = rows.slice(start, start + pageSize);
+      const body = pageRows.map((r, visibleIndex) => {
+        const realIndex = state.records.indexOf(r);
+        return `<tr data-record-index="${realIndex}">
+          <td>${start + visibleIndex + 1}</td>
+          <td class="editable" contenteditable="true" data-edit="phone">${escapeHtml(r.phone)}</td>
+          <td class="editable msg" contenteditable="true" data-edit="Template">${escapeHtml(r.Template)}</td>
+          <td class="editable" contenteditable="true" data-edit="Ho_Ten">${escapeHtml(r.Ho_Ten)}</td>
+          <td class="editable" contenteditable="true" data-edit="Vacxin">${escapeHtml(r.Vacxin)}</td>
+          <td class="editable" contenteditable="true" data-edit="Mui_Tiem">${escapeHtml(r.Mui_Tiem)}</td>
+          <td class="editable" contenteditable="true" data-edit="Ngay_Tiem">${escapeHtml(r.Ngay_Tiem)}</td>
+        </tr>`;
+      }).join('');
+      el.tableWrap.innerHTML = `<table>
+        <thead><tr>
+          ${renderHeader('STT', 'STT')}
+          ${renderHeader('phone', 'phone')}
+          ${renderHeader('Template', 'Template')}
+          ${renderHeader('Ho_Ten', 'Ho_Ten')}
+          ${renderHeader('Vacxin', 'Vacxin')}
+          ${renderHeader('Mui_Tiem', 'Mui_Tiem')}
+          ${renderHeader('Ngay_Tiem', 'Ngay_Tiem')}
+        </tr></thead>
+        <tbody>${body}</tbody>
+      </table>`;
+      el.tableWrap.querySelectorAll('th[data-sort]').forEach(th => {
+        th.addEventListener('click', () => {
+          const key = th.dataset.sort;
+          const nextDir = state.sortKey === key && state.sortDir === 'asc' ? 'desc' : 'asc';
+          setSort(key, nextDir);
+        });
+      });
+      el.tableWrap.querySelectorAll('[contenteditable][data-edit]').forEach(cell => {
+        cell.addEventListener('blur', () => {
+          const tr = cell.closest('tr');
+          const record = state.records[Number(tr.dataset.recordIndex)];
+          if (!record) return;
+          const field = cell.dataset.edit;
+          let value = cell.textContent.trim();
+          if (field === 'Ho_Ten') value = normalizeName(value);
+          record[field] = value;
+          if (field === 'Template') record._manualTemplate = true;
+          renderTable();
+          updateStats();
+          scheduleSave();
+        });
+      });
+      el.pageInfo.textContent = `Hiển thị ${start + 1}-${Math.min(start + pageSize, rows.length)} / ${rows.length.toLocaleString('vi-VN')} dòng`;
+    }
+    function updateButtons() {
+      const hasData = state.records.length > 0;
+      el.btnExport.disabled = !hasData;
+      el.btnCopyVisible.disabled = !hasData;
+      el.btnFillTemplate.disabled = !hasData;
+      el.btnReadAgain.disabled = !state.workbook;
+      el.btnSaveDrive.disabled = !driveDirHandle;
+      el.sheetSelect.disabled = !state.workbook;
+      el.btnUndoResetData.disabled = !dataResetSnapshot;
+      el.btnUndoResetMapping.disabled = !mappingResetSnapshot;
+      el.btnUndoResetTemplate.disabled = !templateResetSnapshot;
+    }
+
+    async function readExcelFile(file) {
+      if (!window.XLSX) {
+        showAlert('Không tải được thư viện đọc Excel. Hãy mở app khi có Internet hoặc kiểm tra lại kết nối.', 'err');
+        return;
+      }
+      try {
+        setProgress(8); hideAlert(); state.workbookName = file.name;
+        const data = await file.arrayBuffer();
+        setProgress(35);
+        state.workbook = XLSX.read(data, { type: 'array', cellDates: true, sheetRows: 0 });
+        state.sheetNames = state.workbook.SheetNames || [];
+        state.sheetName = state.sheetNames[0] || '';
+        setProgress(70);
+        renderSheetSelect();
+        loadSelectedSheet();
+        setProgress(100);
+        showAlert(`Đã đọc file <b>${escapeHtml(file.name)}</b>. Tổng dòng dữ liệu: <b>${state.records.length.toLocaleString('vi-VN')}</b>.`, 'ok');
+        scheduleSave();
+        setTimeout(() => setProgress(0), 900);
+      } catch (err) {
+        console.error(err);
+        showAlert('Không đọc được file Excel/CSV. Hãy kiểm tra lại file hoặc dòng tiêu đề.', 'err');
+        setProgress(0);
+      }
+    }
+    function renderSheetSelect() {
+      el.sheetSelect.innerHTML = state.sheetNames.map(name => `<option value="${escapeHtml(name)}">${escapeHtml(name)}</option>`).join('');
+      el.sheetSelect.value = state.sheetName;
+      updateButtons();
+    }
+    function loadSelectedSheet() {
+      if (!state.workbook || !state.sheetName) return;
+      const ws = state.workbook.Sheets[state.sheetName];
+      const rows = XLSX.utils.sheet_to_json(ws, { header: 1, defval: '', raw: false, blankrows: false });
+      const headerIndex = Math.max(0, Number(el.headerRow.value || 1) - 1);
+      const maxCols = rows.reduce((max, row) => Math.max(max, Array.isArray(row) ? row.length : 0), 0);
+      const headerRow = rows[headerIndex] || [];
+      const paddedHeaders = Array.from({ length: maxCols }, (_, i) => headerRow[i] ?? '');
+      state.rawRows = rows;
+      state.headers = uniqueHeaders(paddedHeaders);
+      state.dataRows = rows.slice(headerIndex + 1);
+      autoMapHeaders();
+      renderMappingBox();
+      rebuildRecords();
+    }
+
+    function getRowsForExport() {
+      return sortedRows(state.records).filter(r => String(r.phone).trim() && String(r.Template).trim());
+    }
+    function exportWorkbook(downloadOnly = true) {
+      if (!window.XLSX) {
+        showAlert('Không tải được thư viện xuất Excel.', 'err');
+        return null;
+      }
+      const resultRows = getRowsForExport().map(r => ({
+        phone: String(r.phone || '').trim(),
+        Template: r.Template || '',
+        Ho_Ten: normalizeName(r.Ho_Ten || ''),
+        Vacxin: r.Vacxin || '',
+        Mui_Tiem: r.Mui_Tiem || '',
+        Ngay_Tiem: r.Ngay_Tiem || ''
+      }));
+      if (!resultRows.length) {
+        showAlert('Không có dòng hợp lệ để xuất. Cần có phone và Template.', 'warn');
+        return null;
+      }
+      const wb = XLSX.utils.book_new();
+      const ws = XLSX.utils.json_to_sheet(resultRows, { header: EXPORT_HEADERS });
+      const range = XLSX.utils.decode_range(ws['!ref']);
+      for (let r = range.s.r + 1; r <= range.e.r; r++) {
+        const cell = ws[`A${r + 1}`];
+        if (cell) { cell.t = 's'; cell.z = '@'; cell.v = String(cell.v ?? ''); }
+      }
+      ws['!cols'] = [
+        { wch: 16 }, { wch: 110 }, { wch: 28 }, { wch: 28 }, { wch: 14 }, { wch: 16 }
+      ];
+      XLSX.utils.book_append_sheet(wb, ws, 'FPT_SMS');
+      const fileName = `Ket_qua_nhac_lich_tiem_ngua_${new Date().toISOString().slice(0, 10)}.xlsx`;
+      if (downloadOnly) {
+        XLSX.writeFile(wb, fileName);
+        showAlert(`Đã xuất Excel chuẩn FPT SMS: <b>${escapeHtml(fileName)}</b>.`, 'ok');
+      }
+      return { wb, fileName };
+    }
+
+    function getSerializableState() {
+      return {
+        workbookName: state.workbookName,
+        sheetName: state.sheetName,
+        sheetNames: state.sheetNames,
+        headers: state.headers,
+        dataRows: state.dataRows,
+        mapping: state.mapping,
+        manualValues: state.manualValues,
+        records: state.records.map(({ _raw, ...rest }) => rest),
+        defaultTemplate: state.defaultTemplate || el.defaultTemplate.value || FIXED_TEMPLATE,
+        pageSize: state.pageSize,
+        sortKey: state.sortKey,
+        sortDir: state.sortDir,
+        lastSaved: new Date().toISOString()
+      };
+    }
+    function saveLocal() {
+      const data = getSerializableState();
+      const json = JSON.stringify(data);
+      state.lastSaved = data.lastSaved;
+      if (json.length > LOCAL_STORAGE_MAX_CHARS) {
+        localStorage.removeItem(STORAGE_KEY);
+        return false;
+      }
+      localStorage.setItem(STORAGE_KEY, json);
+      return true;
+    }
+    function restoreFromData(data) {
+      state.workbook = null;
+      state.workbookName = data.workbookName || 'Dữ liệu đã lưu';
+      state.sheetName = data.sheetName || '';
+      state.sheetNames = data.sheetNames || (state.sheetName ? [state.sheetName] : []);
+      state.headers = data.headers || [];
+      state.dataRows = data.dataRows || [];
+      state.mapping = data.mapping || {};
+      state.manualValues = data.manualValues || {};
+      TARGET_FIELDS.forEach(field => { if (state.manualValues[field.key] === undefined) state.manualValues[field.key] = ''; });
+      state.defaultTemplate = data.defaultTemplate || FIXED_TEMPLATE;
+      state.pageSize = Number(data.pageSize || 100);
+      state.sortKey = data.sortKey || '';
+      state.sortDir = data.sortDir || 'asc';
+      el.defaultTemplate.value = state.defaultTemplate;
+      el.pageSize.value = String(state.pageSize);
+      state.records = (data.records || []).map((r, i) => ({
+        STT: i + 1,
+        phone: r.phone || '',
+        Template: r.Template || '',
+        Ho_Ten: normalizeName(r.Ho_Ten || ''),
+        Vacxin: r.Vacxin || '',
+        Mui_Tiem: r.Mui_Tiem || '',
+        Ngay_Tiem: r.Ngay_Tiem || '',
+        _raw: [],
+        _manualTemplate: Boolean(r._manualTemplate)
+      }));
+      if (!state.records.length && state.dataRows.length && state.headers.length) rebuildRecords();
+      renderSheetSelect();
+      renderMappingBox();
+      updateStats();
+      renderTable();
+      updateButtons();
+    }
+    function loadLocalIfAny() {
+      try {
+        const saved = localStorage.getItem(STORAGE_KEY);
+        if (!saved) return;
+        const data = JSON.parse(saved);
+        if (!data || (!data.records && !data.dataRows)) return;
+        restoreFromData(data);
+        showAlert('Đã khôi phục dữ liệu lưu tạm trong trình duyệt.', 'ok');
+      } catch (err) { console.warn(err); }
+    }
+    function scheduleSave() {
+      clearTimeout(autosaveTimer);
+
+      try {
+        saveLocal();
+      } catch (err) {
+        console.warn('Local save skipped:', err);
+      }
+
+      if (driveDirHandle) {
+        el.driveStatus.textContent = 'Google Drive: chờ tự lưu 5 giây...';
+      }
+
+      autosaveTimer = setTimeout(async () => {
+        try {
+          saveLocal();
+        } catch (err) {
+          console.warn('Local save skipped:', err);
+        }
+
+        if (driveDirHandle) {
+          await saveToDrive(false);
+        }
+      }, GOOGLE_DRIVE_AUTO_SAVE_DELAY_MS);
+    }
+
+    async function saveToDrive(showMessage = true) {
+      if (!driveDirHandle) {
+        if (showMessage) showAlert('Bạn chưa chọn thư mục Google Drive.', 'warn');
+        return false;
+      }
+
+      try {
+        const data = getSerializableState();
+        const fileHandle = await driveDirHandle.getFileHandle('App_Nhac_Lich_Tiem_Ngua_du_lieu.json', { create: true });
+        const writable = await fileHandle.createWritable();
+        await writable.write(JSON.stringify(data, null, 2));
+        await writable.close();
+        state.lastSaved = data.lastSaved;
+
+        const savedAt = new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+        el.driveStatus.textContent = `Google Drive: đã lưu ${savedAt}`;
+        if (showMessage) showAlert('Đã lưu dữ liệu JSON vào thư mục đã chọn.', 'ok');
+        return true;
+      } catch (err) {
+        console.error(err);
+        el.driveStatus.textContent = 'Google Drive: lỗi tự lưu';
+        if (showMessage) showAlert('Không lưu được vào thư mục đã chọn. Hãy cấp quyền lại hoặc chọn thư mục khác.', 'err');
+        return false;
+      }
+    }
+    async function exportToDriveToo() {
+      const pack = exportWorkbook(false);
+      if (!pack || !driveDirHandle) return;
+      const out = XLSX.write(pack.wb, { bookType: 'xlsx', type: 'array' });
+      const blob = new Blob([out], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+      const handle = await driveDirHandle.getFileHandle(pack.fileName, { create: true });
+      const writable = await handle.createWritable();
+      await writable.write(blob);
+      await writable.close();
+      showAlert(`Đã xuất Excel và lưu vào Drive: <b>${escapeHtml(pack.fileName)}</b>`, 'ok');
+    }
+
+    function snapshotDataRegion() {
+      return JSON.parse(JSON.stringify({
+        workbookName: state.workbookName,
+        sheetName: state.sheetName,
+        sheetNames: state.sheetNames,
+        rawRows: state.rawRows,
+        headers: state.headers,
+        dataRows: state.dataRows,
+        mapping: state.mapping,
+        manualValues: state.manualValues,
+        records: state.records.map(({ _raw, ...rest }) => rest),
+        sortKey: state.sortKey,
+        sortDir: state.sortDir
+      }));
+    }
+    function resetDataRegion() {
+      if (!state.records.length && !state.headers.length) { showAlert('Vùng 1 chưa có dữ liệu để reset.', 'warn'); return; }
+      dataResetSnapshot = snapshotDataRegion();
+      state.workbook = null; state.workbookName = ''; state.sheetName = ''; state.sheetNames = []; state.rawRows = []; state.headers = []; state.dataRows = []; state.records = []; state.sortKey = ''; state.sortDir = 'asc';
+      el.excelFile.value = ''; el.sheetSelect.innerHTML = ''; el.sheetSelect.disabled = true; el.pageNumber.value = '1';
+      renderMappingBox(); updateStats(); renderTable(); updateButtons(); scheduleSave();
+      showAlert('Đã reset vùng 1. Có thể bấm Quay lại vùng 1 nếu lỡ tay.', 'ok');
+    }
+    function undoResetData() {
+      if (!dataResetSnapshot) return;
+      const snap = dataResetSnapshot;
+      state.workbook = null; state.workbookName = snap.workbookName || ''; state.sheetName = snap.sheetName || ''; state.sheetNames = snap.sheetNames || []; state.rawRows = snap.rawRows || []; state.headers = snap.headers || []; state.dataRows = snap.dataRows || []; state.mapping = snap.mapping || {}; state.manualValues = snap.manualValues || {}; state.records = (snap.records || []).map((r, i) => ({ ...r, STT: i + 1, _raw: [] })); state.sortKey = snap.sortKey || ''; state.sortDir = snap.sortDir || 'asc';
+      dataResetSnapshot = null;
+      renderSheetSelect(); renderMappingBox(); updateStats(); renderTable(); updateButtons(); scheduleSave();
+      showAlert('Đã quay lại dữ liệu vùng 1 trước khi reset.', 'ok');
+    }
+    function saveMappingConfig() {
+      const cfg = getSavedConfig();
+      cfg.mapping = state.mapping;
+      cfg.manualValues = state.manualValues;
+      localStorage.setItem(CONFIG_KEY, JSON.stringify(cfg));
+      showAlert('Đã lưu vùng chọn cột.', 'ok');
+    }
+    function getSavedConfig() {
+      try { return JSON.parse(localStorage.getItem(CONFIG_KEY) || '{}') || {}; } catch { return {}; }
+    }
+    function resetMappingRegion() {
+      mappingResetSnapshot = JSON.parse(JSON.stringify({ mapping: state.mapping, manualValues: state.manualValues }));
+      state.manualValues = {};
+      TARGET_FIELDS.forEach(field => { state.manualValues[field.key] = ''; });
+      if (state.headers.length) autoMapHeaders(); else state.mapping = {};
+      renderMappingBox(); rebuildRecords(); updateButtons(); scheduleSave();
+      showAlert('Đã reset vùng chọn cột. Có thể bấm Quay lại vùng chọn cột nếu lỡ tay.', 'ok');
+    }
+    function undoResetMapping() {
+      if (!mappingResetSnapshot) return;
+      state.mapping = mappingResetSnapshot.mapping || {};
+      state.manualValues = mappingResetSnapshot.manualValues || {};
+      mappingResetSnapshot = null;
+      renderMappingBox(); rebuildRecords(); updateButtons(); scheduleSave();
+      showAlert('Đã quay lại vùng chọn cột trước khi reset.', 'ok');
+    }
+    function saveTemplateConfig() {
+      const cfg = getSavedConfig();
+      cfg.defaultTemplate = el.defaultTemplate.value || FIXED_TEMPLATE;
+      localStorage.setItem(CONFIG_KEY, JSON.stringify(cfg));
+      showAlert('Đã lưu vùng Template.', 'ok');
+    }
+    function resetTemplateRegion() {
+      templateResetSnapshot = { defaultTemplate: el.defaultTemplate.value || FIXED_TEMPLATE };
+      state.defaultTemplate = FIXED_TEMPLATE;
+      el.defaultTemplate.value = FIXED_TEMPLATE;
+      refreshAutoTemplates();
+      updateButtons();
+      showAlert('Đã reset vùng Template. Có thể bấm Quay lại vùng Template nếu lỡ tay.', 'ok');
+    }
+    function undoResetTemplate() {
+      if (!templateResetSnapshot) return;
+      state.defaultTemplate = templateResetSnapshot.defaultTemplate || FIXED_TEMPLATE;
+      el.defaultTemplate.value = state.defaultTemplate;
+      templateResetSnapshot = null;
+      refreshAutoTemplates();
+      updateButtons();
+      showAlert('Đã quay lại Template trước khi reset.', 'ok');
+    }
+    function resetAll() {
+      if (!confirm('Bạn có chắc muốn reset toàn bộ dữ liệu đã nhập/lưu tạm không?')) return;
+      localStorage.removeItem(STORAGE_KEY);
+      state.workbook = null; state.workbookName = ''; state.sheetName = ''; state.sheetNames = []; state.rawRows = []; state.headers = []; state.dataRows = []; state.mapping = {}; state.manualValues = {}; state.records = []; state.currentPage = 1; state.search = ''; state.sortKey = ''; state.sortDir = 'asc'; state.defaultTemplate = FIXED_TEMPLATE;
+      TARGET_FIELDS.forEach(field => { state.manualValues[field.key] = ''; });
+      dataResetSnapshot = null; mappingResetSnapshot = null; templateResetSnapshot = null;
+      el.defaultTemplate.value = FIXED_TEMPLATE; el.excelFile.value = ''; el.sheetSelect.innerHTML = ''; el.searchInput.value = ''; el.pageNumber.value = '1';
+      renderMappingBox(); updateStats(); renderTable(); updateButtons();
+      showAlert('Đã reset toàn bộ dữ liệu.', 'ok');
+    }
+    function loadSavedConfig() {
+      const cfg = getSavedConfig();
+      if (cfg.defaultTemplate) {
+        state.defaultTemplate = cfg.defaultTemplate;
+        el.defaultTemplate.value = cfg.defaultTemplate;
+      }
+      if (cfg.manualValues) state.manualValues = cfg.manualValues;
+      TARGET_FIELDS.forEach(field => { if (state.manualValues[field.key] === undefined) state.manualValues[field.key] = ''; });
+    }
+    function loadUiSettings() {
+      let ui = {};
+      try { ui = JSON.parse(localStorage.getItem(UI_KEY) || '{}') || {}; } catch { ui = {}; }
+      const appName = ui.appName || DEFAULT_APP_NAME;
+      el.appTitle.textContent = appName;
+      document.title = appName;
+      el.appNameInput.value = appName;
+      const renameVisible = ui.renameVisible !== false;
+      el.renamePanel.classList.toggle('hidden', !renameVisible);
+      el.btnToggleRename.textContent = renameVisible ? 'Ẩn đổi tên app' : 'Hiện đổi tên app';
+      const descVisible = Boolean(ui.descVisible);
+      el.longDesc.classList.toggle('show', descVisible);
+      el.btnToggleDesc.textContent = descVisible ? 'Ẩn mô tả' : 'Hiện mô tả';
+    }
+    function saveUiSettings(patch = {}) {
+      let ui = {};
+      try { ui = JSON.parse(localStorage.getItem(UI_KEY) || '{}') || {}; } catch { ui = {}; }
+      ui = { ...ui, ...patch };
+      localStorage.setItem(UI_KEY, JSON.stringify(ui));
+    }
+    async function copyVisibleTemplates() {
+      const rows = filteredRecords();
+      const pageSize = Number(state.pageSize || 100);
+      const start = (state.currentPage - 1) * pageSize;
+      const pageRows = rows.slice(start, start + pageSize);
+      const text = pageRows.map(r => `${r.phone}\t${r.Template}`).filter(line => line.trim()).join('\n');
+      if (!text) { showAlert('Trang hiện tại chưa có Template để copy.', 'warn'); return; }
+      try { await navigator.clipboard.writeText(text); showAlert('Đã copy phone và Template của trang hiện tại.', 'ok'); }
+      catch {
+        const ta = document.createElement('textarea'); ta.value = text; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); ta.remove(); showAlert('Đã copy phone và Template của trang hiện tại.', 'ok');
+      }
+    }
+
+    el.btnSaveAppName.addEventListener('click', () => {
+      const name = el.appNameInput.value.trim() || DEFAULT_APP_NAME;
+      el.appTitle.textContent = name;
+      document.title = name;
+      saveUiSettings({ appName: name });
+      showAlert('Đã lưu tên app.', 'ok');
+    });
+    el.btnToggleRename.addEventListener('click', () => {
+      const willHide = !el.renamePanel.classList.contains('hidden');
+      el.renamePanel.classList.toggle('hidden', willHide);
+      el.btnToggleRename.textContent = willHide ? 'Hiện đổi tên app' : 'Ẩn đổi tên app';
+      saveUiSettings({ renameVisible: !willHide });
+    });
+    el.btnToggleDesc.addEventListener('click', () => {
+      const show = !el.longDesc.classList.contains('show');
+      el.longDesc.classList.toggle('show', show);
+      el.btnToggleDesc.textContent = show ? 'Ẩn mô tả' : 'Hiện mô tả';
+      saveUiSettings({ descVisible: show });
+    });
+    el.excelFile.addEventListener('change', event => { const file = event.target.files && event.target.files[0]; if (file) readExcelFile(file); });
+    el.sheetSelect.addEventListener('change', () => { state.sheetName = el.sheetSelect.value; loadSelectedSheet(); scheduleSave(); });
+    el.headerRow.addEventListener('change', () => { loadSelectedSheet(); scheduleSave(); });
+    el.btnReadAgain.addEventListener('click', () => { if (state.workbook) { loadSelectedSheet(); showAlert('Đã đọc lại sheet hiện tại.', 'ok'); } });
+    el.btnResetData.addEventListener('click', resetDataRegion);
+    el.btnUndoResetData.addEventListener('click', undoResetData);
+    el.btnSaveMapping.addEventListener('click', saveMappingConfig);
+    el.btnResetMapping.addEventListener('click', resetMappingRegion);
+    el.btnUndoResetMapping.addEventListener('click', undoResetMapping);
+    el.defaultTemplate.addEventListener('change', refreshAutoTemplates);
+    el.defaultTemplate.addEventListener('blur', refreshAutoTemplates);
+    el.btnFillTemplate.addEventListener('click', fillTemplatesByRule);
+    el.btnSaveTemplate.addEventListener('click', saveTemplateConfig);
+    el.btnResetTemplate.addEventListener('click', resetTemplateRegion);
+    el.btnUndoResetTemplate.addEventListener('click', undoResetTemplate);
+    el.searchInput.addEventListener('input', () => { state.search = el.searchInput.value; state.currentPage = 1; renderTable(); });
+    el.sortField.addEventListener('change', () => setSort(el.sortField.value, el.sortDirection.value || 'asc'));
+    el.sortDirection.addEventListener('change', () => setSort(el.sortField.value || state.sortKey, el.sortDirection.value || 'asc'));
+    el.pageSize.addEventListener('change', () => { state.pageSize = Number(el.pageSize.value || 100); state.currentPage = 1; renderTable(); scheduleSave(); });
+    el.pageNumber.addEventListener('change', () => { state.currentPage = Math.max(1, Number(el.pageNumber.value || 1)); renderTable(); });
+    el.btnPrev.addEventListener('click', () => { state.currentPage = Math.max(1, state.currentPage - 1); renderTable(); });
+    el.btnNext.addEventListener('click', () => { state.currentPage += 1; renderTable(); });
+    el.btnCopyVisible.addEventListener('click', copyVisibleTemplates);
+    el.btnExport.addEventListener('click', async () => { try { exportWorkbook(true); if (driveDirHandle) await exportToDriveToo(); } catch (err) { console.error(err); showAlert('Không xuất được Excel. Vui lòng thử lại.', 'err'); } });
+    el.btnResetAll.addEventListener('click', resetAll);
+    el.btnPickDrive.addEventListener('click', async () => {
+      if (!window.showDirectoryPicker) { showAlert('Trình duyệt này chưa hỗ trợ chọn thư mục. Hãy dùng Chrome hoặc Edge bản mới.', 'warn'); return; }
+      try { driveDirHandle = await window.showDirectoryPicker({ mode: 'readwrite' }); el.driveStatus.textContent = 'Google Drive: đã chọn thư mục, tự lưu sau 5 giây'; updateButtons(); await saveToDrive(); }
+      catch (err) { console.warn(err); showAlert('Chưa chọn thư mục hoặc chưa cấp quyền ghi file.', 'warn'); }
+    });
+    el.btnSaveDrive.addEventListener('click', saveToDrive);
+    el.btnLoadJson.addEventListener('click', () => el.jsonFile.click());
+    el.jsonFile.addEventListener('change', async event => {
+      const file = event.target.files && event.target.files[0];
+      if (!file) return;
+      try { const text = await file.text(); const data = JSON.parse(text); restoreFromData(data); showAlert('Đã mở dữ liệu JSON đã lưu.', 'ok'); scheduleSave(); }
+      catch (err) { console.error(err); showAlert('File JSON không đúng định dạng dữ liệu của app.', 'err'); }
+      finally { el.jsonFile.value = ''; }
+    });
+    window.addEventListener('beforeunload', () => { try { saveLocal(); } catch (err) { console.warn(err); } });
+
+    loadUiSettings();
+    loadSavedConfig();
+    loadLocalIfAny();
+    syncSortControls();
+    updateStats();
+    renderTable();
+    updateButtons();
+  </script>
+</body>
+</html>

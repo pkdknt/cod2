@@ -732,6 +732,11 @@ img, table, textarea, input, select {
           <div id="ageInfo" class="status">
             Nhập ngày sinh để app tự chọn phác đồ theo tuổi.
           </div>
+          <div class="btns noPrint">
+            <button type="button" class="light" onclick="resetSection1()">
+              Reset vùng 1
+            </button>
+          </div>
         </section>
         <section class="card col-8">
           <h2 style="margin: 0 0 8px; font-size: 18px">2. Phác đồ đang dùng</h2>
@@ -780,7 +785,7 @@ img, table, textarea, input, select {
           <div class="btns noPrint" style="margin-bottom: 10px">
             <button onclick="calculateAll()">Tính hẹn</button>
             <button class="light" onclick="clearDates()">Xóa ngày tiêm</button>
-            <button class="danger" onclick="resetAll()">Reset</button>
+            <button class="danger" onclick="resetAll()">Reset vùng 3</button>
             <button onclick="saveNow()">Lưu</button>
             <button class="secondary" onclick="window.print()">
               In / Lưu PDF
@@ -906,6 +911,19 @@ img, table, textarea, input, select {
             route:
               "Trẻ nhỏ: Tiêm bắp mặt trước bên đùi Trẻ lớn: Tiêm bắp cơ Delta cánh tay",
             sourceRow: 4,
+          },
+          {
+            id: "P2_ADULT_PREVENAR13_ONE_DOSE",
+            vaccine: "Prevenar 13",
+            disease:
+              "PHẾ CẦU 13 (Phòng viêm tai giữa, viêm phổi, viêm màng não, nhiễm trùng huyết,… do 13 chủng phế cầu)",
+            object:
+              "Người lớn khỏe mạnh chưa từng tiêm vắc xin phế cầu trước đây",
+            schedule:
+              "Mũi 1: Tiêm 1 mũi duy nhất vắc xin phế cầu 13 (Prevenar 13)\nNote: Không cần tiêm nhắc lại định kỳ",
+            route:
+              "Tiêm bắp, thường ở vùng cơ delta bắp tay",
+            sourceRow: "Bổ sung",
           },
           {
             id: "P5_3",
@@ -1464,7 +1482,7 @@ img, table, textarea, input, select {
             id: "P53_57",
             vaccine: "Prevenar 20",
             disease: "1.Phế cầu 20",
-            object: "Trẻ từ tròn 24 tháng tuổi trở lên và người lớn",
+            object: "Trẻ từ tròn 24 tháng tuổi trở lên",
             schedule: "1 mũi duy nhất",
             route: "Tiêm bắp sâu 0,5ml",
             sourceRow: 53,
@@ -2203,21 +2221,24 @@ img, table, textarea, input, select {
         saveNow();
       }
       function resetAll() {
-        if (!confirm("Xóa toàn bộ dữ liệu đang nhập?")) return;
-        localStorage.removeItem("vac_app_v3");
-        state = {
-          dob: "",
-          gender: "",
-          vaccine: "",
-          protocolId: "",
-          dates: Array(6).fill(""),
-          dueOverrides: Array(6).fill(""),
-          notes: Array(6).fill(""),
-        };
-        loadToForm();
-        updateProtocols();
+        if (!confirm("Reset vùng 3: xóa ngày tiêm, ngày hẹn và ghi chú? Thông tin vùng 1 và vùng 2 vẫn được giữ nguyên.")) return;
+        state.dates = Array(6).fill("");
+        state.dueOverrides = Array(6).fill("");
+        state.notes = Array(6).fill("");
         renderDoseTable();
         calculateAll();
+        saveNow();
+      }
+      function resetSection1() {
+        if (!confirm("Reset vùng 1: xóa ngày sinh, giới tính, tên vắc xin và phác đồ đang chọn?")) return;
+        state.dob = "";
+        state.gender = "";
+        state.vaccine = "";
+        state.protocolId = "";
+        loadToForm();
+        updateProtocols();
+        calculateAll();
+        saveNow();
       }
       function loadToForm() {
         $("dob").value = toInputDate(state.dob || "");
@@ -2236,11 +2257,99 @@ img, table, textarea, input, select {
           $("saveStatus").textContent =
             "Đã lưu lúc " + new Date().toLocaleTimeString("vi-VN");
       }
+      function getPrevenar13AdultProtocolPatch() {
+        return {
+          id: "P2_ADULT_PREVENAR13_ONE_DOSE",
+          vaccine: "Prevenar 13",
+          disease:
+            "PHẾ CẦU 13 (Phòng viêm tai giữa, viêm phổi, viêm màng não, nhiễm trùng huyết,… do 13 chủng phế cầu)",
+          object:
+            "Người lớn khỏe mạnh chưa từng tiêm vắc xin phế cầu trước đây",
+          schedule:
+            "Mũi 1: Tiêm 1 mũi duy nhất vắc xin phế cầu 13 (Prevenar 13)\nNote: Không cần tiêm nhắc lại định kỳ",
+          route: "Tiêm bắp, thường ở vùng cơ delta bắp tay",
+          sourceRow: "Bổ sung",
+        };
+      }
+      function ensurePrevenar13AdultProtocolPatch() {
+        let changed = false;
+        const patch = getPrevenar13AdultProtocolPatch();
+        const exists = DATA.protocols.some((p) => p.id === patch.id);
+        if (!exists) {
+          const lastPrevenar13Index = DATA.protocols
+            .map((p, i) => (norm(p.vaccine) === norm("Prevenar 13") ? i : -1))
+            .filter((i) => i >= 0)
+            .pop();
+          if (lastPrevenar13Index !== undefined)
+            DATA.protocols.splice(lastPrevenar13Index + 1, 0, patch);
+          else DATA.protocols.unshift(patch);
+          changed = true;
+        }
+        if (!DATA.vaccines.some((v) => norm(v) === norm("Prevenar 13"))) {
+          DATA.vaccines.push("Prevenar 13");
+          changed = true;
+        }
+        return changed;
+      }
+      function sanitizePrevenar20Protocols() {
+        let changed = false;
+        const before = DATA.protocols.length;
+        DATA.protocols = DATA.protocols.filter((p) => {
+          const isPrevenar20 = norm(p.vaccine) === norm("Prevenar 20");
+          const isOldAdultOnlyPatch =
+            p.id === "P53_ADULT_PREVENAR20_ONE_DOSE" ||
+            (isPrevenar20 && norm(p.object) === norm("Người lớn"));
+          return !isOldAdultOnlyPatch;
+        });
+        changed = DATA.protocols.length !== before;
+        DATA.protocols.forEach((p) => {
+          if (
+            norm(p.vaccine) === norm("Prevenar 20") &&
+            norm(p.object).includes("24 thang") &&
+            norm(p.object).includes("nguoi lon")
+          ) {
+            p.object = "Trẻ từ tròn 24 tháng tuổi trở lên";
+            changed = true;
+          }
+        });
+        DATA.vaccines = [...new Set(DATA.protocols.map((x) => x.vaccine))];
+        if (!DATA.vaccines.some((v) => norm(v) === norm("Prevenar 20"))) {
+          DATA.vaccines.push("Prevenar 20");
+          changed = true;
+        }
+        return changed;
+      }
+      function loadCustomProtocolsAndEnsureDefaults() {
+        let changed = false;
+        try {
+          const c = localStorage.getItem("vac_protocols_custom");
+          if (c) {
+            const parsed = JSON.parse(c);
+            if (Array.isArray(parsed)) {
+              DATA.protocols = parsed;
+              DATA.vaccines = [...new Set(DATA.protocols.map((x) => x.vaccine))];
+            }
+          }
+        } catch (e) {}
+        changed = ensurePrevenar13AdultProtocolPatch() || changed;
+        changed = sanitizePrevenar20Protocols() || changed;
+        if (changed) {
+          try {
+            localStorage.setItem(
+              "vac_protocols_custom",
+              JSON.stringify(DATA.protocols),
+            );
+          } catch (e) {}
+        }
+        return changed;
+      }
       function load() {
+        loadCustomProtocolsAndEnsureDefaults();
         try {
           let s = localStorage.getItem("vac_app_v3");
           if (s) state = { ...state, ...JSON.parse(s) };
         } catch (e) {}
+        if (state.protocolId === "P53_ADULT_PREVENAR20_ONE_DOSE") state.protocolId = "P53_57";
         state.dueOverrides = Array.isArray(state.dueOverrides)
           ? state.dueOverrides
           : Array(6).fill("");
@@ -2338,13 +2447,7 @@ img, table, textarea, input, select {
         }
       };
       window.addEventListener("load", () => {
-        try {
-          const c = localStorage.getItem("vac_protocols_custom");
-          if (c) {
-            DATA.protocols = JSON.parse(c);
-            DATA.vaccines = [...new Set(DATA.protocols.map((x) => x.vaccine))];
-          }
-        } catch (e) {}
+        loadCustomProtocolsAndEnsureDefaults();
       });
 
       let deferredInstallPrompt = null;

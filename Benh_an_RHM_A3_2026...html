@@ -350,6 +350,438 @@
   .dataPanel.open{display:block}
   .dataPanel .hint{margin-top:0}
 
+
+
+  /* CẬP NHẬT: Đưa bảng "Hồ sơ, phim, ảnh" xuống gần cạnh dưới, cách cạnh dưới 0.5cm */
+  .summaryBox{
+    position:relative!important;
+    padding-bottom:48mm!important;
+  }
+  .summaryBox .recordTable{
+    position:absolute!important;
+    left:5px!important;
+    right:5px!important;
+    bottom:5mm!important;
+    width:calc(100% - 10px)!important;
+    margin-top:0!important;
+  }
+  @media print{
+    .summaryBox{position:relative!important;padding-bottom:48mm!important;}
+    .summaryBox .recordTable{position:absolute!important;left:5px!important;right:5px!important;bottom:5mm!important;width:calc(100% - 10px)!important;margin-top:0!important;}
+  }
+
+
+  /* CẬP NHẬT: Kéo các dòng gạch chấm của mục 6 xuống sát bảng hồ sơ phía dưới */
+  .summaryBox .recordTable{
+    background:#fff!important;
+    z-index:3!important;
+  }
+  .summaryBox .recordTable td,
+  .summaryBox .recordTable th{
+    background:#fff!important;
+  }
+
+
+  /* CẬP NHẬT: Kéo khung ngoài phần tổng kết lên nhẹ, cho bảng hồ sơ chạm khung dưới */
+  .summaryBox{
+    height:calc(100% - 3mm)!important;
+    position:relative!important;
+    padding-bottom:43mm!important;
+  }
+  .summaryBox .recordTable{
+    bottom:0!important;
+  }
+
+  /* CẬP NHẬT: Đặt dòng Họ tên của Bác sỹ điều trị nằm ngay trên cạnh dưới của khung */
+  .recordTable .recRight{
+    position:relative!important;
+    vertical-align:top!important;
+  }
+  .recordTable .recDoctor{
+    position:absolute!important;
+    inset:0!important;
+    height:auto!important;
+    min-height:0!important;
+    padding:3px 8px 1.5mm 8px!important;
+    display:flex!important;
+    flex-direction:column!important;
+    align-items:center!important;
+    justify-content:flex-start!important;
+    box-sizing:border-box!important;
+  }
+  .recordTable .recDoctor .date{
+    width:100%!important;
+    margin-bottom:6px!important;
+  }
+  .recordTable .recDoctor b{
+    margin-bottom:0!important;
+  }
+  .recordTable .recDoctor .recLine{
+    width:100%!important;
+    margin-top:auto!important;
+    text-align:left!important;
+    line-height:1.1!important;
+  }
+
+  @media print{
+    .summaryBox{height:calc(100% - 3mm)!important;padding-bottom:43mm!important;}
+    .summaryBox .recordTable{bottom:0!important;}
+    .recordTable .recRight{position:relative!important;vertical-align:top!important;}
+    .recordTable .recDoctor{position:absolute!important;inset:0!important;height:auto!important;min-height:0!important;padding:3px 8px 1.5mm 8px!important;display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:flex-start!important;box-sizing:border-box!important;}
+    .recordTable .recDoctor b{margin-bottom:0!important;}
+    .recordTable .recDoctor .recLine{width:100%!important;margin-top:auto!important;text-align:left!important;line-height:1.1!important;}
+  }
+
+
+  /* CẬP NHẬT: Căn lại khu vực chữ ký điều trị ngoại trú
+     - GIÁM ĐỐC PHÒNG KHÁM thẳng hàng với BÁC SỸ KHÁM BỆNH
+     - Hai dòng Họ và tên thấp xuống nhẹ, kéo sang phải và cùng một hàng */
+  .sheet-back .half:first-child .signs{
+    display:grid!important;
+    grid-template-columns:1fr 1fr!important;
+    gap:10mm!important;
+    margin-top:18px!important;
+    text-align:center!important;
+    align-items:start!important;
+  }
+  .sheet-back .half:first-child .signs > div{
+    position:relative!important;
+    min-height:39mm!important;
+    text-align:center!important;
+  }
+  .sheet-back .half:first-child .signs > div:first-child > b{
+    display:block!important;
+    padding-top:5.2mm!important;
+  }
+  .sheet-back .half:first-child .signs > div:nth-child(2) > i{
+    display:block!important;
+    line-height:5.2mm!important;
+    margin:0!important;
+    padding:0!important;
+  }
+  .sheet-back .half:first-child .signs > div:nth-child(2) > br{
+    display:none!important;
+  }
+  .sheet-back .half:first-child .signs > div:nth-child(2) > b{
+    display:block!important;
+    margin:0!important;
+    padding:0!important;
+  }
+  .sheet-back .half:first-child .signName{
+    position:absolute!important;
+    left:8mm!important;
+    bottom:0!important;
+    margin-top:0!important;
+    text-align:left!important;
+    white-space:nowrap!important;
+  }
+  @media print{
+    .sheet-back .half:first-child .signs{display:grid!important;grid-template-columns:1fr 1fr!important;gap:10mm!important;margin-top:18px!important;text-align:center!important;align-items:start!important;}
+    .sheet-back .half:first-child .signs > div{position:relative!important;min-height:39mm!important;text-align:center!important;}
+    .sheet-back .half:first-child .signs > div:first-child > b{display:block!important;padding-top:5.2mm!important;}
+    .sheet-back .half:first-child .signs > div:nth-child(2) > i{display:block!important;line-height:5.2mm!important;margin:0!important;padding:0!important;}
+    .sheet-back .half:first-child .signs > div:nth-child(2) > br{display:none!important;}
+    .sheet-back .half:first-child .signs > div:nth-child(2) > b{display:block!important;margin:0!important;padding:0!important;}
+    .sheet-back .half:first-child .signName{position:absolute!important;left:8mm!important;bottom:0!important;margin-top:0!important;text-align:left!important;white-space:nowrap!important;}
+  }
+
+
+  /* CẬP NHẬT: Mục 4-6 thêm dòng chấm; mục 7 và chữ ký kéo xuống, cách cạnh giấy 2cm */
+  .sheet-back .half:first-child{
+    position:relative!important;
+  }
+  .sheet-back .half:first-child .outpatientBlock{
+    position:absolute!important;
+    left:0!important;
+    right:0!important;
+    bottom:11mm!important; /* 9mm lề trang + 11mm = 20mm tính từ cạnh giấy */
+  }
+  .sheet-back .half:first-child .outpatientBlock .sectionTitle{
+    margin-top:0!important;
+  }
+  @media print{
+    .sheet-back .half:first-child{position:relative!important;}
+    .sheet-back .half:first-child .outpatientBlock{position:absolute!important;left:0!important;right:0!important;bottom:11mm!important;}
+    .sheet-back .half:first-child .outpatientBlock .sectionTitle{margin-top:0!important;}
+  }
+
+
+
+  /* CẬP NHẬT: Mục 9 Đối tượng hiển thị đúng mẫu: BHYT có ô vuông tích X, Thu phí/Miễn/Khác có ô vuông trống */
+  .doiTuongMau{
+    display:inline-flex!important;
+    align-items:flex-end!important;
+    gap:7mm!important;
+    white-space:nowrap!important;
+    font-style:italic!important;
+  }
+  .doiTuongMau .doiTuongItem{
+    display:inline-flex!important;
+    align-items:center!important;
+    gap:1.1mm!important;
+    white-space:nowrap!important;
+  }
+  .doiTuongMau .checkBox{
+    display:inline-flex!important;
+    align-items:center!important;
+    justify-content:center!important;
+    width:3.2mm!important;
+    height:3.2mm!important;
+    border:1px solid #000!important;
+    font-style:normal!important;
+    font-family:'Times New Roman',serif!important;
+    font-size:10px!important;
+    font-weight:bold!important;
+    line-height:1!important;
+    box-sizing:border-box!important;
+  }
+  .doiTuongMau .checkBox.checked{
+    padding-bottom:.2mm!important;
+  }
+  @media print{
+    .doiTuongMau{display:inline-flex!important;align-items:flex-end!important;gap:7mm!important;white-space:nowrap!important;font-style:italic!important;}
+    .doiTuongMau .doiTuongItem{display:inline-flex!important;align-items:center!important;gap:1.1mm!important;white-space:nowrap!important;}
+    .doiTuongMau .checkBox{display:inline-flex!important;align-items:center!important;justify-content:center!important;width:3.2mm!important;height:3.2mm!important;border:1px solid #000!important;font-style:normal!important;font-family:'Times New Roman',serif!important;font-size:10px!important;font-weight:bold!important;line-height:1!important;box-sizing:border-box!important;}
+    .doiTuongMau .checkBox.checked{padding-bottom:.2mm!important;}
+  }
+
+
+  /* CẬP NHẬT: Mục IV.2 Bệnh chuyên khoa kẻ dòng chấm xuống dưới trang, không vượt khung */
+  .frontAdmin .specialtyLines{
+    display:block!important;
+    width:100%!important;
+    clear:both!important;
+    margin-top:0!important;
+  }
+  .frontAdmin .specialtyLines .paraLine{
+    min-height:5.25mm!important;
+    height:5.25mm!important;
+    line-height:5.05mm!important;
+    overflow:hidden!important;
+  }
+  @media print{
+    .frontAdmin .specialtyLines .paraLine{min-height:5.25mm!important;height:5.25mm!important;line-height:5.05mm!important;overflow:hidden!important;}
+  }
+
+
+
+  /* CẬP NHẬT THEO MẪU: Họ tên Người nhận hồ sơ hạ thấp ngang hàng Họ tên Bác sỹ điều trị,
+     đồng thời kéo dòng chấm dài sát cạnh khung */
+  .recordTable .recMid{
+    position:relative!important;
+    vertical-align:top!important;
+  }
+  .recordTable .recMid .recPerson{
+    position:relative!important;
+    height:67px!important;
+    padding:3px 0 1.5mm 8px!important;
+    box-sizing:border-box!important;
+  }
+  .recordTable .recMid .recPerson b{
+    display:block!important;
+    text-align:center!important;
+    font-size:18px!important;
+    margin-bottom:0!important;
+    padding-right:8px!important;
+  }
+  .recordTable .recMid .recPerson:first-child .recLine{
+    position:absolute!important;
+    left:8px!important;
+    right:.7mm!important;
+    bottom:4mm!important;
+    width:auto!important;
+  }
+  .recordTable .recMid .recPerson:nth-child(2) .recLine{
+    position:absolute!important;
+    left:8px!important;
+    right:.7mm!important;
+    bottom:1.5mm!important;
+    width:auto!important;
+  }
+  .recordTable .recDoctor{
+    padding-right:.7mm!important;
+  }
+  .recordTable .recDoctor .recLine{
+    width:100%!important;
+    padding-right:0!important;
+  }
+  .recordTable .recLine{
+    display:flex!important;
+    align-items:flex-end!important;
+    gap:1mm!important;
+    text-align:left!important;
+    white-space:nowrap!important;
+    overflow:hidden!important;
+    font-size:0!important;
+    line-height:1.1!important;
+  }
+  .recordTable .recLine::before{
+    content:'Họ tên';
+    font-size:12px!important;
+    font-family:'Times New Roman',serif!important;
+    white-space:nowrap!important;
+  }
+  .recordTable .recLine::after{
+    content:'';
+    flex:1 1 auto!important;
+    border-bottom:1px dotted #222!important;
+    height:0!important;
+    min-width:8mm!important;
+    transform:translateY(-.4mm);
+  }
+  @media print{
+    .recordTable .recMid{position:relative!important;vertical-align:top!important;}
+    .recordTable .recMid .recPerson{position:relative!important;height:67px!important;padding:3px 0 1.5mm 8px!important;box-sizing:border-box!important;}
+    .recordTable .recMid .recPerson b{display:block!important;text-align:center!important;font-size:18px!important;margin-bottom:0!important;padding-right:8px!important;}
+    .recordTable .recMid .recPerson:first-child .recLine{position:absolute!important;left:8px!important;right:.7mm!important;bottom:4mm!important;width:auto!important;}
+    .recordTable .recMid .recPerson:nth-child(2) .recLine{position:absolute!important;left:8px!important;right:.7mm!important;bottom:1.5mm!important;width:auto!important;}
+    .recordTable .recDoctor{padding-right:.7mm!important;}
+    .recordTable .recDoctor .recLine{width:100%!important;padding-right:0!important;}
+    .recordTable .recLine{display:flex!important;align-items:flex-end!important;gap:1mm!important;text-align:left!important;white-space:nowrap!important;overflow:hidden!important;font-size:0!important;line-height:1.1!important;}
+    .recordTable .recLine::before{content:'Họ tên';font-size:12px!important;font-family:'Times New Roman',serif!important;white-space:nowrap!important;}
+    .recordTable .recLine::after{content:'';flex:1 1 auto!important;border-bottom:1px dotted #222!important;height:0!important;min-width:8mm!important;transform:translateY(-.4mm);}
+  }
+
+
+
+  /* CẬP NHẬT: Chia đều 2 ô Người giao/Người nhận hồ sơ và căn dòng Họ tên sát đáy từng ô như mẫu */
+  .recordTable .recMid{
+    position:relative!important;
+    vertical-align:top!important;
+    height:134px!important;
+    padding:0!important;
+  }
+  .recordTable .recMid .recPerson{
+    position:relative!important;
+    height:67px!important;
+    min-height:67px!important;
+    padding:3px 0 1.5mm 8px!important;
+    box-sizing:border-box!important;
+  }
+  .recordTable .recMid .recPerson:first-child{
+    border-bottom:1px solid #333!important;
+  }
+  .recordTable .recMid .recPerson b{
+    display:block!important;
+    text-align:center!important;
+    font-size:18px!important;
+    line-height:1.15!important;
+    margin:0!important;
+    padding:0 8px 0 0!important;
+  }
+  .recordTable .recMid .recPerson:first-child .recLine,
+  .recordTable .recMid .recPerson:nth-child(2) .recLine{
+    position:absolute!important;
+    left:8px!important;
+    right:.7mm!important;
+    bottom:1.5mm!important;
+    width:auto!important;
+    margin:0!important;
+  }
+  .recordTable .recRight .recDoctor .recLine{
+    bottom:1.5mm!important;
+  }
+  @media print{
+    .recordTable .recMid{position:relative!important;vertical-align:top!important;height:134px!important;padding:0!important;}
+    .recordTable .recMid .recPerson{position:relative!important;height:67px!important;min-height:67px!important;padding:3px 0 1.5mm 8px!important;box-sizing:border-box!important;}
+    .recordTable .recMid .recPerson:first-child{border-bottom:1px solid #333!important;}
+    .recordTable .recMid .recPerson b{display:block!important;text-align:center!important;font-size:18px!important;line-height:1.15!important;margin:0!important;padding:0 8px 0 0!important;}
+    .recordTable .recMid .recPerson:first-child .recLine,.recordTable .recMid .recPerson:nth-child(2) .recLine{position:absolute!important;left:8px!important;right:.7mm!important;bottom:1.5mm!important;width:auto!important;margin:0!important;}
+  }
+
+
+
+  /* CẬP NHẬT CUỐI: Căn lại ô Người giao/Người nhận hồ sơ theo yêu cầu
+     - Gạch ngang chia đôi nằm đúng giữa cạnh trên và cạnh dưới của ô giữa
+     - Tiêu đề Người giao/Người nhận sát cạnh trên từng ô và canh giữa
+     - Dòng Họ tên của Người giao sát cạnh dưới ô trên
+     - Dòng Họ tên của Người nhận sát cạnh dưới ô dưới, giữ chấm kéo sát cạnh khung */
+  .recordTable .recMid{
+    position:relative!important;
+    vertical-align:top!important;
+    height:134px!important;
+    min-height:134px!important;
+    padding:0!important;
+    overflow:hidden!important;
+  }
+  .recordTable .recMid::before{
+    content:''!important;
+    position:absolute!important;
+    left:0!important;
+    right:0!important;
+    top:50%!important;
+    border-top:1px solid #333!important;
+    z-index:2!important;
+    pointer-events:none!important;
+  }
+  .recordTable .recMid .recPerson{
+    position:absolute!important;
+    left:0!important;
+    right:0!important;
+    height:50%!important;
+    min-height:0!important;
+    padding:1mm .7mm .8mm 8px!important;
+    margin:0!important;
+    box-sizing:border-box!important;
+    border-bottom:0!important;
+    overflow:hidden!important;
+  }
+  .recordTable .recMid .recPerson:first-child{
+    top:0!important;
+    bottom:auto!important;
+    border-bottom:0!important;
+  }
+  .recordTable .recMid .recPerson:nth-child(2){
+    top:50%!important;
+    bottom:auto!important;
+  }
+  .recordTable .recMid .recPerson b{
+    display:block!important;
+    width:100%!important;
+    text-align:center!important;
+    font-size:18px!important;
+    line-height:1.12!important;
+    margin:0!important;
+    padding:0!important;
+    white-space:nowrap!important;
+  }
+  .recordTable .recMid .recPerson:first-child .recLine,
+  .recordTable .recMid .recPerson:nth-child(2) .recLine{
+    position:absolute!important;
+    left:8px!important;
+    right:.35mm!important;
+    bottom:.8mm!important;
+    width:auto!important;
+    margin:0!important;
+  }
+  .recordTable .recMid .recLine::after{
+    min-width:0!important;
+    transform:translateY(-.25mm)!important;
+  }
+  @media print{
+    .recordTable .recMid{position:relative!important;vertical-align:top!important;height:134px!important;min-height:134px!important;padding:0!important;overflow:hidden!important;}
+    .recordTable .recMid::before{content:''!important;position:absolute!important;left:0!important;right:0!important;top:50%!important;border-top:1px solid #333!important;z-index:2!important;pointer-events:none!important;}
+    .recordTable .recMid .recPerson{position:absolute!important;left:0!important;right:0!important;height:50%!important;min-height:0!important;padding:1mm .7mm .8mm 8px!important;margin:0!important;box-sizing:border-box!important;border-bottom:0!important;overflow:hidden!important;}
+    .recordTable .recMid .recPerson:first-child{top:0!important;bottom:auto!important;border-bottom:0!important;}
+    .recordTable .recMid .recPerson:nth-child(2){top:50%!important;bottom:auto!important;}
+    .recordTable .recMid .recPerson b{display:block!important;width:100%!important;text-align:center!important;font-size:18px!important;line-height:1.12!important;margin:0!important;padding:0!important;white-space:nowrap!important;}
+    .recordTable .recMid .recPerson:first-child .recLine,.recordTable .recMid .recPerson:nth-child(2) .recLine{position:absolute!important;left:8px!important;right:.35mm!important;bottom:.8mm!important;width:auto!important;margin:0!important;}
+    .recordTable .recMid .recLine::after{min-width:0!important;transform:translateY(-.25mm)!important;}
+  }
+
+
+  /* CẬP NHẬT: Kéo dài dòng chấm Họ và tên ở phần chữ ký điều trị ngoại trú thêm khoảng 3cm mỗi bên */
+  .sheet-back .half:first-child .signName{
+    min-width:70mm!important;
+    width:70mm!important;
+    max-width:78mm!important;
+    overflow:visible!important;
+    white-space:nowrap!important;
+  }
+  @media print{
+    .sheet-back .half:first-child .signName{min-width:70mm!important;width:70mm!important;max-width:78mm!important;overflow:visible!important;white-space:nowrap!important;}
+  }
+
 </style>
 </head>
 <body>
@@ -369,6 +801,7 @@
   <button onclick="exportData()" class="secondary">Xuất file Excel</button>
   <button onclick="addBlank()">Thêm hồ sơ</button>
   <button onclick="deleteCurrent()" class="danger">Xóa hồ sơ</button>
+  <button onclick="resetAllData()" class="danger" style="background:#991b1b">Reset toàn bộ</button>
   <span style="display:inline-flex;align-items:center;gap:4px">
     <label for="fromRec">Từ:</label>
     <input type="number" id="fromRec" value="1" min="1" style="width:65px" />
@@ -393,6 +826,12 @@
   <aside class="panel noPrint">
     <h2>Cột đang tự nhận diện</h2>
     <div class="hint">App tự lấy các cột: Số ngoại trú, Số lưu trữ, Họ tên, Năm sinh, Tuổi, Giới tính, Địa chỉ, BHYT đến, Số thẻ BHYT, Điện thoại, Đến khám ngày. Có thể sửa từng hồ sơ trước khi in.</div>
+    <button type="button" id="headerToggleBtn" class="dataToggle" onclick="toggleHeaderPanel()"><span>Đổi thông tin đầu bìa</span><span id="headerToggleArrow" class="arrow">▼</span></button>
+    <div id="headerPanel" class="dataPanel open">
+      <div class="hint">Cho phép thay đổi và lưu các mục ở đầu bìa, tiêu đề bệnh án và chữ ký cuối bệnh án. Nội dung tự lưu và áp dụng khi in/xuất PDF.</div>
+      <div id="headerEditBox" class="editBox grid1"></div>
+      <button type="button" onclick="resetHeaderSettings()" class="secondary" style="margin-top:8px;width:100%">Khôi phục mặc định đầu bìa</button>
+    </div>
     <div class="list"><table><thead><tr><th>#</th><th>Họ tên</th><th>Năm sinh</th><th>BHYT đến</th></tr></thead><tbody id="patientRows"></tbody></table></div>
     <button type="button" id="dataToggleBtn" class="dataToggle" onclick="toggleDataPanel()"><span>Nhập dữ liệu thủ công</span><span id="dataToggleArrow" class="arrow">▼</span></button>
     <div id="dataPanel" class="dataPanel open">
@@ -438,6 +877,17 @@ const FIELDS=[
  ['ghiChu','Ghi chú',['ghi chú','ghi chu']]
 ];
 let patients=JSON.parse(localStorage.getItem('rhmMailingData')||'[]'); let current=0;
+const DEFAULT_HEADER_SETTINGS={
+  soYTe:'Sở Y tế TP.Hồ Chí Minh',
+  tenPhongKham:'PKĐK Nhơn Tâm',
+  khoa:'Khoa: Răng Hàm Mặt',
+  tieuDe1:'BỆNH ÁN NGOẠI TRÚ',
+  tieuDe2:'CHUYÊN KHOA RĂNG HÀM MẶT',
+  giamDocPhongKham:'GIÁM ĐỐC PHÒNG KHÁM',
+  bacSyKhamBenh:'BÁC SỸ KHÁM BỆNH'
+};
+let headerSettings={...DEFAULT_HEADER_SETTINGS};
+try{ headerSettings={...DEFAULT_HEADER_SETTINGS,...JSON.parse(localStorage.getItem('rhmHeaderSettings')||'{}')}; }catch(e){ headerSettings={...DEFAULT_HEADER_SETTINGS}; }
 
 // Lưu dữ liệu lớn bằng IndexedDB để nhập Excel nhiều dòng, hạn chế lỗi đầy localStorage.
 const DB_NAME='rhmMailingDB_v2';
@@ -475,7 +925,8 @@ function appBackupObject(){
     savedAt:new Date().toISOString(),
     patients,
     lesionImages,
-    lesionImageSizes
+    lesionImageSizes,
+    headerSettings
   };
 }
 function safeLocalStorageSet(key,value){
@@ -488,7 +939,9 @@ async function initApp(){
       patients=saved.patients;
       lesionImages=saved.lesionImages||lesionImages||{};
       lesionImageSizes=saved.lesionImageSizes||lesionImageSizes||{};
+      headerSettings={...DEFAULT_HEADER_SETTINGS,...(saved.headerSettings||headerSettings||{})};
       current=Math.min(current, Math.max(0, patients.length-1));
+      safeLocalStorageSet('rhmHeaderSettings',JSON.stringify(headerSettings));
       safeLocalStorageSet('rhmLesionImages',JSON.stringify(lesionImages));
       safeLocalStorageSet('rhmLesionImageSizes',JSON.stringify(lesionImageSizes));
     }
@@ -512,23 +965,42 @@ function parseExcelDate(v){
   if(v===undefined||v===null||v==='')return null;
   if(typeof v==='number'){
     let d=XLSX.SSF.parse_date_code(v);
-    if(d)return {d:d.d,m:d.m,y:d.y};
+    if(d){
+      const hasTime=Math.abs(v-Math.floor(v))>0.0000001;
+      return {d:d.d,m:d.m,y:d.y,H:d.H||0,M:d.M||0,S:Math.round(d.S||0),hasTime:hasTime,hasSeconds:hasTime};
+    }
   }
   let str=String(v).trim();
-  let m=str.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{2,4})$/);
-  if(m){let y=+m[3]; if(y<100)y+=2000; return {d:+m[1],m:+m[2],y};}
-  m=str.match(/^(\d{4})[\/\-](\d{1,2})[\/\-](\d{1,2})/);
-  if(m)return {d:+m[3],m:+m[2],y:+m[1]};
+  let m=str.match(/^(?:(\d{1,2})[:hH](\d{1,2})(?::(\d{1,2}))?\s*)?,?\s*(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{2,4})(?:\s+(\d{1,2}):(\d{1,2})(?::(\d{1,2}))?)?$/);
+  if(m){
+    let y=+m[6]; if(y<100)y+=2000;
+    let H=m[1]!==undefined?+m[1]:(m[7]!==undefined?+m[7]:0);
+    let M=m[2]!==undefined?+m[2]:(m[8]!==undefined?+m[8]:0);
+    let hasSeconds=m[3]!==undefined||m[9]!==undefined;
+    let S=m[3]!==undefined?+m[3]:(m[9]!==undefined?+m[9]:0);
+    return {d:+m[4],m:+m[5],y,H,M,S,hasTime:m[1]!==undefined||m[7]!==undefined,hasSeconds};
+  }
+  m=str.match(/^(\d{4})[\/\-](\d{1,2})[\/\-](\d{1,2})(?:[ T](\d{1,2}):(\d{1,2})(?::(\d{1,2}))?)?/);
+  if(m)return {d:+m[3],m:+m[2],y:+m[1],H:m[4]!==undefined?+m[4]:0,M:m[5]!==undefined?+m[5]:0,S:m[6]!==undefined?+m[6]:0,hasTime:m[4]!==undefined,hasSeconds:m[6]!==undefined};
   return null;
 }
 function formatFullDate(v){let d=parseExcelDate(v); return d?`${pad2(d.d)}/${pad2(d.m)}/${d.y}`:String(v||'').trim();}
+function formatExamDateTime(v){
+  let d=parseExcelDate(v);
+  if(!d)return String(v||'').trim();
+  let dateText=`ngày ${pad2(d.d)}/${pad2(d.m)}/${d.y}`;
+  if(!d.hasTime)return dateText;
+  let timeText=`${pad2(d.H)} giờ ${pad2(d.M)} phút`;
+  if(d.hasSeconds)timeText+=` ${pad2(d.S)} giây`;
+  return `${timeText}, ${dateText}`;
+}
 function formatYearFromBirth(v){let d=parseExcelDate(v); if(d)return String(d.y); let str=String(v||'').trim(); let m=str.match(/(19|20)\d{2}/); return m?m[0]:str;}
 function cleanGender(v){let s=String(v||'').trim(); let n=norm(s); if(n.includes('nu')||n==='f'||n==='female')return 'Nữ'; if(n.includes('nam')||n==='m'||n==='male')return 'Nam'; return s.replace(/\s*[-–,;:].*$/,'');}
 function formatValue(id,v){
   if(id==='namSinh')return formatYearFromBirth(v);
   if(id==='bhytDen')return formatFullDate(v);
   if(id==='gioiTinh')return cleanGender(v);
-  if(id==='denKhamLuc')return formatFullDate(v);
+  if(id==='denKhamLuc')return formatExamDateTime(v);
   if(id==='dienThoai'){
     let s=String(v||'').trim();
     if(typeof v==='number')s=String(Math.trunc(v));
@@ -578,7 +1050,7 @@ document.getElementById('excelFile').addEventListener('change',e=>{
   r.onerror=()=>{hideLoader();alert('Không đọc được file Excel. Vui lòng kiểm tra lại file.');};
   r.readAsArrayBuffer(f);
 });
-document.getElementById('jsonFile') && document.getElementById('jsonFile').addEventListener('change',e=>{let f=e.target.files[0]; if(!f)return; let r=new FileReader(); r.onload=ev=>{let data=JSON.parse(ev.target.result||'[]'); if(Array.isArray(data)){patients=data}else{patients=data.patients||[]; lesionImages=data.lesionImages||{}; lesionImageSizes=data.lesionImageSizes||{}} current=0; saveData(false); localStorage.setItem('rhmLesionImages',JSON.stringify(lesionImages)); localStorage.setItem('rhmLesionImageSizes',JSON.stringify(lesionImageSizes)); render();}; r.readAsText(f);});
+document.getElementById('jsonFile') && document.getElementById('jsonFile').addEventListener('change',e=>{let f=e.target.files[0]; if(!f)return; let r=new FileReader(); r.onload=ev=>{let data=JSON.parse(ev.target.result||'[]'); if(Array.isArray(data)){patients=data}else{patients=data.patients||[]; lesionImages=data.lesionImages||{}; lesionImageSizes=data.lesionImageSizes||{}; headerSettings={...DEFAULT_HEADER_SETTINGS,...(data.headerSettings||headerSettings||{})}} current=0; saveData(false); localStorage.setItem('rhmHeaderSettings',JSON.stringify(headerSettings)); localStorage.setItem('rhmLesionImages',JSON.stringify(lesionImages)); localStorage.setItem('rhmLesionImageSizes',JSON.stringify(lesionImageSizes)); render();}; r.readAsText(f);});
 // Tính năng import hình ảnh đã được thay bằng liên kết trực tiếp tới các file ảnh tương ứng trong thư mục
 
 let resizingLesion=null;
@@ -648,6 +1120,32 @@ function exportData(){let ws=XLSX.utils.json_to_sheet(patients.map(p=>Object.fro
 function download(name,content,type){let a=document.createElement('a');a.href=URL.createObjectURL(new Blob([content],{type}));a.download=name;a.click()}
 function addBlank(){patients.push({namKy:'2026'});current=patients.length-1;render();saveData(false)}
 function deleteCurrent(){if(!patients.length)return;if(confirm('Xóa hồ sơ đang chọn?')){patients.splice(current,1);current=Math.max(0,current-1);render();saveData(false)}}
+async function resetAllData(){
+  if(!confirm('RESET TOÀN BỘ dữ liệu?\n\nThao tác này sẽ xóa toàn bộ hồ sơ, hình ảnh/sơ đồ đã lưu trong app và dữ liệu lưu tạm của trình duyệt. Không thể hoàn tác.')) return;
+  if(!confirm('Xác nhận lần cuối: Bạn chắc chắn muốn xóa sạch toàn bộ dữ liệu trong app này?')) return;
+  showLoader('Đang reset dữ liệu','Đang xóa toàn bộ hồ sơ và dữ liệu đã lưu trong trình duyệt...');
+  try{
+    patients=[];
+    current=0;
+    lesionImages={};
+    lesionImageSizes={};
+    ['rhmMailingData','rhmLesionImages','rhmLesionImageSizes'].forEach(k=>{try{localStorage.removeItem(k)}catch(e){}});
+    try{await idbSet('main',appBackupObject())}catch(e){console.warn('Không ghi được dữ liệu reset vào IndexedDB:',e)}
+    const excelInput=document.getElementById('excelFile');
+    if(excelInput) excelInput.value='';
+    const fromRec=document.getElementById('fromRec');
+    const toRec=document.getElementById('toRec');
+    if(fromRec) fromRec.value=1;
+    if(toRec) toRec.value=1;
+    render();
+    alert('Đã reset toàn bộ dữ liệu. App đã trở về trạng thái trống.');
+  }catch(err){
+    console.error(err);
+    alert('Có lỗi khi reset dữ liệu: '+(err&&err.message?err.message:err));
+  }finally{
+    hideLoader();
+  }
+}
 function setCur(i){current=i;render()}
 function updateField(id,val){patients[current][id]=val;saveData(false);renderRows();renderPreview()}
 function renderRows(){document.getElementById('patientRows').innerHTML=patients.map((p,i)=>`<tr onclick="setCur(${i})" class="${i===current?'rowActive':''}"><td>${i+1}</td><td>${p.hoTen||''}</td><td>${p.namSinh||''}</td><td>${p.bhytDen||''}</td></tr>`).join('')}
@@ -658,6 +1156,42 @@ function toggleDataPanel(){
   panel.classList.toggle('open');
   if(arrow)arrow.textContent=panel.classList.contains('open')?'▼':'▶';
 }
+
+function toggleHeaderPanel(){
+  const panel=document.getElementById('headerPanel');
+  const arrow=document.getElementById('headerToggleArrow');
+  if(!panel)return;
+  panel.classList.toggle('open');
+  if(arrow)arrow.textContent=panel.classList.contains('open')?'▼':'▶';
+}
+function updateHeaderSetting(id,val){
+  headerSettings[id]=val;
+  safeLocalStorageSet('rhmHeaderSettings',JSON.stringify(headerSettings));
+  saveData(false);
+  renderPreview();
+}
+function resetHeaderSettings(){
+  if(!confirm('Khôi phục thông tin đầu bìa về mặc định?'))return;
+  headerSettings={...DEFAULT_HEADER_SETTINGS};
+  safeLocalStorageSet('rhmHeaderSettings',JSON.stringify(headerSettings));
+  saveData(false);
+  renderHeaderSettings();
+  renderPreview();
+}
+function renderHeaderSettings(){
+  const box=document.getElementById('headerEditBox');
+  if(!box)return;
+  const rows=[
+    ['soYTe','Sở Y tế'],
+    ['tenPhongKham','Tên phòng khám'],
+    ['khoa','Khoa'],
+    ['tieuDe1','Tiêu đề dòng 1'],
+    ['tieuDe2','Tiêu đề dòng 2'],
+    ['giamDocPhongKham','Chữ ký bên trái'],
+    ['bacSyKhamBenh','Chữ ký bên phải']
+  ];
+  box.innerHTML=rows.map(([id,label])=>`<div class="editField"><label>${label}</label><input value="${String(headerSettings[id]||'').replace(/"/g,'&quot;')}" oninput="updateHeaderSetting('${id}',this.value)"/></div>`).join('');
+}
 function renderEdit(){
   let p=patients[current]||{};
   const multi=['diaChi','lyDo','quaTrinhBenhLy','tienSuBanThan','chanDoan','xuTri','ghiChu','nguoiNha','chanDoanNoiGioiThieu','toanThan','giaDinh'];
@@ -665,7 +1199,7 @@ function renderEdit(){
   if(!box)return;
   box.innerHTML=FIELDS.map(([id,label])=>`<div class="editField"><label>${label}</label>${multi.includes(id)?`<textarea oninput="updateField('${id}',this.value)">${p[id]||''}</textarea>`:`<input value="${(p[id]||'').replace(/"/g,'&quot;')}" oninput="updateField('${id}',this.value)"/>`}</div>`).join('')
 }
-const val=(p,k)=>String((p&&p[k])||''); const line=(txt,cls='full')=>`<span class="line ${cls}">${txt||''}</span>`;
+const val=(p,k)=>String((p&&p[k])||''); const htmlSafe=s=>String(s||'').replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m])); const line=(txt,cls='full')=>`<span class="line ${cls}">${txt||''}</span>`;
 function dailyTableBlock(p){
   const vitalTextByRow={};
   [2,10,18,26].forEach(startRow=>{
@@ -681,7 +1215,11 @@ function dailyTableBlock(p){
     return `<tr class="${cls}"><td>&nbsp;</td><td>${dienBien}</td><td>${r==0?(val(p,'xuTri')||'&nbsp;'):'&nbsp;'}</td><td>&nbsp;</td><td>${r==0?(val(p,'ghiChu')||'&nbsp;'):'&nbsp;'}</td></tr>`;
   }).join('')}</tbody></table>`
 }
-function adminBlock(p){return `<div class="frontAdmin"><div class="clinic" style="position:absolute;left:0;top:0">Sở Y tế TP.Hồ Chí Minh<br><b>PKĐK Nhơn Tâm</b><br>Khoa: Răng Hàm Mặt</div><div class="code">MS16/BV-01<br>Số ngoại trú: ${val(p,'soNgoaiTru')||'................'}<br>Số lưu trữ: ${val(p,'soLuuTru')||'................'}</div><div class="mainTitle">BỆNH ÁN NGOẠI TRÚ<br>CHUYÊN KHOA RĂNG HÀM MẶT</div><div style="height:15mm"></div><div class="sectionTitle">I. HÀNH CHÍNH:</div><div class="row">1. Họ và tên <i>(In hoa)</i>: ${line(val(p,'hoTen'),'inlineFull')}</div><div class="row">2. Năm sinh: ${line(val(p,'namSinh'),'wSmall')} Tuổi: ${line(val(p,'tuoi'),'wSmall')}</div><div class="row">3. Giới tính: ${line(cleanGender(val(p,'gioiTinh')),'wSmall')}</div><div class="row">4. Nghề nghiệp: ${line(val(p,'ngheNghiep'),'wMed')}</div><div class="row">5. Dân tộc: <b>${val(p,'danToc')||'Kinh'}</b> &nbsp;&nbsp;&nbsp; 6. Ngoại kiều: ${line(val(p,'ngoaiKieu'),'wMed')}</div><div class="row">7. Địa chỉ: ${line(val(p,'diaChi'),'inlineFull')}</div><div class="row">8. Nơi làm việc: ${line(val(p,'noiLamViec'),'wMed')} 9. Đối tượng: ${val(p,'doiTuong')||'1. BHYT ☒   2.Thu phí   3.Miễn   4.Khác'}</div><div class="row">10. BHYT giá trị đến: ${line(formatFullDate(val(p,'bhytDen')),'wMed')} Số thẻ BHYT: ${line(val(p,'soTheBHYT'),'wMed')}</div><div class="row">11. Họ tên, địa chỉ người nhà khi cần báo tin: ${line(val(p,'nguoiNha'),'full')}</div><div class="row">${line('','full')} Điện thoại số: ${line(val(p,'dienThoai'),'wMed')}</div><div class="row">12. Đến khám bệnh ngày: ${line(formatFullDate(val(p,'denKhamLuc')),'wMed')} &nbsp;&nbsp; 1.Y tế &nbsp;&nbsp; 2.Tự đến ☒</div><div class="row">13. Chẩn đoán và xử lý của nơi giới thiệu: ${line(val(p,'chanDoanNoiGioiThieu'),'full')}</div><div class="sectionTitle">II. LÝ DO VÀO VIỆN: ${line(val(p,'lyDo'),'full')}</div><div class="sectionTitle">III. HỎI BỆNH:</div><b>1. Quá trình bệnh lý:</b><div class="paraLine">${val(p,'quaTrinhBenhLy')}</div><div class="paraLine"></div><div class="paraLine"></div><b>2. Tiền sử bệnh:</b><div class="paraLine">+ Bản thân: ${val(p,'tienSuBanThan')}</div><div class="paraLine">+ Gia đình: ${val(p,'giaDinh')}</div><div class="sectionTitle">IV. KHÁM BỆNH:</div><div class="vitalBox">Mạch ${val(p,'mach')||'......................'} lần/ph<br>Nhiệt độ ${val(p,'nhietDo')||'....................'} °C<br>Huyết áp ${val(p,'huyetAp')||'........./.......'} mmHg<br>Nhịp thở ${val(p,'nhipTho')||'...................'} lần/ph<br>Cân nặng ${val(p,'canNang')||'..................'} kg</div><b>1. Toàn thân:</b><div class="paraLine">${val(p,'toanThan')}</div><div class="paraLine"></div><div class="paraLine"></div><b>2. Bệnh chuyên khoa:</b><div class="paraLine">${val(p,'chanDoan')}</div><div class="paraLine"></div><div class="paraLine"></div><div class="paraLine"></div><div class="paraLine"></div></div>`}
+
+function doiTuongBlock(p){
+  return `<span class="doiTuongMau"><span class="doiTuongItem">BHYT <span class="checkBox checked">X</span></span><span class="doiTuongItem">2.Thu phí <span class="checkBox"></span></span><span class="doiTuongItem">3.Miễn <span class="checkBox"></span></span><span class="doiTuongItem">4.Khác <span class="checkBox"></span></span></span>`;
+}
+function adminBlock(p){return `<div class="frontAdmin"><div class="clinic" style="position:absolute;left:0;top:0">${headerSettings.soYTe||''}<br><b>${headerSettings.tenPhongKham||''}</b><br>${headerSettings.khoa||''}</div><div class="code">MS16/BV-01<br>Số ngoại trú: ${val(p,'soNgoaiTru')||'................'}<br>Số lưu trữ: ${val(p,'soLuuTru')||'................'}</div><div class="mainTitle">${headerSettings.tieuDe1||''}<br>${headerSettings.tieuDe2||''}</div><div style="height:15mm"></div><div class="sectionTitle">I. HÀNH CHÍNH:</div><div class="row">1. Họ và tên <i>(In hoa)</i>: ${line(val(p,'hoTen'),'inlineFull')}</div><div class="row">2. Năm sinh: ${line(val(p,'namSinh'),'wSmall')} Tuổi: ${line(val(p,'tuoi'),'wSmall')}</div><div class="row">3. Giới tính: ${line(cleanGender(val(p,'gioiTinh')),'wSmall')}</div><div class="row">4. Nghề nghiệp: ${line(val(p,'ngheNghiep'),'wMed')}</div><div class="row">5. Dân tộc: <b>${val(p,'danToc')||'Kinh'}</b> &nbsp;&nbsp;&nbsp; 6. Ngoại kiều: ${line(val(p,'ngoaiKieu'),'wMed')}</div><div class="row">7. Địa chỉ: ${line(val(p,'diaChi'),'inlineFull')}</div><div class="row">8. Nơi làm việc: ${line(val(p,'noiLamViec'),'wMed')} 9. Đối tượng: ${doiTuongBlock(p)}</div><div class="row">10. BHYT giá trị đến: ${line(formatFullDate(val(p,'bhytDen')),'wMed')} Số thẻ BHYT: ${line(val(p,'soTheBHYT'),'wMed')}</div><div class="row">11. Họ tên, địa chỉ người nhà khi cần báo tin: ${line(val(p,'nguoiNha'),'full')}</div><div class="row">${line('','full')} Điện thoại số: ${line(val(p,'dienThoai'),'wMed')}</div><div class="row">12. Đến khám bệnh ngày: ${line(formatExamDateTime(val(p,'denKhamLuc')),'inlineFull')} &nbsp;&nbsp; 1.Y tế &nbsp;&nbsp; 2.Tự đến ☒</div><div class="row">13. Chẩn đoán và xử lý của nơi giới thiệu: ${line(val(p,'chanDoanNoiGioiThieu'),'full')}</div><div class="sectionTitle">II. LÝ DO VÀO VIỆN: ${line(val(p,'lyDo'),'full')}</div><div class="sectionTitle">III. HỎI BỆNH:</div><b>1. Quá trình bệnh lý:</b><div class="paraLine">${val(p,'quaTrinhBenhLy')}</div><div class="paraLine"></div><div class="paraLine"></div><b>2. Tiền sử bệnh:</b><div class="paraLine">+ Bản thân: ${val(p,'tienSuBanThan')}</div><div class="paraLine">+ Gia đình: ${val(p,'giaDinh')}</div><div class="sectionTitle">IV. KHÁM BỆNH:</div><div class="vitalBox">Mạch ${val(p,'mach')||'......................'} lần/ph<br>Nhiệt độ ${val(p,'nhietDo')||'....................'} °C<br>Huyết áp ${val(p,'huyetAp')||'........./.......'} mmHg<br>Nhịp thở ${val(p,'nhipTho')||'...................'} lần/ph<br>Cân nặng ${val(p,'canNang')||'..................'} kg</div><b>1. Toàn thân:</b><div class="paraLine">${val(p,'toanThan')}</div><div class="paraLine"></div><div class="paraLine"></div><b>2. Bệnh chuyên khoa:</b><div class="specialtyLines"><div class="paraLine">${val(p,'chanDoan')}</div><div class="paraLine"></div><div class="paraLine"></div><div class="paraLine"></div><div class="paraLine"></div><div class="paraLine"></div><div class="paraLine"></div><div class="paraLine"></div><div class="paraLine"></div><div class="paraLine"></div><div class="paraLine"></div><div class="paraLine"></div></div></div>`}
 function front(p,i){return `<section class="sheet sheet-front" data-rec="${i+1}" data-side="front"><div class="a3grid"><div class="half">${dailyTableBlock(p)}</div><div class="half">${adminBlock(p)}</div></div><div class="pageNo">Hồ sơ ${i+1} - Mặt trước</div></section>`}
 
 // SVG inline cho sơ đồ tổn thương - không cần file ảnh ngoài, tránh lỗi tainted canvas
@@ -733,10 +1271,11 @@ function lesionDiagramHtml(){
   }).join('');
   return `<div class="lesionDiagram"><div class="lesionGrid">${cells}</div><div class="cleftNote">1 và 4 là Khe hở môi.<br>2 và 5 là Khe hở xương ổ răng<br>3 và 6 là Khe hở cung hàm<br>7 và 8 là Khe hở vòm miệng<br>9 là khe hở vòm miệng mềm</div></div>`;
 }
-function back(p,i){return `<section class="sheet sheet-back" data-rec="${i+1}" data-side="back"><div class="a3grid"><div class="half"><b>3. Hình vẽ mô tả tổn thương khi vào viện</b>${lesionDiagramHtml()}<div class="sectionTitle">4. Tóm tắt bệnh án:</div>${Array.from({length:5}).map((_,r)=>`<div class="paraLine">${r==0?val(p,'quaTrinhBenhLy'):''}</div>`).join('')}<div class="sectionTitle">5. Chẩn đoán của khoa khám bệnh:</div><div class="paraLine">${val(p,'chanDoan')}</div><div class="sectionTitle">6. Đã xử lý của tuyến dưới:</div>${Array.from({length:6}).map((_,r)=>`<div class="paraLine">${r==0?val(p,'xuTri'):''}</div>`).join('')}<div class="sectionTitle">7. Điều trị ngoại trú từ ngày ....../....../........ đến ngày ....../....../........</div><div class="signs"><div><b>GIÁM ĐỐC PHÒNG KHÁM</b><div class="signName">Họ và tên....................................</div></div><div><i>Ngày.......tháng.......năm ${val(p,'namKy')||'2026'}</i><br><b>BÁC SỸ KHÁM BỆNH</b><div class="signName">Họ và tên....................................</div></div></div></div><div class="half summaryBox"><div class="topTitle">TỔNG KẾT BỆNH ÁN:</div><b>1. Quá trình bệnh lý và diễn biến lâm sàng:</b>${Array.from({length:8}).map((_,r)=>`<div class="paraLine">${r==0?val(p,'quaTrinhBenhLy'):''}</div>`).join('')}<b>2.Tóm tắt kết quả xét nghiệm cận lâm sàng có giá trị chẩn đoán:</b>${Array.from({length:4}).map(()=>`<div class="paraLine"></div>`).join('')}<b>3. Chẩn đoán ra viện:</b><div class="paraLine">- Bệnh chính: ${val(p,'chanDoan')}</div><div class="paraLine">- Bệnh kèm theo (nếu có):</div><b>4. Phương pháp điều trị:</b>${Array.from({length:4}).map((_,r)=>`<div class="paraLine">${r==0?val(p,'xuTri'):''}</div>`).join('')}<b>5. Tình trạng người bệnh ra viện:</b>${Array.from({length:3}).map(()=>`<div class="paraLine"></div>`).join('')}<b>6. Hướng điều trị và các chế độ tiếp theo:</b>${Array.from({length:3}).map(()=>`<div class="paraLine"></div>`).join('')}<table class="recordTable"><tr><td class="recLeft"><div class="recTitle">Hồ sơ, phim, ảnh</div><div class="recSub"><div>Loại</div><div>Số tờ</div></div>${['- X - quang','- CT Scanner','- Siêu âm','- Xét nghiệm','- Khác................','- Toàn bộ hồ sơ'].map(x=>`<div class="recLeftRow"><div>${x}</div><div></div></div>`).join('')}</td><td class="recMid"><div class="recPerson"><b>Người giao hồ sơ:</b><div class="recLine">Họ tên...........................</div></div><div class="recPerson"><b>Người nhận hồ sơ:</b><div class="recLine">Họ tên...........................</div></div></td><td class="recRight"><div class="recDoctor"><div class="date">Ngày......tháng......năm ${val(p,'namKy')||'2026'}</div><b>Bác sỹ điều trị</b><div class="recLine">Họ tên..............................</div></div></td></tr></table></div></div><div class="pageNo">Hồ sơ ${i+1} - Mặt sau</div></section>`}
+function back(p,i){return `<section class="sheet sheet-back" data-rec="${i+1}" data-side="back"><div class="a3grid"><div class="half"><b>3. Hình vẽ mô tả tổn thương khi vào viện</b>${lesionDiagramHtml()}<div class="sectionTitle">4. Tóm tắt bệnh án:</div>${Array.from({length:7}).map((_,r)=>`<div class="paraLine">${r==0?val(p,'quaTrinhBenhLy'):''}</div>`).join('')}<div class="sectionTitle">5. Chẩn đoán của khoa khám bệnh:</div>${Array.from({length:4}).map((_,r)=>`<div class="paraLine">${r==0?val(p,'chanDoan'):''}</div>`).join('')}<div class="sectionTitle">6. Đã xử lý của tuyến dưới:</div>${Array.from({length:11}).map((_,r)=>`<div class="paraLine">${r==0?val(p,'xuTri'):''}</div>`).join('')}<div class="outpatientBlock"><div class="sectionTitle">7. Điều trị ngoại trú từ ngày ....../....../........ đến ngày ....../....../........</div><div class="signs"><div><b>${htmlSafe(headerSettings.giamDocPhongKham||'GIÁM ĐỐC PHÒNG KHÁM')}</b><div class="signName">Họ và tên................................................................</div></div><div><i>Ngày.......tháng.......năm ${val(p,'namKy')||'2026'}</i><br><b>${htmlSafe(headerSettings.bacSyKhamBenh||'BÁC SỸ KHÁM BỆNH')}</b><div class="signName">Họ và tên................................................................</div></div></div></div></div><div class="half summaryBox"><div class="topTitle">TỔNG KẾT BỆNH ÁN:</div><b>1. Quá trình bệnh lý và diễn biến lâm sàng:</b>${Array.from({length:8}).map((_,r)=>`<div class="paraLine">${r==0?val(p,'quaTrinhBenhLy'):''}</div>`).join('')}<b>2.Tóm tắt kết quả xét nghiệm cận lâm sàng có giá trị chẩn đoán:</b>${Array.from({length:4}).map(()=>`<div class="paraLine"></div>`).join('')}<b>3. Chẩn đoán ra viện:</b><div class="paraLine">- Bệnh chính: ${val(p,'chanDoan')}</div><div class="paraLine">- Bệnh kèm theo (nếu có):</div><b>4. Phương pháp điều trị:</b>${Array.from({length:4}).map((_,r)=>`<div class="paraLine">${r==0?val(p,'xuTri'):''}</div>`).join('')}<b>5. Tình trạng người bệnh ra viện:</b>${Array.from({length:3}).map(()=>`<div class="paraLine"></div>`).join('')}<b>6. Hướng điều trị và các chế độ tiếp theo:</b>${Array.from({length:18}).map(()=>`<div class="paraLine"></div>`).join('')}<table class="recordTable"><tr><td class="recLeft"><div class="recTitle">Hồ sơ, phim, ảnh</div><div class="recSub"><div>Loại</div><div>Số tờ</div></div>${['- X - quang','- CT Scanner','- Siêu âm','- Xét nghiệm','- Khác................','- Toàn bộ hồ sơ'].map(x=>`<div class="recLeftRow"><div>${x}</div><div></div></div>`).join('')}</td><td class="recMid"><div class="recPerson"><b>Người giao hồ sơ:</b><div class="recLine">Họ tên...........................</div></div><div class="recPerson"><b>Người nhận hồ sơ:</b><div class="recLine">Họ tên...........................</div></div></td><td class="recRight"><div class="recDoctor"><div class="date">Ngày......tháng......năm ${val(p,'namKy')||'2026'}</div><b>Bác sỹ điều trị</b><div class="recLine">Họ tên..............................</div></div></td></tr></table></div></div><div class="pageNo">Hồ sơ ${i+1} - Mặt sau</div></section>`}
 function renderPreview(){let html=patients.length?patients.map((p,i)=>front(p,i)+back(p,i)).join(''):'<div class="sheet"><h2>Chưa có dữ liệu. Vui lòng nhập Excel hoặc thêm hồ sơ.</h2></div>';document.getElementById('preview').innerHTML=html}
 function render(){
   renderRows();
+  renderHeaderSettings();
   renderEdit();
   renderPreview();
   const fromEl = document.getElementById('fromRec');
