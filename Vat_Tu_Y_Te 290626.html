@@ -1,7 +1,8 @@
 <!DOCTYPE html>
 <html lang="vi"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>QL Kho PRO Ultimate</title>
+<title>VẬT TƯ Y TẾ</title>
+<!-- PATCH 2026-06-29: Đổi tên app thành VẬT TƯ Y TẾ, giữ nguyên toàn bộ chức năng -->
 <!-- FINAL: Giữ nguyên toàn bộ chức năng gốc; cố định cột STT↔ĐVT và cố định dòng tiêu đề STT→Xóa trong bảng báo cáo -->
 <style>
 :root {
@@ -719,12 +720,272 @@ h3 { margin: 0 0 8px; font-size: 16px; }
   }
 }
 
+
+/* =========================================================
+   PATCH 2026-06-27: HIỂN THỊ TỔNG THỂ BÁO CÁO KHO
+   Mục tiêu: khi mở báo cáo sẽ nhìn được toàn bộ cột từ STT, Tên hàng,
+   ĐVT, ngày 1... đến Tồn cuối trên một màn hình rộng.
+   Giữ nguyên toàn bộ chức năng nhập/xuất, sửa ô, xóa dòng, in, xuất Excel.
+   ========================================================= */
+@media screen{
+  .wrap{
+    max-width:none !important;
+    width:100% !important;
+    padding-left:6px !important;
+    padding-right:6px !important;
+  }
+  #report.report-total-overview-20260627{
+    width:100% !important;
+    max-width:100vw !important;
+    overflow:auto !important;
+    max-height:calc(100vh - 176px) !important;
+    scrollbar-gutter:stable both-edges !important;
+    padding:0 !important;
+  }
+  #report.report-total-overview-20260627 table.inventory-overview-20260627{
+    width:100% !important;
+    min-width:0 !important;
+    max-width:none !important;
+    table-layout:fixed !important;
+    border-collapse:separate !important;
+    border-spacing:0 !important;
+    white-space:nowrap !important;
+    border-radius:0 !important;
+  }
+  #report.report-total-overview-20260627 table.inventory-overview-20260627 th,
+  #report.report-total-overview-20260627 table.inventory-overview-20260627 td{
+    padding:2px 2px !important;
+    height:28px !important;
+    min-height:28px !important;
+    line-height:1.05 !important;
+    font-size:10px !important;
+    vertical-align:middle !important;
+    overflow:hidden !important;
+    text-overflow:clip !important;
+    border:1px solid var(--border-color) !important;
+    box-sizing:border-box !important;
+  }
+  #report.report-total-overview-20260627 table.inventory-overview-20260627 tr:first-child > *{
+    position:sticky !important;
+    top:0 !important;
+    z-index:900 !important;
+    white-space:normal !important;
+    text-align:center !important;
+    font-weight:700 !important;
+    color:#34495e !important;
+    background:#f8f9fa !important;
+    box-shadow:0 2px 4px rgba(0,0,0,.10) !important;
+  }
+  #report.report-total-overview-20260627 table.inventory-overview-20260627 tr > *:nth-child(1){
+    position:sticky !important;
+    left:0 !important;
+    z-index:650 !important;
+    width:var(--ov-stt,36px) !important;
+    min-width:var(--ov-stt,36px) !important;
+    max-width:var(--ov-stt,36px) !important;
+    text-align:center !important;
+    background:#fff !important;
+  }
+  #report.report-total-overview-20260627 table.inventory-overview-20260627 tr > *:nth-child(2){
+    position:sticky !important;
+    left:var(--ov-left-ten,36px) !important;
+    z-index:650 !important;
+    width:var(--ov-ten,145px) !important;
+    min-width:var(--ov-ten,145px) !important;
+    max-width:var(--ov-ten,145px) !important;
+    text-align:left !important;
+    white-space:normal !important;
+    background:#fff !important;
+  }
+  #report.report-total-overview-20260627 table.inventory-overview-20260627 tr > *:nth-child(3){
+    position:sticky !important;
+    left:var(--ov-left-dvt,181px) !important;
+    z-index:650 !important;
+    width:var(--ov-dvt,40px) !important;
+    min-width:var(--ov-dvt,40px) !important;
+    max-width:var(--ov-dvt,40px) !important;
+    text-align:center !important;
+    background:#fff !important;
+    border-right:2px solid #a5d6a7 !important;
+    box-shadow:3px 0 5px rgba(0,0,0,.12) !important;
+  }
+  #report.report-total-overview-20260627 table.inventory-overview-20260627 tr:first-child > *:nth-child(1),
+  #report.report-total-overview-20260627 table.inventory-overview-20260627 tr:first-child > *:nth-child(2),
+  #report.report-total-overview-20260627 table.inventory-overview-20260627 tr:first-child > *:nth-child(3){
+    z-index:1200 !important;
+    background:#c8e6c9 !important;
+    color:#1b5e20 !important;
+  }
+  #report.report-total-overview-20260627 table.inventory-overview-20260627 tr:nth-child(even):not(:first-child) > *:nth-child(1),
+  #report.report-total-overview-20260627 table.inventory-overview-20260627 tr:nth-child(even):not(:first-child) > *:nth-child(2),
+  #report.report-total-overview-20260627 table.inventory-overview-20260627 tr:nth-child(even):not(:first-child) > *:nth-child(3){
+    background:#fcfcfc !important;
+  }
+  #report.report-total-overview-20260627 table.inventory-overview-20260627 tr:hover:not(:first-child) > *:nth-child(1),
+  #report.report-total-overview-20260627 table.inventory-overview-20260627 tr:hover:not(:first-child) > *:nth-child(2),
+  #report.report-total-overview-20260627 table.inventory-overview-20260627 tr:hover:not(:first-child) > *:nth-child(3){
+    background:#f1f8e9 !important;
+  }
+  #report.report-total-overview-20260627 table.inventory-overview-20260627 th.day-col-20260627,
+  #report.report-total-overview-20260627 table.inventory-overview-20260627 td.day-col-20260627{
+    width:var(--ov-day,18px) !important;
+    min-width:var(--ov-day,18px) !important;
+    max-width:var(--ov-day,18px) !important;
+    text-align:center !important;
+    white-space:nowrap !important;
+    padding-left:1px !important;
+    padding-right:1px !important;
+  }
+  #report.report-total-overview-20260627 table.inventory-overview-20260627 th.tail-col-20260627,
+  #report.report-total-overview-20260627 table.inventory-overview-20260627 td.tail-col-20260627{
+    width:var(--ov-tail,42px) !important;
+    min-width:var(--ov-tail,42px) !important;
+    max-width:var(--ov-tail,42px) !important;
+    text-align:center !important;
+    white-space:normal !important;
+    padding-left:1px !important;
+    padding-right:1px !important;
+  }
+  #report.report-total-overview-20260627 table.inventory-overview-20260627 th.ngaynhap-col-20260627,
+  #report.report-total-overview-20260627 table.inventory-overview-20260627 td.ngaynhap-col-20260627{
+    width:var(--ov-ngaynhap,50px) !important;
+    min-width:var(--ov-ngaynhap,50px) !important;
+    max-width:var(--ov-ngaynhap,50px) !important;
+  }
+  #report.report-total-overview-20260627 table.inventory-overview-20260627 th.xoa-col-20260627,
+  #report.report-total-overview-20260627 table.inventory-overview-20260627 td.xoa-col-20260627{
+    width:var(--ov-xoa,30px) !important;
+    min-width:var(--ov-xoa,30px) !important;
+    max-width:var(--ov-xoa,30px) !important;
+  }
+  #report.report-total-overview-20260627 table.inventory-overview-20260627 .fmt-num,
+  #report.report-total-overview-20260627 table.inventory-overview-20260627 .calc-tc{
+    font-size:10px !important;
+    font-family:Consolas, monospace !important;
+    text-align:right !important;
+    white-space:nowrap !important;
+  }
+  #report.report-total-overview-20260627 table.inventory-overview-20260627 button{
+    padding:1px 3px !important;
+    min-width:0 !important;
+    height:20px !important;
+    line-height:1 !important;
+    font-size:10px !important;
+    border-radius:4px !important;
+  }
+}
+@media screen and (max-width:1100px){
+  #report.report-total-overview-20260627 table.inventory-overview-20260627 th,
+  #report.report-total-overview-20260627 table.inventory-overview-20260627 td{
+    font-size:9px !important;
+    padding:1px !important;
+  }
+  #report.report-total-overview-20260627 table.inventory-overview-20260627 .fmt-num,
+  #report.report-total-overview-20260627 table.inventory-overview-20260627 .calc-tc{
+    font-size:9px !important;
+  }
+}
+@media print{
+  #report.report-total-overview-20260627 table.inventory-overview-20260627{
+    width:100% !important;
+    min-width:0 !important;
+    table-layout:auto !important;
+  }
+}
+
+
+/* PATCH 2026-06-27: Nút ẩn/hiện toàn bộ khu điều khiển, vẫn hiện tháng/năm báo cáo */
+.control-toggle-bar-20260627{
+  max-width:1320px;
+  margin:0 auto 10px;
+  padding:0 14px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:8px;
+  box-sizing:border-box;
+}
+.control-toggle-bar-20260627 .compact-report-title-20260627{
+  flex:1;
+  text-align:center;
+  font-weight:700;
+  color:#1b5e20;
+  background:#edf7ee;
+  border:1px solid #a5d6a7;
+  border-radius:999px;
+  padding:7px 12px;
+  line-height:1.25;
+  box-shadow:0 2px 6px rgba(0,0,0,0.05);
+}
+#toggleMainControlsBtn{
+  background-color:#0d47a1;
+  box-shadow:0 2px 4px rgba(13,71,161,0.22);
+  white-space:nowrap;
+}
+#toggleMainControlsBtn:hover{
+  background-color:#08306f;
+  box-shadow:0 4px 8px rgba(13,71,161,0.32);
+}
+body.controls-hidden-20260627 #mainControls{
+  display:none !important;
+}
+body.controls-hidden-20260627 .control-toggle-bar-20260627{
+  max-width:none;
+  width:100%;
+  padding-left:6px;
+  padding-right:6px;
+  margin-bottom:6px;
+}
+body.controls-hidden-20260627 #report{
+  max-height:calc(100vh - 118px) !important;
+}
+body.controls-hidden-20260627 #report.report-total-overview-20260627{
+  max-height:calc(100vh - 118px) !important;
+}
+@media screen and (max-width:700px){
+  .control-toggle-bar-20260627{
+    flex-direction:column;
+    align-items:stretch;
+  }
+  .control-toggle-bar-20260627 .compact-report-title-20260627{
+    text-align:center;
+    border-radius:10px;
+  }
+}
+@media print{
+  .control-toggle-bar-20260627{
+    display:none !important;
+  }
+}
+
+
+/* PATCH 2026-06-27B: Chọn dữ liệu bất kỳ luôn thay dữ liệu cũ; chỉ nút Chọn thêm mới mới cộng dồn */
+#appendExternalBtn, #appendExternalFolderBtn{
+  background-color:#ef6c00;
+  box-shadow:0 2px 4px rgba(239,108,0,0.22);
+}
+#appendExternalBtn:hover, #appendExternalFolderBtn:hover{
+  background-color:#bf360c;
+  box-shadow:0 4px 8px rgba(239,108,0,0.32);
+}
+.external-import-note-20260627B{
+  display:block;
+  margin-top:6px;
+  color:#0d47a1;
+  font-size:12px;
+  line-height:1.35;
+}
+
 </style>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 </head>
 <body>
-<header><h2>QUẢN LÝ KHO PRO ULTIMATE</h2></header>
-<div class="wrap noprint">
+<header><h2>VẬT TƯ Y TẾ</h2></header>
+<div id="controlToggleBar" class="noprint control-toggle-bar-20260627">
+  <button id="toggleMainControlsBtn" onclick="toggleMainControls()">Ẩn khu điều khiển</button>
+  <div id="compactReportMonthYear" class="compact-report-title-20260627">BÁO CÁO THÁNG 6 / NĂM 2026</div>
+</div>
+<div class="wrap noprint" id="mainControls">
 <div>
 <h3>Cài đặt ứng dụng</h3><button onclick="toggleAppSettings()">Ẩn/Hiện cài đặt</button><div id="appSettings">
 <input id="appName" placeholder="Tên ứng dụng">
@@ -738,6 +999,7 @@ h3 { margin: 0 0 8px; font-size: 16px; }
     <input id="itemName" placeholder="Tên hàng"><input id="itemDvt" placeholder="ĐVT">
     <button onclick="addItem()">Thêm hàng</button>
     <button onclick="deleteItem()">Xóa tên hàng</button>
+    <button onclick="resetDanhMucHangHoa()" id="resetDanhMucBtn" title="Xóa toàn bộ danh mục hàng hóa, giữ nguyên phiếu nhập/xuất và bảng báo cáo">Reset toàn bộ danh mục hàng</button>
   </div>
   <div class="category-row">
     <input id="empName" placeholder="Tên nhân viên">
@@ -790,8 +1052,10 @@ h3 { margin: 0 0 8px; font-size: 16px; }
   <b>Nhập file ngoài vào bảng báo cáo</b><br>
   <input type="file" id="externalReportFile" multiple style="display:none" onchange="importExternalReportFiles(event)">
   <input type="file" id="externalReportFolder" multiple webkitdirectory directory style="display:none" onchange="importExternalReportFiles(event)">
-  <button onclick="document.getElementById('externalReportFile').click()" id="importExternalBtn">Chọn file bất kỳ</button>
-  <button onclick="document.getElementById('externalReportFolder').click()">Chọn cả thư mục</button>
+  <button onclick="chooseExternalImport20260627('replace','file')" id="importExternalBtn">Chọn dữ liệu bất kỳ</button>
+  <button onclick="chooseExternalImport20260627('append','file')" id="appendExternalBtn">Chọn thêm mới</button>
+  <button onclick="chooseExternalImport20260627('replace','folder')" id="importExternalFolderBtn">Chọn cả thư mục</button>
+  <button onclick="chooseExternalImport20260627('append','folder')" id="appendExternalFolderBtn">Chọn thêm thư mục</button>
   <button onclick="clearExternalImportFile()">Xóa file đã chọn</button>
   <span id="externalImportStatus" class="warn">Chưa nhập file ngoài</span>
   <small>Không giới hạn đuôi file nhập vào. App tự dò tên cột tương tự từ STT, Tên hàng, ĐVT, ngày 1-31, Tồn đầu, Ngày nhập, SL/Đơn giá/Thành tiền Nhập-Xuất đến Tiền tồn, Tồn cuối; thứ tự cột có thể đảo vẫn điền đúng vào bảng báo cáo.</small>
@@ -922,31 +1186,53 @@ function deleteItem(){
  alert('Đã xóa khỏi danh mục: '+name);
 }
 
+function clearValueByIdsFast(ids){
+ ids.forEach(id=>{
+   const el=document.getElementById(id);
+   if(el) el.value='';
+ });
+}
+
+function clearDanhMucHangUiFast(){
+ const itemsEl=document.getElementById('items');
+ const itemListEl=document.getElementById('itemList');
+ const managerEl=document.getElementById('manager');
+ if(itemsEl) itemsEl.innerHTML='';
+ if(itemListEl) itemListEl.innerHTML='<b>Danh mục hàng:</b> ';
+ if(managerEl) managerEl.innerHTML='';
+ clearValueByIdsFast(['itemName','itemDvt','tenhang','dvt_tx']);
+}
+
 function resetDanhMucHangHoa(){
- let d=db();
- const count=Array.isArray(d.items)?d.items.length:0;
- if(count===0){
+ if(!confirm('Xóa toàn bộ danh mục hàng hóa? — Chỉ xóa tên hàng và ĐVT. — Không xóa phiếu nhập/xuất và bảng báo cáo.')) return;
+
+ try{ clearTimeout(cloudSaveTimer); }catch(err){}
+
+ const raw=localStorage.getItem(DBKEY);
+ if(!raw){
+   clearDanhMucHangUiFast();
    alert('Danh mục hàng hóa đang trống.');
    return;
  }
- if(!confirm('Xóa toàn bộ danh mục hàng hóa? — Chỉ xóa tên hàng và ĐVT. — Không xóa phiếu và bảng báo cáo.')) return;
- d.items=[];
- save(d);
- refreshItems();
 
- const itemNameEl=document.getElementById('itemName');
- const itemDvtEl=document.getElementById('itemDvt');
- const tenhangEl=document.getElementById('tenhang');
- const dvtTxEl=document.getElementById('dvt_tx');
- if(itemNameEl) itemNameEl.value='';
- if(itemDvtEl) itemDvtEl.value='';
- if(tenhangEl) tenhangEl.value='';
- if(dvtTxEl) dvtTxEl.value='';
+ clearDanhMucHangUiFast();
 
- const managerEl=document.getElementById('manager');
- if(managerEl && managerEl.innerHTML.trim()) showManager();
- scheduleCloudAutoSave('reset-danh-muc');
- alert('Đã reset danh mục hàng hóa. Phiếu nhập/xuất và bảng báo cáo vẫn được giữ nguyên.');
+ setTimeout(()=>{
+   try{
+     let d=normalizeDbObj(JSON.parse(raw||'{}'));
+     d.items=[];
+     localStorage.setItem(DBKEY,JSON.stringify(d));
+     scheduleCloudAutoSave('reset-danh-muc-fast');
+   }catch(err){
+     try{
+       let d=db();
+       d.items=[];
+       localStorage.setItem(DBKEY,JSON.stringify(d));
+     }catch(e){ console.error(e); }
+   }
+ },0);
+
+ alert('Đã reset nhanh toàn bộ danh mục hàng. Phiếu nhập/xuất và bảng báo cáo vẫn được giữ nguyên.');
 }
 
 function addItem(){
@@ -1010,7 +1296,7 @@ function reportNhanVienLayHang(){
      </div>`;
  document.getElementById('report').innerHTML=h;
  const titleEl=document.getElementById('printTitle');
- if(titleEl) titleEl.innerHTML=(localStorage.getItem('appName')||document.title||'QUẢN LÝ KHO')+'<br>BÁO CÁO LẤY HÀNG THÁNG '+m+' / '+y;
+ if(titleEl) titleEl.innerHTML=(localStorage.getItem('appName')||document.title||'VẬT TƯ Y TẾ')+'<br>BÁO CÁO LẤY HÀNG THÁNG '+m+' / '+y;
  snapshotReportToLocalStorage();
  scheduleCloudAutoSave('lay-hang-report');
 }
@@ -1038,7 +1324,7 @@ function reportChiTietNhanVienLayHang(){
      </div>`;
  document.getElementById('report').innerHTML=h;
  const titleEl=document.getElementById('printTitle');
- if(titleEl) titleEl.innerHTML=(localStorage.getItem('appName')||document.title||'QUẢN LÝ KHO')+'<br>BÁO CÁO NHÂN VIÊN LẤY HÀNG THÁNG '+m+' / '+y;
+ if(titleEl) titleEl.innerHTML=(localStorage.getItem('appName')||document.title||'VẬT TƯ Y TẾ')+'<br>BÁO CÁO NHÂN VIÊN LẤY HÀNG THÁNG '+m+' / '+y;
  snapshotReportToLocalStorage();
  scheduleCloudAutoSave('employee-lay-hang-report');
 }
@@ -1088,7 +1374,7 @@ function exportExcel(){
  if(!table){alert('Hãy tạo báo cáo trước');return;}
  refreshReportSTT();
  let cleanTable=cleanReportTableForOutput();
- let appName=localStorage.getItem('appName')||document.title||'QUẢN LÝ KHO';
+ let appName=localStorage.getItem('appName')||document.title||'VẬT TƯ Y TẾ';
  let html='<html><head><meta charset="utf-8"></head><body><h2>'+appName+'</h2><h3>Tháng '+document.getElementById('thang').value+' / '+document.getElementById('nam').value+'</h3>'+cleanTable.outerHTML+'</body></html>';
  let blob=new Blob([html],{type:'application/vnd.ms-excel'});
  let a=document.createElement('a');
@@ -1098,19 +1384,25 @@ function exportExcel(){
 }
 
 function saveAppName(){
- const name=document.getElementById('appName').value||'QUẢN LÝ KHO PRO ULTIMATE';
+ const name=document.getElementById('appName').value||'VẬT TƯ Y TẾ';
  localStorage.setItem('appName',name);
  document.querySelector('header h2').textContent=name;
  document.title=name;
  scheduleCloudAutoSave('app-name');
 }
 (function(){
- const n=localStorage.getItem('appName');
- if(n){
-   document.querySelector('header h2').textContent=n;
-   document.title=n;
-   setTimeout(()=>{let e=document.getElementById('appName'); if(e) e.value=n;},100);
+ const defaultAppName='VẬT TƯ Y TẾ';
+ const oldDefaultNames=['QL Kho PRO Ultimate','QUẢN LÝ KHO PRO ULTIMATE','QUẢN LÝ KHO','VĂN PHÒNG PHẨM','HỘ LÝ'];
+ let n=localStorage.getItem('appName');
+ const normalizedName=String(n||'').trim().toUpperCase();
+ const isOldDefaultName=oldDefaultNames.some(x=>x.toUpperCase()===normalizedName);
+ if(!n || isOldDefaultName){
+   n=defaultAppName;
+   localStorage.setItem('appName',n);
  }
+ document.querySelector('header h2').textContent=n;
+ document.title=n;
+ setTimeout(()=>{let e=document.getElementById('appName'); if(e) e.value=n;},100);
 })();
 
 function toggleAllDanhMuc(){
@@ -1241,7 +1533,7 @@ window.addEventListener('beforeprint',function(){
  if(t){
   const isEmployeeLayHang=!!document.querySelector('#report table.employee-layhang-report');
   const isLayHang=!!document.querySelector('#report table.layhang-report');
-  t.innerHTML=(localStorage.getItem('appName')||document.title||'QUẢN LÝ KHO')+'<br>'+ (isEmployeeLayHang ? ('BÁO CÁO NHÂN VIÊN LẤY HÀNG THÁNG '+document.getElementById('thang').value+' / '+document.getElementById('nam').value) : (isLayHang ? ('BÁO CÁO LẤY HÀNG THÁNG '+document.getElementById('thang').value+' / '+document.getElementById('nam').value) : ('Tháng '+document.getElementById('thang').value+' / '+document.getElementById('nam').value)));
+  t.innerHTML=(localStorage.getItem('appName')||document.title||'VẬT TƯ Y TẾ')+'<br>'+ (isEmployeeLayHang ? ('BÁO CÁO NHÂN VIÊN LẤY HÀNG THÁNG '+document.getElementById('thang').value+' / '+document.getElementById('nam').value) : (isLayHang ? ('BÁO CÁO LẤY HÀNG THÁNG '+document.getElementById('thang').value+' / '+document.getElementById('nam').value) : ('Tháng '+document.getElementById('thang').value+' / '+document.getElementById('nam').value)));
  }
 });
 
@@ -1277,7 +1569,7 @@ function collectAppPayload(){
    version: 3,
    savedAt: new Date().toISOString(),
    db: db(),
-   appName: localStorage.getItem('appName') || document.title || 'QUẢN LÝ KHO PRO ULTIMATE',
+   appName: localStorage.getItem('appName') || document.title || 'VẬT TƯ Y TẾ',
    reportHTML: localStorage.getItem('REPORT_SAVED_HTML') || '',
    reportFilter: JSON.parse(localStorage.getItem('REPORT_LAST_FILTER') || '{}')
  };
@@ -1555,8 +1847,12 @@ async function resetAllData(){
  if(!confirm('RESET TOÀN BỘ dữ liệu trong app? — Bấm OK để reset ngay, Hủy để giữ lại dữ liệu.')) return;
 
  try{ clearTimeout(cloudSaveTimer); }catch(err){}
+ cloudSavePending=false;
+ cloudSaveBusy=false;
+ cloudDirHandle=null;
 
- localStorage.setItem(DBKEY, JSON.stringify({items:[], tx:[], employees:[], departments:[]}));
+ // Reset nhanh: xóa key dữ liệu thay vì ghi lại JSON lớn, tránh đợi IndexedDB/thư mục tự lưu.
+ localStorage.removeItem(DBKEY);
  localStorage.removeItem('appName');
  localStorage.removeItem('REPORT_SAVED_HTML');
  localStorage.removeItem('REPORT_LAST_FILTER');
@@ -1564,21 +1860,11 @@ async function resetAllData(){
  localStorage.removeItem(CLOUD_SAVE_BOX_VISIBLE_KEY);
  localStorage.setItem(RESET_BLOCK_AUTO_RESTORE_KEY,'1');
 
- try{ await cloudIdbDelete(CLOUD_DIR_KEY); }catch(err){}
- cloudDirHandle=null;
- cloudSavePending=false;
- cloudSaveBusy=false;
-
- const defaultName='QUẢN LÝ KHO PRO ULTIMATE';
+ const defaultName='VẬT TƯ Y TẾ';
  document.title=defaultName;
  const headerTitle=document.querySelector('header h2');
  if(headerTitle) headerTitle.textContent=defaultName;
-
- const idsToClear=['appName','itemName','itemDvt','empName','deptName','ngay','tenhang','sl','dvt_tx','dg','nhanvien','khoaphong'];
- idsToClear.forEach(id=>{
-   const el=document.getElementById(id);
-   if(el) el.value='';
- });
+ clearValueByIdsFast(['appName','itemName','itemDvt','empName','deptName','ngay','tenhang','sl','dvt_tx','dg','nhanvien','khoaphong']);
 
  const loaiEl=document.getElementById('loai');
  if(loaiEl) loaiEl.value='Nhập';
@@ -1589,15 +1875,24 @@ async function resetAllData(){
  if(thangEl) thangEl.value=now.getMonth()+1;
  if(namEl) namEl.value=now.getFullYear();
 
- ['report','manager','txManager','printTitle'].forEach(id=>{
+ ['report','manager','txManager','printTitle','items','employees','departments'].forEach(id=>{
    const el=document.getElementById(id);
    if(el) el.innerHTML='';
  });
+ const itemListEl=document.getElementById('itemList');
+ const employeeListEl=document.getElementById('employeeList');
+ if(itemListEl) itemListEl.innerHTML='<b>Danh mục hàng:</b> ';
+ if(employeeListEl) employeeListEl.innerHTML='<b>Nhân viên:</b> <br><b>Khoa phòng:</b> ';
 
- refreshItems();
- initCloudSaveBoxVisibility();
- setCloudStatus('Đã reset - chưa chọn nơi lưu','warn');
- alert('Đã reset toàn bộ dữ liệu trong app. Nếu chọn lại cùng thư mục tự lưu cũ, hãy bấm Hủy khi app hỏi tải dữ liệu cũ để giữ trạng thái trống sau reset.');
+ setCloudStatus('Đã reset nhanh - chưa chọn nơi lưu','warn');
+
+ // Việc xóa quyền thư mục tự lưu có thể chậm, cho chạy sau để nút Reset phản hồi ngay.
+ setTimeout(()=>{
+   cloudIdbDelete(CLOUD_DIR_KEY).catch(()=>{});
+   initCloudSaveBoxVisibility();
+ },0);
+
+ alert('Đã reset nhanh toàn bộ dữ liệu trong app. Dữ liệu cũ, báo cáo, danh mục và nơi tự lưu đã được làm sạch.');
 }
 
 
@@ -2718,12 +3013,24 @@ function worksheetToRowsWithMerges(ws){
 function chooseBestRowsByHeader(rowSets){
  const days=getReportDays();
  let best=null;
+ function simpleSheetScore20260629(item,rows,header){
+   const sheetKey=normalizeExternalKey(item && item.name ? item.name : '');
+   const titleKey=normalizeExternalKey((rows?.[0]?.slice?.(0,6) || []).join(' '));
+   let bonus=0;
+   /* FIX 2026-06-29: Ưu tiên sheet Báo cáo chính, tránh chọn nhầm sheet lưu trữ VPP cũ vì nhiều dòng hơn. */
+   if(sheetKey==='baocao') bonus+=350;
+   else if(sheetKey.includes('baocao')) bonus+=80;
+   if(sheetKey.includes('xuatnhapton') || sheetKey.includes('thang')) bonus-=180;
+   if(titleKey.includes('holy')) bonus+=160;
+   if(titleKey.includes('vanphongpham') || titleKey.includes('vpp')) bonus+=120;
+   return bonus;
+ }
  rowSets.forEach(item=>{
    const rows=item.rows || [];
    const header=findExternalHeaderRow(rows, days);
    if(!header) return;
    const dataCount=Math.max(0, rows.length-header.idx-1);
-   const score=header.score + Math.min(dataCount,200)*0.02;
+   const score=header.score + Math.min(dataCount,200)*0.02 + simpleSheetScore20260629(item,rows,header);
    if(!best || score>best.score) best={...item, header, score};
  });
  return best;
@@ -4429,7 +4736,7 @@ function escapeExcelExportHtml20260622XL(value){
 }
 
 function buildExcelExportHtml20260622XL(cleanTable){
- const appName=localStorage.getItem('appName') || document.querySelector('header h2')?.textContent || document.title || 'QUẢN LÝ KHO';
+ const appName=localStorage.getItem('appName') || document.querySelector('header h2')?.textContent || document.title || 'VẬT TƯ Y TẾ';
  const reportMonth=document.getElementById('thang')?.value || '';
  const reportYear=document.getElementById('nam')?.value || '';
  const excelStyle=`
@@ -6912,7 +7219,7 @@ refreshItems();
    const table=cleanRawTableForOutputK();
    if(!table){ alert('Hãy nhập hoặc tạo báo cáo trước'); return; }
    snapshotRawReportK();
-   const appName=localStorage.getItem('appName')||document.title||'QUẢN LÝ KHO';
+   const appName=localStorage.getItem('appName')||document.title||'VẬT TƯ Y TẾ';
    const html='<html><head><meta charset="utf-8"></head><body><h2>'+escK(appName)+'</h2><h3>Bảng báo cáo nhập ngoài - giữ nguyên dòng/cột</h3>'+table.outerHTML+'</body></html>';
    const blob=new Blob([html],{type:'application/vnd.ms-excel'});
    const a=document.createElement('a');
@@ -8025,6 +8332,1483 @@ refreshItems();
   document.addEventListener('DOMContentLoaded',function(){ noteN(); setTimeout(()=>applyN(visibleMY_N()),850); });
   if(document.readyState!=='loading'){ noteN(); setTimeout(()=>applyN(visibleMY_N()),500); }
   window.apDungTonDauThangMoiBangTonCuoiThangCu20260623N=function(){ applyN(visibleMY_N()); };
+})();
+
+
+/* =========================================================
+   PATCH 2026-06-27: Tự co bảng báo cáo để thấy tổng thể từ STT,
+   Tên hàng, ĐVT, ngày 1... đến Tồn cuối ngay khi mở báo cáo.
+   ========================================================= */
+(function(){
+  const PATCH_CLASS='report-total-overview-20260627';
+  const TABLE_CLASS='inventory-overview-20260627';
+
+  function txt(el){
+    return String(el?.innerText || el?.textContent || '').trim();
+  }
+  function norm(s){
+    return String(s || '')
+      .normalize('NFD').replace(/[\u0300-\u036f]/g,'')
+      .replace(/đ/g,'d').replace(/Đ/g,'D')
+      .toLowerCase().replace(/[^a-z0-9]+/g,'');
+  }
+  function isDayHeader(s){
+    const m=String(s||'').trim().match(/^0?([1-9]|[12]\d|3[01])$/);
+    return m ? Number(m[1]) : 0;
+  }
+  function tableLooksLikeInventory(table){
+    if(!table || !table.rows || !table.rows.length) return false;
+    if(table.classList.contains('layhang-report') || table.classList.contains('employee-layhang-report')) return false;
+    const heads=[...table.rows[0].cells].map(c=>norm(txt(c)));
+    return heads.includes('stt') && heads.includes('tenhang') && heads.includes('dvt') && heads.includes('toncuoi');
+  }
+  function setColGroup(table, widths){
+    let colgroup=table.querySelector(':scope > colgroup.overview-colgroup-20260627');
+    if(!colgroup){
+      colgroup=document.createElement('colgroup');
+      colgroup.className='overview-colgroup-20260627';
+      table.insertBefore(colgroup, table.firstChild);
+    }
+    const sig=widths.join(',');
+    if(colgroup.dataset.sig===sig && colgroup.children.length===widths.length) return;
+    colgroup.dataset.sig=sig;
+    colgroup.innerHTML='';
+    widths.forEach(w=>{
+      const col=document.createElement('col');
+      col.style.width=w+'px';
+      col.style.minWidth=w+'px';
+      col.style.maxWidth=w+'px';
+      colgroup.appendChild(col);
+    });
+  }
+  function tagColumns(table, days, tailStart){
+    const rows=[...table.rows];
+    rows.forEach(row=>{
+      [...row.cells].forEach((cell,idx)=>{
+        cell.classList.remove('day-col-20260627','tail-col-20260627','ngaynhap-col-20260627','xoa-col-20260627');
+        if(idx>=3 && idx<3+days) cell.classList.add('day-col-20260627');
+        if(idx>=tailStart) cell.classList.add('tail-col-20260627');
+        const key=norm(txt(table.rows[0].cells[idx]));
+        if(key==='ngaynhap') cell.classList.add('ngaynhap-col-20260627');
+        if(key==='xoa' || key==='delete') cell.classList.add('xoa-col-20260627');
+      });
+    });
+  }
+  function calcWidths(report, totalCols, days, tailCount){
+    const containerW=Math.max(920, (report?.clientWidth || window.innerWidth || 1280) - 24);
+    const compact=containerW<1200;
+    const stt=compact?32:36;
+    const dvt=compact?34:40;
+    const xoa=compact?26:30;
+    const ten=compact?120:Math.min(160, Math.max(138, Math.round(containerW*0.115)));
+
+    const tailNames=['tondau','ngaynhap','slnhap','dgnhap','ttnhap','slxuat','dgxuat','ttxuat','tienton','toncuoi'];
+    const tailBaseCompact={tondau:40,ngaynhap:48,slnhap:36,dgnhap:36,ttnhap:38,slxuat:36,dgxuat:36,ttxuat:38,tienton:40,toncuoi:40};
+    const tailBaseFull={tondau:46,ngaynhap:54,slnhap:42,dgnhap:42,ttnhap:44,slxuat:42,dgxuat:42,ttxuat:44,tienton:46,toncuoi:46};
+    const tailBase=compact?tailBaseCompact:tailBaseFull;
+    const tailWidths=tailNames.slice(0, Math.max(0, tailCount-1)).map(k=>tailBase[k] || (compact?38:44));
+    if(tailCount>0) tailWidths.push(xoa);
+
+    let fixed=stt+ten+dvt+tailWidths.reduce((a,b)=>a+b,0);
+    let day=Math.floor((containerW-fixed)/Math.max(days,1));
+    const minDay=compact?11:14;
+    if(day<minDay) day=minDay;
+    if(!Number.isFinite(day) || day<1) day=minDay;
+
+    let widths=[stt,ten,dvt];
+    for(let i=0;i<days;i++) widths.push(day);
+    widths=widths.concat(tailWidths);
+    while(widths.length<totalCols) widths.push(compact?34:40);
+    widths=widths.slice(0,totalCols);
+    const total=widths.reduce((a,b)=>a+b,0);
+    return {widths,total,stt,ten,dvt,day,tail:compact?38:44,ngaynhap:compact?48:54,xoa};
+  }
+  function applyReportTotalOverview20260627(){
+    const report=document.getElementById('report');
+    const table=report ? report.querySelector('table') : null;
+    if(!report || !table) return;
+    if(!tableLooksLikeInventory(table)){
+      report.classList.remove(PATCH_CLASS);
+      return;
+    }
+
+    const header=table.rows[0];
+    const cells=[...header.cells];
+    let tonDauIdx=cells.findIndex(c=>norm(txt(c))==='tondau');
+    if(tonDauIdx<0) tonDauIdx=cells.findIndex(c=>norm(txt(c)).includes('tondau'));
+    let tonCuoiIdx=cells.findIndex(c=>norm(txt(c))==='toncuoi');
+    if(tonCuoiIdx<0) tonCuoiIdx=cells.findIndex(c=>norm(txt(c)).includes('toncuoi'));
+
+    let days=0;
+    for(let i=3;i<cells.length;i++){
+      if(isDayHeader(txt(cells[i]))) days++;
+      else break;
+    }
+    if(!days && tonDauIdx>3) days=tonDauIdx-3;
+    if(!days) return;
+    const tailStart=3+days;
+    const tailCount=Math.max(0, cells.length-tailStart);
+
+    table.classList.add(TABLE_CLASS);
+    report.classList.add(PATCH_CLASS);
+
+    tagColumns(table, days, tailStart);
+    const info=calcWidths(report, cells.length, days, tailCount);
+    setColGroup(table, info.widths);
+
+    report.style.setProperty('--ov-stt', info.stt+'px');
+    report.style.setProperty('--ov-ten', info.ten+'px');
+    report.style.setProperty('--ov-dvt', info.dvt+'px');
+    report.style.setProperty('--ov-left-ten', info.stt+'px');
+    report.style.setProperty('--ov-left-dvt', (info.stt+info.ten)+'px');
+    report.style.setProperty('--ov-day', info.day+'px');
+    report.style.setProperty('--ov-tail', info.tail+'px');
+    report.style.setProperty('--ov-ngaynhap', info.ngaynhap+'px');
+    report.style.setProperty('--ov-xoa', info.xoa+'px');
+
+    table.style.width=info.total+'px';
+    table.style.minWidth=info.total+'px';
+    table.style.maxWidth='none';
+    table.style.tableLayout='fixed';
+
+    // Luôn đưa góc nhìn về đầu bảng để thấy STT, Tên hàng, ĐVT và ngày 1 trước.
+    // Khi màn hình đủ rộng, người dùng sẽ thấy luôn đến Tồn cuối.
+    if(report.scrollLeft>0) report.scrollLeft=0;
+
+    // Nếu có cột Tồn cuối, đánh dấu để cột này không bị mất chữ.
+    if(tonCuoiIdx>=0){
+      [...table.rows].forEach(row=>{
+        if(row.cells[tonCuoiIdx]) row.cells[tonCuoiIdx].style.fontWeight = row.rowIndex===0 ? '700' : '';
+      });
+    }
+  }
+
+  window.applyReportTotalOverview20260627=applyReportTotalOverview20260627;
+
+  function runSoon(){
+    setTimeout(applyReportTotalOverview20260627,0);
+    setTimeout(applyReportTotalOverview20260627,120);
+  }
+
+  const oldReport=window.report;
+  if(typeof oldReport==='function'){
+    window.report=function(){
+      const result=oldReport.apply(this,arguments);
+      runSoon();
+      return result;
+    };
+  }
+
+  const oldLoadSavedReport=window.loadSavedReport;
+  if(typeof oldLoadSavedReport==='function'){
+    window.loadSavedReport=function(){
+      const result=oldLoadSavedReport.apply(this,arguments);
+      runSoon();
+      return result;
+    };
+  }
+
+  const oldBuildBlank=window.buildExternalImportBlankReport;
+  if(typeof oldBuildBlank==='function'){
+    window.buildExternalImportBlankReport=function(){
+      const result=oldBuildBlank.apply(this,arguments);
+      runSoon();
+      return result;
+    };
+  }
+
+  const oldImport=window.importExternalReportFiles;
+  if(typeof oldImport==='function'){
+    window.importExternalReportFiles=async function(){
+      const result=oldImport.apply(this,arguments);
+      if(result && typeof result.then==='function') await result;
+      runSoon();
+      return result;
+    };
+  }
+
+  const oldRefresh=window.refreshReportSTT;
+  if(typeof oldRefresh==='function'){
+    window.refreshReportSTT=function(){
+      const result=oldRefresh.apply(this,arguments);
+      runSoon();
+      return result;
+    };
+  }
+
+  window.addEventListener('resize', runSoon);
+  document.addEventListener('DOMContentLoaded', function(){
+    const report=document.getElementById('report');
+    if(report && 'MutationObserver' in window){
+      let busy=false;
+      new MutationObserver(function(){
+        if(busy) return;
+        busy=true;
+        setTimeout(function(){ busy=false; applyReportTotalOverview20260627(); },40);
+      }).observe(report,{childList:true,subtree:true});
+    }
+    runSoon();
+  });
+  if(document.readyState!=='loading') runSoon();
+})();
+
+
+/* PATCH 2026-06-27: Ẩn/hiện toàn bộ khu điều khiển từ Cài đặt ứng dụng đến Ngắt nơi lưu.
+   Khi ẩn, vẫn giữ thanh tháng/năm báo cáo để dễ xem toàn bộ bảng báo cáo. */
+function updateCompactReportMonthYear(){
+  const box=document.getElementById('compactReportMonthYear');
+  if(!box) return;
+  const monthEl=document.getElementById('thang');
+  const yearEl=document.getElementById('nam');
+  let m=monthEl ? String(monthEl.value||'').trim() : '';
+  let y=yearEl ? String(yearEl.value||'').trim() : '';
+  if((!m || !y) && localStorage.getItem('REPORT_LAST_FILTER')){
+    try{
+      const f=JSON.parse(localStorage.getItem('REPORT_LAST_FILTER')||'{}');
+      if(!m && f.thang) m=f.thang;
+      if(!y && f.nam) y=f.nam;
+    }catch(e){}
+  }
+  if(!m) m=String(new Date().getMonth()+1);
+  if(!y) y=String(new Date().getFullYear());
+  box.textContent='BÁO CÁO THÁNG '+m+' / NĂM '+y;
+}
+
+function setMainControlsVisible20260627(visible){
+  const btn=document.getElementById('toggleMainControlsBtn');
+  document.body.classList.toggle('controls-hidden-20260627', !visible);
+  if(btn) btn.textContent=visible ? 'Ẩn khu điều khiển' : 'Hiện khu điều khiển';
+  localStorage.setItem('MAIN_CONTROLS_VISIBLE_20260627', visible ? '1' : '0');
+  updateCompactReportMonthYear();
+  setTimeout(function(){
+    if(typeof applyReportTotalOverview20260627==='function') applyReportTotalOverview20260627();
+  },60);
+}
+
+function toggleMainControls(){
+  const hidden=document.body.classList.contains('controls-hidden-20260627');
+  setMainControlsVisible20260627(hidden);
+}
+
+(function initMainControlsToggle20260627(){
+  function init(){
+    updateCompactReportMonthYear();
+    const saved=localStorage.getItem('MAIN_CONTROLS_VISIBLE_20260627');
+    if(saved==='0') setMainControlsVisible20260627(false);
+    const monthEl=document.getElementById('thang');
+    const yearEl=document.getElementById('nam');
+    if(monthEl) monthEl.addEventListener('input', updateCompactReportMonthYear);
+    if(yearEl) yearEl.addEventListener('input', updateCompactReportMonthYear);
+    const reportEl=document.getElementById('report');
+    if(reportEl && 'MutationObserver' in window){
+      new MutationObserver(function(){ setTimeout(updateCompactReportMonthYear,20); })
+        .observe(reportEl,{childList:true,subtree:false});
+    }
+  }
+  if(document.readyState==='loading'){
+    document.addEventListener('DOMContentLoaded', init);
+  }else{
+    init();
+  }
+})();
+
+
+
+/* PATCH 2026-06-27B: Chọn dữ liệu bất kỳ = thay sạch dữ liệu file cũ.
+   Chỉ khi bấm Chọn thêm mới / Chọn thêm thư mục mới giữ bảng hiện tại để cộng thêm. */
+(function(){
+  const TAG='PATCH_20260627B_IMPORT_REPLACE_BY_DEFAULT_APPEND_ONLY_BUTTON';
+  if(window[TAG]) return;
+  window[TAG]=true;
+  let nextMode20260627B='replace';
+
+  function byId(id){ return document.getElementById(id); }
+
+  function ensureImportModeSelect(){
+    let el=byId('externalImportMode');
+    if(el) return el;
+    const box=byId('externalImportBox');
+    if(!box) return null;
+    const line=document.createElement('div');
+    line.id='externalImportModeLine20260627B';
+    line.style.cssText='display:none;';
+    line.innerHTML='<label for="externalImportMode"><b>Chế độ nhập:</b></label><select id="externalImportMode"><option value="replace" selected>Thay sạch báo cáo bằng file vừa chọn</option><option value="append">Cộng thêm vào báo cáo đang mở</option></select>';
+    box.insertBefore(line, box.querySelector('#importExternalBtn') || box.firstChild);
+    return byId('externalImportMode');
+  }
+
+  function setImportMode(mode){
+    mode = mode === 'append' ? 'append' : 'replace';
+    nextMode20260627B = mode;
+    const el=ensureImportModeSelect();
+    if(el) el.value=mode;
+    return mode;
+  }
+
+  function resetImportModeToReplaceSoon(){
+    nextMode20260627B='replace';
+    setTimeout(function(){
+      const el=ensureImportModeSelect();
+      if(el) el.value='replace';
+    },0);
+  }
+
+  window.chooseExternalImport20260627=function(mode,kind){
+    mode=setImportMode(mode);
+    kind = kind === 'folder' ? 'folder' : 'file';
+    const input=byId(kind === 'folder' ? 'externalReportFolder' : 'externalReportFile');
+    if(!input) return;
+    input.dataset.importMode20260627B=mode;
+    try{ input.value=''; }catch(e){}
+    input.click();
+  };
+
+  function updateImportButtons(){
+    const fileBtn=byId('importExternalBtn');
+    if(fileBtn){
+      fileBtn.textContent='Chọn dữ liệu bất kỳ';
+      fileBtn.onclick=function(){ window.chooseExternalImport20260627('replace','file'); };
+      fileBtn.title='Chọn file mới và thay sạch dữ liệu file ngoài cũ, không lấy lại file cũ.';
+    }
+
+    const folderInput=byId('externalReportFolder');
+    let folderBtn=byId('importExternalFolderBtn');
+    if(!folderBtn && folderInput){
+      const buttons=Array.from(document.querySelectorAll('#externalImportBox button'));
+      folderBtn=buttons.find(b=>String(b.textContent||'').trim()==='Chọn cả thư mục') || null;
+      if(folderBtn) folderBtn.id='importExternalFolderBtn';
+    }
+    if(folderBtn){
+      folderBtn.textContent='Chọn cả thư mục';
+      folderBtn.onclick=function(){ window.chooseExternalImport20260627('replace','folder'); };
+      folderBtn.title='Chọn thư mục mới và thay sạch dữ liệu file ngoài cũ.';
+    }
+
+    let appendBtn=byId('appendExternalBtn');
+    if(!appendBtn && fileBtn){
+      appendBtn=document.createElement('button');
+      appendBtn.id='appendExternalBtn';
+      fileBtn.insertAdjacentElement('afterend', appendBtn);
+    }
+    if(appendBtn){
+      appendBtn.textContent='Chọn thêm mới';
+      appendBtn.onclick=function(){ window.chooseExternalImport20260627('append','file'); };
+      appendBtn.title='Giữ bảng hiện tại và cộng thêm dữ liệu từ file mới chọn.';
+    }
+
+    let appendFolderBtn=byId('appendExternalFolderBtn');
+    if(!appendFolderBtn && folderBtn){
+      appendFolderBtn=document.createElement('button');
+      appendFolderBtn.id='appendExternalFolderBtn';
+      folderBtn.insertAdjacentElement('afterend', appendFolderBtn);
+    }
+    if(appendFolderBtn){
+      appendFolderBtn.textContent='Chọn thêm thư mục';
+      appendFolderBtn.onclick=function(){ window.chooseExternalImport20260627('append','folder'); };
+      appendFolderBtn.title='Giữ bảng hiện tại và cộng thêm dữ liệu từ thư mục mới chọn.';
+    }
+
+    const modeEl=ensureImportModeSelect();
+    if(modeEl){
+      modeEl.value='replace';
+      const line=modeEl.closest('div');
+      if(line) line.style.display='none';
+    }
+
+    const box=byId('externalImportBox');
+    if(box && !byId('externalImportNote20260627B')){
+      const note=document.createElement('small');
+      note.id='externalImportNote20260627B';
+      note.className='external-import-note-20260627B';
+      note.innerHTML='<b>Lưu ý:</b> Bấm <b>Chọn dữ liệu bất kỳ</b> hoặc <b>Chọn cả thư mục</b> sẽ thay sạch dữ liệu file ngoài cũ và chỉ hiện đúng file/thư mục vừa chọn. Chỉ bấm <b>Chọn thêm mới</b> hoặc <b>Chọn thêm thư mục</b> khi muốn giữ dữ liệu đang có để cộng thêm.';
+      const status=byId('externalImportStatus');
+      if(status) status.insertAdjacentElement('afterend', note); else box.appendChild(note);
+    }
+  }
+
+  const oldClear=window.clearExternalImportFile;
+  if(typeof oldClear==='function'){
+    window.clearExternalImportFile=function(){
+      resetImportModeToReplaceSoon();
+      return oldClear.apply(this,arguments);
+    };
+  }
+
+  const oldImport=window.importExternalReportFiles;
+  if(typeof oldImport==='function'){
+    window.importExternalReportFiles=async function(event){
+      const input=event && event.target ? event.target : null;
+      const chosenMode=(input && input.dataset && input.dataset.importMode20260627B) ? input.dataset.importMode20260627B : nextMode20260627B;
+      const mode=setImportMode(chosenMode === 'append' ? 'append' : 'replace');
+      if(input && input.dataset) delete input.dataset.importMode20260627B;
+
+      // Khi không phải Chọn thêm mới, xóa dấu vết báo cáo nhập ngoài cũ trước khi đọc file mới.
+      if(mode !== 'append'){
+        try{ localStorage.removeItem('QuanLyKho_Report_Raw_Import_Mode'); }catch(e){}
+        try{ localStorage.removeItem('QuanLyKho_Report_Raw_Import_HTML'); }catch(e){}
+        try{ localStorage.removeItem('QuanLyKho_Report_Raw_Import_Files'); }catch(e){}
+      }
+
+      try{
+        const rs=oldImport.apply(this,arguments);
+        if(rs && typeof rs.then==='function') await rs;
+        return rs;
+      }finally{
+        resetImportModeToReplaceSoon();
+        setTimeout(updateImportButtons,60);
+        setTimeout(updateImportButtons,350);
+      }
+    };
+    try{ importExternalReportFiles=window.importExternalReportFiles; }catch(e){}
+  }
+
+  function init(){
+    updateImportButtons();
+    setTimeout(updateImportButtons,120);
+    setTimeout(updateImportButtons,700);
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',init); else init();
+})();
+
+
+/* PATCH 2026-06-27C: Chọn file bất kỳ và đổ dữ liệu vào APP
+   - Giữ toàn bộ chức năng hiện có.
+   - Nút "Chọn dữ liệu bất kỳ" luôn thay sạch dữ liệu file ngoài cũ bằng đúng file vừa chọn.
+   - Nút "Chọn thêm mới" mới giữ dữ liệu hiện tại để cộng thêm.
+   - Tự đọc 2 dạng chính:
+     1) File Excel báo cáo kho nhiều tháng nằm ngang như VPP/Hộ Lý 2026.
+     2) File xuất hàng dạng danh sách ngày, tên hàng, ĐVT, số lượng, đơn giá, khoa phòng, nhân viên.
+   - Nếu không tự dò được mẫu kho, vẫn giữ đường nhập cũ để không mất khả năng nhập file bất kỳ. */
+(function(){
+  const TAG='PATCH_20260627C_CHON_FILE_BAT_KY_DO_DU_LIEU_VAO_APP';
+  if(window[TAG]) return;
+  window[TAG]=true;
+
+  const previousImport20260627C=window.importExternalReportFiles;
+  let nextMode20260627C='replace';
+  let importRun20260627C=0;
+
+  function $(id){ return document.getElementById(id); }
+  function esc(s){ return String(s ?? '').replace(/[&<>\"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;'}[c];}); }
+  function norm(s){
+    return String(s ?? '')
+      .replace(/\u00a0/g,' ')
+      .normalize('NFD').replace(/[\u0300-\u036f]/g,'')
+      .replace(/[đĐ]/g,'d')
+      .toLowerCase().replace(/[^a-z0-9]+/g,'');
+  }
+  function text(v){ return String(v ?? '').replace(/\u00a0/g,' ').trim(); }
+  function empty(v){ return v===null || v===undefined || String(v).trim()===''; }
+  function p2(n){ return String(n).padStart(2,'0'); }
+  function selectedMY(){
+    const n=new Date();
+    let m=parseInt($('thang')?.value || '',10); if(!m || m<1 || m>12) m=n.getMonth()+1;
+    let y=parseInt($('nam')?.value || '',10); if(!y || y<1900) y=n.getFullYear();
+    return {m,y,days:new Date(y,m,0).getDate()};
+  }
+  function ymd(y,m,d){ return `${y}-${p2(m)}-${p2(d)}`; }
+  function parseN(v){
+    if(typeof parseNum==='function') return parseNum(v);
+    if(v instanceof Date) return 0;
+    let s=String(v ?? '').replace(/\u00a0/g,' ').trim();
+    if(!s) return 0;
+    s=s.replace(/\s+/g,'');
+    if(/^[-+]?\d{1,3}(\.\d{3})+(,\d+)?$/.test(s)) s=s.replace(/\./g,'').replace(',','.');
+    else if(/^[-+]?\d{1,3}(,\d{3})+(\.\d+)?$/.test(s)) s=s.replace(/,/g,'');
+    else s=s.replace(/,/g,'');
+    const n=parseFloat(s);
+    return isFinite(n) ? n : 0;
+  }
+  function fmtN(n){
+    n=parseN(n);
+    if(!n) return '';
+    if(typeof fmt==='function') return fmt(n);
+    return Number(n).toLocaleString('vi-VN');
+  }
+  function excelSerialToDate(n){
+    if(typeof n!=='number' || !isFinite(n) || n<20000 || n>90000) return null;
+    const d=new Date(Math.round((n-25569)*86400*1000));
+    return isNaN(d) ? null : new Date(d.getFullYear(),d.getMonth(),d.getDate());
+  }
+  function parseDate(v, preferMY){
+    if(v instanceof Date && !isNaN(v)) return new Date(v.getFullYear(),v.getMonth(),v.getDate());
+    if(typeof v==='number') return excelSerialToDate(v);
+    let s=text(v);
+    if(!s) return null;
+    s=s.split(/[\n,;|]+/).map(x=>x.trim()).filter(Boolean)[0] || s;
+    let m=s.match(/^(\d{4})[\/\-.](\d{1,2})[\/\-.](\d{1,2})/);
+    if(m){ const d=new Date(+m[1],+m[2]-1,+m[3]); return isNaN(d) ? null : d; }
+    m=s.match(/^(\d{1,2})[\/\-.](\d{1,2})(?:[\/\-.](\d{2,4}))?/);
+    if(m){
+      const dd=+m[1], mm=+m[2]; let yy=m[3] ? +m[3] : (preferMY?.y || selectedMY().y);
+      if(yy<100) yy+=2000;
+      const d=new Date(yy,mm-1,dd);
+      return isNaN(d) ? null : d;
+    }
+    m=s.match(/^0?(\d{1,2})$/);
+    if(m && preferMY){ const dd=+m[1]; const d=new Date(preferMY.y,preferMY.m-1,dd); return isNaN(d) ? null : d; }
+    return null;
+  }
+  function sameMY(d,my){ return !!(d && d.getMonth()+1===my.m && d.getFullYear()===my.y); }
+  function dayHeader(v){
+    if(typeof v==='number' && isFinite(v)){ const n=Math.floor(v); return n>=1 && n<=31 ? n : 0; }
+    const s=text(v);
+    const m=s.match(/^0?([1-9]|[12]\d|3[01])$/);
+    return m ? +m[1] : 0;
+  }
+  function status(msg,type){
+    const el=$('externalImportStatus');
+    if(el){ el.textContent=msg; el.className=type==='err'?'err':(type==='warn'?'warn':''); }
+    try{ if(typeof setExternalImportStatus==='function') setExternalImportStatus(msg,type); }catch(e){}
+  }
+  function disableControls(disabled){
+    ['importExternalBtn','appendExternalBtn','importExternalFolderBtn','appendExternalFolderBtn','toggleExternalImportBtn'].forEach(id=>{ const b=$(id); if(b) b.disabled=!!disabled; });
+    try{ if(typeof setExternalImportControlsDisabled==='function') setExternalImportControlsDisabled(disabled); }catch(e){}
+  }
+
+  function ensureSmartImportUi(){
+    const box=$('externalImportBox');
+    if(!box) return;
+    const structure=$('externalImportStructureMode');
+    if(structure){
+      structure.value='smart';
+      const smartOpt=[...structure.options].find(o=>o.value==='smart');
+      if(smartOpt) smartOpt.textContent='Tự đổ đúng vào báo cáo kho';
+      const rawOpt=[...structure.options].find(o=>o.value==='raw');
+      if(rawOpt) rawOpt.textContent='Giữ nguyên toàn bộ dòng/cột từ file';
+    }
+    let note=$('externalImportNote20260627C');
+    if(!note){
+      note=document.createElement('small');
+      note.id='externalImportNote20260627C';
+      note.style.cssText='display:block;margin-top:6px;color:#1b5e20;font-size:12px;line-height:1.35;';
+      note.innerHTML='<b>Đã bật nhập file bất kỳ:</b> chọn file VPP, Hộ Lý hoặc file Excel/CSV có cột tương tự. App sẽ ưu tiên đổ vào bảng báo cáo kho theo tháng/năm đang chọn; nếu file không giống mẫu kho thì dùng chế độ giữ nguyên dòng/cột.';
+      box.appendChild(note);
+    }
+  }
+  function setMode(mode){
+    nextMode20260627C=(mode==='append')?'append':'replace';
+    const im=$('externalImportMode'); if(im) im.value=nextMode20260627C;
+    return nextMode20260627C;
+  }
+  window.chooseExternalImport20260627=function(mode,kind){
+    const m=setMode(mode);
+    ensureSmartImportUi();
+    const input=$(kind==='folder'?'externalReportFolder':'externalReportFile');
+    if(!input) return;
+    input.dataset.importMode20260627C=m;
+    try{ input.value=''; }catch(e){}
+    input.click();
+  };
+  function refreshImportButtons(){
+    ensureSmartImportUi();
+    const fileBtn=$('importExternalBtn');
+    if(fileBtn){ fileBtn.textContent='Chọn dữ liệu bất kỳ'; fileBtn.onclick=function(){ window.chooseExternalImport20260627('replace','file'); }; fileBtn.title='Thay sạch dữ liệu file ngoài cũ bằng đúng file vừa chọn.'; }
+    const appendBtn=$('appendExternalBtn');
+    if(appendBtn){ appendBtn.textContent='Chọn thêm mới'; appendBtn.onclick=function(){ window.chooseExternalImport20260627('append','file'); }; appendBtn.title='Giữ dữ liệu đang có và cộng thêm file mới.'; }
+    const folderBtn=$('importExternalFolderBtn');
+    if(folderBtn){ folderBtn.textContent='Chọn cả thư mục'; folderBtn.onclick=function(){ window.chooseExternalImport20260627('replace','folder'); }; folderBtn.title='Thay sạch dữ liệu file ngoài cũ bằng đúng thư mục vừa chọn.'; }
+    const appendFolderBtn=$('appendExternalFolderBtn');
+    if(appendFolderBtn){ appendFolderBtn.textContent='Chọn thêm thư mục'; appendFolderBtn.onclick=function(){ window.chooseExternalImport20260627('append','folder'); }; appendFolderBtn.title='Giữ dữ liệu đang có và cộng thêm thư mục mới.'; }
+  }
+
+  function worksheetRows(ws){
+    if(!ws || !ws['!ref'] || !window.XLSX) return [];
+    const range=XLSX.utils.decode_range(ws['!ref']);
+    const rows=[];
+    for(let R=range.s.r; R<=range.e.r; R++){
+      const row=[];
+      for(let C=range.s.c; C<=range.e.c; C++){
+        const cell=ws[XLSX.utils.encode_cell({r:R,c:C})];
+        if(!cell){ row.push(''); continue; }
+        let v=cell.v;
+        if(cell.t==='d' && v instanceof Date) row.push(v);
+        else if(typeof v==='number') row.push(v);
+        else row.push(cell.w!==undefined ? cell.w : v);
+      }
+      rows.push(row);
+    }
+    (ws['!merges']||[]).forEach(m=>{
+      const top=ws[XLSX.utils.encode_cell({r:m.s.r,c:m.s.c})];
+      const val=top ? (top.t==='d' && top.v instanceof Date ? top.v : (top.v!==undefined ? top.v : top.w)) : '';
+      if(empty(val)) return;
+      for(let R=m.s.r; R<=m.e.r; R++){
+        for(let C=m.s.c; C<=m.e.c; C++){
+          const rr=R-range.s.r, cc=C-range.s.c;
+          if(rows[rr] && empty(rows[rr][cc])) rows[rr][cc]=val;
+        }
+      }
+    });
+    return rows;
+  }
+  function widthOf(rows){ return Math.max(0,...rows.map(r=>Array.isArray(r)?r.length:0)); }
+
+  function findInventoryHeader(rows){
+    for(let r=0; r<Math.min(rows.length,30); r++){
+      const row=rows[r]||[];
+      for(let c=0; c<Math.min(row.length,8); c++){
+        const a=norm(row[c]), b=norm(row[c+1]), d=norm(row[c+2]);
+        if((a==='stt'||a==='sott'||a==='tt') && (b.includes('tenhang')||b.includes('tenvatttu')||b.includes('tenvathtu')||b.includes('tenmathang')) && (d==='dvt'||d.includes('donvitinh'))){
+          return {row:r, stt:c, ten:c+1, dvt:c+2};
+        }
+      }
+    }
+    return null;
+  }
+  function sectionDateAt(rows,c,h){
+    const checks=[rows[0]?.[c],rows[1]?.[c],rows[Math.max(0,h-2)]?.[c],rows[Math.max(0,h-1)]?.[c]];
+    for(const v of checks){ const d=parseDate(v); if(d) return d; }
+    return null;
+  }
+  function findMonthSections(rows,header){
+    const h=header.row, row=rows[h]||[], w=widthOf(rows), out=[];
+    for(let c=header.dvt+1; c<w; c++){
+      if(dayHeader(row[c])===1 && dayHeader(row[c+1])===2 && dayHeader(row[c+2])===3){
+        let dayCount=0;
+        while(dayCount<31 && dayHeader(row[c+dayCount])===dayCount+1) dayCount++;
+        if(dayCount>=3){ out.push({start:c, dayCount, date:sectionDateAt(rows,c,h)}); c+=dayCount-1; }
+      }
+    }
+    out.forEach((s,i)=>{ s.tailStart=s.start+s.dayCount; s.tailEnd=out[i+1]?out[i+1].start:w; });
+    return out;
+  }
+  function fieldFromTail(label){
+    const k=norm(label), p=text(label).toLowerCase();
+    if(!k) return [];
+    if(k.includes('tondau')||k.includes('dauky')) return ['tondau'];
+    if(k.includes('ngaynhap')||k.includes('ngaymua')) return ['ngaynhap'];
+    if(k==='nhap'||k==='tongnhap'||(k.includes('slnhap'))||p.includes('sl')&&p.includes('nhập')) return ['slnhap'];
+    if(k.includes('dongianhap')||k.includes('gianhap')||p.includes('đơn giá')&&p.includes('nhập')) return ['dgnhap'];
+    if(k.includes('thanhtiennhap')||k.includes('tongtiennhap')||p.includes('thành tiền')&&p.includes('nhập')) return ['ttnhap'];
+    if(k.includes('tongxuat')||k.includes('slxuat')||p.includes('sl')&&p.includes('xuất')) return ['slxuat'];
+    if(k==='dongia'||k==='dongiaxuat'||k.includes('giaxuat')||p.includes('đơn giá')&&p.includes('xuất')) return k==='dongia'?['dgnhap','dgxuat']:['dgxuat'];
+    if(k.includes('tongtienthang')||k.includes('thanhtienxuat')||k.includes('tongtienxuat')||p.includes('thành tiền')&&p.includes('xuất')) return ['ttxuat'];
+    if(k.includes('tienton')||p.includes('tiền tồn')) return ['tienton'];
+    if(k.includes('toncuoi')||k.includes('cuoiky')) return ['toncuoi'];
+    return [];
+  }
+  function sectionTailMap(rows,header,section){
+    const h=header.row, map=[];
+    for(let c=section.tailStart; c<section.tailEnd; c++){
+      const label=rows[h-1]?.[c] || rows[h]?.[c] || rows[h-2]?.[c] || '';
+      const fields=fieldFromTail(label);
+      if(fields.length) map.push({col:c,fields});
+    }
+    return map;
+  }
+  function looksLikeTitleOrTotal(v){
+    const k=norm(v);
+    return ['tong','tongcong','cong','subtotal','total','stt','tenhang','tenvathtu','tenmathang'].includes(k);
+  }
+  function extractInventoryRowsFromSection(rows,header,section,sourceName){
+    const my=selectedMY();
+    const tailMap=sectionTailMap(rows,header,section);
+    const out=[];
+    for(let r=header.row+1; r<rows.length; r++){
+      const row=rows[r]||[];
+      const ten=text(row[header.ten]);
+      if(!ten || looksLikeTitleOrTotal(ten)) continue;
+      const dvt=text(row[header.dvt]);
+      if(!row.some(v=>!empty(v))) continue;
+      if(empty(row[header.stt]) && ['phong','phongban','nv','nhanvien'].includes(norm(dvt))) continue;
+      const obj={ten,dvt,_source:sourceName,_kind:'report'};
+      let useful=!!ten;
+      const maxDay=Math.min(my.days,section.dayCount);
+      for(let d=1; d<=maxDay; d++){
+        const v=row[section.start+d-1];
+        if(!empty(v)){ obj['day_'+d]=v; useful=true; }
+      }
+      tailMap.forEach(t=>{
+        const v=row[t.col];
+        if(empty(v)) return;
+        t.fields.forEach(f=>{ obj[f]=v; });
+        useful=true;
+      });
+      if(useful) out.push(obj);
+    }
+    return out;
+  }
+  function inferInventoryCategory20260629(value){
+    const k=norm(value);
+    if(k.includes('holy') || k.includes('hovy') || k.includes('holi')) return 'holy';
+    if(k.includes('vpp') || k.includes('vanphongpham')) return 'vpp';
+    return '';
+  }
+  function inventorySheetTitle20260629(rows,sheetName){
+    const parts=[sheetName || ''];
+    for(let r=0;r<Math.min(rows.length,6);r++){
+      for(let c=0;c<Math.min((rows[r]||[]).length,8);c++){
+        const v=text(rows[r]?.[c]);
+        if(v) parts.push(v);
+      }
+    }
+    return parts.join(' ');
+  }
+  function inventorySheetPriority20260629(sourceName,sheetName,rows,index){
+    const sourceCat=inferInventoryCategory20260629(sourceName);
+    const sheetText=inventorySheetTitle20260629(rows,sheetName);
+    const sheetCat=inferInventoryCategory20260629(sheetText);
+    const sheetKey=norm(sheetName);
+    let score=0;
+    /* FIX 2026-06-29:
+       File Hộ Lý có kèm sheet cũ "Báo cáo Xuất-Nhập-Tồn tháng 11." là VPP.
+       Trước đây app cộng điểm theo số dòng nên sheet VPP cũ thắng sheet Hộ Lý.
+       Nay ưu tiên đúng loại theo tên file + tiêu đề A1, sau đó mới xét số dòng. */
+    if(sourceCat && sheetCat===sourceCat) score+=900;
+    if(sourceCat && sheetCat && sheetCat!==sourceCat) score-=950;
+    if(sheetKey==='baocao') score+=420;
+    else if(sheetKey.includes('baocao')) score+=120;
+    if(sheetKey.includes('xuatnhapton') || sheetKey.includes('thang')) score-=260;
+    if(index===1) score+=35;
+    if(index===0) score+=10;
+    return score;
+  }
+  function extractInventoryRowsFromWorkbook(wb,sourceName){
+    const my=selectedMY();
+    const candidates=[];
+    (wb.SheetNames||[]).forEach((sheetName,idx)=>{
+      const rows=worksheetRows(wb.Sheets[sheetName]);
+      const h=findInventoryHeader(rows);
+      if(!h) return;
+      const sections=findMonthSections(rows,h);
+      sections.forEach(sec=>{
+        const match=sec.date && sameMY(sec.date,my);
+        const baseScore=(norm(sheetName).includes('baocao')?40:0) + (match?1000:0) + (sec.date?10:0) + Math.min(rows.length,500)/100;
+        const sheetScore=baseScore + inventorySheetPriority20260629(sourceName,sheetName,rows,idx);
+        candidates.push({sheetName,rows,header:h,section:sec,match,score:sheetScore,date:sec.date,index:idx});
+      });
+    });
+    if(!candidates.length) return {rows:[],matched:false,source:''};
+    let chosen=candidates.filter(x=>x.match).sort((a,b)=>b.score-a.score)[0];
+    let matched=!!chosen;
+    if(!chosen) chosen=candidates.sort((a,b)=>b.score-a.score)[0];
+    const data=extractInventoryRowsFromSection(chosen.rows,chosen.header,chosen.section,sourceName+' / '+chosen.sheetName);
+    return {rows:data,matched,source:chosen.sheetName,date:chosen.date};
+  }
+
+  function classifyTxHeaderCell(v){
+    const k=norm(v), p=text(v).toLowerCase();
+    if(k.includes('ngaythang')||k==='ngay'||k==='date'||k.includes('ngayxuat')) return 'ngay';
+    if(k.includes('tenhang')||k.includes('tenvathtu')||k.includes('tenmathang')||k==='hanghoa'||k==='mathang') return 'ten';
+    if(k==='dvt'||k.includes('donvitinh')) return 'dvt';
+    if(k.includes('soluong')||k==='sl'||k==='qty'||k==='quantity') return 'sl';
+    if(k.includes('dongia')||k==='dg'||k==='gia'||k==='price') return 'dg';
+    if(k.includes('khoaphong')||k.includes('phongban')||p.includes('khoa')) return 'khoaphong';
+    if(k.includes('nhanvien')||k.includes('nguoinhan')||k.includes('nguoilay')) return 'nhanvien';
+    if(k.includes('loai')||k.includes('nhapxuat')) return 'loai';
+    return '';
+  }
+  function findTxHeader(rows){
+    let best=null;
+    for(let r=0; r<Math.min(rows.length,40); r++){
+      const row=rows[r]||[], map={};
+      row.forEach((v,c)=>{ const f=classifyTxHeaderCell(v); if(f && map[f]===undefined) map[f]=c; });
+      let score=0; ['ngay','ten','sl'].forEach(f=>{ if(map[f]!==undefined) score+=20; }); ['dvt','dg','khoaphong','nhanvien','loai'].forEach(f=>{ if(map[f]!==undefined) score+=6; });
+      if(score>=48 && (!best || score>best.score)) best={row:r,map,score};
+    }
+    return best;
+  }
+  function extractTransactionsFromWorkbook(wb,sourceName){
+    const my=selectedMY(), all=[];
+    (wb.SheetNames||[]).forEach(sheetName=>{
+      const rows=worksheetRows(wb.Sheets[sheetName]);
+      const h=findTxHeader(rows); if(!h) return;
+      const map=h.map;
+      for(let r=h.row+1; r<rows.length; r++){
+        const row=rows[r]||[];
+        const ten=text(row[map.ten]); if(!ten || looksLikeTitleOrTotal(ten)) continue;
+        const d=parseDate(row[map.ngay],my);
+        if(!sameMY(d,my)) continue;
+        const sl=parseN(row[map.sl]); if(!sl) continue;
+        all.push({
+          ten,
+          dvt: map.dvt!==undefined ? text(row[map.dvt]) : '',
+          ngay: ymd(d.getFullYear(),d.getMonth()+1,d.getDate()),
+          loai: map.loai!==undefined ? text(row[map.loai]) : (norm(sheetName).includes('nhap')?'Nhập':'Xuất'),
+          sl,
+          dg: map.dg!==undefined ? parseN(row[map.dg]) : 0,
+          nhanvien: map.nhanvien!==undefined ? text(row[map.nhanvien]) : '',
+          khoaphong: map.khoaphong!==undefined ? text(row[map.khoaphong]) : '',
+          _source: sourceName+' / '+sheetName,
+          _kind:'tx'
+        });
+      }
+    });
+    return all;
+  }
+  function txToReportRows(txRows){
+    const my=selectedMY(), by={};
+    txRows.forEach(t=>{
+      const k=norm(t.ten); if(!k) return;
+      const d=parseDate(t.ngay,my); if(!sameMY(d,my)) return;
+      const obj=by[k] || (by[k]={ten:t.ten,dvt:t.dvt||'',_kind:'tx-agg'});
+      if(!obj.dvt && t.dvt) obj.dvt=t.dvt;
+      const loai=norm(t.loai);
+      if(loai.includes('tondau')) obj.tondau=(parseN(obj.tondau)+parseN(t.sl));
+      else if(loai.includes('nhap')){ obj.slnhap=(parseN(obj.slnhap)+parseN(t.sl)); if(t.dg) obj.dgnhap=t.dg; obj.ngaynhap=(obj.ngaynhap?obj.ngaynhap+'\n':'')+`${p2(d.getDate())}/${p2(d.getMonth()+1)}`; }
+      else { const field='day_'+d.getDate(); obj[field]=(parseN(obj[field])+parseN(t.sl)); obj.slxuat=(parseN(obj.slxuat)+parseN(t.sl)); if(t.dg) obj.dgxuat=t.dg; }
+    });
+    return Object.values(by);
+  }
+
+  async function readFileSmart(file){
+    const name=file.webkitRelativePath || file.name || 'file';
+    const ext=(file.name.split('.').pop()||'').toLowerCase();
+    const excel=['xlsx','xls','xlsm','xlsb','ods','fods'].includes(ext);
+    if(excel){
+      if(!window.XLSX) throw new Error('Thiếu thư viện XLSX để đọc Excel. Hãy mở app khi có mạng hoặc lưu file thành CSV.');
+      const wb=XLSX.read(await file.arrayBuffer(),{type:'array',cellDates:true,cellNF:false,cellText:true});
+      const inv=extractInventoryRowsFromWorkbook(wb,name);
+      const tx=extractTransactionsFromWorkbook(wb,name);
+      return {name,reportRows:inv.rows,txRows:tx,matchedReport:inv.matched,source:inv.source};
+    }
+    // Các định dạng còn lại để đường nhập cũ xử lý, tránh làm mất khả năng nhập file bất kỳ.
+    return {name,reportRows:[],txRows:[],matchedReport:false,source:'',passToOld:true};
+  }
+
+  function buildBlankTable(){
+    const my=selectedMY();
+    let h='<table><tr><th>STT</th><th>Tên hàng</th><th>ĐVT</th>';
+    for(let i=1;i<=my.days;i++) h+='<th>'+i+'</th>';
+    h+='<th>Tồn đầu</th><th>Ngày nhập</th><th>SL nhập</th><th>ĐG nhập</th><th>TT nhập</th><th>SL xuất</th><th>ĐG xuất</th><th>TT xuất</th><th>Tiền tồn</th><th>Tồn cuối</th><th class="noprint">Xóa</th></tr></table>';
+    h+=`<div class="print-only print-footer"><div class="print-signature">Ngày ${p2(new Date().getDate())} tháng ${p2(new Date().getMonth()+1)} năm ${new Date().getFullYear()}<br><b>Người lập bảng</b><br><br><br><br><i>(Ký, ghi rõ họ tên)</i></div><div class="clearfix"></div></div>`;
+    const report=$('report');
+    if(report){
+      report.innerHTML=h;
+      delete report.dataset.rawImport;
+      report.dataset.reportMonth=String(my.m);
+      report.dataset.reportYear=String(my.y);
+    }
+    try{ localStorage.removeItem('QuanLyKho_Report_Raw_Import_Mode'); localStorage.removeItem('QuanLyKho_Report_Raw_Import_HTML'); localStorage.removeItem('QuanLyKho_Report_Raw_Import_Files'); }catch(e){}
+    return document.querySelector('#report table');
+  }
+  function ensureTable(){ return document.querySelector('#report table') || buildBlankTable(); }
+  function tableLooksInventory(table){
+    if(!table || !table.rows.length) return false;
+    const heads=[...table.rows[0].cells].map(c=>norm(c.innerText||c.textContent));
+    return heads.includes('stt') && heads.includes('tenhang') && heads.includes('dvt') && heads.includes('toncuoi');
+  }
+  function makeRow(ten,dvt){
+    const my=selectedMY();
+    const tr=document.createElement('tr');
+    let h='<td class="stt-cell"></td><td contenteditable="true" class="report-editable-name">'+esc(ten)+'</td><td contenteditable="true" class="report-editable-dvt">'+esc(dvt||'')+'</td>';
+    for(let i=1;i<=my.days;i++) h+='<td contenteditable="true" class="calc-day fmt-num"></td>';
+    h+='<td contenteditable="true" class="calc-td fmt-num"></td><td contenteditable="true" class="report-ngay-nhap-multi"></td><td contenteditable="true" class="calc-sln fmt-num"></td><td contenteditable="true" class="calc-dgn fmt-num"></td><td contenteditable="true" class="calc-ttn fmt-num"></td><td contenteditable="true" class="calc-slx fmt-num"></td><td contenteditable="true" class="calc-dgx fmt-num"></td><td contenteditable="true" class="calc-ttx fmt-num"></td><td contenteditable="true" class="calc-tienton fmt-num"></td><td contenteditable="true" class="calc-tc fmt-num"></td><td class="noprint"><button onclick="deleteReportRow(this)">🗑</button></td>';
+    tr.innerHTML=h;
+    return tr;
+  }
+  function cellText(cell){ return String(cell?.innerText || cell?.textContent || '').trim(); }
+  function setNum(cell,v){ if(cell && !empty(v)) cell.innerText=fmtN(v); }
+  function addNum(cell,v){ if(!cell || empty(v)) return; cell.innerText=fmtN(parseN(cellText(cell))+parseN(v)); }
+  function setText(cell,v){ if(cell && !empty(v)) cell.innerText=text(v); }
+  function appendDate(cell,v){
+    if(!cell || empty(v)) return;
+    const my=selectedMY();
+    const old=cellText(cell).split(/[\n,;|]+/).map(x=>x.trim()).filter(Boolean);
+    const add=[];
+    if(v instanceof Date || typeof v==='number'){
+      const d=parseDate(v,my); if(d) add.push(`${p2(d.getDate())}/${p2(d.getMonth()+1)}`);
+    }else{
+      String(v).split(/[\n,;|]+/).map(x=>x.trim()).filter(Boolean).forEach(part=>{
+        const d=parseDate(part,my);
+        add.push(d?`${p2(d.getDate())}/${p2(d.getMonth()+1)}`:part);
+      });
+    }
+    const merged=[]; old.concat(add).forEach(x=>{ if(x && !merged.includes(x)) merged.push(x); });
+    cell.classList.add('report-ngay-nhap-multi');
+    cell.style.whiteSpace='pre-line';
+    cell.innerHTML=merged.map(x=>'<div>'+esc(x)+'</div>').join('');
+  }
+  function getOrCreateRow(ten,dvt){
+    let table=ensureTable();
+    if(!tableLooksInventory(table)) table=buildBlankTable();
+    const k=norm(ten);
+    for(let r=1;r<table.rows.length;r++){
+      const row=table.rows[r];
+      if(norm(cellText(row.cells[1]))===k){ if(dvt && row.cells[2] && !cellText(row.cells[2])) row.cells[2].innerText=dvt; return row; }
+    }
+    const tr=makeRow(ten,dvt); (table.tBodies[0]||table).appendChild(tr); return tr;
+  }
+  function applyDataRow(data){
+    const my=selectedMY();
+    const ten=text(data.ten); if(!ten) return 0;
+    const tr=getOrCreateRow(ten,text(data.dvt));
+    if(data.dvt && tr.cells[2] && !cellText(tr.cells[2])) tr.cells[2].innerText=text(data.dvt);
+    for(let d=1; d<=my.days; d++) if(!empty(data['day_'+d])) addNum(tr.cells[2+d],data['day_'+d]);
+    const base=3+my.days;
+    if(!empty(data.tondau)) addNum(tr.cells[base],data.tondau);
+    if(!empty(data.ngaynhap)) appendDate(tr.cells[base+1],data.ngaynhap);
+    if(!empty(data.slnhap)) addNum(tr.cells[base+2],data.slnhap);
+    if(!empty(data.dgnhap)) setNum(tr.cells[base+3],data.dgnhap);
+    if(!empty(data.ttnhap)) addNum(tr.cells[base+4],data.ttnhap);
+    if(!empty(data.slxuat)) addNum(tr.cells[base+5],data.slxuat);
+    if(!empty(data.dgxuat)) setNum(tr.cells[base+6],data.dgxuat);
+    if(!empty(data.ttxuat)) addNum(tr.cells[base+7],data.ttxuat);
+    if(!empty(data.tienton)) addNum(tr.cells[base+8],data.tienton);
+    if(!empty(data.toncuoi)) addNum(tr.cells[base+9],data.toncuoi);
+    recalcRow(tr);
+    return 1;
+  }
+  function recalcRow(tr){
+    const my=selectedMY(), base=3+my.days;
+    let daily=0; for(let d=1; d<=my.days; d++) daily+=parseN(cellText(tr.cells[2+d]));
+    const td=parseN(cellText(tr.cells[base]));
+    const sln=parseN(cellText(tr.cells[base+2]));
+    const dgn=parseN(cellText(tr.cells[base+3]));
+    let slx=parseN(cellText(tr.cells[base+5]));
+    const dgx=parseN(cellText(tr.cells[base+6]));
+    if(daily>0 || !slx){ slx=daily; setNum(tr.cells[base+5],slx); }
+    if(!parseN(cellText(tr.cells[base+4]))) setNum(tr.cells[base+4],(td+sln)*dgn);
+    if(!parseN(cellText(tr.cells[base+7]))) setNum(tr.cells[base+7],slx*dgx);
+    if(!parseN(cellText(tr.cells[base+8]))) setNum(tr.cells[base+8],parseN(cellText(tr.cells[base+4]))-parseN(cellText(tr.cells[base+7])));
+    if(!parseN(cellText(tr.cells[base+9]))) setNum(tr.cells[base+9],td+sln-slx);
+  }
+  function finalizeTable(){
+    const table=document.querySelector('#report table'); if(!table) return;
+    for(let r=1;r<table.rows.length;r++) recalcRow(table.rows[r]);
+    try{ if(typeof refreshReportSTT==='function') refreshReportSTT(); }catch(e){
+      for(let r=1;r<table.rows.length;r++) if(table.rows[r].cells[0]) table.rows[r].cells[0].innerText=r;
+    }
+    try{ if(typeof normalizeReportSTT==='function') normalizeReportSTT(); }catch(e){}
+    try{ if(typeof enableReportNameDvtEditing20260622C==='function') enableReportNameDvtEditing20260622C(); }catch(e){}
+    try{ if(typeof applyReportColumnColorBands20260622G==='function') applyReportColumnColorBands20260622G(); }catch(e){}
+    try{ if(typeof applyReportFreezePane==='function') applyReportFreezePane(); }catch(e){}
+    try{ if(typeof applyReportTotalOverview20260627==='function') applyReportTotalOverview20260627(); }catch(e){}
+    try{ if(typeof updateCompactReportMonthYear==='function') updateCompactReportMonthYear(); }catch(e){}
+    try{ if(typeof snapshotReportToLocalStorage==='function') snapshotReportToLocalStorage(); }catch(e){}
+    try{ if(typeof scheduleCloudAutoSave==='function') scheduleCloudAutoSave('chon-file-bat-ky-do-du-lieu-app'); }catch(e){}
+  }
+  function clearSavedReportForReplace(){
+    const my=selectedMY();
+    try{
+      localStorage.removeItem('REPORT_SAVED_HTML');
+      localStorage.removeItem('QuanLyKho_Report_Raw_Import_Mode');
+      localStorage.removeItem('QuanLyKho_Report_Raw_Import_HTML');
+      localStorage.removeItem('QuanLyKho_Report_Raw_Import_Files');
+      localStorage.setItem('REPORT_LAST_FILTER',JSON.stringify({thang:String(my.m),nam:String(my.y)}));
+      for(let i=localStorage.length-1;i>=0;i--){
+        const k=localStorage.key(i);
+        if(k && (k.startsWith('REPORT_SAVED_HTML_MONTH_') || k.startsWith('QuanLyKho_Report_Raw_Import_'))) localStorage.removeItem(k);
+      }
+    }catch(e){}
+  }
+  function syncDbFromTable(mode,txRows){
+    try{
+      if(typeof db!=='function' || !window.localStorage) return;
+      const my=selectedMY(), table=document.querySelector('#report table');
+      let d=db(); d.items=Array.isArray(d.items)?d.items:[]; d.tx=Array.isArray(d.tx)?d.tx:[]; d.employees=Array.isArray(d.employees)?d.employees:[]; d.departments=Array.isArray(d.departments)?d.departments:[];
+      const inMonth=t=>{ const dd=parseDate(t.ngay,my); return sameMY(dd,my); };
+      if(mode==='replace') d.tx=d.tx.filter(t=>!inMonth(t));
+      function addItem(ten,dvt){
+        const k=norm(ten); if(!k) return;
+        const ex=d.items.find(x=>norm(typeof x==='string'?x:x.ten)===k);
+        if(!ex) d.items.push({ten,dvt:dvt||''}); else if(typeof ex!=='string' && !ex.dvt && dvt) ex.dvt=dvt;
+      }
+      function addEmployee(nv){ nv=text(nv); if(nv && !d.employees.some(x=>norm(x.ten||x)===norm(nv))) d.employees.push({ten:nv}); }
+      function addDept(kp){ kp=text(kp); if(kp && !d.departments.some(x=>norm(typeof x==='string'?x:(x.ten||x.khoaphong||''))===norm(kp))) d.departments.push(kp); }
+      if(table && tableLooksInventory(table)){
+        const base=3+my.days;
+        for(let r=1;r<table.rows.length;r++){
+          const row=table.rows[r], ten=cellText(row.cells[1]), dvt=cellText(row.cells[2]); if(!ten) continue;
+          addItem(ten,dvt);
+          const td=parseN(cellText(row.cells[base])); if(td) d.tx.push({ngay:ymd(my.y,my.m,1),ten,dvt,loai:'Tồn đầu',sl:td,dg:0,importedExternal20260627C:true});
+          const sln=parseN(cellText(row.cells[base+2])), dgn=parseN(cellText(row.cells[base+3]));
+          if(sln){
+            const nd=parseDate(cellText(row.cells[base+1]),my) || new Date(my.y,my.m-1,1);
+            d.tx.push({ngay:ymd(nd.getFullYear(),nd.getMonth()+1,nd.getDate()),ten,dvt,loai:'Nhập',sl:sln,dg:dgn,ngayNhapText:cellText(row.cells[base+1]),importedExternal20260627C:true});
+          }
+          const dgx=parseN(cellText(row.cells[base+6]));
+          for(let day=1; day<=my.days; day++){
+            const sl=parseN(cellText(row.cells[2+day]));
+            if(sl) d.tx.push({ngay:ymd(my.y,my.m,day),ten,dvt,loai:'Xuất',sl,dg:dgx,importedExternal20260627C:true});
+          }
+        }
+      }
+      (txRows||[]).forEach(t=>{ addItem(t.ten,t.dvt); addEmployee(t.nhanvien); addDept(t.khoaphong); });
+      localStorage.setItem(DBKEY,JSON.stringify(typeof normalizeDbObj==='function'?normalizeDbObj(d):d));
+      try{ refreshItems(); }catch(e){}
+    }catch(e){ console.warn('syncDbFromTable 20260627C',e); }
+  }
+
+  async function importSelectedFiles20260627C(event){
+    const input=event && event.target ? event.target : null;
+    const files=Array.from(input?.files || []).filter(f=>!(f.name||'').startsWith('~$'));
+    if(!files.length) return;
+    const mode=setMode(input?.dataset?.importMode20260627C || nextMode20260627C || 'replace');
+    if(input?.dataset) delete input.dataset.importMode20260627C;
+    const run=++importRun20260627C;
+    const names=files.map(f=>f.webkitRelativePath || f.name).join(' | ');
+    const other=input && input.id==='externalReportFile' ? $('externalReportFolder') : $('externalReportFile');
+    if(other) other.value='';
+    // Không xóa input ngay tại đây để đường nhập cũ vẫn đọc được FileList nếu cần fallback.
+    const structure=$('externalImportStructureMode');
+    const wantRaw=structure && structure.value==='raw';
+    if(wantRaw && typeof previousImport20260627C==='function'){
+      return previousImport20260627C.apply(this,arguments);
+    }
+
+    disableControls(true);
+    status('Đang đọc đúng file vừa chọn để đổ vào app...','warn');
+    const allReport=[], allTx=[], errors=[], passOld=[];
+    try{
+      for(let i=0;i<files.length;i++){
+        if(run!==importRun20260627C) return;
+        const f=files[i], display=f.webkitRelativePath || f.name;
+        status(`Đang đọc ${i+1}/${files.length}: ${display}`,'warn');
+        try{
+          const rs=await readFileSmart(f);
+          if(rs.passToOld){ passOld.push(f); continue; }
+          allReport.push(...(rs.reportRows||[]));
+          allTx.push(...(rs.txRows||[]));
+        }catch(err){ console.error(err); errors.push(display+': '+err.message); }
+        if(i%2===1) await new Promise(resolve=>setTimeout(resolve,0));
+      }
+      if(run!==importRun20260627C) return;
+      let dataRows=allReport.slice();
+      if(!dataRows.length && allTx.length) dataRows=txToReportRows(allTx);
+      if(!dataRows.length){
+        if(typeof previousImport20260627C==='function'){
+          status('Không thấy mẫu báo cáo kho, chuyển sang đường nhập file bất kỳ cũ...','warn');
+          if(structure) structure.value='raw';
+          return previousImport20260627C.apply(this,arguments);
+        }
+        throw new Error('Không tìm thấy dữ liệu kho phù hợp trong file vừa chọn.');
+      }
+      if(mode==='replace'){
+        clearSavedReportForReplace();
+        buildBlankTable();
+      }else{
+        if(!tableLooksInventory(document.querySelector('#report table'))) buildBlankTable();
+      }
+      let count=0;
+      for(let i=0;i<dataRows.length;i++){
+        count+=applyDataRow(dataRows[i]);
+        if(i%300===299){ status(`Đang đổ dữ liệu vào app: ${i+1}/${dataRows.length} dòng`,'warn'); await new Promise(resolve=>setTimeout(resolve,0)); }
+      }
+      finalizeTable();
+      syncDbFromTable(mode,allTx);
+      try{ localStorage.setItem('QuanLyKho_External_Last_Selected_File_Names',names); }catch(e){}
+      const report=$('report'); if(report) setTimeout(()=>report.scrollIntoView({behavior:'smooth',block:'start'}),120);
+      if(errors.length){
+        status(`Đã đổ ${count} dòng, có ${errors.length} file lỗi`,'err');
+        alert('Đã đổ dữ liệu vào app từ file vừa chọn.\n\nFile: '+names+'\nDòng đã đổ: '+count+'\n\nMột số lỗi:\n'+errors.join('\n'));
+      }else{
+        status(`Đã đổ ${count} dòng vào app - đúng file vừa chọn`, '');
+        alert('Đã đổ xong dữ liệu vào app.\n\nFile đã chọn:\n'+names+'\n\nDòng đã đổ: '+count+'\nChế độ: '+(mode==='append'?'Chọn thêm mới - cộng thêm dữ liệu':'Chọn dữ liệu bất kỳ - thay sạch dữ liệu file cũ'));
+      }
+    }catch(err){
+      console.error(err);
+      status('Lỗi nhập file ngoài','err');
+      alert('Không nhập được file ngoài: '+err.message);
+    }finally{
+      if(run===importRun20260627C){
+        disableControls(false);
+        setMode('replace');
+        try{ if(input) input.value=''; }catch(e){}
+        refreshImportButtons();
+      }
+    }
+  }
+
+  window.importExternalReportFiles=importSelectedFiles20260627C;
+  try{ importExternalReportFiles=window.importExternalReportFiles; }catch(e){}
+  const oldClear20260627C=window.clearExternalImportFile;
+  window.clearExternalImportFile=function(){
+    ++importRun20260627C;
+    ['externalReportFile','externalReportFolder'].forEach(id=>{ const el=$(id); if(el) el.value=''; });
+    clearSavedReportForReplace();
+    setMode('replace');
+    status('Đã xóa file đã chọn. Lần sau app chỉ dùng file mới bạn chọn.','warn');
+    if(typeof oldClear20260627C==='function'){
+      try{ oldClear20260627C.apply(this,arguments); }catch(e){}
+    }
+  };
+
+  function init(){ refreshImportButtons(); setMode('replace'); setTimeout(refreshImportButtons,200); setTimeout(refreshImportButtons,900); }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',init); else init();
+})();
+
+/* PATCH 2026-06-29: Tồn đầu tháng sau = Tồn cuối tháng trước, vẫn cho phép nhập/sửa Tồn đầu thủ công.
+   Chạy cuối cùng để không bị các công thức cũ ghi đè ô Tồn đầu khi người dùng sửa trực tiếp. */
+(function(){
+  const TAG='PATCH_20260629_TONDAU_TU_THANG_TRUOC_VA_SUA_TAY';
+  if(window[TAG]) return;
+  window[TAG]=true;
+
+  const MANUAL_PREFIX='REPORT_MANUAL_TONDAU_20260629_';
+  const SNAP_PREFIX='REPORT_MONTH_SNAPSHOT_20260629_';
+  const VISIBLE_KEY='REPORT_VISIBLE_MONTH_20260629';
+  let applying=false;
+  let lastManualEdit=null;
+
+  function $(id){ return document.getElementById(id); }
+  function p2(n){ return String(n).padStart(2,'0'); }
+  function norm(s){
+    return String(s||'').replace(/\u00a0/g,' ')
+      .normalize('NFD').replace(/[\u0300-\u036f]/g,'')
+      .replace(/[đĐ]/g,'d').toLowerCase().replace(/[^a-z0-9]+/g,'');
+  }
+  function text(el){
+    if(!el) return '';
+    const input=el.querySelector ? (el.querySelector('input') || el.querySelector('.report-date-text')) : null;
+    if(input) return String(input.value || input.getAttribute('value') || '').trim();
+    return String((el.dataset && el.dataset.reportDate) || el.innerText || el.textContent || '').trim();
+  }
+  function parseN(v){
+    if(typeof parseNum==='function') return parseNum(v);
+    const raw=String(v??'').replace(/\u00a0/g,' ').trim();
+    if(!raw) return 0;
+    return parseFloat(raw.replace(/\./g,'').replace(/,/g,'').replace(/\s/g,'')) || 0;
+  }
+  function fmtN(n){
+    n=Number(n)||0;
+    if(typeof fmt==='function') return fmt(n);
+    return n ? n.toLocaleString('vi-VN') : '';
+  }
+  function selectedMY(){
+    const now=new Date();
+    return {m:+($('thang')?.value || now.getMonth()+1), y:+($('nam')?.value || now.getFullYear())};
+  }
+  function visibleMY(){
+    const report=$('report');
+    if(report?.dataset?.reportMonth && report?.dataset?.reportYear) return {m:+report.dataset.reportMonth,y:+report.dataset.reportYear};
+    const keys=[VISIBLE_KEY,'REPORT_VISIBLE_MONTH_20260623N','REPORT_VISIBLE_MONTH_20260623M','REPORT_LAST_FILTER'];
+    for(const k of keys){
+      try{
+        const v=JSON.parse(localStorage.getItem(k)||'{}');
+        const m=v.m || v.thang, y=v.y || v.nam;
+        if(m && y) return {m:+m,y:+y};
+      }catch(e){}
+    }
+    return selectedMY();
+  }
+  function markMY(m,y){
+    const report=$('report');
+    if(report){ report.dataset.reportMonth=String(m); report.dataset.reportYear=String(y); }
+    try{ localStorage.setItem(VISIBLE_KEY,JSON.stringify({m:m,y:y})); }catch(e){}
+  }
+  function days(m,y){ return new Date(y,m,0).getDate(); }
+  function prevMY(m,y){ return m===1 ? {m:12,y:y-1} : {m:m-1,y:y}; }
+  function ymd(y,m,d){ return y+'-'+p2(m)+'-'+p2(d); }
+  function monthCode(m,y){ return y*12+(m-1); }
+  function manualKey(m,y){ return MANUAL_PREFIX+y+'_'+p2(m); }
+  function snapKey(m,y){ return SNAP_PREFIX+y+'_'+p2(m); }
+  function keyItem(s){ return norm(s); }
+  function getManualMap(m,y){
+    try{ return JSON.parse(localStorage.getItem(manualKey(m,y))||'{}') || {}; }catch(e){ return {}; }
+  }
+  function setManualValue(ten,m,y,value,remove){
+    const k=keyItem(ten); if(!k) return;
+    const map=getManualMap(m,y);
+    if(remove) delete map[k];
+    else map[k]={ten:String(ten||''),value:Number(value)||0,updatedAt:new Date().toISOString()};
+    try{ localStorage.setItem(manualKey(m,y),JSON.stringify(map)); }catch(e){}
+    syncManualToDb(ten,m,y,remove?null:(Number(value)||0));
+  }
+  function getManualValue(ten,m,y){
+    const obj=getManualMap(m,y)[keyItem(ten)];
+    return obj && typeof obj.value!=='undefined' ? {found:true,value:Number(obj.value)||0} : {found:false,value:0};
+  }
+  function isRaw(){
+    const report=$('report'), table=report?.querySelector('table');
+    return !!(report?.dataset?.rawImport==='1' || table?.dataset?.rawImport==='1' || localStorage.getItem('QuanLyKho_Report_Raw_Import_Mode')==='1');
+  }
+  function tableOK(table){
+    if(!table || !table.rows || !table.rows.length) return false;
+    if(table.classList.contains('layhang-report') || table.classList.contains('employee-layhang-report')) return false;
+    const heads=[...table.rows[0].cells].map(c=>norm(text(c)));
+    return heads.includes('stt') && heads.includes('tenhang') && heads.includes('dvt') && heads.some(h=>h.includes('toncuoi'));
+  }
+  function fixedIdx(field,m,y){
+    const d=days(m,y);
+    const map={ten:1,dvt:2,tondau:d+3,ngaynhap:d+4,slnhap:d+5,dgnhap:d+6,ttnhap:d+7,slxuat:d+8,dgxuat:d+9,ttxuat:d+10,tienton:d+11,toncuoi:d+12};
+    return map[field];
+  }
+  function idx(table,field,m,y){
+    const wants={
+      ten:['tenhang','tenhanghoa','tenmathang','tenvatttu','tenvattu','hanghoa','mathang','item','product','name'],
+      dvt:['dvt','donvitinh','unit'],
+      tondau:['tondau','tondauky','tondauthang','dauky','tontruoc','openingstock','openingbalance'],
+      slnhap:['slnhap','soluongnhap','nhap'],
+      dgnhap:['dgnhap','dongianhap','gianhap'],
+      ttnhap:['ttnhap','thanhtiennhap','tiennhap'],
+      slxuat:['slxuat','soluongxuat','xuat'],
+      dgxuat:['dgxuat','dongiaxuat','giaxuat'],
+      ttxuat:['ttxuat','thanhtienxuat','tienxuat'],
+      tienton:['tienton','thanhtienton','giatriton','tontien'],
+      toncuoi:['toncuoi','toncuoiky','toncuoithang','tonconlai','cuoiky','closingstock','closingbalance']
+    }[field] || [];
+    const header=table?.rows?.[0];
+    if(header){
+      for(let i=0;i<header.cells.length;i++){
+        const h=norm(text(header.cells[i]));
+        if(wants.some(w=>h===w || h.includes(w))) return i;
+      }
+    }
+    return fixedIdx(field,m,y);
+  }
+  function setNum(cell,val){
+    if(!cell) return;
+    cell.innerText=fmtN(val);
+    cell.classList.add('fmt-num');
+  }
+  function monthOfTx(t,m,y){
+    const raw=String(t?.ngay || t?.date || '').trim();
+    const mm=raw.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
+    if(mm) return +mm[1]===y && +mm[2]===m;
+    const d=new Date(raw);
+    return !isNaN(d) && d.getFullYear()===y && d.getMonth()+1===m;
+  }
+  function syncManualToDb(ten,m,y,val){
+    try{
+      if(typeof db!=='function' || !window.localStorage) return;
+      const d=db();
+      d.items=Array.isArray(d.items)?d.items:[];
+      d.tx=Array.isArray(d.tx)?d.tx:[];
+      const k=keyItem(ten);
+      const item=d.items.find(x=>keyItem(typeof x==='string'?x:x.ten)===k);
+      const dvt=typeof item==='string' ? '' : (item?.dvt || '');
+      d.tx=d.tx.filter(t=>!(t && t.loai==='Tồn đầu' && keyItem(t.ten)===k && monthOfTx(t,m,y)));
+      if(val!==null && val!==undefined){
+        d.tx.push({ngay:ymd(y,m,1),ten:String(ten||''),dvt:dvt,loai:'Tồn đầu',sl:Number(val)||0,dg:0,autoCarryForward:false,manualEditedTonDau20260629:true});
+      }
+      const exists=d.items.some(x=>keyItem(typeof x==='string'?x:x.ten)===k);
+      if(!exists && ten) d.items.push({ten:String(ten),dvt:dvt});
+      localStorage.setItem(DBKEY,JSON.stringify(typeof normalizeDbObj==='function'?normalizeDbObj(d):d));
+      try{ if(typeof refreshItems==='function') refreshItems(); }catch(e){}
+      try{ if(typeof scheduleCloudAutoSave==='function') scheduleCloudAutoSave('sua-ton-dau-thu-cong'); }catch(e){}
+    }catch(e){ console.warn('syncManualToDb ton dau',e); }
+  }
+  function closingInTable(table,ten,m,y){
+    if(!tableOK(table) || !ten) return {found:false,value:0};
+    const tenIdx=idx(table,'ten',m,y), tcIdx=idx(table,'toncuoi',m,y), wanted=keyItem(ten);
+    for(let r=1;r<table.rows.length;r++){
+      const row=table.rows[r], rowTen=text(row.cells[tenIdx]);
+      if(rowTen && keyItem(rowTen)===wanted) return {found:true,value:parseN(text(row.cells[tcIdx]))};
+    }
+    return {found:false,value:0};
+  }
+  function snapshotKeys(m,y){
+    return [
+      snapKey(m,y),
+      'REPORT_MONTH_SNAPSHOT_20260623N_'+y+'_'+p2(m),
+      'REPORT_MONTH_SNAPSHOT_20260623M_'+y+'_'+p2(m),
+      'REPORT_MONTH_SNAPSHOT_20260623H_'+y+'_'+p2(m),
+      'REPORT_SAVED_HTML_MONTH_'+y+'_'+p2(m)
+    ];
+  }
+  function closingFromSnapshot(ten,m,y){
+    const live=$('report'), liveMY=visibleMY();
+    if(live?.querySelector('table') && liveMY.m===m && liveMY.y===y){
+      const rs=closingInTable(live.querySelector('table'),ten,m,y);
+      if(rs.found) return {found:true,value:rs.value,source:'bao-cao-thang-truoc-dang-mo'};
+    }
+    for(const k of snapshotKeys(m,y)){
+      const html=localStorage.getItem(k);
+      if(!html) continue;
+      try{
+        const doc=new DOMParser().parseFromString(html,'text/html');
+        const rs=closingInTable(doc.querySelector('table'),ten,m,y);
+        if(rs.found) return {found:true,value:rs.value,source:'bao-cao-thang-truoc-da-luu'};
+      }catch(e){}
+    }
+    return {found:false,value:0,source:''};
+  }
+  function allTx(){ try{ const d=typeof db==='function'?db():{tx:[]}; return Array.isArray(d.tx)?d.tx:[]; }catch(e){ return []; } }
+  function closingFromDb(ten,m,y){
+    const wanted=keyItem(ten), arr=allTx().filter(t=>keyItem(t.ten)===wanted), target=monthCode(m,y);
+    if(!arr.length) return {found:false,value:0,source:''};
+    let min=null;
+    arr.forEach(t=>{
+      const raw=String(t.ngay||'');
+      const mm=raw.match(/^(\d{4})-(\d{1,2})/);
+      let yy=0, mo=0;
+      if(mm){ yy=+mm[1]; mo=+mm[2]; }
+      else { const d=new Date(raw); if(!isNaN(d)){ yy=d.getFullYear(); mo=d.getMonth()+1; } }
+      if(yy && mo){ const code=monthCode(mo,yy); if(min===null || code<min) min=code; }
+    });
+    if(min===null || min>target) return {found:false,value:0,source:''};
+    let stock=0, seen=false;
+    for(let code=min; code<=target; code++){
+      const yy=Math.floor(code/12), mo=(code%12)+1;
+      const manual=getManualMap(mo,yy);
+      const byItem=manual[wanted];
+      const txMonth=arr.filter(t=>monthOfTx(t,mo,yy));
+      const manualTx=txMonth.filter(t=>t.loai==='Tồn đầu' && !t.autoCarryForward).reduce((a,t)=>a+(+t.sl||0),0);
+      if(byItem){ stock=Number(byItem.value)||0; seen=true; }
+      else if(txMonth.some(t=>t.loai==='Tồn đầu' && !t.autoCarryForward)){ stock=manualTx; seen=true; }
+      const nh=txMonth.filter(t=>t.loai==='Nhập').reduce((a,t)=>a+(+t.sl||0),0);
+      const xu=txMonth.filter(t=>t.loai==='Xuất').reduce((a,t)=>a+(+t.sl||0),0);
+      if(nh || xu){ stock += nh-xu; seen=true; }
+    }
+    return {found:seen,value:stock,source:'tu-tinh-tu-phieu'};
+  }
+  function opening(ten,m,y){
+    const manual=getManualValue(ten,m,y);
+    if(manual.found) return {found:true,value:manual.value,source:'ton-dau-sua-tay'};
+    const prev=prevMY(m,y);
+    const snap=closingFromSnapshot(ten,prev.m,prev.y);
+    if(snap.found) return snap;
+    const calc=closingFromDb(ten,prev.m,prev.y);
+    if(calc.found) return calc;
+    return {found:false,value:0,source:'mac-dinh-0'};
+  }
+  function sumDaily(row,d){ let s=0; for(let i=1;i<=d;i++) s+=parseN(text(row.cells[2+i])); return s; }
+  function recalcRow(row,my,opts){
+    opts=opts||{};
+    if(!row || row.rowIndex<1) return;
+    const table=row.closest('table');
+    if(!tableOK(table)) return;
+    const d=days(my.m,my.y);
+    const I={td:idx(table,'tondau',my.m,my.y),sln:idx(table,'slnhap',my.m,my.y),dgn:idx(table,'dgnhap',my.m,my.y),ttn:idx(table,'ttnhap',my.m,my.y),slx:idx(table,'slxuat',my.m,my.y),dgx:idx(table,'dgxuat',my.m,my.y),ttx:idx(table,'ttxuat',my.m,my.y),tienton:idx(table,'tienton',my.m,my.y),tc:idx(table,'toncuoi',my.m,my.y)};
+    if(!row.cells || !row.cells[I.tc]) return;
+    const ten=text(row.cells[1]); if(!ten) return;
+    let td;
+    const manual=getManualValue(ten,my.m,my.y);
+    if(manual.found){ td=manual.value; }
+    else if(opts.keepCurrentTonDau){ td=parseN(text(row.cells[I.td])); }
+    else { td=opening(ten,my.m,my.y).value; }
+    setNum(row.cells[I.td],td);
+    if(row.cells[I.td]){
+      row.cells[I.td].setAttribute('contenteditable','true');
+      row.cells[I.td].classList.add('calc-td','fmt-num');
+      row.cells[I.td].dataset.allowManualTonDau='1';
+      row.cells[I.td].dataset.tonDauManual=manual.found?'1':'0';
+      row.cells[I.td].title=manual.found
+        ? 'Tồn đầu đã sửa tay. Xóa trắng ô rồi bấm ra ngoài để quay lại tự lấy từ tháng trước.'
+        : 'Tồn đầu tự lấy từ Tồn cuối tháng trước. Có thể sửa trực tiếp ô này nếu cần.';
+    }
+    const sln=parseN(text(row.cells[I.sln]));
+    const dgn=parseN(text(row.cells[I.dgn]));
+    const slx=sumDaily(row,d);
+    const dgx=parseN(text(row.cells[I.dgx]));
+    const ttn=(td+sln)*dgn;
+    const ttx=slx*dgx;
+    setNum(row.cells[I.ttn],ttn);
+    setNum(row.cells[I.slx],slx);
+    setNum(row.cells[I.ttx],ttx);
+    setNum(row.cells[I.tienton],ttn-ttx);
+    setNum(row.cells[I.tc],td+sln-slx);
+  }
+  function saveSnapshot(my){
+    if(isRaw()) return;
+    const report=$('report'), table=report?.querySelector('table');
+    if(!report || !tableOK(table)) return;
+    try{
+      localStorage.setItem(snapKey(my.m,my.y),report.innerHTML);
+      localStorage.setItem('REPORT_MONTH_SNAPSHOT_20260623N_'+my.y+'_'+p2(my.m),report.innerHTML);
+      localStorage.setItem('REPORT_MONTH_SNAPSHOT_20260623M_'+my.y+'_'+p2(my.m),report.innerHTML);
+      localStorage.setItem('REPORT_SAVED_HTML_MONTH_'+my.y+'_'+p2(my.m),report.innerHTML);
+      localStorage.setItem(VISIBLE_KEY,JSON.stringify({m:my.m,y:my.y}));
+    }catch(e){}
+  }
+  function applyAll(my,opts){
+    if(applying || isRaw()) return;
+    const table=document.querySelector('#report table');
+    if(!tableOK(table)) return;
+    my=my || visibleMY();
+    applying=true;
+    markMY(my.m,my.y);
+    for(let r=1;r<table.rows.length;r++) recalcRow(table.rows[r],my,opts||{});
+    try{ if(typeof refreshReportSTT==='function') refreshReportSTT(); }catch(e){}
+    try{ if(typeof applyReportTotalOverview20260627==='function') applyReportTotalOverview20260627(); }catch(e){}
+    saveSnapshot(my);
+    try{ if(typeof snapshotReportToLocalStorage==='function') snapshotReportToLocalStorage(); }catch(e){}
+    applying=false;
+  }
+  function handleManualInput(e){
+    if(applying || isRaw()) return;
+    const td=e.target?.closest ? e.target.closest('td') : null;
+    const table=td?.closest ? td.closest('table') : null;
+    if(!td || !tableOK(table)) return;
+    const row=td.parentElement;
+    if(!row || row.rowIndex<1) return;
+    const my=visibleMY();
+    const tdIdx=idx(table,'tondau',my.m,my.y);
+    if(td.cellIndex!==tdIdx) return;
+    const ten=text(row.cells[1]); if(!ten) return;
+    const raw=text(td);
+    if(raw==='') setManualValue(ten,my.m,my.y,0,true);
+    else setManualValue(ten,my.m,my.y,parseN(raw),false);
+    lastManualEdit={ten:ten,m:my.m,y:my.y,value:raw===''?null:parseN(raw),row:row};
+    setTimeout(function(){
+      if(lastManualEdit && lastManualEdit.row===row){
+        recalcRow(row,my,{keepCurrentTonDau:raw===''});
+        saveSnapshot(my);
+      }
+    },0);
+    setTimeout(function(){ applyAll(my); },80);
+  }
+  function install(){
+    const report=$('report');
+    if(report){
+      report.addEventListener('focusin',function(e){
+        const td=e.target?.closest ? e.target.closest('td') : null;
+        const table=td?.closest ? td.closest('table') : null;
+        if(!td || !tableOK(table)) return;
+        const my=visibleMY();
+        if(td.cellIndex===idx(table,'tondau',my.m,my.y)) td.dataset.beforeTonDauEdit=text(td);
+      },true);
+      report.addEventListener('blur',function(e){
+        const td=e.target?.closest ? e.target.closest('td') : null;
+        const table=td?.closest ? td.closest('table') : null;
+        if(!td || !tableOK(table)) return;
+        const my=visibleMY();
+        if(td.cellIndex===idx(table,'tondau',my.m,my.y)){
+          handleManualInput({target:td});
+          setTimeout(()=>applyAll(my),30);
+        }
+      },true);
+    }
+    document.addEventListener('input',handleManualInput,true);
+    setTimeout(()=>applyAll(visibleMY()),200);
+    setTimeout(()=>applyAll(visibleMY()),1300);
+  }
+
+  const oldReport=window.report;
+  if(typeof oldReport==='function'){
+    window.report=function(){
+      const my=selectedMY();
+      const rs=oldReport.apply(this,arguments);
+      [160,650,1450,2100].forEach(t=>setTimeout(()=>applyAll(my),t));
+      return rs;
+    };
+    try{ report=window.report; }catch(e){}
+  }
+  const oldImport=window.importExternalReportFiles;
+  if(typeof oldImport==='function'){
+    window.importExternalReportFiles=async function(){
+      const my=selectedMY();
+      const rs=oldImport.apply(this,arguments);
+      if(rs && typeof rs.then==='function') await rs;
+      [180,750,1600].forEach(t=>setTimeout(()=>applyAll(my),t));
+      return rs;
+    };
+    try{ importExternalReportFiles=window.importExternalReportFiles; }catch(e){}
+  }
+  const oldSave=window.saveCurrentReport;
+  if(typeof oldSave==='function'){
+    window.saveCurrentReport=function(){
+      applyAll(visibleMY());
+      const rs=oldSave.apply(this,arguments);
+      setTimeout(()=>applyAll(visibleMY()),80);
+      setTimeout(()=>applyAll(visibleMY()),420);
+      return rs;
+    };
+    try{ saveCurrentReport=window.saveCurrentReport; }catch(e){}
+  }
+  const oldExport=window.exportExcel;
+  if(typeof oldExport==='function'){
+    window.exportExcel=function(){ applyAll(visibleMY()); return oldExport.apply(this,arguments); };
+    try{ exportExcel=window.exportExcel; }catch(e){}
+  }
+  const oldClean=window.cleanReportTableForOutput;
+  if(typeof oldClean==='function'){
+    window.cleanReportTableForOutput=function(){ applyAll(visibleMY()); return oldClean.apply(this,arguments); };
+  }
+  window.apDungTonDauThangMoiBangTonCuoiThangCuVaChoSua20260629=function(){ applyAll(visibleMY()); };
+  document.addEventListener('DOMContentLoaded',install);
+  if(document.readyState!=='loading') install();
 })();
 
 </script></body></html>

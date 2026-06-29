@@ -1,0 +1,2518 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>App chạy mẫu Giấy khám sức khỏe lái xe TT36 2026</title>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+:root{--blue:#0f3b66;--green:#15803d;--red:#b91c1c;--bg:#eef2f7;--line:#111}
+*{box-sizing:border-box} body{margin:0;font-family:Arial,Helvetica,sans-serif;background:var(--bg);color:#111}
+header{background:linear-gradient(135deg,#0f3b66,#1976b7);color:#fff;padding:14px 18px;box-shadow:0 3px 12px #0002} header h1{font-size:22px;margin:0 0 4px} header p{margin:0;font-size:13px;opacity:.95}
+.toolbar{position:sticky;top:0;z-index:20;background:#fff;border-bottom:1px solid #d7dde8;padding:10px;display:flex;gap:8px;flex-wrap:wrap;align-items:center;box-shadow:0 2px 8px #0001}
+button,.fileLabel{border:0;border-radius:9px;padding:9px 12px;background:#0f3b66;color:#fff;font-weight:700;cursor:pointer;font-size:13px} button.secondary{background:#475569}.danger{background:#b91c1c}.ok{background:#15803d}.print{background:#7c3aed}.fileLabel input{display:none} button:disabled{opacity:.55;cursor:not-allowed}
+input,select,textarea{border:1px solid #cbd5e1;border-radius:8px;padding:8px;font-size:13px;background:#fff;width:100%} textarea{min-height:54px;resize:vertical}.toolbar input,.toolbar select{width:auto}
+.wrap{display:grid;grid-template-columns:390px 1fr;gap:12px;padding:12px}.panel{background:#fff;border-radius:12px;padding:12px;box-shadow:0 2px 12px #0001;border:1px solid #e2e8f0}.panel h2{font-size:17px;color:var(--blue);margin:0 0 10px}.hint{font-size:12px;color:#475569;line-height:1.45;background:#f8fafc;border-left:4px solid #0f3b66;padding:8px;border-radius:6px;margin:8px 0}
+.list{max-height:250px;overflow:auto;border:1px solid #e2e8f0;border-radius:8px} table{width:100%;border-collapse:collapse} th,td{border:1px solid #e2e8f0;padding:7px;font-size:12px;vertical-align:top} th{background:#f1f5f9;text-align:left;color:#1e293b;position:sticky;top:0}.rowActive{background:#dcfce7!important}.grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px}.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}.grid1{display:grid;gap:8px}.editBox{max-height:calc(100vh - 430px);overflow:auto;padding-right:4px}.editField label{font-weight:700;font-size:12px;color:#334155;display:block;margin-bottom:3px}.dataToggle{width:100%;margin:10px 0 8px;background:#0f3b66;display:flex;align-items:center;justify-content:space-between;gap:8px}.dataPanel{border:1px solid #dbe3ef;border-radius:10px;background:#f8fafc;padding:10px;margin-bottom:8px;display:block}.dataPanel.closed{display:none}.small{font-size:12px;color:#64748b}.previewArea{overflow:auto;max-height:calc(100vh - 150px);background:#64748b;padding:16px;border-radius:12px}.sheet{width:210mm;min-height:297mm;background:white;margin:0 auto 16px;position:relative;color:#000;box-shadow:0 3px 15px #0005;padding:11mm 12mm;font-family:'Times New Roman',serif;font-size:13.5px;line-height:1.25;print-color-adjust:exact}.sheet.compact{font-size:12.6px}.pageNo{position:absolute;right:12mm;bottom:6mm;font-size:11px;color:#444}.top{display:grid;grid-template-columns:72mm 1fr;gap:8mm}.clinic{text-align:center}.clinic b{display:block}.nation{text-align:center;font-weight:bold}.subline{font-weight:normal;border-top:1px solid #111;display:inline-block;padding-top:2px}.formTitle{text-align:center;font-weight:bold;font-size:16px;margin:6px 0 4px;text-transform:uppercase}.legal{text-align:center;font-size:11px;margin-bottom:6px}.row{display:flex;gap:4px;align-items:flex-end;margin:3px 0;flex-wrap:wrap}.line{border-bottom:1px dotted #222;min-height:18px;display:inline-block;vertical-align:bottom;padding:0 3px;white-space:pre-wrap;overflow-wrap:anywhere}.fill{flex:1;min-width:20mm}.w20{width:20mm}.w24{width:24mm}.w30{width:30mm}.w38{width:38mm}.w50{width:50mm}.w70{width:70mm}.w90{width:90mm}.checkbox{display:inline-flex;align-items:center;justify-content:center;width:3.8mm;height:3.8mm;border:1px solid #000;margin:0 1mm;font-family:Arial;font-size:11px;font-weight:bold}.section{font-weight:bold;text-transform:uppercase;margin-top:7px}.subsection{font-weight:bold;margin-top:5px}.paraLine{border-bottom:1px dotted #333;min-height:18px;width:100%;white-space:pre-wrap;overflow-wrap:anywhere;padding:1px 3px}.photoBox{float:right;width:34mm;height:45mm;border:1px solid #333;margin:0 0 4mm 5mm;text-align:center;font-size:11px;line-height:1.25;display:flex;align-items:center;justify-content:center;overflow:hidden;cursor:pointer;background:#fff}.photoBox img{width:100%;height:100%;object-fit:cover}.note{font-size:11.5px}.twoCol{display:grid;grid-template-columns:1fr 1fr;gap:5mm}.historyTable,.examTable,.labTable{width:100%;border-collapse:collapse;margin-top:4px;table-layout:fixed}.historyTable td,.historyTable th,.examTable td,.examTable th,.labTable td,.labTable th{border:1px solid #111;padding:3px 4px;font-family:'Times New Roman',serif;font-size:12px;vertical-align:top}.historyTable th{text-align:center}.examTable th,.labTable th{text-align:center}.signArea{display:grid;grid-template-columns:1fr 1fr;gap:12mm;text-align:center;margin-top:8mm}.signName{margin-top:24mm;text-align:left}.conclusionBox{border:1px solid #111;padding:5px;margin-top:4px;min-height:44mm}.muted{color:#555}.clinicalGrid{display:grid;grid-template-columns:1fr 42mm;gap:5mm}.doctorCell{height:100%}.noPrint{}
+body.fastPdfMode .sheet{box-shadow:none;margin:0 auto;background:#fff}.loader{position:fixed;inset:0;background:rgba(15,59,102,.45);z-index:9999;display:none;align-items:center;justify-content:center}.loader.active{display:flex}.loaderBox{background:white;border-radius:16px;box-shadow:0 10px 30px #0003;padding:28px;width:min(420px,90%);text-align:center}.spinner{width:48px;height:48px;border:5px solid #e2e8f0;border-top-color:#0f3b66;border-radius:50%;margin:0 auto 14px;animation:spin .9s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}
+@page{size:A4 portrait;margin:0}@media print{html,body{margin:0!important;padding:0!important;background:#fff!important}.noPrint,header,.toolbar,.panel:not(.printable){display:none!important}.wrap{display:block!important;padding:0!important;margin:0!important}.panel.printable{padding:0!important;margin:0!important;border:0!important;box-shadow:none!important}.previewArea{max-height:none!important;overflow:visible!important;padding:0!important;background:#fff!important}.sheet{width:210mm!important;min-height:297mm!important;height:297mm!important;margin:0!important;box-shadow:none!important;page-break-after:always;break-after:page;overflow:hidden}.sheet.noBreakAfter{page-break-after:avoid!important;break-after:avoid!important}}
+@media(max-width:1000px){.wrap{grid-template-columns:1fr}.previewArea{max-height:none}.editBox{max-height:none}.sheet{transform:scale(.72);transform-origin:top left;margin:0 0 -75mm 0}}
+
+/* ===== BẢN A3 NGANG 2 MẶT - MẪU KSK LÁI XE TT36 ===== */
+@page{size:A3 landscape;margin:0}
+.sheet{width:420mm!important;height:297mm!important;min-height:297mm!important;padding:9mm!important;font-size:11.1px!important;line-height:1.18!important;overflow:hidden!important}
+.a3grid{display:grid;grid-template-columns:1fr 1fr;gap:10mm;height:100%}
+.halfPage{position:relative;height:279mm;overflow:hidden;padding:2mm 4mm 0 4mm}
+.halfPage .top{grid-template-columns:58mm 1fr;gap:5mm}
+.halfPage .formTitle{font-size:12.5px;margin:5px 0 4px}.halfPage .legal{font-size:8.6px;line-height:1.1;margin-bottom:5px}.halfPage .section{margin-top:5px}.halfPage .subsection{margin-top:4px}.halfPage .row{margin:2px 0}.halfPage .line{min-height:14px}.halfPage .paraLine{min-height:14px}.halfPage .photoBox{width:36mm;height:53mm;font-size:10px;line-height:1.16;margin-left:3mm}.halfPage .historyTable td,.halfPage .historyTable th,.halfPage .examTable td,.halfPage .examTable th,.halfPage .labTable td,.halfPage .labTable th{font-size:9.6px;padding:2px 3px;line-height:1.12}.halfPage .examTable .paraLine{min-height:13px}.halfPage .labTable td{height:28mm}.halfPage .conclusionBox{min-height:43mm}.halfPage .signArea{margin-top:6mm}.halfPage .signName{margin-top:18mm}.halfTitle{text-align:center;font-weight:bold;font-size:13px;text-transform:uppercase;margin-bottom:4px}.pageNo{display:none}.noBreakAfter{page-break-after:avoid!important;break-after:avoid!important}
+@media print{.sheet{width:420mm!important;height:297mm!important;min-height:297mm!important;padding:9mm!important;margin:0!important}.a3grid{display:grid!important;grid-template-columns:1fr 1fr!important;gap:10mm!important;height:100%!important}.halfPage{height:279mm!important;overflow:hidden!important}.previewArea{padding:0!important}.sheet.noBreakAfter{page-break-after:avoid!important;break-after:avoid!important}}
+@media(max-width:1000px){.sheet{transform:scale(.35);transform-origin:top left;margin:0 0 -190mm 0!important}.previewArea{overflow:auto}}
+
+/* ===== TINH CHỈNH RIÊNG MẶT 1 - TRANG 1 THEO MẪU ẢNH ===== */
+/* Chỉ áp dụng cho MẶT 1 - TRANG 1 bên trái: tăng chữ nhưng khóa chống đè/tràn */
+.front1left{
+  padding:3mm 2.8mm 0 2.8mm!important;
+  font-size:12.6px!important;
+  line-height:1.22!important;
+  overflow:hidden!important;
+}
+.front1left *{
+  box-sizing:border-box!important;
+  max-width:100%!important;
+}
+.front1left .frontSectionTitle{
+  font-weight:bold;
+  text-transform:uppercase;
+  font-size:13.4px!important;
+  line-height:1.15!important;
+  margin:0 0 2.7mm 0!important;
+  white-space:nowrap!important;
+  overflow:hidden!important;
+}
+.front1left .labTable{
+  width:100%!important;
+  margin-top:0!important;
+  border-collapse:collapse!important;
+  table-layout:fixed!important;
+  border:1px solid #111!important;
+}
+.front1left .labTable th,
+.front1left .labTable td{
+  border:1px solid #111!important;
+  font-family:'Times New Roman',serif!important;
+  vertical-align:top!important;
+  overflow:hidden!important;
+  overflow-wrap:anywhere!important;
+  word-break:normal!important;
+}
+.front1left .labTable thead th{
+  height:15mm!important;
+  font-size:12px!important;
+  line-height:1.16!important;
+  text-align:center!important;
+  vertical-align:middle!important;
+  font-weight:bold!important;
+  padding:2.2mm 2mm!important;
+}
+.front1left .labTable tbody td{
+  font-size:11.7px!important;
+  line-height:1.2!important;
+  padding:2.1mm 2mm!important;
+}
+.front1left .labTable .labRow1 td{
+  height:34mm!important;
+  max-height:34mm!important;
+}
+.front1left .labTable .labRow2 td{
+  height:36mm!important;
+  max-height:36mm!important;
+}
+.front1left .labDoctorBox{background:#fff!important}
+.front1left .labFillRow{display:flex!important;align-items:flex-end!important;gap:1.2mm!important;width:100%!important;max-width:100%!important;overflow:hidden!important;margin-top:1.2mm!important}
+.front1left .labFillRow .labFillLabel{white-space:nowrap!important;flex:0 0 auto!important}
+.front1left .labFillRow .line{flex:1 1 auto!important;width:auto!important;min-width:0!important;display:block!important;white-space:nowrap!important;overflow:hidden!important}
+.front1left .line{
+  min-height:4.2mm!important;
+  line-height:4mm!important;
+  padding:0 1mm!important;
+  overflow:hidden!important;
+  white-space:nowrap!important;
+}
+.front1left .conclusionTitle{
+  font-weight:bold;
+  text-transform:uppercase;
+  font-size:13.3px!important;
+  line-height:1.15!important;
+  margin:19mm 0 4.5mm 0!important;
+  white-space:nowrap!important;
+  overflow:hidden!important;
+}
+.front1left .conclusionLine{
+  border-bottom:1px dotted #222!important;
+  height:8.2mm!important;
+  margin:0 0 0.7mm 0!important;
+  overflow:hidden!important;
+}
+.front1left .validNote{
+  font-size:11.8px!important;
+  line-height:1.18!important;
+  font-style:italic!important;
+  font-weight:bold!important;
+  margin-top:4.7mm!important;
+  white-space:nowrap!important;
+  overflow:hidden!important;
+}
+.front1left .ketLuanSign{
+  width:88mm!important;
+  margin:16.5mm 0 0 auto!important;
+  text-align:center!important;
+  font-size:11.7px!important;
+  line-height:1.18!important;
+  overflow:hidden!important;
+}
+.front1left .ketLuanSign .dateLine{
+  width:100%!important;
+  text-align:center!important;
+  padding-left:0!important;
+  margin:0 auto 1.4mm auto!important;
+  white-space:nowrap!important;
+  overflow:hidden!important;
+}
+.front1left .ketLuanSign .role{
+  font-weight:bold!important;
+  margin-top:1.4mm!important;
+  white-space:nowrap!important;
+  overflow:hidden!important;
+}
+.front1left .ketLuanSign .sub{
+  font-style:italic!important;
+  white-space:nowrap!important;
+  overflow:hidden!important;
+}
+@media print{
+  .front1left{font-size:12.6px!important;line-height:1.22!important;padding:3mm 2.8mm 0 2.8mm!important;overflow:hidden!important}
+  .front1left .frontSectionTitle{font-size:13.4px!important}
+  .front1left .labTable thead th{font-size:12px!important;height:15mm!important;padding:2.2mm 2mm!important}
+  .front1left .labTable tbody td{font-size:11.7px!important;line-height:1.2!important;padding:2.1mm 2mm!important}
+  .front1left .labTable .labRow1 td{height:34mm!important;max-height:34mm!important}
+  .front1left .labTable .labRow2 td{height:36mm!important;max-height:36mm!important}
+  .front1left .conclusionTitle{font-size:13.3px!important}
+  .front1left .validNote{font-size:11.8px!important}
+  .front1left .ketLuanSign{font-size:11.7px!important}
+}
+
+
+/* BỎ TÔ MÀU NỀN TRONG KHUNG MẶT 1 - TRANG 1 */
+.front1left .labTable th,
+.front1left .labTable thead th,
+.front1left .labTable tbody th{
+  background:#fff!important;
+  background-color:#fff!important;
+  background-image:none!important;
+  -webkit-print-color-adjust:exact!important;
+  print-color-adjust:exact!important;
+}
+@media print{
+  .front1left .labTable th,
+  .front1left .labTable thead th,
+  .front1left .labTable tbody th{
+    background:#fff!important;
+    background-color:#fff!important;
+    background-image:none!important;
+  }
+}
+
+
+/* NGÀY KẾT LUẬN: khi đã nhập ngày thì hiển thị chữ thường, không dùng dấu chấm/dòng chấm */
+.front1left .ketLuanSign .dateLine .line{
+  border-bottom:0!important;
+}
+
+
+
+/* ===== MẶT 1 - TRANG 2: khung ảnh thẻ nằm bên trái ===== */
+.front1right .frontInfoWrap{
+  display:grid!important;
+  grid-template-columns:40mm 1fr!important;
+  gap:4mm!important;
+  align-items:start!important;
+  margin:4mm 0 3mm 0!important;
+}
+.front1right .photoBox{
+  float:none!important;
+  width:40mm!important;
+  height:60mm!important;
+  margin:0!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  text-align:center!important;
+  font-size:10.1px!important;
+  line-height:1.15!important;
+  padding:2mm!important;
+}
+.front1right .photoBox img{
+  width:100%!important;
+  height:100%!important;
+  object-fit:cover!important;
+}
+.front1right .frontInfoFields{min-width:0!important}
+.front1right .frontInfoFields .row{margin:1.6mm 0!important}
+.front1right .frontInfoFields .line{min-height:4.1mm!important;line-height:4mm!important}
+.front1right .frontInfoFields .fill{min-width:0!important}
+.front1right .headCode{margin-top:2mm!important;margin-bottom:2mm!important}
+@media print{
+  .front1right .frontInfoWrap{display:grid!important;grid-template-columns:40mm 1fr!important;gap:4mm!important;align-items:start!important;margin:4mm 0 3mm 0!important}
+  .front1right .photoBox{float:none!important;width:40mm!important;height:60mm!important;margin:0!important;padding:2mm!important;font-size:10.1px!important;line-height:1.15!important}
+  .front1right .frontInfoFields .row{margin:1.6mm 0!important}
+}
+
+
+/* SỐ PHIẾU: có dữ liệu thì bỏ dấu chấm/gạch dưới, vẫn giữ đúng vị trí */
+.plainValue{
+  display:inline-block!important;
+  vertical-align:bottom!important;
+  min-height:4.1mm!important;
+  line-height:4mm!important;
+  padding:0 1mm!important;
+  white-space:nowrap!important;
+  overflow:hidden!important;
+  text-overflow:clip!important;
+  border-bottom:0!important;
+}
+.front1right .headCode .plainValue{
+  width:auto!important;
+  min-width:8mm!important;
+}
+
+
+.front1right .frontInfoFields .plainValue{
+  min-width:0!important;
+  max-width:100%!important;
+  white-space:nowrap!important;
+  overflow:hidden!important;
+  text-overflow:clip!important;
+}
+
+
+/* NGÀY SINH: hiển thị dạng Sinh ngày: DD/MM/YYYY khi có dữ liệu */
+.front1right .frontInfoFields .w50{
+  min-width:24mm!important;
+}
+
+
+/* TUỔI: nhập ngày sinh trong app sẽ tự tính và hiển thị không có dấu chấm */
+.front1right .frontInfoFields .plainValue.w30{
+  border-bottom:0!important;
+  min-width:8mm!important;
+}
+
+
+/* GIỚI TÍNH: tự đánh dấu X đúng ô Nam/Nữ khi nhập Excel hoặc nhập tay */
+.front1right .checkbox{
+  font-weight:bold!important;
+  line-height:1!important;
+  text-align:center!important;
+}
+
+
+/* GIỚI TÍNH: cho phép nhập tay hoặc chọn gợi ý; Nam/Nữ tự tích X, Khác không tích */
+.editField input[list="genderOptions"]{
+  background:#fff!important;
+}
+
+
+/* CẤP NGÀY: hiển thị liền dạng DD/MM/YYYY, không tách xa ngày/tháng/năm */
+.front1right .frontInfoFields .row .plainValue.w50{
+  min-width:22mm!important;
+  width:auto!important;
+  max-width:32mm!important;
+  border-bottom:0!important;
+}
+
+
+/* MỤC 5 CẤP NGÀY - TẠI: dữ liệu nằm cùng hàng, không lệch dòng, không đè chữ */
+.front1right .frontInfoFields .capNgayTaiRow{
+  display:flex!important;
+  align-items:flex-end!important;
+  flex-wrap:nowrap!important;
+  gap:1.1mm!important;
+  width:100%!important;
+  max-width:100%!important;
+  overflow:hidden!important;
+  white-space:nowrap!important;
+}
+.front1right .frontInfoFields .capNgayTaiRow b{
+  flex:0 0 auto!important;
+  white-space:nowrap!important;
+}
+.front1right .frontInfoFields .capNgayTaiRow .taiLabel{
+  margin-left:1.5mm!important;
+}
+.front1right .frontInfoFields .capNgayTaiRow .capDateValue{
+  flex:0 0 23mm!important;
+  width:23mm!important;
+  min-width:23mm!important;
+  max-width:23mm!important;
+  border-bottom:0!important;
+  white-space:nowrap!important;
+  overflow:hidden!important;
+  line-height:4mm!important;
+}
+.front1right .frontInfoFields .capNgayTaiRow .capTaiValue{
+  flex:1 1 auto!important;
+  width:auto!important;
+  min-width:0!important;
+  max-width:none!important;
+  border-bottom:0!important;
+  white-space:nowrap!important;
+  overflow:hidden!important;
+  text-overflow:clip!important;
+  line-height:4mm!important;
+}
+.front1right .frontInfoFields .capNgayTaiRow .line.capDateValue,
+.front1right .frontInfoFields .capNgayTaiRow .line.capTaiValue{
+  border-bottom:1px dotted #222!important;
+}
+@media print{
+  .front1right .frontInfoFields .capNgayTaiRow{
+    display:flex!important;
+    flex-wrap:nowrap!important;
+    overflow:hidden!important;
+    white-space:nowrap!important;
+  }
+  .front1right .frontInfoFields .capNgayTaiRow .capDateValue{
+    flex:0 0 23mm!important;
+    width:23mm!important;
+    min-width:23mm!important;
+    max-width:23mm!important;
+  }
+  .front1right .frontInfoFields .capNgayTaiRow .capTaiValue{
+    flex:1 1 auto!important;
+    min-width:0!important;
+    overflow:hidden!important;
+  }
+}
+
+
+/* MẶT 1 - TRANG 2: đoạn Lưu ý + Tiền sử bệnh giống mẫu, ô Có/Không để trống */
+.front1right .frontHistoryBlock{
+  margin-top:3mm!important;
+  font-size:10.6px!important;
+  line-height:1.22!important;
+  overflow:hidden!important;
+}
+.front1right .frontHistoryBlock .note{
+  font-size:10.2px!important;
+  line-height:1.2!important;
+  margin-bottom:2.6mm!important;
+}
+.front1right .frontHistoryBlock .section{
+  margin:0 0 2.3mm 0!important;
+  font-size:11.2px!important;
+  line-height:1.15!important;
+}
+.front1right .frontHistoryBlock .subsection{
+  margin:1.6mm 0!important;
+  font-size:10.8px!important;
+}
+.front1right .frontHistoryBlock .paraLine{
+  min-height:5.4mm!important;
+  height:5.4mm!important;
+  line-height:5.1mm!important;
+  overflow:hidden!important;
+  padding:0 1mm!important;
+}
+.front1right .frontHistoryBlock .historyTwoTables{
+  display:grid!important;
+  grid-template-columns:1fr 1fr!important;
+  gap:5mm!important;
+  margin-top:2mm!important;
+}
+.front1right .frontHistoryBlock .blankHistoryTable{
+  width:100%!important;
+  border-collapse:collapse!important;
+  table-layout:fixed!important;
+  margin:0!important;
+  border:1px solid #111!important;
+}
+.front1right .frontHistoryBlock .blankHistoryTable th,
+.front1right .frontHistoryBlock .blankHistoryTable td{
+  border:1px solid #111!important;
+  background:#fff!important;
+  background-color:#fff!important;
+  font-family:'Times New Roman',serif!important;
+  font-size:10px!important;
+  line-height:1.13!important;
+  padding:1.15mm 1mm!important;
+  vertical-align:middle!important;
+  overflow:hidden!important;
+}
+.front1right .frontHistoryBlock .blankHistoryTable th{
+  font-weight:normal!important;
+  text-align:right!important;
+  height:5.8mm!important;
+}
+.front1right .frontHistoryBlock .blankHistoryTable .diseaseCell{
+  text-align:left!important;
+  width:auto!important;
+}
+.front1right .frontHistoryBlock .blankHistoryTable .blankBox{
+  width:9mm!important;
+  min-width:9mm!important;
+  max-width:9mm!important;
+  text-align:center!important;
+  color:transparent!important;
+}
+.front1right .frontHistoryBlock .blankHistoryTable tbody tr{
+  height:11.4mm!important;
+}
+@media print{
+  .front1right .frontHistoryBlock .blankHistoryTable th,
+  .front1right .frontHistoryBlock .blankHistoryTable td{
+    background:#fff!important;
+    background-color:#fff!important;
+  }
+}
+
+
+/* TĂNG CHỮ TRANG 2 - MẶT 1 LÊN 2 SIZE, KHÓA CHỐNG TRÀN/ĐÈ KHUNG */
+.front1right{
+  font-size:13px!important;
+  line-height:1.18!important;
+  overflow:hidden!important;
+}
+.front1right *{
+  box-sizing:border-box!important;
+}
+.front1right .legal{
+  font-size:10.4px!important;
+  line-height:1.08!important;
+  margin-bottom:2.2mm!important;
+  overflow:hidden!important;
+}
+.front1right .clinic,
+.front1right .nation{
+  font-size:11.2px!important;
+  line-height:1.08!important;
+  overflow:hidden!important;
+}
+.front1right .headCode{
+  font-size:12.2px!important;
+  line-height:1.1!important;
+  margin-top:1.6mm!important;
+  margin-bottom:1.6mm!important;
+  white-space:nowrap!important;
+  overflow:hidden!important;
+}
+.front1right .formTitle{
+  font-size:13.6px!important;
+  line-height:1.1!important;
+  margin:3mm 0 3.2mm 0!important;
+  white-space:nowrap!important;
+  overflow:hidden!important;
+}
+.front1right .frontInfoWrap{
+  margin:3mm 0 2.2mm 0!important;
+  gap:4mm!important;
+  overflow:hidden!important;
+}
+.front1right .photoBox{
+  font-size:10.8px!important;
+  line-height:1.12!important;
+  overflow:hidden!important;
+}
+.front1right .frontInfoFields{
+  font-size:12.4px!important;
+  line-height:1.16!important;
+  overflow:hidden!important;
+}
+.front1right .frontInfoFields .row{
+  margin:1.25mm 0!important;
+  line-height:1.16!important;
+  flex-wrap:nowrap!important;
+  overflow:hidden!important;
+  max-width:100%!important;
+}
+.front1right .frontInfoFields .plainValue,
+.front1right .frontInfoFields .line{
+  min-height:3.9mm!important;
+  line-height:3.75mm!important;
+  padding:0 .7mm!important;
+  overflow:hidden!important;
+  white-space:nowrap!important;
+}
+.front1right .frontInfoFields .capNgayTaiRow{
+  font-size:12.4px!important;
+  line-height:1.16!important;
+  margin:1.25mm 0!important;
+}
+.front1right .frontInfoFields .capNgayTaiRow .capDateValue,
+.front1right .frontInfoFields .capNgayTaiRow .capTaiValue{
+  line-height:3.75mm!important;
+  min-height:3.9mm!important;
+}
+.front1right .frontHistoryBlock{
+  font-size:11.8px!important;
+  line-height:1.14!important;
+  margin-top:2.1mm!important;
+  overflow:hidden!important;
+}
+.front1right .frontHistoryBlock .note{
+  font-size:11.2px!important;
+  line-height:1.13!important;
+  margin-bottom:1.8mm!important;
+  max-height:10mm!important;
+  overflow:hidden!important;
+}
+.front1right .frontHistoryBlock .section{
+  font-size:12.2px!important;
+  line-height:1.08!important;
+  margin:0 0 1.7mm 0!important;
+  white-space:nowrap!important;
+  overflow:hidden!important;
+}
+.front1right .frontHistoryBlock .subsection{
+  font-size:11.8px!important;
+  line-height:1.12!important;
+  margin:1.2mm 0!important;
+}
+.front1right .frontHistoryBlock .paraLine{
+  min-height:4.7mm!important;
+  height:4.7mm!important;
+  line-height:4.45mm!important;
+  padding:0 .8mm!important;
+  overflow:hidden!important;
+}
+.front1right .frontHistoryBlock .historyTwoTables{
+  gap:4mm!important;
+  margin-top:1.4mm!important;
+  overflow:hidden!important;
+}
+.front1right .frontHistoryBlock .blankHistoryTable th,
+.front1right .frontHistoryBlock .blankHistoryTable td{
+  font-size:11px!important;
+  line-height:1.08!important;
+  padding:.75mm .8mm!important;
+  overflow:hidden!important;
+  vertical-align:middle!important;
+}
+.front1right .frontHistoryBlock .blankHistoryTable th{
+  height:5.2mm!important;
+}
+.front1right .frontHistoryBlock .blankHistoryTable tbody tr{
+  height:10.1mm!important;
+  max-height:10.1mm!important;
+}
+.front1right .frontHistoryBlock .blankHistoryTable .blankBox{
+  width:8.2mm!important;
+  min-width:8.2mm!important;
+  max-width:8.2mm!important;
+}
+@media print{
+  .front1right{font-size:13px!important;line-height:1.18!important;overflow:hidden!important}
+  .front1right .frontInfoFields{font-size:12.4px!important;line-height:1.16!important}
+  .front1right .frontHistoryBlock{font-size:11.8px!important;line-height:1.14!important;overflow:hidden!important}
+  .front1right .frontHistoryBlock .blankHistoryTable th,
+  .front1right .frontHistoryBlock .blankHistoryTable td{
+    font-size:11px!important;
+    line-height:1.08!important;
+    padding:.75mm .8mm!important;
+    overflow:hidden!important;
+  }
+}
+
+
+/* TĂNG ĐỒNG BỘ CHỮ TRANG 1 + TRANG 2 CỦA MẶT 1, TO HƠN HIỆN TẠI, KHÓA CHỐNG TRÀN/ĐÈ */
+.front1left,
+.front1right{
+  font-size:13.7px!important;
+  line-height:1.16!important;
+  overflow:hidden!important;
+}
+.front1left *,
+.front1right *{
+  box-sizing:border-box!important;
+  max-width:100%!important;
+}
+
+/* TRANG 1 - MẶT 1 */
+.front1left .frontSectionTitle{
+  font-size:14.4px!important;
+  line-height:1.1!important;
+  margin:0 0 2.2mm 0!important;
+}
+.front1left .labTable thead th{
+  font-size:12.8px!important;
+  line-height:1.1!important;
+  height:13.8mm!important;
+  padding:1.7mm 1.6mm!important;
+  background:#fff!important;
+}
+.front1left .labTable tbody td{
+  font-size:12.4px!important;
+  line-height:1.13!important;
+  padding:1.55mm 1.6mm!important;
+}
+.front1left .labTable .labRow1 td{
+  height:33mm!important;
+  max-height:33mm!important;
+}
+.front1left .labTable .labRow2 td{
+  height:35mm!important;
+  max-height:35mm!important;
+}
+.front1left .labFillRow{
+  margin-top:.8mm!important;
+  gap:1mm!important;
+  overflow:hidden!important;
+}
+.front1left .labFillRow .line{
+  min-height:3.6mm!important;
+  line-height:3.45mm!important;
+  padding:0 .6mm!important;
+}
+.front1left .conclusionTitle{
+  font-size:14.3px!important;
+  line-height:1.1!important;
+  margin:18mm 0 3.8mm 0!important;
+}
+.front1left .conclusionLine{
+  height:7.2mm!important;
+  margin:0 0 .5mm 0!important;
+}
+.front1left .validNote{
+  font-size:12.5px!important;
+  line-height:1.1!important;
+  margin-top:4mm!important;
+  overflow:hidden!important;
+}
+.front1left .ketLuanSign{
+  font-size:12.5px!important;
+  line-height:1.13!important;
+  margin:15.2mm 0 0 auto!important;
+}
+.front1left .ketLuanSign .role{
+  margin-top:1mm!important;
+}
+
+/* TRANG 2 - MẶT 1 */
+.front1right .legal{
+  font-size:11px!important;
+  line-height:1.04!important;
+  margin-bottom:1.8mm!important;
+  overflow:hidden!important;
+}
+.front1right .clinic,
+.front1right .nation{
+  font-size:11.8px!important;
+  line-height:1.05!important;
+}
+.front1right .headCode{
+  font-size:12.8px!important;
+  line-height:1.05!important;
+  margin-top:1.2mm!important;
+  margin-bottom:1.2mm!important;
+  white-space:nowrap!important;
+  overflow:hidden!important;
+}
+.front1right .formTitle{
+  font-size:14.3px!important;
+  line-height:1.05!important;
+  margin:2.5mm 0 2.6mm 0!important;
+  white-space:nowrap!important;
+  overflow:hidden!important;
+}
+.front1right .frontInfoWrap{
+  margin:2.4mm 0 1.8mm 0!important;
+  gap:3.4mm!important;
+  overflow:hidden!important;
+}
+.front1right .photoBox{
+  width:40mm!important;
+  height:60mm!important;
+  font-size:11.2px!important;
+  line-height:1.08!important;
+  padding:1.4mm!important;
+  overflow:hidden!important;
+}
+.front1right .frontInfoFields{
+  font-size:13px!important;
+  line-height:1.12!important;
+  overflow:hidden!important;
+}
+.front1right .frontInfoFields .row{
+  margin:.95mm 0!important;
+  line-height:1.12!important;
+  flex-wrap:nowrap!important;
+  overflow:hidden!important;
+  max-width:100%!important;
+}
+.front1right .frontInfoFields .plainValue,
+.front1right .frontInfoFields .line{
+  min-height:3.6mm!important;
+  line-height:3.45mm!important;
+  padding:0 .55mm!important;
+  white-space:nowrap!important;
+  overflow:hidden!important;
+}
+.front1right .frontInfoFields .capNgayTaiRow{
+  font-size:13px!important;
+  line-height:1.12!important;
+  margin:.95mm 0!important;
+}
+.front1right .frontInfoFields .capNgayTaiRow .capDateValue,
+.front1right .frontInfoFields .capNgayTaiRow .capTaiValue{
+  line-height:3.45mm!important;
+  min-height:3.6mm!important;
+}
+.front1right .frontHistoryBlock{
+  font-size:12.4px!important;
+  line-height:1.1!important;
+  margin-top:1.6mm!important;
+  overflow:hidden!important;
+}
+.front1right .frontHistoryBlock .note{
+  font-size:11.7px!important;
+  line-height:1.08!important;
+  margin-bottom:1.35mm!important;
+  max-height:9mm!important;
+  overflow:hidden!important;
+}
+.front1right .frontHistoryBlock .section{
+  font-size:12.8px!important;
+  line-height:1.05!important;
+  margin:0 0 1.3mm 0!important;
+  white-space:nowrap!important;
+  overflow:hidden!important;
+}
+.front1right .frontHistoryBlock .subsection{
+  font-size:12.4px!important;
+  line-height:1.07!important;
+  margin:.9mm 0!important;
+}
+.front1right .frontHistoryBlock .paraLine{
+  min-height:4.25mm!important;
+  height:4.25mm!important;
+  line-height:4mm!important;
+  padding:0 .65mm!important;
+  overflow:hidden!important;
+}
+.front1right .frontHistoryBlock .historyTwoTables{
+  gap:3.4mm!important;
+  margin-top:1mm!important;
+  overflow:hidden!important;
+}
+.front1right .frontHistoryBlock .blankHistoryTable th,
+.front1right .frontHistoryBlock .blankHistoryTable td{
+  font-size:11.55px!important;
+  line-height:1.03!important;
+  padding:.55mm .55mm!important;
+  overflow:hidden!important;
+  vertical-align:middle!important;
+  background:#fff!important;
+}
+.front1right .frontHistoryBlock .blankHistoryTable th{
+  height:4.8mm!important;
+}
+.front1right .frontHistoryBlock .blankHistoryTable tbody tr{
+  height:9.3mm!important;
+  max-height:9.3mm!important;
+}
+.front1right .frontHistoryBlock .blankHistoryTable .blankBox{
+  width:7.7mm!important;
+  min-width:7.7mm!important;
+  max-width:7.7mm!important;
+}
+
+@media print{
+  .front1left,
+  .front1right{
+    font-size:13.7px!important;
+    line-height:1.16!important;
+    overflow:hidden!important;
+  }
+  .front1left .labTable thead th{
+    font-size:12.8px!important;
+    height:13.8mm!important;
+    padding:1.7mm 1.6mm!important;
+    background:#fff!important;
+  }
+  .front1left .labTable tbody td{
+    font-size:12.4px!important;
+    line-height:1.13!important;
+    padding:1.55mm 1.6mm!important;
+  }
+  .front1right .frontInfoFields{
+    font-size:13px!important;
+    line-height:1.12!important;
+  }
+  .front1right .frontHistoryBlock{
+    font-size:12.4px!important;
+    line-height:1.1!important;
+    overflow:hidden!important;
+  }
+  .front1right .frontHistoryBlock .blankHistoryTable th,
+  .front1right .frontHistoryBlock .blankHistoryTable td{
+    font-size:11.55px!important;
+    line-height:1.03!important;
+    padding:.55mm .55mm!important;
+    overflow:hidden!important;
+    background:#fff!important;
+  }
+}
+
+
+/* TĂNG SIZE CHỮ MẶT 1 LẦN 2 + KÉO KHUNG TIỀN SỬ SÁT CẠNH DƯỚI CÁCH 0.5CM */
+.front1left,
+.front1right{
+  font-size:14.6px!important;
+  line-height:1.13!important;
+  overflow:hidden!important;
+}
+
+/* Trang 1 của Mặt 1: tăng chữ nhưng vẫn giữ bảng/kết luận không tràn */
+.front1left .frontSectionTitle{
+  font-size:15.2px!important;
+  line-height:1.05!important;
+  margin:0 0 1.8mm 0!important;
+}
+.front1left .labTable thead th{
+  font-size:13.5px!important;
+  line-height:1.05!important;
+  height:13mm!important;
+  padding:1.25mm 1.35mm!important;
+  background:#fff!important;
+}
+.front1left .labTable tbody td{
+  font-size:13.1px!important;
+  line-height:1.08!important;
+  padding:1.25mm 1.35mm!important;
+}
+.front1left .labTable .labRow1 td{
+  height:32mm!important;
+  max-height:32mm!important;
+}
+.front1left .labTable .labRow2 td{
+  height:34mm!important;
+  max-height:34mm!important;
+}
+.front1left .labFillRow{
+  margin-top:.55mm!important;
+}
+.front1left .labFillRow .line{
+  min-height:3.35mm!important;
+  line-height:3.2mm!important;
+}
+.front1left .conclusionTitle{
+  font-size:15.1px!important;
+  line-height:1.05!important;
+  margin:17mm 0 3.2mm 0!important;
+}
+.front1left .conclusionLine{
+  height:6.8mm!important;
+}
+.front1left .validNote{
+  font-size:13px!important;
+  line-height:1.05!important;
+  margin-top:3.5mm!important;
+}
+.front1left .ketLuanSign{
+  font-size:13px!important;
+  line-height:1.08!important;
+  margin:14mm 0 0 auto!important;
+}
+
+/* Trang 2 của Mặt 1: tăng chữ, nén khoảng trống phía trên để khung tiền sử xuống sát dưới */
+.front1right .legal{
+  font-size:11.4px!important;
+  line-height:1.02!important;
+  margin-bottom:1.2mm!important;
+}
+.front1right .clinic,
+.front1right .nation{
+  font-size:12.2px!important;
+  line-height:1.02!important;
+}
+.front1right .headCode{
+  font-size:13.2px!important;
+  line-height:1.02!important;
+  margin-top:.8mm!important;
+  margin-bottom:.8mm!important;
+}
+.front1right .formTitle{
+  font-size:14.9px!important;
+  line-height:1.02!important;
+  margin:1.9mm 0 2mm 0!important;
+}
+.front1right .frontInfoWrap{
+  margin:1.8mm 0 1.2mm 0!important;
+  gap:3mm!important;
+}
+.front1right .photoBox{
+  width:40mm!important;
+  height:60mm!important;
+  font-size:11.6px!important;
+  line-height:1.04!important;
+  padding:1.1mm!important;
+}
+.front1right .frontInfoFields{
+  font-size:13.7px!important;
+  line-height:1.07!important;
+}
+.front1right .frontInfoFields .row{
+  margin:.7mm 0!important;
+  line-height:1.07!important;
+}
+.front1right .frontInfoFields .plainValue,
+.front1right .frontInfoFields .line{
+  min-height:3.3mm!important;
+  line-height:3.15mm!important;
+  padding:0 .45mm!important;
+}
+.front1right .frontInfoFields .capNgayTaiRow{
+  font-size:13.7px!important;
+  line-height:1.07!important;
+  margin:.7mm 0!important;
+}
+.front1right .frontInfoFields .capNgayTaiRow .capDateValue,
+.front1right .frontInfoFields .capNgayTaiRow .capTaiValue{
+  line-height:3.15mm!important;
+  min-height:3.3mm!important;
+}
+
+/* Khối tiền sử: tăng chữ và kéo bảng tiền sử xuống gần đáy, cách cạnh dưới nửa trang 5mm */
+.front1right .frontHistoryBlock{
+  font-size:13.1px!important;
+  line-height:1.065!important;
+  margin-top:1mm!important;
+  overflow:hidden!important;
+}
+.front1right .frontHistoryBlock .note{
+  font-size:12.1px!important;
+  line-height:1.04!important;
+  margin-bottom:1mm!important;
+  max-height:8.3mm!important;
+}
+.front1right .frontHistoryBlock .section{
+  font-size:13.5px!important;
+  line-height:1.02!important;
+  margin:0 0 1mm 0!important;
+}
+.front1right .frontHistoryBlock .subsection{
+  font-size:13.1px!important;
+  line-height:1.035!important;
+  margin:.65mm 0!important;
+}
+.front1right .frontHistoryBlock .paraLine{
+  min-height:4.1mm!important;
+  height:4.1mm!important;
+  line-height:3.85mm!important;
+  padding:0 .55mm!important;
+}
+.front1right .frontHistoryBlock .historyTwoTables{
+  gap:3mm!important;
+  margin-top:.8mm!important;
+  margin-bottom:0!important;
+}
+.front1right .frontHistoryBlock .blankHistoryTable th,
+.front1right .frontHistoryBlock .blankHistoryTable td{
+  font-size:12.15px!important;
+  line-height:1!important;
+  padding:.45mm .45mm!important;
+  overflow:hidden!important;
+  background:#fff!important;
+}
+.front1right .frontHistoryBlock .blankHistoryTable th{
+  height:4.5mm!important;
+  max-height:4.5mm!important;
+}
+.front1right .frontHistoryBlock .blankHistoryTable tbody tr{
+  height:12.6mm!important;
+  max-height:12.6mm!important;
+}
+.front1right .frontHistoryBlock .blankHistoryTable .blankBox{
+  width:7.4mm!important;
+  min-width:7.4mm!important;
+  max-width:7.4mm!important;
+}
+
+/* Đặt riêng cụm bảng tiền sử: đáy bảng cách cạnh dưới trang/nửa A3 khoảng 0.5cm */
+.front1right .frontHistoryBlock .historyTwoTables{
+  position:absolute!important;
+  left:2.8mm!important;
+  right:2.8mm!important;
+  bottom:5mm!important;
+}
+.front1right .frontHistoryBlock{
+  padding-bottom:73mm!important;
+}
+
+@media print{
+  .front1left,
+  .front1right{
+    font-size:14.6px!important;
+    line-height:1.13!important;
+    overflow:hidden!important;
+  }
+  .front1right .frontHistoryBlock .historyTwoTables{
+    position:absolute!important;
+    left:2.8mm!important;
+    right:2.8mm!important;
+    bottom:5mm!important;
+  }
+  .front1right .frontHistoryBlock .blankHistoryTable th,
+  .front1right .frontHistoryBlock .blankHistoryTable td{
+    background:#fff!important;
+    font-size:12.15px!important;
+    line-height:1!important;
+    padding:.45mm .45mm!important;
+    overflow:hidden!important;
+  }
+  .front1right .frontHistoryBlock .blankHistoryTable tbody tr{
+    height:12.6mm!important;
+    max-height:12.6mm!important;
+  }
+}
+
+
+/* DÃN KHOẢNG CÁCH CÁC DÒNG TRANG 2 - MẶT 1, GIỮ KHUNG KHÔNG TRÀN */
+.front1right{
+  line-height:1.22!important;
+}
+.front1right .legal{
+  line-height:1.16!important;
+  margin-bottom:1.6mm!important;
+}
+.front1right .clinic,
+.front1right .nation{
+  line-height:1.14!important;
+}
+.front1right .headCode{
+  line-height:1.14!important;
+  margin-top:1mm!important;
+  margin-bottom:1.3mm!important;
+}
+.front1right .formTitle{
+  line-height:1.12!important;
+  margin:2.2mm 0 2.4mm 0!important;
+}
+.front1right .frontInfoWrap{
+  margin:2.2mm 0 1.8mm 0!important;
+}
+.front1right .photoBox{
+  line-height:1.13!important;
+}
+.front1right .frontInfoFields{
+  line-height:1.2!important;
+}
+.front1right .frontInfoFields .row{
+  line-height:1.2!important;
+  margin:1.05mm 0!important;
+}
+.front1right .frontInfoFields .plainValue,
+.front1right .frontInfoFields .line{
+  min-height:3.8mm!important;
+  line-height:3.65mm!important;
+}
+.front1right .frontInfoFields .capNgayTaiRow{
+  line-height:1.2!important;
+  margin:1.05mm 0!important;
+}
+.front1right .frontInfoFields .capNgayTaiRow .capDateValue,
+.front1right .frontInfoFields .capNgayTaiRow .capTaiValue{
+  line-height:3.65mm!important;
+  min-height:3.8mm!important;
+}
+.front1right .frontHistoryBlock{
+  line-height:1.18!important;
+  margin-top:1.4mm!important;
+}
+.front1right .frontHistoryBlock .note{
+  line-height:1.15!important;
+  margin-bottom:1.5mm!important;
+  max-height:9.6mm!important;
+}
+.front1right .frontHistoryBlock .section{
+  line-height:1.12!important;
+  margin:0 0 1.5mm 0!important;
+}
+.front1right .frontHistoryBlock .subsection{
+  line-height:1.16!important;
+  margin:1mm 0!important;
+}
+.front1right .frontHistoryBlock .paraLine{
+  min-height:4.8mm!important;
+  height:4.8mm!important;
+  line-height:4.55mm!important;
+}
+.front1right .frontHistoryBlock{
+  padding-bottom:75mm!important;
+}
+.front1right .frontHistoryBlock .historyTwoTables{
+  bottom:5mm!important;
+}
+.front1right .frontHistoryBlock .blankHistoryTable th,
+.front1right .frontHistoryBlock .blankHistoryTable td{
+  line-height:1.12!important;
+}
+.front1right .frontHistoryBlock .blankHistoryTable tbody tr{
+  height:12.9mm!important;
+  max-height:12.9mm!important;
+}
+
+@media print{
+  .front1right{
+    line-height:1.22!important;
+  }
+  .front1right .frontInfoFields{
+    line-height:1.2!important;
+  }
+  .front1right .frontInfoFields .row{
+    line-height:1.2!important;
+    margin:1.05mm 0!important;
+  }
+  .front1right .frontHistoryBlock{
+    line-height:1.18!important;
+    padding-bottom:75mm!important;
+  }
+  .front1right .frontHistoryBlock .historyTwoTables{
+    bottom:5mm!important;
+  }
+  .front1right .frontHistoryBlock .blankHistoryTable th,
+  .front1right .frontHistoryBlock .blankHistoryTable td{
+    line-height:1.12!important;
+  }
+  .front1right .frontHistoryBlock .blankHistoryTable tbody tr{
+    height:12.9mm!important;
+    max-height:12.9mm!important;
+  }
+}
+
+
+/* TIẾP TỤC GIÃN CÁC HÀNG TRANG 2 - MẶT 1, GIỮ ẢNH 4X6 CAO 6CM NGANG 4CM */
+.front1right .photoBox{
+  width:40mm!important;
+  min-width:40mm!important;
+  max-width:40mm!important;
+  height:60mm!important;
+  min-height:60mm!important;
+  max-height:60mm!important;
+  flex:0 0 40mm!important;
+}
+.front1right .frontInfoWrap{
+  grid-template-columns:40mm 1fr!important;
+  gap:4mm!important;
+  margin:2.6mm 0 2.6mm 0!important;
+}
+.front1right .frontInfoFields{
+  line-height:1.28!important;
+}
+.front1right .frontInfoFields .row{
+  line-height:1.28!important;
+  margin:1.55mm 0!important;
+  min-height:5.2mm!important;
+}
+.front1right .frontInfoFields .plainValue,
+.front1right .frontInfoFields .line{
+  min-height:4.3mm!important;
+  line-height:4.15mm!important;
+}
+.front1right .frontInfoFields .capNgayTaiRow{
+  line-height:1.28!important;
+  margin:1.55mm 0!important;
+  min-height:5.2mm!important;
+}
+.front1right .frontInfoFields .capNgayTaiRow .capDateValue,
+.front1right .frontInfoFields .capNgayTaiRow .capTaiValue{
+  min-height:4.3mm!important;
+  line-height:4.15mm!important;
+}
+.front1right .frontHistoryBlock{
+  line-height:1.25!important;
+  margin-top:2mm!important;
+  padding-bottom:77mm!important;
+}
+.front1right .frontHistoryBlock .note{
+  line-height:1.22!important;
+  margin-bottom:2mm!important;
+  max-height:11mm!important;
+}
+.front1right .frontHistoryBlock .section{
+  line-height:1.18!important;
+  margin:0 0 2mm 0!important;
+}
+.front1right .frontHistoryBlock .subsection{
+  line-height:1.22!important;
+  margin:1.35mm 0!important;
+}
+.front1right .frontHistoryBlock .paraLine{
+  min-height:5.35mm!important;
+  height:5.35mm!important;
+  line-height:5.1mm!important;
+}
+.front1right .frontHistoryBlock .historyTwoTables{
+  bottom:5mm!important;
+}
+.front1right .frontHistoryBlock .blankHistoryTable th,
+.front1right .frontHistoryBlock .blankHistoryTable td{
+  line-height:1.18!important;
+}
+.front1right .frontHistoryBlock .blankHistoryTable th{
+  height:5.2mm!important;
+}
+.front1right .frontHistoryBlock .blankHistoryTable tbody tr{
+  height:13.25mm!important;
+  max-height:13.25mm!important;
+}
+
+@media print{
+  .front1right .photoBox{
+    width:40mm!important;
+    min-width:40mm!important;
+    max-width:40mm!important;
+    height:60mm!important;
+    min-height:60mm!important;
+    max-height:60mm!important;
+    flex:0 0 40mm!important;
+  }
+  .front1right .frontInfoWrap{
+    grid-template-columns:40mm 1fr!important;
+  }
+  .front1right .frontInfoFields{
+    line-height:1.28!important;
+  }
+  .front1right .frontInfoFields .row{
+    line-height:1.28!important;
+    margin:1.55mm 0!important;
+    min-height:5.2mm!important;
+  }
+  .front1right .frontHistoryBlock{
+    line-height:1.25!important;
+    padding-bottom:77mm!important;
+  }
+  .front1right .frontHistoryBlock .historyTwoTables{
+    bottom:5mm!important;
+  }
+  .front1right .frontHistoryBlock .blankHistoryTable tbody tr{
+    height:13.25mm!important;
+    max-height:13.25mm!important;
+  }
+}
+
+
+/* TĂNG THÊM 1 SIZE + GIÃN DÒNG CHO PHẦN I. TIỀN SỬ... Ở TRANG 2 - MẶT 1 */
+.front1right .frontHistoryBlock{
+  line-height:1.30!important;
+}
+.front1right .frontHistoryBlock .section{
+  font-size:14.5px!important;
+  line-height:1.18!important;
+  margin:0 0 2.2mm 0!important;
+}
+.front1right .frontHistoryBlock .subsection{
+  font-size:14px!important;
+  line-height:1.22!important;
+  margin:1.7mm 0!important;
+}
+.front1right .frontHistoryBlock > div:not(.note):not(.section):not(.subsection):not(.historyTwoTables){
+  font-size:13.5px!important;
+  line-height:1.28!important;
+  margin:.95mm 0!important;
+}
+.front1right .frontHistoryBlock .paraLine{
+  font-size:13.5px!important;
+  min-height:5.9mm!important;
+  height:5.9mm!important;
+  line-height:5.55mm!important;
+}
+@media print{
+  .front1right .frontHistoryBlock{
+    line-height:1.30!important;
+  }
+  .front1right .frontHistoryBlock .section{
+    font-size:14.5px!important;
+    line-height:1.18!important;
+    margin:0 0 2.2mm 0!important;
+  }
+  .front1right .frontHistoryBlock .subsection{
+    font-size:14px!important;
+    line-height:1.22!important;
+    margin:1.7mm 0!important;
+  }
+  .front1right .frontHistoryBlock > div:not(.note):not(.section):not(.subsection):not(.historyTwoTables){
+    font-size:13.5px!important;
+    line-height:1.28!important;
+    margin:.95mm 0!important;
+  }
+  .front1right .frontHistoryBlock .paraLine{
+    font-size:13.5px!important;
+    min-height:5.9mm!important;
+    height:5.9mm!important;
+    line-height:5.55mm!important;
+  }
+}
+
+
+/* TĂNG SIZE CHỮ TRONG KHUNG BẢNG CÓ / KHÔNG Ở TRANG 2 - MẶT 1 */
+.front1right .frontHistoryBlock .blankHistoryTable th,
+.front1right .frontHistoryBlock .blankHistoryTable td{
+  font-size:13.2px!important;
+  line-height:1.12!important;
+}
+.front1right .frontHistoryBlock .blankHistoryTable th{
+  font-size:13.4px!important;
+  line-height:1.08!important;
+}
+.front1right .frontHistoryBlock .blankHistoryTable .diseaseCell{
+  font-size:13.2px!important;
+  line-height:1.12!important;
+}
+@media print{
+  .front1right .frontHistoryBlock .blankHistoryTable th,
+  .front1right .frontHistoryBlock .blankHistoryTable td{
+    font-size:13.2px!important;
+    line-height:1.12!important;
+  }
+  .front1right .frontHistoryBlock .blankHistoryTable th{
+    font-size:13.4px!important;
+    line-height:1.08!important;
+  }
+  .front1right .frontHistoryBlock .blankHistoryTable .diseaseCell{
+    font-size:13.2px!important;
+    line-height:1.12!important;
+  }
+}
+
+
+/* TĂNG TIẾP CHỮ TRONG KHUNG CÓ / KHÔNG BẰNG SIZE MỤC 2. TIỀN SỬ */
+.front1right .frontHistoryBlock .blankHistoryTable th,
+.front1right .frontHistoryBlock .blankHistoryTable td{
+  font-size:14px!important;
+  line-height:1.14!important;
+}
+.front1right .frontHistoryBlock .blankHistoryTable th{
+  font-size:14px!important;
+  line-height:1.10!important;
+}
+.front1right .frontHistoryBlock .blankHistoryTable .diseaseCell{
+  font-size:14px!important;
+  line-height:1.14!important;
+}
+@media print{
+  .front1right .frontHistoryBlock .blankHistoryTable th,
+  .front1right .frontHistoryBlock .blankHistoryTable td{
+    font-size:14px!important;
+    line-height:1.14!important;
+  }
+  .front1right .frontHistoryBlock .blankHistoryTable th{
+    font-size:14px!important;
+    line-height:1.10!important;
+  }
+  .front1right .frontHistoryBlock .blankHistoryTable .diseaseCell{
+    font-size:14px!important;
+    line-height:1.14!important;
+  }
+}
+
+
+/* TĂNG SIZE CHỮ TRANG 1 - MẶT 1 BẰNG MỤC 2. TIỀN SỬ */
+.front1left{
+  font-size:14px!important;
+  line-height:1.14!important;
+  overflow:hidden!important;
+}
+.front1left .frontSectionTitle{
+  font-size:15px!important;
+  line-height:1.08!important;
+  margin:0 0 2mm 0!important;
+}
+.front1left .labTable thead th{
+  font-size:14px!important;
+  line-height:1.10!important;
+  height:13.2mm!important;
+  padding:1.3mm 1.4mm!important;
+  background:#fff!important;
+}
+.front1left .labTable tbody td{
+  font-size:14px!important;
+  line-height:1.12!important;
+  padding:1.35mm 1.4mm!important;
+}
+.front1left .labTable .labRow1 td{
+  height:32mm!important;
+  max-height:32mm!important;
+}
+.front1left .labTable .labRow2 td{
+  height:34mm!important;
+  max-height:34mm!important;
+}
+.front1left .labFillRow{
+  gap:1mm!important;
+  margin-top:.6mm!important;
+}
+.front1left .labFillRow .labFillLabel{
+  font-size:14px!important;
+  line-height:1.12!important;
+}
+.front1left .labFillRow .line,
+.front1left .line{
+  min-height:3.45mm!important;
+  line-height:3.3mm!important;
+}
+.front1left .conclusionTitle{
+  font-size:15px!important;
+  line-height:1.08!important;
+  margin:17mm 0 3.4mm 0!important;
+}
+.front1left .conclusionLine{
+  height:6.9mm!important;
+  margin:0 0 .55mm 0!important;
+}
+.front1left .validNote{
+  font-size:14px!important;
+  line-height:1.10!important;
+  margin-top:3.8mm!important;
+}
+.front1left .ketLuanSign{
+  font-size:14px!important;
+  line-height:1.12!important;
+  margin:14.5mm 0 0 auto!important;
+}
+.front1left .ketLuanSign .dateLine,
+.front1left .ketLuanSign .role,
+.front1left .ketLuanSign .sub{
+  font-size:14px!important;
+  line-height:1.10!important;
+}
+@media print{
+  .front1left{
+    font-size:14px!important;
+    line-height:1.14!important;
+    overflow:hidden!important;
+  }
+  .front1left .frontSectionTitle,
+  .front1left .conclusionTitle{
+    font-size:15px!important;
+    line-height:1.08!important;
+  }
+  .front1left .labTable thead th{
+    font-size:14px!important;
+    line-height:1.10!important;
+    height:13.2mm!important;
+    padding:1.3mm 1.4mm!important;
+    background:#fff!important;
+  }
+  .front1left .labTable tbody td{
+    font-size:14px!important;
+    line-height:1.12!important;
+    padding:1.35mm 1.4mm!important;
+  }
+  .front1left .validNote,
+  .front1left .ketLuanSign,
+  .front1left .ketLuanSign .dateLine,
+  .front1left .ketLuanSign .role,
+  .front1left .ketLuanSign .sub{
+    font-size:14px!important;
+    line-height:1.10!important;
+  }
+}
+
+
+/* TĂNG SIZE CHỮ TRANG 1 + 2 CỦA MẶT SAU BẰNG MỤC 2. TIỀN SỬ */
+.a3grid .halfPage:not(.front1left):not(.front1right){
+  font-size:14px!important;
+  line-height:1.14!important;
+  overflow:hidden!important;
+}
+.a3grid .halfPage:not(.front1left):not(.front1right) .section,
+.a3grid .halfPage:not(.front1left):not(.front1right) .halfTitle{
+  font-size:15px!important;
+  line-height:1.08!important;
+  margin-top:4px!important;
+  margin-bottom:3px!important;
+}
+.a3grid .halfPage:not(.front1left):not(.front1right) .subsection{
+  font-size:14px!important;
+  line-height:1.12!important;
+  margin-top:4px!important;
+}
+.a3grid .halfPage:not(.front1left):not(.front1right) .row{
+  margin:2px 0!important;
+  line-height:1.12!important;
+}
+.a3grid .halfPage:not(.front1left):not(.front1right) .line{
+  min-height:15px!important;
+  line-height:15px!important;
+}
+.a3grid .halfPage:not(.front1left):not(.front1right) .paraLine{
+  min-height:15px!important;
+  line-height:15px!important;
+  font-size:14px!important;
+}
+.a3grid .halfPage:not(.front1left):not(.front1right) .historyTable td,
+.a3grid .halfPage:not(.front1left):not(.front1right) .historyTable th,
+.a3grid .halfPage:not(.front1left):not(.front1right) .examTable td,
+.a3grid .halfPage:not(.front1left):not(.front1right) .examTable th,
+.a3grid .halfPage:not(.front1left):not(.front1right) .labTable td,
+.a3grid .halfPage:not(.front1left):not(.front1right) .labTable th{
+  font-size:14px!important;
+  line-height:1.12!important;
+  padding:2px 3px!important;
+}
+.a3grid .halfPage:not(.front1left):not(.front1right) .historyTable th,
+.a3grid .halfPage:not(.front1left):not(.front1right) .examTable th{
+  text-align:center!important;
+}
+.a3grid .halfPage:not(.front1left):not(.front1right) .checkbox{
+  width:4mm!important;
+  height:4mm!important;
+  font-size:12px!important;
+}
+.a3grid .halfPage:not(.front1left):not(.front1right) .twoCol{
+  gap:4mm!important;
+}
+.a3grid .halfPage:not(.front1left):not(.front1right) .examTable .paraLine{
+  min-height:14px!important;
+}
+@media print{
+  .a3grid .halfPage:not(.front1left):not(.front1right){
+    font-size:14px!important;
+    line-height:1.14!important;
+    overflow:hidden!important;
+  }
+  .a3grid .halfPage:not(.front1left):not(.front1right) .section,
+  .a3grid .halfPage:not(.front1left):not(.front1right) .halfTitle{
+    font-size:15px!important;
+    line-height:1.08!important;
+  }
+  .a3grid .halfPage:not(.front1left):not(.front1right) .subsection{
+    font-size:14px!important;
+    line-height:1.12!important;
+  }
+  .a3grid .halfPage:not(.front1left):not(.front1right) .historyTable td,
+  .a3grid .halfPage:not(.front1left):not(.front1right) .historyTable th,
+  .a3grid .halfPage:not(.front1left):not(.front1right) .examTable td,
+  .a3grid .halfPage:not(.front1left):not(.front1right) .examTable th,
+  .a3grid .halfPage:not(.front1left):not(.front1right) .labTable td,
+  .a3grid .halfPage:not(.front1left):not(.front1right) .labTable th{
+    font-size:14px!important;
+    line-height:1.12!important;
+    padding:2px 3px!important;
+  }
+  .a3grid .halfPage:not(.front1left):not(.front1right) .paraLine{
+    font-size:14px!important;
+    min-height:15px!important;
+    line-height:15px!important;
+  }
+}
+
+
+/* MẶT SAU - BẢNG TIỀN SỬ: bỏ nền, bỏ ô vuông tích chọn, thay bằng 2 cột Có / Không */
+.backHistorySplitTable{
+  width:100%!important;
+  border-collapse:collapse!important;
+  table-layout:fixed!important;
+  margin-top:0!important;
+}
+.backHistorySplitTable th,
+.backHistorySplitTable td{
+  border:1px solid #111!important;
+  background:#fff!important;
+  background-color:#fff!important;
+  font-family:'Times New Roman',serif!important;
+  vertical-align:middle!important;
+  overflow:hidden!important;
+}
+.backHistorySplitTable th{
+  text-align:center!important;
+  font-weight:bold!important;
+}
+.backHistorySplitTable .diseaseCell{
+  text-align:left!important;
+}
+.backHistorySplitTable .yesCol,
+.backHistorySplitTable .noCol{
+  width:9mm!important;
+  min-width:9mm!important;
+  max-width:9mm!important;
+  padding:0!important;
+}
+@media print{
+  .backHistorySplitTable th,
+  .backHistorySplitTable td{
+    background:#fff!important;
+    background-color:#fff!important;
+  }
+}
+
+
+/* GIẢM CHỮ CÓ / KHÔNG Ở BẢNG MẶT SAU ĐỂ KHÔNG XUỐNG DÒNG */
+.backHistorySplitTable thead th[colspan="2"]{
+  font-size:11px!important;
+  line-height:1!important;
+  white-space:nowrap!important;
+  word-break:keep-all!important;
+  overflow:hidden!important;
+  padding:1px!important;
+  text-align:center!important;
+}
+.backHistorySplitTable .yesCol,
+.backHistorySplitTable .noCol{
+  width:10mm!important;
+  min-width:10mm!important;
+  max-width:10mm!important;
+}
+@media print{
+  .backHistorySplitTable thead th[colspan="2"]{
+    font-size:11px!important;
+    line-height:1!important;
+    white-space:nowrap!important;
+    word-break:keep-all!important;
+    overflow:hidden!important;
+    padding:1px!important;
+  }
+  .backHistorySplitTable .yesCol,
+  .backHistorySplitTable .noCol{
+    width:10mm!important;
+    min-width:10mm!important;
+    max-width:10mm!important;
+  }
+}
+
+
+/* THIẾT KẾ LẠI VÙNG SỐ 3 - TRANG 1 MẶT SAU */
+.backQ3Wrap{margin-top:3mm!important}
+.backQ3Wrap .subsection{margin-top:4px!important;margin-bottom:2px!important}
+.backQ3Question{margin:1.2mm 0 0.8mm 0!important;line-height:1.16!important}
+.backQ3Wrap .paraLine{min-height:16px!important;line-height:16px!important}
+.backQ3Commit{margin-top:7mm!important;line-height:1.16!important}
+.backP1SignWrap{width:82mm!important;margin:6mm 0 0 auto!important;text-align:center!important;font-size:14px!important;line-height:1.14!important}
+.backP1SignWrap .dateLine{text-align:left!important;white-space:nowrap!important;margin-bottom:1.8mm!important}
+.backP1SignWrap .role{font-weight:normal!important}
+.backP1SignWrap .sub{font-style:italic!important}
+.backClinicalTitle{margin-top:22mm!important;text-align:left!important}
+@media print{
+  .backP1SignWrap{width:82mm!important;margin:6mm 0 0 auto!important;text-align:center!important;font-size:14px!important;line-height:1.14!important}
+  .backP1SignWrap .dateLine{text-align:left!important;white-space:nowrap!important;margin-bottom:1.8mm!important}
+  .backClinicalTitle{margin-top:22mm!important;text-align:left!important}
+}
+
+/* TRANG 1 MẶT SAU - KHÁM LÂM SÀNG THEO MẪU ẢNH */
+.backP1SignWrap{width:86mm!important;margin:5mm 0 0 auto!important;text-align:center!important;font-size:14px!important;line-height:1.14!important}
+.backP1SignWrap .dateLine{text-align:left!important;white-space:nowrap!important;margin-bottom:1.8mm!important}
+.backClinicalTitle{margin-top:24mm!important;text-align:left!important}
+.backClinicalP1Table td,.backClinicalP1Table th{font-size:14px!important;line-height:1.12!important;padding:2px 4px!important;vertical-align:top!important}
+.backClinicalP1Table thead th{text-align:center!important;background:#fff!important}
+.backClinicalP1Table .doctorCell{width:39mm!important}
+.backClinicalP1Table .doctorLines{height:100%;min-height:53mm;display:flex;flex-direction:column;justify-content:space-between}
+.backClinicalP1Table .doctorLines .dotted{border-bottom:1px dotted #222;height:16mm}
+.backClinicalP1Table .examLabel{font-weight:bold}
+.backClinicalP1Table .examLine{margin-top:2px}
+.backClinicalP1Table .conclusionLine{margin-top:6px}
+.backClinicalP1Table .eyeIntro{margin-top:1px}
+.backClinicalP1Table .row{margin:1px 0!important;line-height:1.12!important}
+.backClinicalP1Table .line{min-height:15px!important;line-height:15px!important}
+@media print{
+  .backP1SignWrap{width:86mm!important;margin:5mm 0 0 auto!important;text-align:center!important;font-size:14px!important;line-height:1.14!important}
+  .backClinicalTitle{margin-top:24mm!important;text-align:left!important}
+  .backClinicalP1Table td,.backClinicalP1Table th{font-size:14px!important;line-height:1.12!important;padding:2px 4px!important;vertical-align:top!important}
+  .backClinicalP1Table .doctorLines .dotted{border-bottom:1px dotted #222;height:16mm}
+}
+
+/* GIÃN CÁCH CÁC HÀNG + DÒNG CHẤM TỚI CẠNH KHUNG Ở TRANG 1 MẶT SAU */
+.backClinicalP1Table{table-layout:fixed!important}
+.backClinicalP1Table .rowMental td{height:31mm!important}
+.backClinicalP1Table .rowNeuro td{height:31mm!important}
+.backClinicalP1Table .rowEye td{height:34mm!important}
+.backClinicalP1Table td,.backClinicalP1Table th{padding:3px 2px!important;vertical-align:top!important}
+.backClinicalP1Table .paraLine{padding:0!important;min-height:17px!important;height:17px!important;line-height:17px!important;width:100%!important}
+.backClinicalP1Table .examLabel{margin-bottom:2px!important}
+.backClinicalP1Table .conclusionLine{display:flex!important;align-items:flex-end!important;gap:1mm!important;margin-top:7px!important;width:100%!important}
+.backClinicalP1Table .conclusionLine b{flex:0 0 auto!important}
+.backClinicalP1Table .conclusionLine .line{flex:1 1 auto!important;width:auto!important;min-width:0!important;padding:0!important;min-height:15px!important;line-height:15px!important}
+.backClinicalP1Table .row{margin:4px 0!important;line-height:1.16!important}
+.backClinicalP1Table .row .line{padding:0!important}
+.backClinicalP1Table .doctorSingleLine{margin-top:22mm;border-bottom:1px dotted #222;height:0!important;width:100%!important}
+.backClinicalP1Table .doctorCell{padding:0 2px!important}
+.backClinicalP1Table .eyeIntro{margin-top:3px!important;margin-bottom:4px!important}
+@media print{
+  .backClinicalP1Table .rowMental td{height:31mm!important}
+  .backClinicalP1Table .rowNeuro td{height:31mm!important}
+  .backClinicalP1Table .rowEye td{height:34mm!important}
+  .backClinicalP1Table .paraLine{padding:0!important;min-height:17px!important;height:17px!important;line-height:17px!important;width:100%!important}
+  .backClinicalP1Table .conclusionLine{display:flex!important;align-items:flex-end!important;gap:1mm!important;margin-top:7px!important;width:100%!important}
+  .backClinicalP1Table .conclusionLine .line{flex:1 1 auto!important;width:auto!important;min-width:0!important;padding:0!important;min-height:15px!important;line-height:15px!important}
+  .backClinicalP1Table .doctorSingleLine{margin-top:22mm;border-bottom:1px dotted #222;height:0!important;width:100%!important}
+}
+
+/* THÊM DÒNG CHẤM DƯỚI TÂM THẦN/THẦN KINH, KẾT LUẬN SÁT ĐÁY */
+.backClinicalP1Table .backExamCell{height:100%!important;display:flex!important;flex-direction:column!important}
+.backClinicalP1Table .midDottedLine{border-bottom:1px dotted #222!important;height:0!important;width:100%!important;margin-top:4px!important}
+.backClinicalP1Table .conclusionLine{display:flex!important;align-items:flex-end!important;gap:1mm!important;margin-top:auto!important;margin-bottom:0!important;width:100%!important}
+.backClinicalP1Table .conclusionLine b{flex:0 0 auto!important;line-height:15px!important}
+.backClinicalP1Table .conclusionLine .line{flex:1 1 auto!important;width:auto!important;min-width:0!important;padding:0!important;min-height:15px!important;line-height:15px!important}
+@media print{
+  .backClinicalP1Table .backExamCell{height:100%!important;display:flex!important;flex-direction:column!important}
+  .backClinicalP1Table .midDottedLine{border-bottom:1px dotted #222!important;height:0!important;width:100%!important;margin-top:4px!important}
+  .backClinicalP1Table .conclusionLine{display:flex!important;align-items:flex-end!important;gap:1mm!important;margin-top:auto!important;margin-bottom:0!important;width:100%!important}
+}
+
+/* GIÃN CÁC DÒNG CHẤM BẰNG NHAU CHO TÂM THẦN/THẦN KINH */
+.backClinicalP1Table .rowMental td,.backClinicalP1Table .rowNeuro td{height:34mm!important}
+.backClinicalP1Table .backExamCell{height:100%!important;display:flex!important;flex-direction:column!important}
+.backClinicalP1Table .writeLines{display:flex!important;flex-direction:column!important;gap:5.5mm!important;margin-top:3px!important;width:100%!important;flex:1 1 auto!important}
+.backClinicalP1Table .writeLines .paraLine{padding:0!important;min-height:0!important;height:0!important;line-height:0!important;width:100%!important;border-bottom:1px dotted #222!important}
+.backClinicalP1Table .conclusionLine{display:flex!important;align-items:flex-end!important;gap:1mm!important;margin-top:auto!important;margin-bottom:0!important;width:100%!important}
+.backClinicalP1Table .conclusionLine b{flex:0 0 auto!important;line-height:15px!important}
+.backClinicalP1Table .conclusionLine .line{flex:1 1 auto!important;width:auto!important;min-width:0!important;padding:0!important;min-height:15px!important;line-height:15px!important}
+@media print{
+  .backClinicalP1Table .rowMental td,.backClinicalP1Table .rowNeuro td{height:34mm!important}
+  .backClinicalP1Table .writeLines{display:flex!important;flex-direction:column!important;gap:5.5mm!important;margin-top:3px!important;width:100%!important;flex:1 1 auto!important}
+  .backClinicalP1Table .writeLines .paraLine{padding:0!important;min-height:0!important;height:0!important;line-height:0!important;width:100%!important;border-bottom:1px dotted #222!important}
+}
+
+/* ĐƯA KHUNG KHÁM LÂM SÀNG TRANG 1 MẶT SAU XUỐNG SÁT CẠNH DƯỚI */
+.backClinicalP1Section{position:absolute!important;left:4mm!important;right:4mm!important;bottom:4mm!important}
+.backClinicalP1Section .backClinicalTitle{margin-top:0!important;margin-bottom:2mm!important}
+.backClinicalP1Section .backClinicalP1Table{width:100%!important;margin:0!important}
+@media print{
+  .backClinicalP1Section{position:absolute!important;left:4mm!important;right:4mm!important;bottom:4mm!important}
+  .backClinicalP1Section .backClinicalTitle{margin-top:0!important;margin-bottom:2mm!important}
+  .backClinicalP1Section .backClinicalP1Table{width:100%!important;margin:0!important}
+}
+
+/* TRANG 2 - MẶT SAU: nội dung theo file Word TT36 */
+.backClinicalP2{
+  font-size:13.2px!important;
+  line-height:1.08!important;
+  overflow:hidden!important;
+  padding-top:1.5mm!important;
+}
+.backClinicalP2 .examTable{
+  width:100%!important;
+  border-collapse:collapse!important;
+  table-layout:fixed!important;
+  margin:0!important;
+}
+.backClinicalP2 .examTable td,
+.backClinicalP2 .examTable th{
+  border:1px solid #111!important;
+  background:#fff!important;
+  font-family:'Times New Roman',serif!important;
+  font-size:13.2px!important;
+  line-height:1.08!important;
+  padding:1.25mm 1.3mm!important;
+  vertical-align:top!important;
+  overflow:hidden!important;
+}
+.backClinicalP2 .doctorCell{
+  width:39mm!important;
+  padding:0!important;
+  background:#fff!important;
+}
+.backClinicalP2 .doctorSignLine{
+  display:block!important;
+  width:100%!important;
+  height:11mm!important;
+  border-bottom:1px dotted #222!important;
+  margin-top:5mm!important;
+}
+.backClinicalP2 .sectionLabel{
+  font-weight:bold!important;
+  margin-bottom:1mm!important;
+}
+.backClinicalP2 .smallTitle{
+  margin:.6mm 0!important;
+}
+.backClinicalP2 .line{
+  padding:0 .5mm!important;
+  min-height:3.4mm!important;
+  line-height:3.25mm!important;
+  white-space:nowrap!important;
+  overflow:hidden!important;
+}
+.backClinicalP2 .paraLine{
+  min-height:4.7mm!important;
+  height:4.7mm!important;
+  line-height:4.45mm!important;
+  padding:0 .5mm!important;
+  overflow:hidden!important;
+}
+.backClinicalP2 .row{
+  margin:.6mm 0!important;
+  line-height:1.08!important;
+  flex-wrap:nowrap!important;
+}
+.backClinicalP2 .visionTable{
+  width:100%!important;
+  border-collapse:collapse!important;
+  table-layout:fixed!important;
+  margin:1mm 0 1mm 0!important;
+}
+.backClinicalP2 .visionTable td{
+  border:1px solid #111!important;
+  text-align:center!important;
+  padding:.8mm .8mm!important;
+  font-size:12.2px!important;
+  line-height:1.05!important;
+  vertical-align:middle!important;
+}
+.backClinicalP2 .checkbox{
+  width:3.6mm!important;
+  height:3.6mm!important;
+  font-size:10px!important;
+  margin:0 .7mm!important;
+}
+.backClinicalP2 .rowEyeRest td{height:70mm!important}
+.backClinicalP2 .rowTMH td{height:52mm!important}
+.backClinicalP2 .rowTimMach td{height:44mm!important}
+.backClinicalP2 .rowHoHap td{height:33mm!important}
+.backClinicalP2 .rowCoXuongKhop td{height:33mm!important}
+.backClinicalP2 .rowNoiTiet td{height:24mm!important}
+@media print{
+  .backClinicalP2{
+    font-size:13.2px!important;
+    line-height:1.08!important;
+    overflow:hidden!important;
+    padding-top:1.5mm!important;
+  }
+  .backClinicalP2 .examTable td,
+  .backClinicalP2 .examTable th{
+    background:#fff!important;
+    font-size:13.2px!important;
+    line-height:1.08!important;
+    padding:1.25mm 1.3mm!important;
+    overflow:hidden!important;
+  }
+  .backClinicalP2 .visionTable td{
+    font-size:12.2px!important;
+    line-height:1.05!important;
+    padding:.8mm .8mm!important;
+  }
+}
+
+
+/* TRANG 2 MẶT SAU - BẢNG THỊ TRƯỜNG THEO MẪU */
+.backClinicalP2 .visionTable{
+  width:100%!important;
+  border-collapse:collapse!important;
+  table-layout:fixed!important;
+  margin:1mm 0 1.2mm 0!important;
+  border:1px solid #111!important;
+}
+.backClinicalP2 .visionTable td{
+  border:1px solid #111!important;
+  background:#fff!important;
+  text-align:center!important;
+  vertical-align:middle!important;
+  padding:.9mm .7mm!important;
+  font-size:12.4px!important;
+  line-height:1.12!important;
+  overflow:hidden!important;
+}
+.backClinicalP2 .visionTable .visionHead td{
+  height:13mm!important;
+}
+.backClinicalP2 .visionTable .visionSub td{
+  height:9mm!important;
+}
+.backClinicalP2 .visionTable .visionBlank td{
+  height:8mm!important;
+}
+@media print{
+  .backClinicalP2 .visionTable td{
+    background:#fff!important;
+    font-size:12.4px!important;
+    line-height:1.12!important;
+    padding:.9mm .7mm!important;
+  }
+  .backClinicalP2 .visionTable .visionHead td{height:13mm!important}
+  .backClinicalP2 .visionTable .visionSub td{height:9mm!important}
+  .backClinicalP2 .visionTable .visionBlank td{height:8mm!important}
+}
+
+
+/* TRANG 2 MẶT SAU - CÁC DÒNG CHẤM CHIA ĐỀU VÀ KÉO SÁT CẠNH KHUNG PHẢI */
+.backClinicalP2 .backP2Cell{
+  height:100%!important;
+  display:flex!important;
+  flex-direction:column!important;
+}
+.backClinicalP2 .backP2Fill{
+  display:flex!important;
+  flex-direction:column!important;
+  gap:5.2mm!important;
+  margin-top:1mm!important;
+  flex:1 1 auto!important;
+  width:100%!important;
+}
+.backClinicalP2 .backP2Fill .paraLine{
+  width:100%!important;
+  min-height:0!important;
+  height:0!important;
+  line-height:0!important;
+  padding:0!important;
+  border-bottom:1px dotted #222!important;
+  overflow:visible!important;
+}
+.backClinicalP2 .backConclusion{
+  display:flex!important;
+  align-items:flex-end!important;
+  gap:1mm!important;
+  width:100%!important;
+  margin-top:auto!important;
+}
+.backClinicalP2 .backConclusion b{
+  flex:0 0 auto!important;
+}
+.backClinicalP2 .backConclusion .line{
+  flex:1 1 auto!important;
+  width:auto!important;
+  min-width:0!important;
+  min-height:15px!important;
+  line-height:15px!important;
+  padding:0!important;
+}
+.backClinicalP2 .rowTMH td{height:53mm!important}
+.backClinicalP2 .rowTimMach td{height:45mm!important}
+.backClinicalP2 .rowHoHap td{height:34mm!important}
+.backClinicalP2 .rowCoXuongKhop td{height:34mm!important}
+@media print{
+  .backClinicalP2 .backP2Cell{
+    height:100%!important;
+    display:flex!important;
+    flex-direction:column!important;
+  }
+  .backClinicalP2 .backP2Fill{
+    display:flex!important;
+    flex-direction:column!important;
+    gap:5.2mm!important;
+    margin-top:1mm!important;
+    flex:1 1 auto!important;
+    width:100%!important;
+  }
+  .backClinicalP2 .backP2Fill .paraLine{
+    width:100%!important;
+    min-height:0!important;
+    height:0!important;
+    line-height:0!important;
+    padding:0!important;
+    border-bottom:1px dotted #222!important;
+    overflow:visible!important;
+  }
+  .backClinicalP2 .backConclusion{
+    display:flex!important;
+    align-items:flex-end!important;
+    gap:1mm!important;
+    width:100%!important;
+    margin-top:auto!important;
+  }
+  .backClinicalP2 .backConclusion .line{
+    flex:1 1 auto!important;
+    width:auto!important;
+    min-width:0!important;
+    min-height:15px!important;
+    line-height:15px!important;
+    padding:0!important;
+  }
+}
+
+
+/* TRANG 2 MẶT SAU - CHIA ĐỀU DẤU CHẤM Ở MỤC 7, 8 VÀ KÉO SÁT KHUNG PHẢI */
+.backClinicalP2 .rowCoXuongKhop td{height:36mm!important}
+.backClinicalP2 .rowNoiTiet td{height:26mm!important}
+.backClinicalP2 .backP2Fill.tight2{
+  gap:6.8mm!important;
+}
+.backClinicalP2 .backP2Fill.tight1{
+  gap:7.5mm!important;
+}
+.backClinicalP2 .backP2Fill.tight2 .paraLine,
+.backClinicalP2 .backP2Fill.tight1 .paraLine{
+  width:100%!important;
+  border-bottom:1px dotted #222!important;
+}
+@media print{
+  .backClinicalP2 .rowCoXuongKhop td{height:36mm!important}
+  .backClinicalP2 .rowNoiTiet td{height:26mm!important}
+  .backClinicalP2 .backP2Fill.tight2{
+    gap:6.8mm!important;
+  }
+  .backClinicalP2 .backP2Fill.tight1{
+    gap:7.5mm!important;
+  }
+}
+
+
+
+/* ===== FIX MỤC 5 CẤP NGÀY/TẠI + MỤC 6 HỘ KHẨU: DỮ LIỆU DÀI TỰ XUỐNG DÒNG, KHÔNG MẤT CHỮ/ĐÈ CHỮ ===== */
+.front1right .frontInfoFields .capNgayTaiRow,
+.front1right .frontInfoFields .hkttRow{
+  display:flex!important;
+  flex-wrap:wrap!important;
+  align-items:flex-start!important;
+  overflow:visible!important;
+  white-space:normal!important;
+  max-width:100%!important;
+  height:auto!important;
+  min-height:5.2mm!important;
+  line-height:1.22!important;
+  margin:1.15mm 0!important;
+}
+.front1right .frontInfoFields .capNgayTaiRow b,
+.front1right .frontInfoFields .hkttRow b,
+.front1right .frontInfoFields .capNgayTaiRow .taiLabel{
+  flex:0 0 auto!important;
+  white-space:nowrap!important;
+  line-height:4.2mm!important;
+  max-width:none!important;
+}
+.front1right .frontInfoFields .capNgayTaiRow .capDateValue{
+  flex:0 0 auto!important;
+  width:auto!important;
+  min-width:21mm!important;
+  max-width:none!important;
+  white-space:nowrap!important;
+  overflow:visible!important;
+  line-height:4.2mm!important;
+  min-height:4.3mm!important;
+}
+.front1right .frontInfoFields .capNgayTaiRow .capTaiValue,
+.front1right .frontInfoFields .hkttRow .hkttValue,
+.front1right .frontInfoFields .multilineValue{
+  flex:1 1 0!important;
+  display:inline-block!important;
+  min-width:35mm!important;
+  width:auto!important;
+  max-width:none!important;
+  height:auto!important;
+  min-height:4.3mm!important;
+  line-height:4.2mm!important;
+  padding:0 .6mm!important;
+  white-space:normal!important;
+  overflow:visible!important;
+  overflow-wrap:anywhere!important;
+  word-break:normal!important;
+  text-overflow:clip!important;
+  border-bottom:1px dotted #222!important;
+}
+.front1right .frontInfoFields .hkttRow .hkttValue{
+  min-width:45mm!important;
+}
+.front1right .frontInfoFields .capNgayTaiRow .line.capTaiValue,
+.front1right .frontInfoFields .hkttRow .line.hkttValue{
+  min-height:4.3mm!important;
+}
+.front1right .frontInfoFields .frontInfoWrap,
+.front1right .frontInfoFields{
+  overflow:visible!important;
+}
+
+/* Bản A4 thường cũng cho 2 mục này tự xuống dòng nếu dùng chế độ xem/in từng trang */
+.page1CapTaiRow,
+.page1HkttRow{
+  flex-wrap:wrap!important;
+  align-items:flex-start!important;
+  overflow:visible!important;
+  white-space:normal!important;
+}
+.page1CapTaiRow .multilineValue,
+.page1HkttRow .multilineValue{
+  white-space:pre-wrap!important;
+  overflow-wrap:anywhere!important;
+  overflow:visible!important;
+  height:auto!important;
+  min-height:18px!important;
+}
+@media print{
+  .front1right .frontInfoFields .capNgayTaiRow,
+  .front1right .frontInfoFields .hkttRow{
+    display:flex!important;
+    flex-wrap:wrap!important;
+    align-items:flex-start!important;
+    overflow:visible!important;
+    white-space:normal!important;
+    height:auto!important;
+  }
+  .front1right .frontInfoFields .capNgayTaiRow .capTaiValue,
+  .front1right .frontInfoFields .hkttRow .hkttValue,
+  .front1right .frontInfoFields .multilineValue{
+    white-space:normal!important;
+    overflow:visible!important;
+    overflow-wrap:anywhere!important;
+    height:auto!important;
+    border-bottom:1px dotted #222!important;
+  }
+}
+
+</style>
+</head>
+<body>
+<div id="loader" class="loader"><div class="loaderBox"><div class="spinner"></div><b id="loaderTitle">Đang xử lý...</b><p id="loaderText" class="small">Vui lòng không đóng trình duyệt.</p></div></div>
+<header class="noPrint"><h1>APP CHẠY MẪU GIẤY KHÁM SỨC KHỎE LÁI XE TT36 2026</h1><p>Nhập Excel không giới hạn dòng/cột → tự nhận diện cột → sửa từng hồ sơ → lưu tự động → in A3 2 mặt / xuất PDF theo mẫu Phụ lục II.</p></header>
+<div class="toolbar noPrint">
+<label class="fileLabel">Nhập Excel<input id="excelFile" type="file" accept=".xlsx,.xls,.csv" /></label>
+<label class="fileLabel ok" title="Tự động dò tên cột Excel gần giống để đổ dữ liệu từ Họ tên đến Hộ khẩu thường trú">Chạy mailing Excel<input id="mailingExcelFile" type="file" accept=".xlsx,.xls,.csv" /></label>
+<button onclick="addBlank()">Thêm hồ sơ</button>
+<button onclick="deleteCurrent()" class="danger">Xóa hồ sơ</button>
+<button onclick="resetAllData()" class="danger" style="background:#991b1b">Reset toàn bộ</button>
+<button onclick="exportData()" class="secondary">Xuất Excel</button>
+<button onclick="saveBackupFile()" class="ok">Lưu file backup</button>
+<label class="fileLabel secondary" style="background:#475569">Mở backup<input id="backupFile" type="file" accept=".json" /></label>
+<span style="display:inline-flex;align-items:center;gap:4px"><label>Từ</label><input type="number" id="fromRec" value="1" min="1" style="width:68px"></span>
+<span style="display:inline-flex;align-items:center;gap:4px"><label>Đến</label><input type="number" id="toRec" value="1" min="1" style="width:68px"></span>
+<button onclick="printRange()" class="print">In A3 2 mặt</button>
+<button onclick="exportPdf()" class="print" style="background:#0284c7">Xuất PDF</button>
+<button onclick="showAll()" class="secondary">Hiện tất cả</button>
+</div>
+<div class="wrap">
+<aside class="panel noPrint">
+<h2>Danh sách hồ sơ</h2>
+<div class="hint">App tự lưu trên trình duyệt. Muốn lưu vào Google Drive: bấm <b>Lưu file backup</b> rồi chọn thư mục Google Drive trên máy tính để đồng bộ.<br><br><b>Chạy mailing Excel:</b> app sẽ tự dò tên cột gần giống trong Excel, kể cả khác dấu/khoảng trắng/viết tắt, rồi đổ dữ liệu vào các mục từ <b>Họ và tên</b> đến <b>Hộ khẩu thường trú</b>. Không khóa giới hạn số dòng/số cột Excel nhập vào; dữ liệu lớn sẽ được xử lý theo từng đợt để hạn chế treo trình duyệt. Sau đó app tự hiện toàn bộ mẫu để in/xuất PDF.</div>
+<div class="list"><table><thead><tr><th>#</th><th>Họ tên</th><th>Năm sinh</th><th>CCCD</th></tr></thead><tbody id="patientRows"></tbody></table></div>
+<button type="button" class="dataToggle" onclick="togglePanel('clinicPanel')"><span>Thông tin đầu mẫu</span><span>▼</span></button>
+<div id="clinicPanel" class="dataPanel"><div id="clinicEdit" class="grid1"></div></div>
+<button type="button" class="dataToggle" onclick="togglePanel('dataPanel')"><span>Nhập / sửa hồ sơ</span><span>▼</span></button>
+<div id="dataPanel" class="dataPanel"><div id="editBox" class="editBox grid1"></div></div>
+</aside>
+<main class="panel printable"><div id="preview" class="previewArea"></div></main>
+</div>
+<script>
+const CLINIC_DEFAULT={company:'CÔNG TY TNHH PKĐK NHƠN TÂM',clinic:'PHÒNG KHÁM ĐA KHOA NHƠN TÂM',codeLoai:'GKSKLX',codeCoSo:'79568',codeNam:'26',codePrefix:'GKSKLX/79568/26',province:'TP. Hồ Chí Minh',legal:'(Ban hành kèm theo Thông tư số 36/2024/TT-BYT ngày 16 tháng 11 năm 2024 của Bộ trưởng Bộ Y tế)',title:'MẪU GIẤY KHÁM SỨC KHỎE CỦA NGƯỜI LÁI XE, NGƯỜI ĐIỀU KHIỂN XE MÁY CHUYÊN DÙNG',nguoiKetLuanLabel:'NGƯỜI KẾT LUẬN'};
+const FIELDS=[
+ ['soPhieu','Số',['so phieu','số phiếu','so','số','stt','cod','code','ma code','mã code','ma cod','mã cod','ma ho so','mã hồ sơ','so gksk','số gksk','so giay','số giấy','so phieu kham','số phiếu khám']],['hoTen','Họ và tên',['ho ten','họ tên','ten benh nhan','tên bệnh nhân','khach hang','khách hàng']],['gioiTinh','Giới tính',['gioi tinh','giới tính','phai','phái']],['ngaySinh','Ngày sinh / năm sinh',['ngay sinh','ngày sinh','nam sinh','năm sinh']],['tuoi','Tuổi',['tuoi','tuổi']],['cccd','Số CCCD / hộ chiếu',['cccd','cmnd','so cccd','số cccd','định danh','dinh danh','ho chieu','hộ chiếu']],['capNgay','Cấp ngày',['cap ngay','cấp ngày','ngay cap','ngày cấp']],['capTai','Cấp tại',['cap tai','cấp tại','noi cap','nơi cấp']],['hoKhau','Hộ khẩu thường trú',['ho khau','hộ khẩu','ho khau thuong tru','hộ khẩu thường trú','hộ khâu thường trú','hktt','dia chi','địa chỉ','dia chi thuong tru','địa chỉ thường trú','thuong tru','thường trú']],['hangLaiXe','Đề nghị khám lái xe hạng',['hang lai xe','hạng lái xe','hang xe','hạng xe','lai xe hang']],['ngayKham','Ngày khám / ngày ký',['ngay kham','ngày khám','ngay ky','ngày ký']],['ngayKetLuan','Ngày kết luận',['ngay ket luan','ngày kết luận','ngay kl','ngày kl','ngay ket qua','ngày kết quả']],['ketLuan','Kết luận',['ket luan','kết luận']],['nguoiKetLuan','Người kết luận',['nguoi ket luan','người kết luận','bac sy ket luan','bác sĩ kết luận']],['tienSuGiaDinh','Tiền sử gia đình ghi cụ thể',['tien su gia dinh','tiền sử gia đình']],['benhSuBanThan','Tiền sử/bệnh sử bản thân ghi cụ thể',['benh su','bệnh sử','tien su ban than','tiền sử bản thân']],['dangDieuTri','Đang điều trị / thuốc đang dùng',['dang dieu tri','đang điều trị','thuoc dang dung','thuốc đang dùng']],['tamThan','Tâm thần',['tam than','tâm thần']],['tamThanKL','Kết luận tâm thần',['ket luan tam than','kết luận tâm thần']],['thanKinh','Thần kinh',['than kinh','thần kinh']],['thanKinhKL','Kết luận thần kinh',['ket luan than kinh','kết luận thần kinh']],['matKhongKinhP','Mắt phải không kính',['mat phai khong kinh','mắt phải không kính']],['matKhongKinhT','Mắt trái không kính',['mat trai khong kinh','mắt trái không kính']],['matCoKinhP','Mắt phải có kính',['mat phai co kinh','mắt phải có kính']],['matCoKinhT','Mắt trái có kính',['mat trai co kinh','mắt trái có kính']],['matHaiMatKhongKinh','Hai mắt không kính',['hai mat khong kinh','hai mắt không kính']],['matHaiMatCoKinh','Hai mắt có kính',['hai mat co kinh','hai mắt có kính']],['sacGiac','Sắc giác',['sac giac','sắc giác','mau mau','mù màu']],['matBenh','Bệnh về mắt',['benh ve mat','bệnh về mắt']],['matKL','Kết luận mắt',['ket luan mat','kết luận mắt']],['tmh','Tai-Mũi-Họng',['tai mui hong','tai mũi họng','tmh']],['tmhKL','Kết luận TMH',['ket luan tai mui hong','kết luận tai mũi họng','ket luan tmh']],['mach','Mạch',['mach','mạch']],['huyetAp','Huyết áp',['huyet ap','huyết áp']],['timMach','Tim mạch',['tim mach','tim mạch']],['timMachKL','Kết luận tim mạch',['ket luan tim mach','kết luận tim mạch']],['hoHap','Hô hấp',['ho hap','hô hấp']],['hoHapKL','Kết luận hô hấp',['ket luan ho hap','kết luận hô hấp']],['coXuongKhop','Cơ xương khớp',['co xuong khop','cơ xương khớp']],['coXuongKhopKL','Kết luận cơ xương khớp',['ket luan co xuong khop','kết luận cơ xương khớp']],['noiTiet','Nội tiết',['noi tiet','nội tiết']],['noiTietKL','Kết luận nội tiết',['ket luan noi tiet','kết luận nội tiết']],['maTuyKQ','Kết quả xét nghiệm ma túy',['ma tuy','ma túy','xet nghiem ma tuy','xét nghiệm ma túy']],['xetNghiemKhacKQ','Kết quả xét nghiệm khác',['xet nghiem khac','xét nghiệm khác','xquang','x quang','sinh hoa','huyet hoc']],['xetNghiemKhacKL','Kết luận xét nghiệm khác',['ket luan xet nghiem','kết luận xét nghiệm']]
+];
+const BOOLS=['Có bệnh hay bị thương trong 5 năm qua','Có bệnh thần kinh hay bị thương ở đầu','Bệnh mắt hoặc giảm thị lực','Bệnh ở tai, giảm sức nghe hoặc thăng bằng','Bệnh ở tim hoặc nhồi máu cơ tim','Phẫu thuật can thiệp tim - mạch','Tăng huyết áp','Khó thở','Bệnh phổi/hen/khí phế thũng/viêm phế quản mạn','Đái tháo đường hoặc kiểm soát tăng đường huyết','Bệnh tâm thần','Mất ý thức/rối loạn ý thức','Ngất/chóng mặt/mệt mỏi/buồn ngủ/ngất xỉu','Bệnh tiêu hóa','Rối loạn giấc ngủ/ngừng thở khi ngủ/ngủ rũ/ngáy to','Tai biến mạch máu não hoặc liệt','Bệnh hoặc tổn thương cột sống','Sử dụng rượu thường xuyên, liên tục','Sử dụng ma túy và chất gây nghiện'];
+let clinicSettings={...CLINIC_DEFAULT,...JSON.parse(localStorage.getItem('kskClinicSettings')||'{}')};
+let patients=JSON.parse(localStorage.getItem('kskPatients')||'[]'); let current=0;
+const DB_NAME='kskTT36DB'; const STORE='data';
+function openDB(){return new Promise((res,rej)=>{let r=indexedDB.open(DB_NAME,1);r.onupgradeneeded=()=>r.result.createObjectStore(STORE);r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error)})}
+async function idbSet(k,v){let db=await openDB();return new Promise((res,rej)=>{let tx=db.transaction(STORE,'readwrite');tx.objectStore(STORE).put(v,k);tx.oncomplete=()=>{db.close();res()};tx.onerror=()=>{db.close();rej(tx.error)}})}
+async function idbGet(k){let db=await openDB();return new Promise((res,rej)=>{let tx=db.transaction(STORE,'readonly');let r=tx.objectStore(STORE).get(k);r.onsuccess=()=>{db.close();res(r.result)};r.onerror=()=>{db.close();rej(r.error)}})}
+function norm(s){return String(s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/đ/g,'d').replace(/[^a-z0-9]/g,' ').replace(/\s+/g,' ').trim()}
+function esc(s){return String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
+function pad2(n){return String(n).padStart(2,'0')}
+function parseExcelDate(v){if(v===undefined||v===null||v==='')return null;if(typeof v==='number'){let d=XLSX.SSF.parse_date_code(v);if(d)return {d:d.d,m:d.m,y:d.y}}let s=String(v).trim();let m=s.match(/(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{2,4})/);if(m){let y=+m[3];if(y<100)y+=2000;return {d:+m[1],m:+m[2],y}}m=s.match(/(19|20)\d{2}/);if(m)return {y:+m[0]};return null}
+function formatDate(v){let d=parseExcelDate(v);if(!d)return String(v||'').trim();if(!d.d)return String(d.y);return `${pad2(d.d)}/${pad2(d.m)}/${d.y}`}
+function dateParts(v){let d=parseExcelDate(v);return d&&d.d?d:{d:'',m:'',y:String(v||'').match(/(19|20)\d{2}/)?.[0]||''}}
+function formatBirthDisplay(v){
+  let d=parseExcelDate(v);
+  if(d&&d.d&&d.m&&d.y)return `${pad2(d.d)}/${pad2(d.m)}/${d.y}`;
+  return String(v||'').trim();
+}
+function formatDateDisplay(v){
+  let d=parseExcelDate(v);
+  if(d&&d.d&&d.m&&d.y)return `${pad2(d.d)}/${pad2(d.m)}/${d.y}`;
+  return String(v||'').trim();
+}
+function calcAgeFromBirth(birthValue, refValue){
+  let b=parseExcelDate(birthValue);
+  if(!b||!b.y)return '';
+  let r=parseExcelDate(refValue);
+  let today=new Date();
+  let ry=(r&&r.y)?r.y:today.getFullYear();
+  let rm=(r&&r.m)?r.m:(today.getMonth()+1);
+  let rd=(r&&r.d)?r.d:today.getDate();
+  let age=ry-b.y;
+  if(b.m&&b.d){
+    if(rm<b.m || (rm===b.m && rd<b.d)) age--;
+  }
+  return age>=0 && age<130 ? String(age) : '';
+}
+function getDisplayAge(p){
+  let autoAge=calcAgeFromBirth(p.ngaySinh, p.ngayKetLuan||p.ngayKham);
+  return autoAge || String(p.tuoi||'').trim();
+}
+function formatGender(v){
+  let raw=String(v||'').trim();
+  let n=norm(raw);
+  if(!n)return '';
+  if(n==='khac'||n==='khác'||n==='other'||n==='unknown'||n==='x'||n.includes('gioi tinh khac')||n.includes('phai khac'))return 'Khác';
+  if(n==='nu'||n==='nữ'||n==='f'||n==='female'||n==='woman'||n==='girl'||n.includes('gioi tinh nu')||n.includes('phai nu')||n.includes('nu gioi')||n.includes('gai'))return 'Nữ';
+  if(n==='nam'||n==='m'||n==='male'||n==='man'||n==='boy'||n.includes('gioi tinh nam')||n.includes('phai nam')||n.includes('nam gioi')||n.includes('trai'))return 'Nam';
+  if(n.includes('khac'))return 'Khác';
+  if(n.includes('nu'))return 'Nữ';
+  if(n.includes('nam'))return 'Nam';
+  return 'Khác';
+}
+function formatPhoneLike(v){if(typeof v==='number')return String(Math.trunc(v));return String(v||'').trim()}
+const EXCEL_BATCH_SIZE=350;
+function sleepFrame(){return new Promise(r=>setTimeout(r,0))}
+function setLoaderText(txt){let el=document.getElementById('loaderText');if(el)el.textContent=txt}
+function isExcelRowNotEmpty(row){return Object.values(row||{}).some(v=>v!==undefined&&v!==null&&String(v).trim()!=='')}
+function readSheetRowsNoLimit(ws){
+  if(!ws||!ws['!ref'])return [];
+  return XLSX.utils.sheet_to_json(ws,{defval:'',raw:true,blankrows:false,range:0}).filter(isExcelRowNotEmpty);
+}
+function readFirstSheetRowsNoLimit(arrayBuffer){
+  let wb=XLSX.read(arrayBuffer,{type:'array',cellDates:false,dense:false,sheetStubs:true});
+  let ws=wb.Sheets[wb.SheetNames[0]];
+  return readSheetRowsNoLimit(ws);
+}
+async function mapRowsNoLimit(rows, mapper, keepFn, progressPrefix){
+  let out=[];
+  rows=rows||[];
+  for(let i=0;i<rows.length;i+=EXCEL_BATCH_SIZE){
+    let part=rows.slice(i,i+EXCEL_BATCH_SIZE);
+    part.forEach((row,j)=>{
+      if(keepFn&&!keepFn(row))return;
+      let mapped=mapper(row,i+j);
+      if(mapped)out.push(mapped);
+    });
+    setLoaderText((progressPrefix||'Đang xử lý Excel')+` ${Math.min(i+part.length,rows.length)}/${rows.length} dòng...`);
+    await sleepFrame();
+  }
+  return out;
+}
+const MAILING_FIELD_IDS=['hoTen','gioiTinh','ngaySinh','tuoi','cccd','capNgay','capTai','hoKhau'];
+const MAILING_ALIASES={
+  hoTen:[
+    'ho ten','họ tên','ho va ten','họ và tên','hovaten','hvt','ten','tên','ten nguoi kham','tên người khám','nguoi kham','người khám',
+    'ten benh nhan','tên bệnh nhân','benh nhan','bệnh nhân','ten khach hang','tên khách hàng','khach hang','khách hàng',
+    'ho ten bn','họ tên bn','ho ten nguoi lao dong','họ tên người lao động','nguoi lao dong','người lao động','nhan vien','nhân viên'
+  ],
+  gioiTinh:[
+    'gioi tinh','giới tính','phai','phái','sex','gender','nam nu','nam/nữ','nam nữ','gt','gioi','giới',
+    'nam hay nu','nam hay nữ','nam hoac nu','nam hoặc nữ'
+  ],
+  ngaySinh:[
+    'ngay sinh','ngày sinh','nam sinh','năm sinh','ngay thang nam sinh','ngày tháng năm sinh','sinh ngay','sinh ngày',
+    'ns','dob','date of birth','birth date','birth year','nam sinh yyyy','năm sinh yyyy','ngay thang nam','ngày tháng năm'
+  ],
+  tuoi:['tuoi','tuổi','age','so tuoi','số tuổi'],
+  cccd:[
+    'cccd','so cccd','số cccd','cmnd','so cmnd','số cmnd','cmt','so cmt','số cmt','can cuoc','căn cước',
+    'can cuoc cong dan','căn cước công dân','cc','so cc','số cc','dinh danh','định danh','so dinh danh','số định danh',
+    'ma dinh danh','mã định danh','ho chieu','hộ chiếu','passport','id card','so giay to','số giấy tờ',
+    'cccd cmnd','cmnd cccd','cccd ho chieu','cccd/hộ chiếu','cccd/cc/hộ chiếu/định danh công dân'
+  ],
+  capNgay:[
+    'cap ngay','cấp ngày','ngay cap','ngày cấp','ngay cap cccd','ngày cấp cccd','cap ngay cccd','cấp ngày cccd',
+    'ngay cap cmnd','ngày cấp cmnd','ngay cap can cuoc','ngày cấp căn cước','ngay cap ho chieu','ngày cấp hộ chiếu','issued date','date issued'
+  ],
+  capTai:[
+    'cap tai','cấp tại','noi cap','nơi cấp','noi cap cccd','nơi cấp cccd','cap tai cccd','cấp tại cccd',
+    'noi cap cmnd','nơi cấp cmnd','noi cap can cuoc','nơi cấp căn cước','noi cap ho chieu','nơi cấp hộ chiếu','place issued','issued by'
+  ],
+  hoKhau:[
+    'ho khau','hộ khẩu','ho khau thuong tru','hộ khẩu thường trú','hktt','thuong tru','thường trú','noi thuong tru','nơi thường trú',
+    'dia chi thuong tru','địa chỉ thường trú','dia chi hktt','địa chỉ hktt','dia chi ho khau','địa chỉ hộ khẩu',
+    'dia chi','địa chỉ','dia chi lien he','địa chỉ liên hệ','cho o hien nay','chỗ ở hiện nay','noi cu tru','nơi cư trú',
+    'cu tru','cư trú','thon xom','thôn xóm','ap khu pho','ấp khu phố','xa phuong','xã phường','quan huyen','quận huyện','tinh thanh','tỉnh thành',
+    'ho khau thuong tru hien nay','hộ khẩu thường trú hiện nay','hộ khâu thường trú'
+  ]
+};
+function compactNorm(s){return norm(s).replace(/\s+/g,'')}
+function tokensOf(s){return norm(s).split(' ').filter(t=>t&&t.length>1)}
+function tokenOverlapScore(a,b){
+  let at=tokensOf(a), bt=tokensOf(b);
+  if(!at.length||!bt.length)return 0;
+  let hit=0;
+  at.forEach(x=>{if(bt.includes(x)||bt.some(y=>y.includes(x)||x.includes(y)))hit++});
+  return hit/Math.max(at.length,bt.length);
+}
+function editDistance(a,b){
+  a=compactNorm(a);b=compactNorm(b);
+  if(!a||!b)return Math.max(a.length,b.length);
+  let prev=Array.from({length:b.length+1},(_,i)=>i);
+  for(let i=1;i<=a.length;i++){
+    let cur=[i];
+    for(let j=1;j<=b.length;j++){
+      let cost=a[i-1]===b[j-1]?0:1;
+      cur[j]=Math.min(prev[j]+1,cur[j-1]+1,prev[j-1]+cost);
+    }
+    prev=cur;
+  }
+  return prev[b.length];
+}
+function similarity(a,b){
+  let x=compactNorm(a), y=compactNorm(b);
+  let max=Math.max(x.length,y.length);
+  if(!max)return 0;
+  return 1-editDistance(x,y)/max;
+}
+function scoreHeaderForAliases(header, aliases, id=''){
+  let hn=norm(header), hc=compactNorm(header);
+  if(!hn)return 0;
+  let best=0;
+  (aliases||[]).map(norm).filter(Boolean).forEach(a=>{
+    let ac=a.replace(/\s+/g,'');
+    if(hn===a)best=Math.max(best,120);
+    if(hc===ac)best=Math.max(best,118);
+    if(hn.includes(a)&&a.length>=3)best=Math.max(best,104+Math.min(a.length,30)/30);
+    if(a.includes(hn)&&hn.length>=3)best=Math.max(best,96+Math.min(hn.length,30)/30);
+    let ov=tokenOverlapScore(hn,a);
+    if(ov>=0.75)best=Math.max(best,84+ov*12);
+    else if(ov>=0.5&&Math.min(tokensOf(hn).length,tokensOf(a).length)>=2)best=Math.max(best,68+ov*12);
+    let sim=similarity(hn,a);
+    if(sim>=0.88)best=Math.max(best,82+sim*10);
+    else if(sim>=0.78&&Math.min(hc.length,ac.length)>=5)best=Math.max(best,64+sim*10);
+  });
+  // Ưu tiên/khóa vài trường dễ nhầm khi Excel dùng tiêu đề ngắn.
+  if(id==='hoTen'){
+    if(/(^|\s)(ho|họ)\s*(va|và)?\s*(ten|tên)($|\s)/i.test(String(header)))best=Math.max(best,125);
+    if(hn==='ten'||hn==='tên')best=Math.max(best,72); // chỉ nhận nếu không có cột họ tên rõ hơn
+  }
+  if(id==='ngaySinh'&&(hn.includes('sinh')||hn==='ns'||hn==='dob'))best=Math.max(best,110);
+  if(id==='tuoi'&&(hn==='tuoi'||hn==='age'))best=Math.max(best,118);
+  if(id==='cccd'&&(hc.includes('cccd')||hc.includes('cmnd')||hc.includes('dinhdanh')||hc.includes('hochieu')))best=Math.max(best,118);
+  if(id==='capNgay'&&hn.includes('ngay')&&hn.includes('cap'))best=Math.max(best,118);
+  if(id==='capTai'&&(hn.includes('noi cap')||hn.includes('cap tai')||hn.includes('issued by')))best=Math.max(best,118);
+  if(id==='hoKhau'&&(hn.includes('thuong tru')||hn.includes('hktt')||hn.includes('ho khau')))best=Math.max(best,122);
+  return best;
+}
+function findExcelHeader(keys, aliases, id=''){
+  let best={raw:undefined,score:0};
+  (keys||[]).forEach(k=>{
+    let score=scoreHeaderForAliases(k,aliases,id);
+    if(score>best.score)best={raw:k,score};
+  });
+  return best.score>=70?best.raw:undefined;
+}
+function detectExcelColumnMap(keys, fieldIds=MAILING_FIELD_IDS){
+  let map={}, used=new Set();
+  fieldIds.forEach(id=>{
+    let candidates=(keys||[]).filter(k=>!used.has(k)).map(k=>({raw:k,score:scoreHeaderForAliases(k,MAILING_ALIASES[id]||[],id)})).sort((a,b)=>b.score-a.score);
+    let top=candidates[0];
+    if(top&&top.score>=70){map[id]=top.raw;used.add(top.raw)}
+  });
+  return map;
+}
+function getRowValueByMap(row,map,id){
+  let k=map&&map[id];
+  if(k===undefined)return '';
+  return row[k];
+}
+function rowHasMailingData(row){
+  let keys=Object.keys(row||{});
+  let map=detectExcelColumnMap(keys);
+  return MAILING_FIELD_IDS.some(id=>{
+    let v=getRowValueByMap(row,map,id);
+    return v!==undefined && v!==null && String(v).trim()!=='';
+  });
+}
+function mapMailingRow(row, index){
+  let keys=Object.keys(row||{});
+  let map=detectExcelColumnMap(keys);
+  let p=newPatient();
+  MAILING_FIELD_IDS.forEach(id=>{
+    let val=getRowValueByMap(row,map,id);
+    if(val===undefined||val===null||String(val).trim()==='')return;
+    if(['ngaySinh','capNgay'].includes(id))val=formatDate(val);
+    if(id==='gioiTinh')val=formatGender(val);
+    p[id]=formatPhoneLike(val);
+  });
+  if(!p.soPhieu){
+    let soKey=findExcelHeader(keys,['so','số','stt','so phieu','số phiếu','ma ho so','mã hồ sơ'],'soPhieu');
+    if(soKey!==undefined)p.soPhieu=formatPhoneLike(row[soKey]);
+  }
+  if(!p.soPhieu)p.soPhieu=String(index+1).padStart(3,'0');
+  let autoAge=calcAgeFromBirth(p.ngaySinh,p.ngayKetLuan||p.ngayKham);
+  if(autoAge)p.tuoi=autoAge;
+  p._mailingMap=Object.fromEntries(Object.entries(map).map(([id,k])=>[id,k]));
+  return p;
+}
+async function buildMailingPatients(data){
+  return await mapRowsNoLimit(data, mapMailingRow, rowHasMailingData, 'Đang tạo hồ sơ mailing');
+}
+async function importMailingExcelFile(file){
+  showLoader('Đang chạy mailing Excel','Đang đọc toàn bộ Excel, không khóa giới hạn số dòng/số cột...');
+  try{
+    let buf=await file.arrayBuffer();
+    let data=readFirstSheetRowsNoLimit(buf);
+    if(!data.length){alert('Excel không có dòng dữ liệu để nhập.');return;}
+    let next=await buildMailingPatients(data);
+    if(!next.length){alert('Không tìm thấy dữ liệu mailing. Excel cần có ít nhất một cột như Họ tên, Giới tính, Ngày sinh, CCCD, Cấp ngày, Cấp tại hoặc Hộ khẩu thường trú.');return;}
+    patients=next;
+    current=0;
+    await saveData();
+    render();
+    document.getElementById('fromRec').value=1;
+    document.getElementById('toRec').value=patients.length;
+    showAll();
+    let detected=Object.entries((patients[0]&&patients[0]._mailingMap)||{}).map(([id,k])=>{let label=(FIELDS.find(f=>f[0]===id)||[])[1]||id;return label+' ← '+k}).join('\n');
+    alert('Đã chạy mailing '+patients.length+' hồ sơ từ '+data.length+' dòng Excel.\n\nKhông khóa giới hạn dòng/cột Excel nhập vào. Nếu file quá lớn, tốc độ phụ thuộc vào máy và trình duyệt.\n\nCác cột đã tự dò được:\n'+(detected||'Không có thông tin cột')+'\n\nDữ liệu đã đổ từ Họ và tên đến Hộ khẩu thường trú và đang hiện toàn bộ mẫu để in/xuất PDF.');
+  }catch(err){
+    alert('Lỗi chạy mailing Excel: '+err.message);
+  }finally{
+    hideLoader();
+  }
+}
+function buildCodePrefix(){
+  let loai=String(clinicSettings.codeLoai||'').trim();
+  let coSo=String(clinicSettings.codeCoSo||'').trim();
+  let nam=String(clinicSettings.codeNam||'').trim();
+  if(loai||coSo||nam)return [loai,coSo,nam].filter(Boolean).join('/');
+  return String(clinicSettings.codePrefix||'GKSKLX/79568/26').trim();
+}
+function newPatient(){let p={};FIELDS.forEach(([id])=>p[id]='');p.ngayKham=formatDate(new Date().toLocaleDateString('vi-VN'));p.ngayKetLuan=p.ngayKham;p.ketLuan='Đủ điều kiện sức khỏe lái xe theo hạng đăng ký.';p.bool={};BOOLS.forEach(b=>p.bool[b]='Không');p.photo='';return p}
+function mapRow(row){let keys=Object.keys(row);let p=newPatient();let used=new Set();FIELDS.forEach(([id,label,als])=>{let found=findExcelHeader(keys.filter(k=>!used.has(k)),als,id);if(found!==undefined){used.add(found);let val=row[found]; if(['ngaySinh','capNgay','ngayKham','ngayKetLuan'].includes(id))val=formatDate(val); if(id==='gioiTinh')val=formatGender(val); p[id]=formatPhoneLike(val)}});if(p.ngaySinh){let autoAge=calcAgeFromBirth(p.ngaySinh,p.ngayKetLuan||p.ngayKham); if(autoAge)p.tuoi=autoAge;}return p}
+async function saveData(renderNow=false){try{localStorage.setItem('kskPatients',JSON.stringify(patients));localStorage.setItem('kskClinicSettings',JSON.stringify(clinicSettings))}catch(e){}try{await idbSet('main',{patients,clinicSettings,savedAt:new Date().toISOString()})}catch(e){console.warn(e)}if(renderNow)render()}
+async function init(){try{let saved=await idbGet('main');if(saved&&Array.isArray(saved.patients)){patients=saved.patients;clinicSettings={...CLINIC_DEFAULT,...(saved.clinicSettings||{})}}}catch(e){}patients=(patients||[]).map(p=>({...(newPatient()),...p,ngayKetLuan:(p&&p.ngayKetLuan)?p.ngayKetLuan:(p&&p.ngayKham?p.ngayKham:formatDate(new Date().toLocaleDateString('vi-VN')))}));if(!patients.length)patients=[newPatient()];render()}
+function showLoader(t,txt){document.getElementById('loaderTitle').textContent=t||'Đang xử lý...';document.getElementById('loaderText').textContent=txt||'Vui lòng không đóng trình duyệt.';document.getElementById('loader').classList.add('active')}
+function hideLoader(){document.getElementById('loader').classList.remove('active')}
+document.getElementById('excelFile').addEventListener('change',e=>{let f=e.target.files[0];if(!f)return;showLoader('Đang nhập Excel','Đang đọc toàn bộ Excel, không khóa giới hạn số dòng/số cột...');let r=new FileReader();r.onload=async ev=>{try{let data=readFirstSheetRowsNoLimit(ev.target.result);patients=await mapRowsNoLimit(data,mapRow,(row)=>isExcelRowNotEmpty(row),'Đang nhập hồ sơ');current=0;if(!patients.length)patients=[newPatient()];await saveData();render();alert('Đã nhập '+patients.length+' hồ sơ từ '+data.length+' dòng Excel. Không khóa giới hạn dòng/cột nhập vào.')}catch(err){alert('Lỗi nhập Excel: '+err.message)}finally{hideLoader();e.target.value=''}};r.readAsArrayBuffer(f)});
+document.getElementById('mailingExcelFile').addEventListener('change',async e=>{let f=e.target.files[0];if(!f)return;await importMailingExcelFile(f);e.target.value=''});
+document.getElementById('backupFile').addEventListener('change',e=>{let f=e.target.files[0];if(!f)return;let r=new FileReader();r.onload=async ev=>{try{let obj=JSON.parse(ev.target.result);patients=obj.patients||[];clinicSettings={...CLINIC_DEFAULT,...(obj.clinicSettings||{})};current=0;if(!patients.length)patients=[newPatient()];await saveData();render();alert('Đã mở backup.')}catch(err){alert('Không mở được backup: '+err.message)}};r.readAsText(f)});
+function addBlank(){patients.push(newPatient());current=patients.length-1;saveData(true)}function deleteCurrent(){if(!confirm('Xóa hồ sơ đang chọn?'))return;patients.splice(current,1);if(!patients.length)patients=[newPatient()];current=Math.max(0,Math.min(current,patients.length-1));saveData(true)}function resetAllData(){if(!confirm('Xóa toàn bộ dữ liệu hồ sơ?'))return;patients=[newPatient()];current=0;saveData(true)}function togglePanel(id){document.getElementById(id).classList.toggle('closed')}
+function renderList(){let tb=document.getElementById('patientRows');tb.innerHTML=patients.map((p,i)=>`<tr class="${i===current?'rowActive':''}" onclick="current=${i};render()"><td>${i+1}</td><td>${esc(p.hoTen)}</td><td>${esc(p.ngaySinh)}</td><td>${esc(p.cccd)}</td></tr>`).join('');document.getElementById('fromRec').value=Math.min(+document.getElementById('fromRec').value||1,patients.length);document.getElementById('toRec').value=patients.length}
+function renderClinicEdit(){let box=document.getElementById('clinicEdit');let LABELS={company:'Tên công ty',clinic:'Tên phòng khám',codeLoai:'Ký hiệu phiếu: GKSKLX',codeCoSo:'Mã cơ sở: 79568',codeNam:'Năm/mã cuối: 26',codePrefix:'Mã phiếu cũ - dự phòng',province:'Tỉnh/TP ký',legal:'Căn cứ pháp lý',title:'Tiêu đề mẫu',nguoiKetLuanLabel:'Chức danh người kết luận'};box.innerHTML=Object.keys(CLINIC_DEFAULT).map(k=>`<div class="editField"><label>${esc(LABELS[k]||k)}</label><input value="${esc(clinicSettings[k])}" oninput="clinicSettings['${k}']=this.value;saveData();renderPreview()"></div>`).join('')+`<button class="secondary" onclick="clinicSettings={...CLINIC_DEFAULT};saveData(true)">Khôi phục mặc định</button>`}
+function renderEdit(){let p=patients[current]||newPatient();let html='<div class="grid2">';FIELDS.forEach(([id,label])=>{let isLong=['hoKhau','tienSuGiaDinh','benhSuBanThan','dangDieuTri','ketLuan','tamThan','thanKinh','matBenh','tmh','timMach','hoHap','coXuongKhop','noiTiet','maTuyKQ','xetNghiemKhacKQ'].includes(id);html+=`<div class="editField" style="${isLong?'grid-column:1/-1':''}"><label>${esc(label)}</label>${isLong?`<textarea oninput="patients[current]['${id}']=this.value;saveData();renderPreview()">${esc(p[id])}</textarea>`:(id==='gioiTinh'?`<input list="genderOptions" value="${esc(p.gioiTinh||'')}" placeholder="Nhập hoặc chọn Nam / Nữ / Khác" oninput="patients[current]['gioiTinh']=formatGender(this.value);saveData();renderList();renderPreview()"><datalist id="genderOptions"><option value="Nam"></option><option value="Nữ"></option><option value="Khác"></option></datalist>`:`<input value="${esc(p[id])}" oninput="patients[current]['${id}']=this.value;if('${id}'==='ngaySinh'||'${id}'==='ngayKetLuan'||'${id}'==='ngayKham'){let a=calcAgeFromBirth(patients[current].ngaySinh,patients[current].ngayKetLuan||patients[current].ngayKham);if(a)patients[current].tuoi=a;}saveData();renderList();renderEdit();renderPreview()">`)}</div>`});html+='</div><div class="hint"><b>Tiền sử bệnh:</b> chọn Có/Không cho từng mục bên dưới.</div><div class="grid1">';BOOLS.forEach(b=>{html+=`<div class="editField"><label>${esc(b)}</label><select onchange="patients[current].bool=patients[current].bool||{};patients[current].bool['${esc(b)}']=this.value;saveData();renderPreview()"><option ${p.bool?.[b]!=='Có'?'selected':''}>Không</option><option ${p.bool?.[b]==='Có'?'selected':''}>Có</option></select></div>`});html+='</div><div class="hint">Ảnh 4x6: bấm vào khung ảnh trên mẫu xem trước để chọn ảnh cho hồ sơ đang chọn.</div>';document.getElementById('editBox').innerHTML=html}
+function chk(ok){return `<span class="checkbox">${ok?'X':''}</span>`}
+function line(v,cls='fill'){return `<span class="line ${cls}">${esc(v)}</span>`}
+function plainOrLine(v,cls='fill'){
+  let s=String(v??'').trim();
+  return s?`<span class="plainValue ${cls}">${esc(s)}</span>`:`<span class="line ${cls}"></span>`;
+}
+function plainUpperOrLine(v,cls='fill'){
+  let s=String(v??'').trim();
+  return s?`<span class="plainValue ${cls}">${esc(s.toLocaleUpperCase('vi-VN'))}</span>`:`<span class="line ${cls}"></span>`;
+}
+function para(v){return `<div class="paraLine">${esc(v)}</div>`}
+function renderHistoryRows(p){let arr=BOOLS;let rows='';for(let i=0;i<arr.length;i+=2){let a=arr[i],b=arr[i+1]||'';rows+=`<tr><td>${esc(a)}</td><td style="text-align:center">${chk(p.bool?.[a]==='Có')} Có ${chk(p.bool?.[a]!=='Có')} Không</td><td>${esc(b)}</td><td style="text-align:center">${b?chk(p.bool?.[b]==='Có')+' Có '+chk(p.bool?.[b]!=='Có')+' Không':''}</td></tr>`}return rows}
+function blankHistoryTable(arr){
+  return `<table class="blankHistoryTable"><colgroup><col><col style="width:9mm"><col style="width:9mm"></colgroup><thead><tr><th colspan="3">Có / Không</th></tr></thead><tbody>${arr.map(a=>`<tr><td class="diseaseCell">${esc(a)}</td><td class="blankBox"></td><td class="blankBox"></td></tr>`).join('')}</tbody></table>`;
+}
+function page1(p,idx){let ns=dateParts(p.ngaySinh), nk=dateParts(p.ngayKham), cn=dateParts(p.capNgay);let nam=p.gioiTinh==='Nam',nu=p.gioiTinh==='Nữ';return `<section class="sheet compact"><div class="top"><div class="clinic"><b>${esc(clinicSettings.company)}</b><b>${esc(clinicSettings.clinic)}</b><div>----------</div><div>Số: ${plainOrLine(p.soPhieu,'w20')}/${esc(buildCodePrefix())}</div></div><div class="nation">CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM<br><span>Độc lập - Tự do - Hạnh phúc</span><br><span class="subline">---------------</span></div></div><div class="formTitle">${esc(clinicSettings.title)}</div><div class="legal">${esc(clinicSettings.legal)}</div><div class="photoBox" onclick="pickPhoto(${idx})">${p.photo?`<img src="${p.photo}">`:'Ảnh<br>(4x6 cm)<br>đóng dấu giáp lai<br>hoặc Scan ảnh<br><br><span class="muted">Bấm để chọn</span>'}</div><div class="row"><b>1. Họ và tên (viết chữ in hoa):</b>${line((p.hoTen||'').toUpperCase())}</div><div class="row"><b>2. Giới tính:</b> Nam ${chk(nam)} &nbsp; Nữ ${chk(nu)}</div><div class="row"><b>3.</b> Ngày ${line(ns.d,'w20')} tháng ${line(ns.m,'w20')} năm ${line(ns.y,'w30')} (Tuổi ${line(p.tuoi,'w20')})</div><div class="row"><b>4. Số CCCD /CC/Hộ chiếu/Định danh công dân:</b>${line(p.cccd)}</div><div class="row page1CapTaiRow"><b>5. Cấp ngày</b>${line(cn.d,'w20')}/${line(cn.m,'w20')}/${line(cn.y,'w30')} <b>Tại</b>${line(p.capTai,'fill multilineValue')}</div><div class="row page1HkttRow"><b>6. Hộ khẩu thường trú:</b>${line(p.hoKhau,'fill multilineValue')}</div><div class="row"><b>7. Đề nghị khám sức khỏe để lái xe hạng:</b>${line(p.hangLaiXe)}</div><div class="note">* Lưu ý: Trường hợp đối tượng KSK có CCCD/CC gắn chíp hoặc có số định danh công dân đã thực hiện kết nối với cơ sở dữ liệu quốc gia về dân cư không cần ghi mục 2, mục 5, mục 6.</div><div class="section">I. TIỀN SỬ BỆNH CỦA ĐỐI TƯỢNG KHÁM SỨC KHỎE</div><div class="subsection">1. Tiền sử gia đình:</div><div>Có ai trong gia đình ông (bà) mắc một trong các bệnh: truyền nhiễm, tim mạch, đái tháo đường, lao, hen phế quản, ung thư, động kinh, rối loạn tâm thần, bệnh khác:</div><div class="row">a) Không ${chk(!p.tienSuGiaDinh)}; b) Có ${chk(!!p.tienSuGiaDinh)}; Nếu “có”, đề nghị ghi cụ thể tên bệnh:</div>${para(p.tienSuGiaDinh)}${para('')}<div class="subsection">2. Tiền sử, bệnh sử bản thân:</div><table class="historyTable"><colgroup><col><col style="width:34mm"><col><col style="width:34mm"></colgroup><thead><tr><th>Bệnh/tình trạng</th><th>Có / Không</th><th>Bệnh/tình trạng</th><th>Có / Không</th></tr></thead><tbody>${renderHistoryRows(p)}</tbody></table><div>Nếu “có”, đề nghị ghi cụ thể tên bệnh:</div>${para(p.benhSuBanThan)}<div class="subsection">3. Câu hỏi khác (nếu có):</div><div>Ông (bà) có đang điều trị bệnh gì không? Nếu có, hãy liệt kê các thuốc đang dùng và liều lượng:</div>${para(p.dangDieuTri)}${para('')}<div>Tôi xin cam đoan những điều khai trên đây hoàn toàn đúng với sự thật. Nếu sai tôi xin chịu trách nhiệm trước pháp luật.</div><div class="signArea"><div></div><div>${esc(clinicSettings.province)}, ngày ${line(nk.d,'w20')} tháng ${line(nk.m,'w20')} năm ${line(nk.y,'w30')}<br><b>Người đề nghị khám sức khỏe</b><br><i>(Ký và ghi rõ họ, tên)</i><div class="signName">Họ tên: ${line(p.hoTen,'w70')}</div></div></div><div class="pageNo">Trang 1 - Hồ sơ ${idx+1}</div></section>`}
+function examRow(title,content,kl){return `<tr><td><b>${title}</b>${para(content||'')}${para('')}<b>Kết luận</b> ${line(kl||'')}</td><td class="doctorCell"></td></tr>`}
+function page2(p,idx){return `<section class="sheet"><div class="section" style="text-align:center;font-size:16px">II. KHÁM LÂM SÀNG</div><table class="examTable"><colgroup><col><col style="width:45mm"></colgroup><thead><tr><th>Nội dung khám</th><th>Họ tên, chữ ký của Bác sỹ</th></tr></thead><tbody>${examRow('1. Tâm thần:',p.tamThan,p.tamThanKL)}${examRow('2. Thần kinh:',p.thanKinh,p.thanKinhKL)}<tr><td><b>3. Mắt:</b><div>- Thị lực nhìn xa từng mắt:</div><div class="row">+ Không kính: Mắt phải ${line(p.matKhongKinhP,'w30')} Mắt trái ${line(p.matKhongKinhT,'w30')}</div><div class="row">+ Có kính: Mắt phải ${line(p.matCoKinhP,'w30')} Mắt trái ${line(p.matCoKinhT,'w30')}</div><div class="row">Thị lực nhìn xa hai mắt: Không kính ${line(p.matHaiMatKhongKinh,'w30')} Có kính ${line(p.matHaiMatCoKinh,'w30')}</div><div class="row">- Sắc giác: ${line(p.sacGiac||'Bình thường')}</div><div>Các bệnh về mắt (nếu có):</div>${para(p.matBenh)}<b>Kết luận</b> ${line(p.matKL||'')}</td><td></td></tr><tr><td><b>4. Tai-Mũi-Họng</b>${para(p.tmh)}${para('')}<b>Kết luận</b> ${line(p.tmhKL||'')}</td><td></td></tr><tr><td><b>5. Tim mạch:</b><div class="row">+ Mạch ${line(p.mach,'w30')} lần/phút; + Huyết áp ${line(p.huyetAp,'w50')} mmHg</div>${para(p.timMach)}<b>Kết luận</b> ${line(p.timMachKL||'')}</td><td></td></tr>${examRow('6. Hô hấp',p.hoHap,p.hoHapKL)}${examRow('7. Cơ Xương Khớp:',p.coXuongKhop,p.coXuongKhopKL)}${examRow('8. Nội tiết:',p.noiTiet,p.noiTietKL)}</tbody></table><div class="pageNo">Trang 2 - Hồ sơ ${idx+1}</div></section>`}
+function page3(p,idx){let nk=dateParts(p.ngayKham);return `<section class="sheet"><div class="section" style="text-align:center;font-size:16px">III. KHÁM CẬN LÂM SÀNG</div><table class="labTable"><colgroup><col><col style="width:48mm"></colgroup><thead><tr><th>Nội dung khám</th><th>Họ tên, chữ ký của Bác sỹ/Trưởng bộ phận</th></tr></thead><tbody><tr><td><b>1. Xét nghiệm ma túy</b> (Xét nghiệm sàng lọc và định tính các loại ma túy theo quy định của Bộ Y tế: Amphetamin, Marijuana, Morphin, Codein, Heroin)<br>Kết quả: ${line(p.maTuyKQ||'')}</td><td></td></tr><tr><td><b>2. Các xét nghiệm chỉ thực hiện khi có chỉ định của bác sỹ khám sức khỏe:</b> Xét nghiệm nồng độ cồn trong máu hoặc hơi thở/huyết học/sinh hóa/X.quang và các xét nghiệm khác (điện não đồ, điện tim...)<br>a) Kết quả: ${line(p.xetNghiemKhacKQ||'')}<br>b) Kết luận: ${line(p.xetNghiemKhacKL||'')}</td><td></td></tr></tbody></table><div class="section" style="text-align:center;font-size:16px;margin-top:10mm">IV. KẾT LUẬN</div><div class="conclusionBox">${para(p.ketLuan)}${para('')}${para('')}<div class="note">(Giấy khám sức khỏe này có giá trị sử dụng trong vòng 12 tháng kể từ ngày ký kết luận)</div></div><div class="signArea"><div></div><div>${esc(clinicSettings.province)}, ngày ${line(nk.d,'w20')} tháng ${line(nk.m,'w20')} năm ${line(nk.y,'w30')}<br><b>${esc(clinicSettings.nguoiKetLuanLabel)}</b><br><i>(Ký, ghi rõ họ, tên và đóng dấu)</i><div class="signName">Họ tên: ${line(p.nguoiKetLuan,'w70')}</div></div></div><div class="pageNo">Trang 3 - Hồ sơ ${idx+1}</div></section>`}
+function renderPreview(){let p=patients[current]||newPatient();document.getElementById('preview').innerHTML=page1(p,current)+page2(p,current)+page3(p,current)}
+function render(){renderList();renderClinicEdit();renderEdit();renderPreview()}
+function pickPhoto(idx){let inp=document.createElement('input');inp.type='file';inp.accept='image/*';inp.onchange=e=>{let f=e.target.files[0];if(!f)return;let r=new FileReader();r.onload=ev=>{patients[idx].photo=ev.target.result;saveData(true)};r.readAsDataURL(f)};inp.click()}
+function getRange(){let f=Math.max(1,+document.getElementById('fromRec').value||1),t=Math.min(patients.length,+document.getElementById('toRec').value||patients.length);if(t<f)[f,t]=[t,f];return [f-1,t-1]}
+function buildRangeHtml(){let [f,t]=getRange();let html='';for(let i=f;i<=t;i++){html+=page1(patients[i],i)+page2(patients[i],i)+page3(patients[i],i)}return html}
+function printRange(){let old=document.getElementById('preview').innerHTML;document.getElementById('preview').innerHTML=buildRangeHtml();setTimeout(()=>{window.print();setTimeout(()=>{document.getElementById('preview').innerHTML=old},300)},100)}
+function showAll(){document.getElementById('preview').innerHTML=buildRangeHtml()}
+function exportData(){let rows=patients.map(p=>{let o={};FIELDS.forEach(([id,label])=>o[label]=p[id]||'');BOOLS.forEach(b=>o[b]=p.bool?.[b]||'Không');return o});let ws=XLSX.utils.json_to_sheet(rows);let wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,'KSK');XLSX.writeFile(wb,'Du_lieu_KSK_lai_xe_TT36.xlsx')}
+function saveBackupFile(){let blob=new Blob([JSON.stringify({patients,clinicSettings,savedAt:new Date().toISOString()},null,2)],{type:'application/json'});let a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='Backup_App_KSK_TT36_NhonTam.json';a.click();URL.revokeObjectURL(a.href)}
+async function exportPdf(){showLoader('Đang xuất PDF','Đang kết xuất các trang A4...');let old=document.getElementById('preview').innerHTML;document.getElementById('preview').innerHTML=buildRangeHtml();document.body.classList.add('fastPdfMode');await new Promise(r=>setTimeout(r,250));try{const {jsPDF}=window.jspdf;let pdf=new jsPDF({orientation:'portrait',unit:'mm',format:'a4'});let sheets=[...document.querySelectorAll('.sheet')];for(let i=0;i<sheets.length;i++){let canvas=await html2canvas(sheets[i],{scale:2,useCORS:true,backgroundColor:'#fff'});let img=canvas.toDataURL('image/jpeg',0.95);if(i>0)pdf.addPage('a4','portrait');pdf.addImage(img,'JPEG',0,0,210,297);document.getElementById('loaderText').textContent=`Đã xử lý ${i+1}/${sheets.length} trang...`}pdf.save('Giay_KSK_Lai_Xe_TT36.pdf')}catch(err){alert('Lỗi xuất PDF: '+err.message)}finally{document.body.classList.remove('fastPdfMode');document.getElementById('preview').innerHTML=old;hideLoader()}}
+
+/* ===== OVERRIDE A3 2 MẶT: mỗi hồ sơ gồm 2 trang A3 ngang, mỗi trang chia 2 nửa ===== */
+function labConclusionHalf(p,idx){let nk=dateParts(p.ngayKetLuan||p.ngayKham);let hasNK=!!(nk.d&&nk.m&&nk.y);return `<div class="halfPage front1left"><div class="frontSectionTitle">III. KHÁM CẬN LÂM SÀNG</div><table class="labTable"><colgroup><col><col style="width:45mm"></colgroup><thead><tr><th>Nội dung khám</th><th>Họ tên, chữ ký của Bác sỹ/Trưởng bộ phận</th></tr></thead><tbody><tr class="labRow1"><td>1. Xét nghiệm ma túy (Xét nghiệm sàng lọc và định tính các loại ma túy theo quy định của Bộ Y tế: Amphetamin, Marijuana, Morphin, Codein, Heroin)<br><br><div class="labFillRow"><span class="labFillLabel">Kết quả:</span>${line(p.maTuyKQ||'')}</div></td><td class="labDoctorBox"></td></tr><tr class="labRow2"><td>2. Các xét nghiệm chỉ thực hiện khi có chỉ định của bác sỹ khám sức khỏe: Xét nghiệm nồng độ cồn trong máu hoặc hơi thở/huyết học/sinh hóa/X.quang và các xét nghiệm khác (điện não đồ, điện tim...)<br><br><div class="labFillRow"><span class="labFillLabel">a) Kết quả:</span>${line(p.xetNghiemKhacKQ||'')}</div><br><div class="labFillRow"><span class="labFillLabel">b) Kết luận:</span>${line(p.xetNghiemKhacKL||'')}</div></td><td class="labDoctorBox"></td></tr></tbody></table><div class="conclusionTitle">IV. KẾT LUẬN (4)</div><div class="conclusionLine"></div><div class="conclusionLine"></div><div class="conclusionLine"></div><div class="validNote">(Giấy khám sức khỏe này có giá trị sử dụng trong vòng 12 tháng kể từ ngày ký kết luận)</div><div class="ketLuanSign"><div class="dateLine">${hasNK?`..........., ngày ${esc(nk.d)} tháng ${esc(nk.m)} năm ${esc(nk.y)}`:`..........., ngày ...... tháng ...... năm ..........`}</div><div class="role">${esc(clinicSettings.nguoiKetLuanLabel)}</div><div class="sub">(Ký, ghi rõ họ, tên và đóng dấu)</div></div></div>`}
+function introHistoryStartHalf(p,idx){let ns=dateParts(p.ngaySinh), cn=dateParts(p.capNgay);let gt=formatGender(p.gioiTinh);let nam=gt==='Nam',nu=gt==='Nữ';return `<div class="halfPage front1right"><div class="top"><div class="clinic"><b>${esc(clinicSettings.company)}</b><b>${esc(clinicSettings.clinic)}</b><div>----------</div></div><div class="nation">CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM<br><span>Độc lập - Tự do - Hạnh phúc</span><br><span class="subline">---------------</span></div></div><div class="legal" style="font-weight:bold">PHỤ LỤC II<br>${esc(clinicSettings.title)}<br>${esc(clinicSettings.legal)}</div><div class="headCode">Số ${plainOrLine(p.soPhieu,'w20')}/${esc(buildCodePrefix())}</div><div class="formTitle">${esc(clinicSettings.title)}</div><div class="frontInfoWrap"><div class="photoBox" onclick="pickPhoto(${idx})">${p.photo?`<img src="${p.photo}">`:'Ảnh<br>(4x6 cm) đóng dấu<br>giáp lai hoặc Scan ảnh<br><br>(Ảnh được chụp trên<br>nền trắng trong thời<br>gian không quá 6<br>(sáu) tháng tính đến<br>ngày nộp hồ sơ<br>khám sức khỏe)'}</div><div class="frontInfoFields"><div class="row"><b>1. Họ và tên</b> <i>(viết chữ in hoa)</i>: ${plainUpperOrLine(p.hoTen)}</div><div class="row"><b>2. Giới tính:</b> Nam ${chk(nam)} &nbsp;&nbsp;&nbsp; Nữ ${chk(nu)}</div><div class="row"><b>3. Sinh ngày:</b> ${plainOrLine(formatBirthDisplay(p.ngaySinh),'w50')} (Tuổi ${plainOrLine(getDisplayAge(p),'w30')})</div><div class="row"><b>4. Số CCCD /CC/Hộ chiếu/Định danh công dân:</b> ${plainOrLine(p.cccd)}</div><div class="row capNgayTaiRow"><b>5. Cấp ngày</b> ${plainOrLine(formatDateDisplay(p.capNgay),'capDateValue')} <b class="taiLabel">Tại</b> ${plainOrLine(p.capTai,'capTaiValue multilineValue')}</div><div class="row hkttRow"><b>6. Hộ khẩu thường trú:</b> ${plainOrLine(p.hoKhau,'hkttValue multilineValue')}</div><div class="row"><b>7. Đề nghị khám sức khỏe để lái xe hạng:</b> ${line(p.hangLaiXe)}</div>${para('')}</div></div><div class="frontHistoryBlock"><div class="note"><i>* Lưu ý: Trường hợp đối tượng KSK có CCCD/CC gắn chíp hoặc có số định danh công dân đã thực hiện kết nối với cơ sở dữ liệu quốc gia về dân cư không cần ghi mục 2, mục 5, mục 6</i></div><div class="section">I. TIỀN SỬ BỆNH CỦA ĐỐI TƯỢNG KHÁM SỨC KHỎE</div><div class="subsection">1. Tiền sử gia đình:</div><div>Có ai trong gia đình ông (bà) mắc một trong các bệnh: truyền nhiễm, tim mạch, đái tháo đường, lao, hen phế quản, ung thư, động kinh, rối loạn tâm thần, bệnh khác:</div><div>a) Không □; b) Có □;</div><div>Nếu “có”, đề nghị ghi cụ thể tên bệnh: ${line(p.tienSuGiaDinh||'')}</div>${para('')}${para('')}${para('')}${para('')}${para('')}<div class="subsection">2. Tiền sử, bệnh sử bản thân: Ông (bà) đã/đang mắc bệnh, tình trạng bệnh nào sau đây không <i>(Bác sỹ hỏi bệnh và đánh dấu X vào ô tương ứng)</i></div><div class="historyTwoTables">${blankHistoryTable(BOOLS.slice(0,5))}${blankHistoryTable(BOOLS.slice(9,14))}</div></div></div>`}
+function historyEndClinicalStartHalf(p,idx){let nk=dateParts(p.ngayKham);let first=BOOLS.slice(5,9), second=BOOLS.slice(14);let block=(arr)=>`<table class="historyTable backHistorySplitTable"><colgroup><col><col class="yesCol"><col class="noCol"></colgroup><thead><tr><th></th><th colspan="2">Có / Không</th></tr></thead><tbody>${arr.map(a=>`<tr><td class="diseaseCell">${esc(a)}</td><td></td><td></td></tr>`).join('')}</tbody></table>`;return `<div class="halfPage"><div class="twoCol">${block(first)}${block(second)}</div><div>Nếu “có”, đề nghị ghi cụ thể tên bệnh:</div>${para(p.benhSuBanThan)}${para('')}<div class="backQ3Wrap"><div class="subsection">3. Câu hỏi khác (nếu có):</div><div class="backQ3Question">Ông (bà) có đang điều trị bệnh gì không? Nếu có, hãy liệt kê các thuốc đang dùng và liều lượng:</div>${para(p.dangDieuTri)}${para('')}<div class="backQ3Commit">Tôi xin cam đoan những điều khai trên đây hoàn toàn đúng với sự thật. Nếu sai tôi xin chịu trách nhiệm trước pháp luật.</div><div class="backP1SignWrap"><div class="dateLine">.............., ngày ${line(nk.d,'w20')} tháng ${line(nk.m,'w20')} năm ${line(nk.y,'w30')}</div><div class="role">Người đề nghị khám sức khỏe</div><div class="sub">(Ký và ghi rõ họ, tên)</div></div></div><div class="backClinicalP1Section"><div class="halfTitle backClinicalTitle">II. KHÁM LÂM SÀNG</div><table class="examTable backClinicalP1Table"><colgroup><col><col style="width:39mm"></colgroup><thead><tr><th>Nội dung khám</th><th>Họ tên, chữ ký của Bác sỹ</th></tr></thead><tbody><tr class="rowMental"><td><div class="backExamCell"><div class="examLabel">1. Tâm thần:</div><div class="writeLines">${para(p.tamThan)}${para('')}</div><div class="conclusionLine"><b>Kết luận</b> ${line(p.tamThanKL||'')}</div></div></td><td class="doctorCell"><div class="doctorSingleLine"></div></td></tr><tr class="rowNeuro"><td><div class="backExamCell"><div class="examLabel">2. Thần kinh:</div><div class="writeLines">${para(p.thanKinh)}${para('')}</div><div class="conclusionLine"><b>Kết luận</b> ${line(p.thanKinhKL||'')}</div></div></td><td class="doctorCell"><div class="doctorSingleLine"></div></td></tr><tr class="rowEye"><td><div class="examLabel">3. Mắt:</div><div class="eyeIntro">- Thị lực nhìn xa từng mắt:</div><div class="row">+ Không kính: Mắt phải ${line(p.matKhongKinhP,'w30')} Mắt trái ${line(p.matKhongKinhT,'w30')}</div><div class="row">+ Có kính: Mắt phải ${line(p.matCoKinhP,'w30')} Mắt trái: ${line(p.matCoKinhT,'w30')}</div><div class="row">Thị lực nhìn xa hai mắt: Không kính ${line(p.matHaiMatKhongKinh,'w30')} Có kính ${line(p.matHaiMatCoKinh,'w30')}</div></td><td class="doctorCell"></td></tr></tbody></table></div></div>`}
+function clinicalEndHalf(p,idx){return `<div class="halfPage backClinicalP2"><table class="examTable"><colgroup><col><col style="width:39mm"></colgroup><tbody>
+<tr class="rowEyeRest"><td>
+<div class="smallTitle">- Thị trường:</div>
+<table class="visionTable"><tr class="visionHead"><td colspan="2">Thị trường ngang hai mắt (chiều mũi - thái dương)</td><td colspan="2">Thị trường đứng (chiều trên-dưới)</td></tr><tr class="visionSub"><td>Bình thường</td><td>Hạn chế</td><td>Bình thường</td><td>Hạn chế</td></tr><tr class="visionBlank"><td></td><td></td><td></td><td></td></tr></table>
+<div class="smallTitle">- Sắc giác</div>
+<div class="row">+ Bình thường ${chk((p.sacGiac||'').includes('Bình'))}</div>
+<div class="row">+ Mù màu toàn bộ ${chk((p.sacGiac||'').includes('toàn'))} &nbsp; Mù màu: - Đỏ ${chk(false)} - Xanh lá cây ${chk(false)} - vàng ${chk(false)}</div>
+<div>Các bệnh về mắt (nếu có):</div>
+${para(p.matBenh)}${para('')}
+<div><b>Kết luận</b> ${line(p.matKL||'')}</div>
+</td><td class="doctorCell"><span class="doctorSignLine"></span></td></tr>
+
+<tr class="rowTMH"><td>
+<div class="backP2Cell"><div class="sectionLabel">4. Tai-Mũi-Họng</div>
+<div>Kết quả khám thính lực (có thể sử dụng máy trợ thính)</div>
+<div class="row">+ Tai trái: Nói thường: ${line('','w24')}m; Nói thầm ${line('','w24')}m</div>
+<div class="row">+ Tai phải: Nói thường: ${line('','w24')}m; Nói thầm ${line('','w24')}m</div>
+<div>- Các bệnh về tai mũi họng (nếu có):</div>
+<div class="backP2Fill">${para(p.tmh)}${para('')}</div>
+<div class="backConclusion"><b>Kết luận</b> ${line(p.tmhKL||'')}</div></div>
+</td><td class="doctorCell"><span class="doctorSignLine"></span></td></tr>
+
+<tr class="rowTimMach"><td>
+<div class="backP2Cell"><div class="sectionLabel">5. Tim mạch:</div>
+<div class="row">+ Mạch ${line(p.mach,'w30')} lần/phút;</div>
+<div class="row">+ Huyết áp: ${line(p.huyetAp,'w42')} / ${line('','w24')} mmHg</div>
+<div class="backP2Fill">${para(p.timMach)}${para('')}</div>
+<div class="backConclusion"><b>Kết luận</b> ${line(p.timMachKL||'')}</div></div>
+</td><td class="doctorCell"><span class="doctorSignLine"></span></td></tr>
+
+<tr class="rowHoHap"><td>
+<div class="backP2Cell"><div class="sectionLabel">6. Hô hấp</div>
+<div class="backP2Fill">${para(p.hoHap)}${para('')}</div>
+<div class="backConclusion"><b>Kết luận</b> ${line(p.hoHapKL||'')}</div></div>
+</td><td class="doctorCell"><span class="doctorSignLine"></span></td></tr>
+
+<tr class="rowCoXuongKhop"><td>
+<div class="backP2Cell"><div class="sectionLabel">7. Cơ Xương Khớp:</div>
+<div class="backP2Fill tight2">${para(p.coXuongKhop)}${para('')}</div>
+<div class="backConclusion"><b>Kết luận</b> ${line(p.coXuongKhopKL||'')}</div></div>
+</td><td class="doctorCell"><span class="doctorSignLine"></span></td></tr>
+
+<tr class="rowNoiTiet"><td>
+<div class="backP2Cell"><div class="sectionLabel">8. Nội tiết:</div>
+<div class="backP2Fill tight1">${para(p.noiTiet)}</div>
+<div class="backConclusion"><b>Kết luận</b> ${line(p.noiTietKL||'')}</div></div>
+</td><td class="doctorCell"><span class="doctorSignLine"></span></td></tr>
+</tbody></table></div>`}
+
+function page1(p,idx){return `<section class="sheet"><div class="a3grid">${labConclusionHalf(p,idx)}${introHistoryStartHalf(p,idx)}</div><div class="pageNo">Mặt trước A3 - Hồ sơ ${idx+1}</div></section>`}
+function page2(p,idx){return `<section class="sheet"><div class="a3grid">${historyEndClinicalStartHalf(p,idx)}${clinicalEndHalf(p,idx)}</div><div class="pageNo">Mặt sau A3 - Hồ sơ ${idx+1}</div></section>`}
+function page3(p,idx){return ''}
+function renderPreview(){let p=patients[current]||newPatient();document.getElementById('preview').innerHTML=page1(p,current)+page2(p,current)}
+function buildRangeHtml(){let [f,t]=getRange();let html='';for(let i=f;i<=t;i++){html+=page1(patients[i],i)+page2(patients[i],i)}return html}
+function printRange(){let old=document.getElementById('preview').innerHTML;document.getElementById('preview').innerHTML=buildRangeHtml();setTimeout(()=>{window.print();setTimeout(()=>{document.getElementById('preview').innerHTML=old},300)},100)}
+async function exportPdf(){showLoader('Đang xuất PDF','Đang kết xuất các mặt A3 ngang...');let old=document.getElementById('preview').innerHTML;document.getElementById('preview').innerHTML=buildRangeHtml();document.body.classList.add('fastPdfMode');await new Promise(r=>setTimeout(r,250));try{const {jsPDF}=window.jspdf;let pdf=new jsPDF({orientation:'landscape',unit:'mm',format:'a3'});let sheets=[...document.querySelectorAll('.sheet')];for(let i=0;i<sheets.length;i++){let canvas=await html2canvas(sheets[i],{scale:2,useCORS:true,backgroundColor:'#fff'});let img=canvas.toDataURL('image/jpeg',0.95);if(i>0)pdf.addPage('a3','landscape');pdf.addImage(img,'JPEG',0,0,420,297);document.getElementById('loaderText').textContent=`Đã xử lý ${i+1}/${sheets.length} mặt A3...`}pdf.save('Giay_KSK_Lai_Xe_TT36_A3_2_Mat.pdf')}catch(err){alert('Lỗi xuất PDF: '+err.message)}finally{document.body.classList.remove('fastPdfMode');document.getElementById('preview').innerHTML=old;hideLoader()}}
+
+init();
+</script>
+</body>
+</html>

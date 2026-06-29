@@ -1,0 +1,1031 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>BỆNH ÁN RĂNG HÀM MẶT</title>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+  *{box-sizing:border-box}
+  body{margin:0;font-family:Arial,Times New Roman,sans-serif;background:#eef2f7;color:#111;font-size:15px}
+  .toolbar{position:sticky;top:0;z-index:10;background:#0f766e;color:white;padding:10px 14px;display:flex;flex-wrap:wrap;gap:8px;align-items:center;box-shadow:0 2px 8px #0003}
+  .toolbar h2{font-size:19px;margin:0 12px 0 0}.toolbar input,.toolbar button,.toolbar select{padding:8px;border-radius:6px;border:1px solid #ddd;font-size:15px}.toolbar button{background:#fff;color:#064e3b;font-weight:bold;cursor:pointer}.toolbar button:hover{background:#dcfce7}.externalStatus{background:#083f37;color:#d1fae5;border:1px solid #2dd4bf;border-radius:999px;padding:7px 10px;font-size:13px;white-space:nowrap}
+  .wrap{display:grid;grid-template-columns:380px 1fr;gap:14px;padding:14px}.panel{background:white;border-radius:10px;padding:12px;box-shadow:0 1px 8px #0002}.panel h3{margin:8px 0 10px;color:#0f766e;font-size:19px}.field{margin-bottom:8px}.field label{display:block;font-weight:bold;font-size:14px;margin-bottom:3px}.field input{width:100%;padding:8px;border:1px solid #bbb;border-radius:6px;font-size:15px}.listActions button,.listActions select{font-size:15px}
+  .tablebox{max-height:350px;overflow:auto;border:1px solid #ddd;border-radius:8px}table{border-collapse:collapse;width:100%;font-size:13px}th,td{border:1px solid #ddd;padding:5px;white-space:nowrap}th{background:#e0f2fe;position:sticky;top:0}tr.active{background:#fef3c7}.miniBtn{padding:3px 6px;border-radius:4px;border:1px solid #dc2626;background:#fff;color:#b91c1c;font-weight:bold;cursor:pointer;font-size:13px}.sortHead{cursor:pointer}.sortHead:hover{background:#bae6fd}
+  .pageArea{overflow:auto;background:#777;padding:20px;border-radius:10px;position:relative}.previewNav{position:sticky;top:0;z-index:8;margin:0 auto 12px;display:flex;align-items:center;justify-content:center;gap:8px;background:#111827e6;color:#fff;border:1px solid #ffffff33;border-radius:999px;padding:8px 10px;width:max-content;max-width:100%;box-shadow:0 2px 8px #0006}.previewNav button{border:1px solid #d1fae5;background:#ecfdf5;color:#064e3b;border-radius:999px;padding:7px 12px;font-weight:bold;cursor:pointer}.previewNav button:hover{background:#bbf7d0}.previewNav button:disabled{opacity:.45;cursor:not-allowed}.pageIndicator{font-weight:bold;white-space:nowrap;min-width:130px;text-align:center}.sheet{width:420mm;height:297mm;background:white;position:relative;margin:auto;box-shadow:0 0 8px #0008;overflow:hidden}.cover{position:absolute;left:220mm;top:20mm;width:190mm;height:267mm;border:1.4mm solid #111;padding:9mm 7mm;text-align:center;font-family:'Times New Roman',serif;overflow:hidden;--cover-scale:1}.coverContent{transform:scale(var(--cover-scale));transform-origin:top center;width:100%}.topSmall{position:absolute;left:220mm;top:4mm;min-width:42mm;width:max-content;height:13mm;z-index:20;border:0.5mm solid #111;background:white;display:flex;align-items:center;justify-content:center;font-family:'Times New Roman',serif;font-weight:bold;text-align:center;white-space:nowrap;overflow:visible;padding:0 3mm}.topSmall .soLuuTruText{display:inline-block;line-height:1;white-space:nowrap}.clinic{font-weight:bold;font-size:20pt;line-height:1.12}.addr{font-size:10pt;line-height:1.25;white-space:normal;overflow-wrap:anywhere;word-break:break-word}.clinicLine{font-weight:bold;font-size:20pt;line-height:1.12;overflow-wrap:anywhere;word-break:break-word}.addrLine{font-size:10pt;line-height:1.25;overflow-wrap:anywhere;word-break:break-word}.logo{width:42mm;height:42mm;margin:8mm auto 5mm;display:flex;align-items:center;justify-content:center}.logo svg,.logo img{max-width:100%;max-height:100%;object-fit:contain}.title{font-size:32pt;font-weight:bold;margin:5mm 0 8mm;line-height:1.05;white-space:normal;letter-spacing:-0.2mm;overflow-wrap:anywhere;word-break:keep-all}.codeBox{width:110mm;margin:0 auto 14mm;text-align:left;border:0.35mm solid #777;font-size:12pt;line-height:1.45;padding:1.5mm 3mm}.info{margin-top:8mm;text-align:left;font-size:13.5pt;line-height:1.55}.infoRow{display:flex;align-items:flex-start;gap:2mm;margin-bottom:2.3mm;max-width:100%;overflow-wrap:anywhere;word-break:break-word}.info b{display:inline-block;flex:0 0 44mm;width:44mm;min-width:44mm;vertical-align:top}.cccdRow b{white-space:nowrap;flex-basis:64mm;width:64mm;min-width:64mm}.cccdRow .value{max-width:none}.value{font-weight:bold;white-space:normal;overflow-wrap:anywhere;word-break:break-word;max-width:none;min-width:0;display:inline-block;flex:1}.codeBox .value{max-width:calc(100% - 45mm);display:inline-block;vertical-align:top}.hint{font-size:13px;color:#475569;line-height:1.4}.printOnly{display:none}
+  @media(max-width:900px){.wrap{grid-template-columns:1fr}.sheet{transform:scale(.36);transform-origin:top left;margin:0;width:420mm;height:297mm}.pageArea{height:460px}}
+  @page{size:A3 landscape;margin:0}
+  @media print{body{background:white}.toolbar,.panel,.previewNav{display:none!important}.wrap{display:block;padding:0}.pageArea{padding:0;background:white;border-radius:0;overflow:visible}.sheet{box-shadow:none;margin:0;width:420mm;height:297mm}.cover{border:1.4mm solid #111}.printOnly{display:block}}
+</style>
+</head>
+<body>
+<div class="toolbar">
+  <h2 id="appTitle">BỆNH ÁN RĂNG HÀM MẶT</h2>
+  <input type="file" id="excelFile" accept=".xlsx,.xls,.csv" multiple />
+  <label style="background:#fff;color:#064e3b;font-weight:bold;padding:8px;border-radius:6px;cursor:pointer">Chọn logo<input type="file" id="logoFile" accept="image/*" style="display:none"></label>
+  <button onclick="saveDataNow()">Lưu dữ liệu</button>
+  <button onclick="saveHeaderTemplate()" style="background:#fde68a;color:#713f12;border-color:#f59e0b">Lưu mẫu đầu bìa</button>
+  <button onclick="chooseExternalFolder()" style="background:#dcfce7;color:#064e3b;border-color:#22c55e">Chọn thư mục Google Drive</button>
+  <button onclick="saveExternalNow()" style="background:#bbf7d0;color:#064e3b;border-color:#16a34a">Lưu ngoài ngay</button>
+  <label style="background:#fff;color:#064e3b;font-weight:bold;padding:8px;border-radius:6px;cursor:pointer">Khôi phục lưu ngoài<input type="file" id="externalRestoreFile" accept=".json,application/json" style="display:none"></label>
+  <span id="externalSaveStatus" class="externalStatus">Chưa chọn thư mục lưu ngoài</span>
+  <button onclick="exportPDF()">Xuất PDF 1 bìa</button>
+  <button onclick="exportAllPDF()" style="background:#2563eb;color:#fff;border-color:#1d4ed8">Xuất PDF tất cả</button>
+  <button onclick="printOne()" style="background:#10b981;color:#fff;border-color:#059669">In bìa đang chọn</button>
+  <button onclick="printAll()" style="background:#059669;color:#fff;border-color:#047857">In tất cả (Mailing)</button>
+  <button onclick="prevPrintPage()" title="Xem hồ sơ/trang in phía trước">◀ Lùi trang</button>
+  <button onclick="nextPrintPage()" title="Xem hồ sơ/trang in kế tiếp">Tới trang ▶</button>
+  <button onclick="resetApp()">Reset</button>
+</div>
+<div class="wrap">
+  <div class="panel">
+    <h3>Nhập / sửa thông tin</h3>
+    <div id="form"></div>
+    <h3>Danh sách từ Excel</h3>
+    <div class="listActions" style="display:flex;flex-wrap:wrap;gap:6px;margin:6px 0 8px">
+      <button type="button" onclick="addRow()" style="padding:7px;border-radius:6px;border:1px solid #0f766e;background:#ecfdf5;color:#064e3b;font-weight:bold;cursor:pointer">Thêm dòng</button>
+      <button type="button" onclick="deleteCurrentRow()" style="padding:7px;border-radius:6px;border:1px solid #dc2626;background:#fef2f2;color:#991b1b;font-weight:bold;cursor:pointer">Xóa dòng đang chọn</button>
+      <button type="button" onclick="saveDataNow()" style="padding:7px;border-radius:6px;border:1px solid #2563eb;background:#eff6ff;color:#1d4ed8;font-weight:bold;cursor:pointer">Lưu dữ liệu</button>
+      <button type="button" onclick="saveHeaderTemplate()" style="padding:7px;border-radius:6px;border:1px solid #f59e0b;background:#fffbeb;color:#92400e;font-weight:bold;cursor:pointer">Lưu mẫu đầu bìa</button>
+      <select id="sortSelect" onchange="sortBySelected()" style="padding:7px;border-radius:6px;border:1px solid #bbb">
+        <option value="">Sắp xếp...</option>
+        <option value="tenApp">Tên app</option>
+        <option value="tenBenhAn">Tên bệnh án</option>
+        <option value="soLuuTru">Số lưu trữ</option>
+        <option value="dongPK1">Dòng phòng khám 1</option>
+        <option value="dongPK2">Dòng phòng khám 2</option>
+        <option value="dongPK3">Dòng phòng khám 3</option>
+        <option value="maVaoVien">Mã số vào viện</option>
+        <option value="maBenhNhan">Mã bệnh nhân</option>
+        <option value="hoTen">Họ tên</option>
+        <option value="gioiTinh">Giới tính</option>
+        <option value="namSinh">Năm sinh</option>
+        <option value="cccd">Mã định danh cá nhân/ CCCD</option>
+        <option value="diaChi">Địa chỉ</option>
+        <option value="maBHYT">Mã BHYT</option>
+        <option value="ngayVaoVien">Ngày giờ vào viện</option>
+        <option value="dienThoai">Số điện thoại</option>
+      </select>
+    </div>
+    <div class="tablebox"><table id="dataTable"><thead></thead><tbody></tbody></table></div>
+    <p class="hint"><b>Cột Excel tự nhận:</b> họ tên, giới tính, năm sinh/ngày sinh, địa chỉ, mã BHYT/số thẻ BHYT, ngày giờ vào viện/ngày vào viện, cột Ngày - Giờ/Ngày giờ, giờ vào viện/giờ khám nếu tách riêng cột, số điện thoại, số lưu trữ, mã số vào viện, mã bệnh nhân. Nếu Excel có đủ ngày và giờ, app sẽ hiển thị dạng "07 giờ 23 phút 00 giây, ngày 24/06/2026"; nếu chỉ có ngày thì hiển thị "24/06/2026". Có thể sửa trực tiếp trong ô bên trên rồi bấm Lưu dữ liệu. Muốn lưu cố định tên app/tên bệnh án/dòng phòng khám cho các lần sau thì bấm Lưu mẫu đầu bìa. Dòng phòng khám 1-3 luôn ưu tiên mẫu đã lưu, không lấy từ file Excel.</p>
+  </div>
+  <div class="pageArea">
+    <div class="previewNav" id="previewNav">
+      <button type="button" id="prevPageBtn" onclick="prevPrintPage()">◀ Lùi trang</button>
+      <span class="pageIndicator" id="pageIndicator">Trang 1/1</span>
+      <button type="button" id="nextPageBtn" onclick="nextPrintPage()">Tới trang ▶</button>
+    </div>
+    <div id="printPages"><div class="sheet" id="sheet"><div class="topSmall" id="topSmall"></div><div class="cover" id="cover"></div></div></div>
+  </div>
+</div>
+<script>
+const FIELDS=[['tenApp','Tên app'],['tenBenhAn','Tên bệnh án'],['soLuuTru','Số lưu trữ'],['dongPK1','Dòng phòng khám 1'],['dongPK2','Dòng phòng khám 2'],['dongPK3','Dòng phòng khám 3'],['maVaoVien','Mã số vào viện'],['maBenhNhan','Mã bệnh nhân'],['hoTen','Họ và tên bệnh nhân'],['gioiTinh','Giới tính'],['namSinh','Năm sinh'],['cccd','Mã định danh cá nhân/ CCCD'],['diaChi','Địa chỉ'],['maBHYT','Mã BHYT'],['ngayVaoVien','Ngày giờ vào viện'],['dienThoai','Số điện thoại']];
+
+let rows=[];
+let current=0;
+let customLogo=localStorage.getItem('bia_yhct_logo')||'';
+const DB_NAME='bia_yhct_a3_db_v2';
+const DB_STORE='data';
+const DB_KEY='rows';
+const HEADER_DEFAULTS_KEY='headerDefaults';
+const HEADER_STORAGE_KEY='bia_yhct_header_defaults';
+const EXTERNAL_DIR_HANDLE_KEY='externalDriveDirHandle';
+const EXTERNAL_DATA_FILE='BIA_BENH_AN_RHM_A3_DATA.json';
+const AUTO_SAVE_DELAY=5000;
+const HEADER_FIELDS=['tenApp','tenBenhAn','soLuuTru','dongPK1','dongPK2','dongPK3'];
+const HEADER_GLOBAL_FIELDS=['tenApp','tenBenhAn','dongPK1','dongPK2','dongPK3'];
+const HEADER_LOCKED_FIELDS=['dongPK1','dongPK2','dongPK3'];
+const DEFAULT_HEADER={
+  tenApp:'BỆNH ÁN RĂNG HÀM MẶT',
+  tenBenhAn:'BỆNH ÁN RĂNG HÀM MẶT',
+  soLuuTru:'',
+  dongPK1:'PHÒNG KHÁM ĐA KHOA NHƠN TÂM',
+  dongPK2:'Địa chỉ: 469 Nguyễn Văn Tạo, xã Hiệp Phước, TP. HCM',
+  dongPK3:'ĐT: 028 3780 1479 – Hotline: 0987 519 115'
+};
+let headerDefaults=normalizeHeaderDefaults(loadHeaderDefaultsLocal());
+let externalDirHandle=null;
+let autoSaveTimer=null;
+let externalSaveInProgress=false;
+let pendingExternalSave=false;
+
+function openDB(){
+  return new Promise((resolve,reject)=>{
+    if(!('indexedDB' in window)){reject(new Error('Trình duyệt không hỗ trợ IndexedDB'));return;}
+    const req=indexedDB.open(DB_NAME,1);
+    req.onupgradeneeded=e=>{
+      const db=e.target.result;
+      if(!db.objectStoreNames.contains(DB_STORE)) db.createObjectStore(DB_STORE);
+    };
+    req.onsuccess=e=>resolve(e.target.result);
+    req.onerror=e=>reject(e.target.error);
+  });
+}
+async function idbGet(key){
+  try{
+    const db=await openDB();
+    return await new Promise((resolve,reject)=>{
+      const tx=db.transaction(DB_STORE,'readonly');
+      const req=tx.objectStore(DB_STORE).get(key);
+      req.onsuccess=()=>resolve(req.result);
+      req.onerror=()=>reject(req.error);
+    });
+  }catch(err){
+    return null;
+  }
+}
+async function idbSet(key,value){
+  try{
+    const db=await openDB();
+    return await new Promise((resolve,reject)=>{
+      const tx=db.transaction(DB_STORE,'readwrite');
+      tx.objectStore(DB_STORE).put(value,key);
+      tx.oncomplete=()=>resolve(true);
+      tx.onerror=()=>reject(tx.error);
+    });
+  }catch(err){
+    try{localStorage.setItem('bia_yhct_rows',JSON.stringify(value));}catch(e){}
+    return false;
+  }
+}
+function loadHeaderDefaultsLocal(){
+  try{return JSON.parse(localStorage.getItem(HEADER_STORAGE_KEY)||'{}')||{};}catch(e){return {};}
+}
+function isOldYhctTitleText(v){
+  const n=norm(v);
+  return n==='biabenhanyhct' || n==='benhanyhoccotruyen' || n.includes('yhct') || n.includes('yhoccotruyen');
+}
+function normalizeHeaderDefaults(raw={}){
+  const d=Object.assign({},DEFAULT_HEADER);
+  HEADER_FIELDS.forEach(k=>{
+    if(raw && raw[k]!=null) d[k]=String(raw[k]);
+  });
+  // Nếu trình duyệt còn nhớ mẫu YHCT cũ, tự đổi sang Răng Hàm Mặt cho đúng file mới.
+  if(!String(d.tenApp||'').trim() || isOldYhctTitleText(d.tenApp)) d.tenApp=DEFAULT_HEADER.tenApp;
+  if(!String(d.tenBenhAn||'').trim() || isOldYhctTitleText(d.tenBenhAn)) d.tenBenhAn=DEFAULT_HEADER.tenBenhAn;
+  return d;
+}
+function getHeaderDefaults(){
+  return normalizeHeaderDefaults(headerDefaults||{});
+}
+function withHeaderDefaults(row={}){
+  const d=getHeaderDefaults();
+  const out=Object.assign({},row||{});
+  HEADER_FIELDS.forEach(k=>{
+    if(out[k]==null || String(out[k]).trim()==='') out[k]=d[k]||'';
+  });
+  // Dòng phòng khám 1-3 luôn lấy theo mẫu đầu bìa đã lưu,
+  // không lấy/không giữ giá trị từ Excel để tránh bị ghi đè khi nhập file.
+  HEADER_LOCKED_FIELDS.forEach(k=>out[k]=d[k]||'');
+  if(!String(out.tenApp||'').trim() || isOldYhctTitleText(out.tenApp)) out.tenApp=d.tenApp||DEFAULT_HEADER.tenApp;
+  if(!String(out.tenBenhAn||'').trim() || isOldYhctTitleText(out.tenBenhAn)) out.tenBenhAn=d.tenBenhAn||DEFAULT_HEADER.tenBenhAn;
+  return out;
+}
+async function loadHeaderDefaults(){
+  let saved=await idbGet(HEADER_DEFAULTS_KEY);
+  if(!saved || typeof saved!=='object') saved=loadHeaderDefaultsLocal();
+  headerDefaults=normalizeHeaderDefaults(saved);
+  try{localStorage.setItem(HEADER_STORAGE_KEY,JSON.stringify(headerDefaults));}catch(e){}
+  return headerDefaults;
+}
+async function saveHeaderDefaults(value){
+  headerDefaults=normalizeHeaderDefaults(value);
+  await idbSet(HEADER_DEFAULTS_KEY,headerDefaults);
+  try{localStorage.setItem(HEADER_STORAGE_KEY,JSON.stringify(headerDefaults));}catch(e){}
+}
+async function loadSavedRows(){
+  await loadHeaderDefaults();
+  let saved=await idbGet(DB_KEY);
+  if(!Array.isArray(saved)){
+    try{saved=JSON.parse(localStorage.getItem('bia_yhct_rows')||'[]');}catch(e){saved=[];}
+  }
+  rows=Array.isArray(saved)?saved:[];
+  rows=rows.map(r=>withHeaderDefaults(r));
+  if(rows.length===0)rows=[blankRow?blankRow():{}];
+  current=0;
+  focusFirstRecordIfNeeded();
+  renderTable();
+}
+
+function norm(s){return String(s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/đ/g,'d').replace(/[^a-z0-9]/g,'')}
+function pick(obj,keys){let names=Object.keys(obj||{});for(const k of keys){let kk=norm(k);let f=names.find(n=>norm(n).includes(kk)||kk.includes(norm(n)));if(f!=null)return obj[f]??''}return''}
+function hasCellValue(v){return v!=null && String(v).trim()!=='';}
+function findBestColumn(obj,keys,opt={}){
+  const names=Object.keys(obj||{});
+  const exclude=(opt.exclude||[]).map(norm).filter(Boolean);
+  let best='', bestScore=-1, bestKeyIndex=9999;
+  names.forEach(n=>{
+    const nn=norm(n);
+    if(!nn) return;
+    if(opt.requireValue && !hasCellValue(obj[n])) return;
+    if(exclude.some(ex=>nn.includes(ex))) return;
+    keys.forEach((k,idx)=>{
+      const kk=norm(k);
+      if(!kk) return;
+      let score=0;
+      if(nn===kk) score=120;
+      else if(nn.startsWith(kk)) score=105;
+      else if(nn.includes(kk)) score=95;
+      else if(kk.includes(nn) && nn.length>=4) score=60;
+      if(score>bestScore || (score===bestScore && idx<bestKeyIndex)){
+        best=n; bestScore=score; bestKeyIndex=idx;
+      }
+    });
+  });
+  return best;
+}
+function pickByBestColumn(obj,keys,opt={}){const col=findBestColumn(obj,keys,opt);return col?obj[col]:'';}
+function fmt(v){if(v==null)return''; if(v instanceof Date && !isNaN(v)){return String(v.getDate()).padStart(2,'0')+'/'+String(v.getMonth()+1).padStart(2,'0')+'/'+v.getFullYear()} if(typeof v==='number'&&v>20000&&v<80000){let d=XLSX.SSF.parse_date_code(v);if(d)return String(d.d).padStart(2,'0')+'/'+String(d.m).padStart(2,'0')+'/'+d.y}return String(v).trim()}
+function dateOnlyText(d,m,y){const pad=n=>String(Math.floor(Math.abs(Number(n)||0))).padStart(2,'0');return pad(d)+'/'+pad(m)+'/'+String(y).padStart(4,'0');}
+function dateWithWordText(d,m,y){return 'ngày '+dateOnlyText(d,m,y);}
+function timePartsText(t){const pad=n=>String(Math.floor(Math.abs(Number(n)||0))).padStart(2,'0');return pad(t.h)+' giờ '+pad(t.mi)+' phút'+(t.hasSecond?' '+pad(t.s)+' giây':'');}
+function parseDateParts(v){
+  if(v==null || v==='') return null;
+  if(v instanceof Date && !isNaN(v)) return {d:v.getDate(),m:v.getMonth()+1,y:v.getFullYear()};
+  if(typeof v==='number'){
+    if(v>20000 && v<80000){const d=XLSX.SSF.parse_date_code(v);if(d)return {d:d.d,m:d.m,y:d.y};}
+    return null;
+  }
+  let s=String(v).trim();
+  if(!s) return null;
+  if(/^\d+(?:\.\d+)?$/.test(s)){
+    const num=Number(s);
+    if(num>20000 && num<80000){const d=XLSX.SSF.parse_date_code(num);if(d)return {d:d.d,m:d.m,y:d.y};}
+  }
+  s=s.replace(/\s+/g,' ');
+  let m=s.match(/(\d{4})[\/\-.](\d{1,2})[\/\-.](\d{1,2})/);
+  if(m) return {d:Number(m[3]),m:Number(m[2]),y:Number(m[1])};
+  m=s.match(/(\d{1,2})[\/\-.](\d{1,2})[\/\-.](\d{4})/);
+  if(m) return {d:Number(m[1]),m:Number(m[2]),y:Number(m[3])};
+  return null;
+}
+function parseTimeParts(v){
+  if(v==null || v==='') return null;
+  if(v instanceof Date && !isNaN(v)){
+    if(v.getHours()!==0 || v.getMinutes()!==0 || v.getSeconds()!==0) return {h:v.getHours(),mi:v.getMinutes(),s:v.getSeconds(),hasSecond:v.getSeconds()!==0};
+    return null;
+  }
+  if(typeof v==='number'){
+    let fraction=null;
+    if(v>20000 && v<80000){
+      const d=XLSX.SSF.parse_date_code(v);
+      if(d && ((Number(d.H)||0)!==0 || (Number(d.M)||0)!==0 || (Number(d.S)||0)!==0 || Math.abs(v-Math.floor(v))>1e-9)){
+        const sec=Math.round(Number(d.S)||0);
+        return {h:Number(d.H)||0,mi:Number(d.M)||0,s:sec,hasSecond:sec!==0};
+      }
+    }
+    if(v>=0 && v<1) fraction=v;
+    if(fraction!=null){
+      let total=Math.round(fraction*24*60*60);
+      total=((total%(24*60*60))+(24*60*60))%(24*60*60);
+      return {h:Math.floor(total/3600),mi:Math.floor((total%3600)/60),s:total%60,hasSecond:(total%60)!==0};
+    }
+    if(Number.isInteger(v) && v>=0 && v<=23) return {h:v,mi:0,s:0,hasSecond:false};
+    return null;
+  }
+  let s=String(v).trim();
+  if(!s) return null;
+  if(/^\d+(?:\.\d+)?$/.test(s)){
+    const num=Number(s);
+    if(num>=0 && num<1) return parseTimeParts(num);
+    if(Number.isInteger(num) && num>=0 && num<=23) return {h:num,mi:0,s:0,hasSecond:false};
+  }
+  s=s.replace(/\s+/g,' ');
+  let m=s.match(/(?:^|\D)(\d{1,2})\s*(?:giờ|gio|h)\s*(\d{1,2})?(?:\s*(?:phút|phut|p)\s*)?(\d{1,2})?(?:\s*(?:giây|giay|s))?/i);
+  if(m && m[1]!=null){return {h:Number(m[1]),mi:Number(m[2]||0),s:Number(m[3]||0),hasSecond:m[3]!=null};}
+  m=s.match(/(?:^|\D)(\d{1,2}):(\d{1,2})(?::(\d{1,2}))?/);
+  if(m){return {h:Number(m[1]),mi:Number(m[2]),s:Number(m[3]||0),hasSecond:m[3]!=null};}
+  return null;
+}
+function formatNgayGioFromParts(dateParts,timeParts){
+  if(dateParts && timeParts) return timePartsText(timeParts)+', '+dateWithWordText(dateParts.d,dateParts.m,dateParts.y);
+  if(dateParts) return dateOnlyText(dateParts.d,dateParts.m,dateParts.y);
+  if(timeParts) return timePartsText(timeParts);
+  return '';
+}
+function formatNgayGioTuCot(dateValue,timeValue){
+  const d=parseDateParts(dateValue);
+  const t=parseTimeParts(timeValue) || parseTimeParts(dateValue);
+  return formatNgayGioFromParts(d,t);
+}
+function formatNgayGioVaoVien(v){
+  if(v==null || v==='') return '';
+  const d=parseDateParts(v);
+  const t=parseTimeParts(v);
+  if(d) return formatNgayGioFromParts(d,t);
+  let s=String(v).trim();
+  if(!s) return '';
+  s=s.replace(/\s+/g,' ');
+  // Nếu dữ liệu đã có chữ ngày/giờ thì giữ nguyên để tránh làm sai định dạng người dùng nhập tay.
+  if(/ngày|ngay|giờ|gio/i.test(s)) return s;
+  return s;
+}
+function pickNgayGioVaoVien(obj){
+  const excludeDateCols=['ngày sinh','ngay sinh','năm sinh','nam sinh','sinh','birth','birthday','dob','tuổi','tuoi','hạn','han','ngày cấp','ngay cap','cấp bhyt','cap bhyt','hết hạn','het han'];
+  const combinedKeys=[
+    'ngày giờ vào viện','ngay gio vao vien','ngày giờ đến khám','ngay gio den kham','ngày giờ khám','ngay gio kham',
+    'ngày - giờ','ngay - gio','ngày/giờ','ngay/gio','ngày giờ','ngay gio','ngày và giờ','ngay va gio',
+    'thời gian vào viện','thoi gian vao vien','thời gian đến khám','thoi gian den kham','thời gian khám','thoi gian kham',
+    'vào viện lúc','vao vien luc','đến khám lúc','den kham luc','lúc vào viện','luc vao vien','thời điểm vào viện','thoi diem vao vien'
+  ];
+  const dateKeys=[
+    'ngày vào viện','ngay vao vien','vào viện ngày','vao vien ngay','ngày đến khám','ngay den kham','đến khám bệnh ngày','den kham benh ngay',
+    'ngày khám bệnh','ngay kham benh','ngày khám','ngay kham','ngày tiếp nhận','ngay tiep nhan','ngày lập hồ sơ','ngay lap ho so','ngày thực hiện','ngay thuc hien'
+  ];
+  const timeKeys=[
+    'giờ vào viện','gio vao vien','giờ vào','gio vao','vào viện giờ','vao vien gio','giờ đến khám','gio den kham','giờ khám','gio kham',
+    'giờ tiếp nhận','gio tiep nhan','thời gian giờ','thoi gian gio','giờ','gio'
+  ];
+  let combinedCol=findBestColumn(obj,combinedKeys,{requireValue:true,exclude:excludeDateCols});
+  if(!combinedCol){
+    const names=Object.keys(obj||{});
+    // Nhận diện riêng dạng tiêu đề Excel rất hay gặp: "Ngày - Giờ", "Ngày/Giờ", "Ngày giờ" ở cột A.
+    combinedCol=names.find(n=>hasCellValue(obj[n]) && ['ngaygio','ngayvagio','thoigian','datetime','datehour','dateandtime'].includes(norm(n)))||'';
+  }
+  let dateCol=findBestColumn(obj,dateKeys,{requireValue:true,exclude:excludeDateCols});
+  let timeCol=findBestColumn(obj,timeKeys,{requireValue:true,exclude:['tuổi','tuoi','năm sinh','nam sinh','ngày sinh','ngay sinh']});
+
+  // Nếu không thấy cột ngày chuyên biệt, chỉ lấy cột tên đúng là "Ngày/Date" để tránh nhầm sang ngày sinh hoặc ngày hết hạn.
+  if(!dateCol){
+    const names=Object.keys(obj||{});
+    dateCol=names.find(n=>hasCellValue(obj[n]) && ['ngay','date'].includes(norm(n)))||'';
+  }
+  // Nếu không thấy cột giờ chuyên biệt, chỉ lấy cột tên đúng là "Giờ/Time".
+  if(!timeCol){
+    const names=Object.keys(obj||{});
+    timeCol=names.find(n=>hasCellValue(obj[n]) && ['gio','time'].includes(norm(n)))||'';
+  }
+
+  const combinedText=combinedCol?formatNgayGioVaoVien(obj[combinedCol]):'';
+  const separateText=dateCol?formatNgayGioTuCot(obj[dateCol],timeCol?obj[timeCol]:''):'';
+
+  // Ưu tiên cột ngày riêng + cột giờ riêng khi có đủ, để file Excel tách ngày/giờ vẫn đổ đúng mẫu.
+  if(dateCol && timeCol){
+    const d=parseDateParts(obj[dateCol]);
+    const t=parseTimeParts(obj[timeCol]);
+    if(d && t) return formatNgayGioFromParts(d,t);
+  }
+  if(combinedText) return combinedText;
+  if(separateText) return separateText;
+  return '';
+}
+function extractBirthDate(v){
+  let s=fmt(v);
+  if(!s)return'';
+  let m=String(s).match(/^(\d{1,2})[\/\-.](\d{1,2})[\/\-.](\d{4})$/);
+  if(m)return String(m[1]).padStart(2,'0')+'/'+String(m[2]).padStart(2,'0')+'/'+m[3];
+  m=String(s).match(/^(\d{4})[\/\-.](\d{1,2})[\/\-.](\d{1,2})$/);
+  if(m)return String(m[3]).padStart(2,'0')+'/'+String(m[2]).padStart(2,'0')+'/'+m[1];
+  if(/^\d{4}$/.test(s))return s;
+  return s;
+}
+function extractBirthDateForImport(v){
+  let s=extractBirthDate(v);
+  if(!s)return'';
+  // Tránh lỗi lấy nhầm cột Tuổi: 18, 39, 60... không được xem là năm sinh/ngày sinh.
+  if(/^\d{1,3}$/.test(String(s).trim())) return '';
+  return s;
+}
+function pickBirthDate(obj){
+  const names=Object.keys(obj||{});
+  const badHeaders=['tuoi','age','dotuoi','nhomtuoi','tuoidoi'];
+  const dateHeaders=['ngaythangnamsinh','ngaythangnamsinh','ngaysinh','sinhngay','dob','dateofbirth','birthday'];
+  const yearHeaders=['namsinh','sinhnam','namsinhbenhnhan'];
+  const isBadHeader=n=>badHeaders.some(b=>norm(n).includes(b));
+  const valueFrom=cols=>{
+    for(const col of cols){
+      const val=extractBirthDateForImport(obj[col]);
+      if(val) return val;
+    }
+    return '';
+  };
+  // Ưu tiên tuyệt đối các cột có nghĩa là ngày sinh đầy đủ.
+  let cols=names.filter(n=>!isBadHeader(n) && dateHeaders.some(k=>norm(n).includes(k)));
+  let val=valueFrom(cols);
+  if(val) return val;
+  // Sau đó mới lấy cột năm sinh; nếu giá trị trong cột này là tuổi thì bỏ qua.
+  cols=names.filter(n=>!isBadHeader(n) && yearHeaders.some(k=>norm(n).includes(k)));
+  val=valueFrom(cols);
+  if(val) return val;
+  // Fallback nhẹ cho các file đặt tên cột lạ nhưng vẫn có chữ sinh, không chứa tuổi.
+  cols=names.filter(n=>!isBadHeader(n) && norm(n).includes('sinh'));
+  val=valueFrom(cols);
+  if(val) return val;
+  return '';
+}
+function mapRow(r){
+  const d=getHeaderDefaults();
+  return{
+    tenApp:fmt(pick(r,['tên app','ten app','tên ứng dụng','ten ung dung']))||d.tenApp,
+    tenBenhAn:fmt(pick(r,['tên bệnh án','ten benh an','bệnh án','benh an']))||d.tenBenhAn,
+    soLuuTru:fmt(pick(r,['số lưu trữ','so luu tru','số hs','so hs','hồ sơ','ho so','mã hồ sơ','ma ho so','số hồ sơ','so ho so']))||d.soLuuTru,
+    maVaoVien:fmt(pick(r,['mã số vào viện','ma so vao vien','số vào viện','so vao vien'])),
+    maBenhNhan:fmt(pick(r,['mã bệnh nhân','ma benh nhan','mã bn','ma bn'])),
+    hoTen:fmt(pick(r,['họ tên','ho ten','họ và tên','ten benh nhan','bệnh nhân'])).toUpperCase(),
+    gioiTinh:fmt(pick(r,['giới tính','gioi tinh','phái','phai'])),
+    namSinh:pickBirthDate(r),
+    diaChi:fmt(pick(r,['địa chỉ','dia chi','hiện cư ngụ','hien cu ngu'])),
+    maBHYT:fmt(pick(r,['mã bhyt','ma bhyt','số thẻ bhyt','so the bhyt','bhyt'])),
+    ngayVaoVien:pickNgayGioVaoVien(r),
+    dienThoai:fmt(pick(r,['số điện thoại','so dien thoai','điện thoại','dien thoai','sdt'])),
+    cccd:fmt(pick(r,['mã định danh cá nhân','ma dinh danh ca nhan','cccd','căn cước','can cuoc','số cccd','so cccd','cmnd','số cmnd','so cmnd'])),
+    // Giữ cố định theo mẫu đầu bìa đã lưu, không nhận từ Excel.
+    dongPK1:d.dongPK1,
+    dongPK2:d.dongPK2,
+    dongPK3:d.dongPK3
+  };
+}
+function makeForm(){form.innerHTML=FIELDS.map(([k,l])=>`<div class="field"><label>${l}</label><input id="${k}" oninput="updateFromForm()"></div>`).join('')}
+function loadForm(){if(!rows[current])rows[current]=blankRow();rows[current]=withHeaderDefaults(rows[current]);let r=rows[current]||{};FIELDS.forEach(([k])=>{let el=document.getElementById(k);if(el)el.value=r[k]||''});updateAppTitle(r);renderCover(r);updatePreviewNav()}
+function updateFromForm(){if(!rows[current])rows[current]={};FIELDS.forEach(([k])=>{let el=document.getElementById(k);if(el)rows[current][k]=el.value});updateAppTitle(rows[current]);renderCover(rows[current]);updatePreviewNav();renderTable(false);scheduleAutoSave('sửa thông tin')}
+function updateAppTitle(r={}){let t=(r.tenApp&&String(r.tenApp).trim())?r.tenApp:'BỆNH ÁN RĂNG HÀM MẶT';let el=document.getElementById('appTitle');if(el)el.textContent=t;document.title=t;}
+function logo(){if(customLogo)return `<img src="${customLogo}" alt="Logo" style="width:100%;height:100%;object-fit:contain">`;return `<div style="font-size:9pt;color:#777;border:0.3mm dashed #bbb;padding:4mm">Chưa chọn logo</div>`}
+function soLuuTruHtml(v){v=String(v||'').trim();return `<span class="soLuuTruText" style="font-size:25pt">${v}</span>`}
+function getCoverHTML(r={}){
+  const d=getHeaderDefaults();
+  let dongPK1=(r.dongPK1&&String(r.dongPK1).trim())?r.dongPK1:d.dongPK1;
+  let dongPK2=(r.dongPK2&&String(r.dongPK2).trim())?r.dongPK2:d.dongPK2;
+  let dongPK3=(r.dongPK3&&String(r.dongPK3).trim())?r.dongPK3:d.dongPK3;
+  return `<div class="coverContent"><div class="clinicLine">${dongPK1}</div><div class="addrLine">${dongPK2}</div><div class="addrLine">${dongPK3}</div><div class="logo">${logo()}</div><div class="title">${r.tenBenhAn||d.tenBenhAn||'BỆNH ÁN RĂNG HÀM MẶT'}</div><div class="codeBox"><b>Mã số vào viện:</b> <span class="value">${r.maVaoVien||''}</span><br><b>Mã bệnh nhân:</b> <span class="value">${r.maBenhNhan||''}</span></div><div class="info"><div class="infoRow"><b>Họ và tên bệnh nhân:</b> <span class="value">${r.hoTen||''}</span></div><div class="infoRow"><b>Giới tính:</b> <span class="value">${r.gioiTinh||''}</span></div><div class="infoRow"><b>Năm sinh:</b> <span class="value">${r.namSinh||''}</span></div><div class="infoRow cccdRow"><b>Mã định danh cá nhân/CCCD:</b> <span class="value">${r.cccd||''}</span></div><div class="infoRow"><b>Địa chỉ:</b> <span class="value">${r.diaChi||''}</span></div><div class="infoRow"><b>Mã BHYT:</b> <span class="value">${r.maBHYT||''}</span></div><div class="infoRow"><b>Ngày giờ vào viện:</b> <span class="value">${r.ngayVaoVien||''}</span></div><div class="infoRow"><b>Số điện thoại:</b> <span class="value">${r.dienThoai||''}</span></div></div></div>`;
+}
+function fitCoverText(cover){
+  if(!cover)return;
+  const content=cover.querySelector('.coverContent');
+  if(!content)return;
+  cover.style.setProperty('--cover-scale','1');
+  content.style.width='100%';
+  const maxH=cover.clientHeight;
+  const maxW=cover.clientWidth;
+  const h=content.scrollHeight;
+  const w=content.scrollWidth;
+  let scale=Math.min(1,maxH/(h||maxH),maxW/(w||maxW));
+  if(scale<1){
+    scale=scale-0.01;
+    cover.style.setProperty('--cover-scale',String(scale));
+  }
+}
+function fitAllCovers(){document.querySelectorAll('.cover').forEach(fitCoverText)}
+function renderCover(r={}){let ts=document.getElementById('topSmall');if(ts)ts.innerHTML=soLuuTruHtml(r.soLuuTru||'');let cov=document.getElementById('cover');if(cov){cov.innerHTML=getCoverHTML(r);requestAnimationFrame(()=>fitCoverText(cov));}}
+
+function updatePreviewNav(){
+  const total=Math.max(rows.length,1);
+  if(current<0) current=0;
+  if(current>=total) current=total-1;
+  const indicator=document.getElementById('pageIndicator');
+  const prevBtn=document.getElementById('prevPageBtn');
+  const nextBtn=document.getElementById('nextPageBtn');
+  if(indicator){
+    const r=rows[current]||{};
+    const name=(r.hoTen&&String(r.hoTen).trim())?(' - '+String(r.hoTen).trim()):'';
+    indicator.textContent='Trang '+(current+1)+'/'+total+name;
+  }
+  if(prevBtn) prevBtn.disabled=current<=0;
+  if(nextBtn) nextBtn.disabled=current>=total-1;
+}
+function showPrintPage(index){
+  if(!Array.isArray(rows) || rows.length===0){rows=[blankRow()];current=0;}
+  current=Math.min(Math.max(Number(index)||0,0),rows.length-1);
+  loadForm();
+  renderTable(false);
+  const pageArea=document.querySelector('.pageArea');
+  if(pageArea){pageArea.scrollTop=0;pageArea.scrollLeft=0;}
+}
+function prevPrintPage(){showPrintPage(current-1);}
+function nextPrintPage(){showPrintPage(current+1);}
+function renderTable(reset=true){
+  dataTable.tHead.innerHTML='<tr><th>TT</th><th>Thao tác</th>'+FIELDS.map(f=>`<th class="sortHead" title="Bấm để sắp xếp" onclick="sortRows('${f[0]}')">${f[1]} ⇅</th>`).join('')+'</tr>';
+  dataTable.tBodies[0].innerHTML=rows.map((r,i)=>`<tr class="${i==current?'active':''}" onclick="current=${i};loadForm();renderTable(false)"><td>${i+1}</td><td><button class="miniBtn" onclick="event.stopPropagation();deleteRow(${i})">Xóa</button></td>${FIELDS.map(([k])=>`<td>${r[k]||''}</td>`).join('')}</tr>`).join('');
+  if(reset)loadForm();
+}
+
+const RECORD_FIELDS=['soLuuTru','maVaoVien','maBenhNhan','hoTen','gioiTinh','namSinh','cccd','diaChi','maBHYT','ngayVaoVien','dienThoai'];
+function hasRecordData(r={}){
+  return RECORD_FIELDS.some(k=>r && r[k]!=null && String(r[k]).trim()!=='');
+}
+function getOutputRows(){
+  return rows.filter(hasRecordData);
+}
+function removeEmptyPlaceholderBeforeImport(){
+  if(rows.length===1 && !hasRecordData(rows[0])) rows=[];
+}
+function focusFirstRecordIfNeeded(){
+  if(rows.length>1 && (!rows[current] || !hasRecordData(rows[current]))){
+    const idx=rows.findIndex(hasRecordData);
+    if(idx>=0) current=idx;
+  }
+}
+
+function syncCurrentRowFromForm(){
+  if(!rows[current]) rows[current]=blankRow();
+  FIELDS.forEach(([k])=>{
+    const el=document.getElementById(k);
+    if(el) rows[current][k]=el.value||'';
+  });
+  rows[current]=withHeaderDefaults(rows[current]);
+  return rows[current];
+}
+
+function getCurrentPrintableRow(){
+  const formRow=syncCurrentRowFromForm();
+  if(hasRecordData(formRow)) return formRow;
+  const idx=rows.findIndex(hasRecordData);
+  if(idx>=0){
+    current=idx;
+    return withHeaderDefaults(rows[current]||{});
+  }
+  return formRow;
+}
+
+function prepareRowsForOutput(){
+  syncCurrentRowFromForm();
+  rows=rows.map(r=>withHeaderDefaults(r));
+  return getOutputRows();
+}
+
+logoFile.addEventListener('change',e=>{let file=e.target.files[0];if(!file)return;let rd=new FileReader();rd.onload=()=>{customLogo=rd.result;try{localStorage.setItem('bia_yhct_logo',customLogo);}catch(err){console.warn('Logo quá lớn',err);alert('Logo có dung lượng khá lớn, sẽ chỉ lưu tạm thời cho lần in này.');}renderCover(rows[current]||{});scheduleAutoSave('đổi logo');alert('Đã cập nhật logo thành công!');};rd.readAsDataURL(file);});
+
+excelFile.addEventListener('change',async e=>{
+  let files=Array.from(e.target.files||[]);
+  if(!files.length)return;
+  let totalImported=0;
+  try{
+    removeEmptyPlaceholderBeforeImport();
+    for(const file of files){
+      let buf=await file.arrayBuffer();
+      let wb=XLSX.read(buf,{type:'array',cellDates:false});
+      for(const sheetName of wb.SheetNames){
+        let ws=wb.Sheets[sheetName];
+        let json=XLSX.utils.sheet_to_json(ws,{defval:'',raw:true});
+        let imported=[];
+        for(let i=0;i<json.length;i++){
+          let m=withHeaderDefaults(mapRow(json[i]));
+          if(hasRecordData(m)) imported.push(m);
+          if(i%1000===0) await new Promise(r=>setTimeout(r,0));
+        }
+        rows=rows.concat(imported);
+        totalImported+=imported.length;
+      }
+    }
+    current=Math.max(0,rows.length-totalImported);
+    focusFirstRecordIfNeeded();
+    await saveData();
+    scheduleAutoSave('nhập Excel');
+    renderTable();
+    alert('Đã nhập thêm '+totalImported+' dòng từ '+files.length+' file Excel. Tổng hiện có: '+rows.length+' dòng.');
+  }catch(err){
+    alert('Không đọc được một hoặc nhiều file Excel. Vui lòng kiểm tra lại file hoặc lưu dạng .xlsx rồi nhập lại.');
+    console.error(err);
+  }finally{
+    e.target.value='';
+  }
+});
+async function saveData(){await idbSet(DB_KEY,rows);try{localStorage.setItem('bia_yhct_rows_backup_small',JSON.stringify(rows.slice(-200)));}catch(e){}}
+async function clearData(){if(confirm('Xóa toàn bộ dữ liệu đã lưu?')){rows=[];current=0;await saveData();renderTable();}}
+
+function exportBackup(){
+  const data={app:'APP_BIA_BENH_AN_RHM_A3',version:'google-drive-backup-v3',createdAt:new Date().toISOString(),rows,customLogo,headerDefaults:getHeaderDefaults()};
+  const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json;charset=utf-8'});
+  const a=document.createElement('a');
+  const d=new Date();
+  const name='SAO_LUU_BIA_BENH_AN_RHM_A3_'+d.getFullYear()+String(d.getMonth()+1).padStart(2,'0')+String(d.getDate()).padStart(2,'0')+'.json';
+  a.href=URL.createObjectURL(blob);
+  a.download=name;
+  document.body.appendChild(a);
+  a.click();
+  setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove();},500);
+  alert('Đã xuất file sao lưu. Bạn lưu file này vào Google Drive để dùng lại khi cần.');
+}
+
+document.addEventListener('change',async e=>{
+  if(e.target && (e.target.id==='backupFile' || e.target.id==='externalRestoreFile')){
+    const file=e.target.files[0];
+    if(!file)return;
+    try{
+      const text=await file.text();
+      const data=JSON.parse(text);
+      await applyBackupPayload(data);
+      alert('Đã khôi phục '+rows.length+' dòng từ file sao lưu ngoài.');
+      scheduleAutoSave('khôi phục dữ liệu');
+    }catch(err){
+      alert('File sao lưu không đúng định dạng.');
+      console.error(err);
+    }finally{
+      e.target.value='';
+    }
+  }
+});
+
+
+
+function supportsExternalStorage(){
+  return !!(window.showDirectoryPicker && window.FileSystemHandle && window.isSecureContext);
+}
+function updateExternalStatus(text){
+  const el=document.getElementById('externalSaveStatus');
+  if(el) el.textContent=text;
+}
+function makeBackupPayload(){
+  return {
+    app:'APP_BIA_BENH_AN_RHM_A3',
+    version:'external-folder-autosave-v4',
+    savedAt:new Date().toISOString(),
+    savedAtLocal:new Date().toLocaleString('vi-VN'),
+    rows,
+    customLogo,
+    headerDefaults:getHeaderDefaults()
+  };
+}
+async function ensureExternalPermission(handle,write=false){
+  if(!handle) return false;
+  const opts={mode:write?'readwrite':'read'};
+  try{
+    if(await handle.queryPermission(opts)==='granted') return true;
+    if(write) return await handle.requestPermission(opts)==='granted';
+    return false;
+  }catch(err){
+    return false;
+  }
+}
+async function loadExternalFolderHandle(){
+  if(!supportsExternalStorage()){
+    updateExternalStatus('Trình duyệt chưa hỗ trợ lưu ngoài');
+    return;
+  }
+  try{
+    const handle=await idbGet(EXTERNAL_DIR_HANDLE_KEY);
+    if(handle && handle.kind==='directory'){
+      externalDirHandle=handle;
+      const granted=await ensureExternalPermission(handle,false);
+      updateExternalStatus(granted?'Đã nhớ thư mục lưu ngoài':'Đã nhớ thư mục, cần cấp quyền khi lưu');
+    }
+  }catch(err){
+    updateExternalStatus('Chưa chọn thư mục lưu ngoài');
+  }
+}
+async function readExternalPayloadIfExists(){
+  if(!externalDirHandle) return null;
+  const ok=await ensureExternalPermission(externalDirHandle,false);
+  if(!ok) return null;
+  try{
+    const fileHandle=await externalDirHandle.getFileHandle(EXTERNAL_DATA_FILE,{create:false});
+    const file=await fileHandle.getFile();
+    const text=await file.text();
+    const data=JSON.parse(text);
+    return data;
+  }catch(err){
+    return null;
+  }
+}
+async function applyBackupPayload(data){
+  if(!data || !Array.isArray(data.rows)) throw new Error('Sai định dạng sao lưu');
+  rows=data.rows.map(r=>withHeaderDefaults(r));
+  if(data.headerDefaults) await saveHeaderDefaults(data.headerDefaults);
+  if(data.customLogo){
+    customLogo=data.customLogo;
+    try{localStorage.setItem('bia_yhct_logo',customLogo);}catch(e){}
+  }
+  rows=rows.map(r=>withHeaderDefaults(r));
+  if(rows.length===0) rows=[blankRow()];
+  current=0;
+  focusFirstRecordIfNeeded();
+  await saveData();
+  renderTable();
+}
+async function chooseExternalFolder(){
+  if(!supportsExternalStorage()){
+    alert('Trình duyệt hiện tại chưa hỗ trợ ghi trực tiếp vào thư mục ngoài. Vui lòng dùng Chrome hoặc Edge bản mới, mở app ở chế độ an toàn/localhost. App sẽ chuyển sang tải file sao lưu thủ công.');
+    exportBackup();
+    return;
+  }
+  try{
+    externalDirHandle=await window.showDirectoryPicker({id:'bia-benh-an-yhct-a3-drive',mode:'readwrite'});
+    await idbSet(EXTERNAL_DIR_HANDLE_KEY,externalDirHandle);
+    updateExternalStatus('Đã chọn thư mục, đang kiểm tra dữ liệu...');
+    const existing=await readExternalPayloadIfExists();
+    if(existing && Array.isArray(existing.rows)){
+      const msg='Đã tìm thấy file '+EXTERNAL_DATA_FILE+' trong thư mục này.\n\nOK: khôi phục dữ liệu từ file ngoài vào app.\nCancel: giữ dữ liệu hiện tại và ghi đè file ngoài.';
+      if(confirm(msg)){
+        await applyBackupPayload(existing);
+        updateExternalStatus('Đã khôi phục từ file lưu ngoài');
+        alert('Đã khôi phục '+rows.length+' dòng từ file lưu ngoài.');
+      }else{
+        await saveExternalData(true);
+      }
+    }else{
+      await saveExternalData(true);
+    }
+  }catch(err){
+    if(err && err.name!=='AbortError'){
+      console.error(err);
+      alert('Không chọn/lưu được thư mục ngoài. Vui lòng kiểm tra quyền truy cập thư mục Google Drive đã đồng bộ trên máy.');
+    }
+  }
+}
+async function saveExternalData(showAlert=false){
+  if(!externalDirHandle){
+    if(showAlert) await chooseExternalFolder();
+    return false;
+  }
+  if(externalSaveInProgress){
+    pendingExternalSave=true;
+    return false;
+  }
+  const ok=await ensureExternalPermission(externalDirHandle,true);
+  if(!ok){
+    updateExternalStatus('Chưa được cấp quyền ghi thư mục ngoài');
+    if(showAlert) alert('App chưa có quyền ghi vào thư mục ngoài. Hãy chọn lại thư mục Google Drive và cấp quyền.');
+    return false;
+  }
+  externalSaveInProgress=true;
+  try{
+    const fileHandle=await externalDirHandle.getFileHandle(EXTERNAL_DATA_FILE,{create:true});
+    const writable=await fileHandle.createWritable();
+    await writable.write(JSON.stringify(makeBackupPayload(),null,2));
+    await writable.close();
+    updateExternalStatus('Đã lưu ngoài: '+new Date().toLocaleTimeString('vi-VN'));
+    if(showAlert) alert('Đã lưu dữ liệu ngoài trình duyệt vào file '+EXTERNAL_DATA_FILE+'. Nếu thư mục này nằm trong Google Drive đã đồng bộ, dữ liệu sẽ tự đồng bộ theo Google Drive.');
+    return true;
+  }catch(err){
+    console.error(err);
+    updateExternalStatus('Lỗi lưu ngoài, xem Console');
+    if(showAlert) alert('Không ghi được file lưu ngoài. Vui lòng kiểm tra quyền thư mục hoặc dung lượng Google Drive.');
+    return false;
+  }finally{
+    externalSaveInProgress=false;
+    if(pendingExternalSave){
+      pendingExternalSave=false;
+      setTimeout(()=>saveExternalData(false),500);
+    }
+  }
+}
+async function saveExternalNow(){
+  await saveData();
+  if(!externalDirHandle){
+    await chooseExternalFolder();
+  }else{
+    await saveExternalData(true);
+  }
+}
+function saveGoogleDrive(){
+  saveExternalNow();
+}
+function scheduleAutoSave(reason=''){
+  if(autoSaveTimer) clearTimeout(autoSaveTimer);
+  if(externalDirHandle) updateExternalStatus('Chờ tự lưu sau 5 giây...');
+  autoSaveTimer=setTimeout(async()=>{
+    autoSaveTimer=null;
+    await saveData();
+    if(externalDirHandle) await saveExternalData(false);
+  },AUTO_SAVE_DELAY);
+}
+
+
+function collectHeaderTemplateFromForm(){
+  const data=getHeaderDefaults();
+  HEADER_FIELDS.forEach(k=>{
+    const el=document.getElementById(k);
+    if(el) data[k]=el.value||'';
+  });
+  return normalizeHeaderDefaults(data);
+}
+async function saveHeaderTemplate(){
+  if(!rows[current]) rows[current]=blankRow();
+  FIELDS.forEach(([k])=>{let el=document.getElementById(k);if(el)rows[current][k]=el.value});
+  const header=collectHeaderTemplateFromForm();
+  await saveHeaderDefaults(header);
+  rows=rows.map((r,i)=>{
+    const out=Object.assign({},r||{});
+    HEADER_GLOBAL_FIELDS.forEach(k=>out[k]=header[k]||'');
+    if(i===current) out.soLuuTru=header.soLuuTru||'';
+    return withHeaderDefaults(out);
+  });
+  await saveData();
+
+  // Lưu thật mẫu đầu bìa ra file JSON trong thư mục Google Drive/thư mục ngoài đã chọn.
+  // Phần này giúp tên app, tên bệnh án và các dòng đầu bìa không chỉ nằm trong localStorage/IndexedDB.
+  if(autoSaveTimer){
+    clearTimeout(autoSaveTimer);
+    autoSaveTimer=null;
+  }
+  let externalSaved=false;
+  if(externalDirHandle){
+    externalSaved=await saveExternalData(false);
+  }else{
+    updateExternalStatus('Chưa chọn thư mục lưu ngoài');
+  }
+
+  updateAppTitle(rows[current]||header);
+  renderTable();
+  if(externalSaved){
+    alert('Đã lưu mẫu đầu bìa và đã ghi thật ra file '+EXTERNAL_DATA_FILE+' trong thư mục Google Drive/thư mục ngoài đã chọn. Tên app, tên bệnh án và dòng phòng khám 1-3 sẽ được dùng cho các dòng hiện có và lần nhập/thêm mới sau. Riêng dòng phòng khám 1-3 sẽ không bị file Excel ghi đè. Số lưu trữ chỉ cập nhật dòng đang chọn để tránh ghi đè hồ sơ khác.');
+  }else{
+    alert('Đã lưu mẫu đầu bìa trong app. Muốn ghi thật ra Google Drive, hãy bấm Chọn thư mục Google Drive trước rồi bấm lại Lưu mẫu đầu bìa hoặc Lưu ngoài ngay. Tên app, tên bệnh án và dòng phòng khám 1-3 vẫn đã được dùng cho các dòng hiện có và lần nhập/thêm mới sau.');
+  }
+}
+
+let sortState={key:'',asc:true};
+
+async function saveDataNow(){
+  await saveData();
+  if(externalDirHandle){
+    await saveExternalData(false);
+    alert('Đã lưu dữ liệu trong app và đã ghi thật ra file '+EXTERNAL_DATA_FILE+' ở thư mục Google Drive/thư mục ngoài đã chọn.');
+  }else{
+    updateExternalStatus('Chưa chọn thư mục lưu ngoài');
+    alert('Đã lưu dữ liệu trong app. Muốn lưu thật ra Google Drive, hãy bấm Chọn thư mục Google Drive trước.');
+  }
+}
+
+function blankRow(){
+  const r={};
+  FIELDS.forEach(([k])=>r[k]='');
+  const d=getHeaderDefaults();
+  HEADER_FIELDS.forEach(k=>r[k]=d[k]||'');
+  return r;
+}
+
+async function addRow(){
+  if(rows.length===1 && Object.values(rows[0]).every(v=>!v)) rows=[];
+  rows.push(blankRow());
+  current=rows.length-1;
+  await saveData();
+  scheduleAutoSave('thêm dòng');
+  renderTable();
+}
+
+async function deleteRow(index){
+  if(index<0 || index>=rows.length) return;
+  const name=rows[index].hoTen || rows[index].soLuuTru || ('dòng '+(index+1));
+  if(confirm('Xóa '+name+'?')){
+    rows.splice(index,1);
+    if(rows.length===0) rows=[{}];
+    current=Math.min(current,rows.length-1);
+    await saveData();
+    scheduleAutoSave('xóa dòng');
+    renderTable();
+  }
+}
+
+function deleteCurrentRow(){
+  deleteRow(current);
+}
+
+function sortValue(v){
+  v=String(v||'').trim();
+  const d=v.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+  if(d) return `${d[3]}-${String(d[2]).padStart(2,'0')}-${String(d[1]).padStart(2,'0')}`;
+  return v.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/đ/g,'d');
+}
+
+async function sortRows(key){
+  if(!key) return;
+  sortState.asc = sortState.key===key ? !sortState.asc : true;
+  sortState.key = key;
+  const selected=rows[current];
+  rows.sort((a,b)=>{
+    const av=sortValue(a[key]);
+    const bv=sortValue(b[key]);
+    if(av<bv) return sortState.asc?-1:1;
+    if(av>bv) return sortState.asc?1:-1;
+    return 0;
+  });
+  current=Math.max(0,rows.indexOf(selected));
+  await saveData();
+  scheduleAutoSave('sắp xếp');
+  renderTable();
+}
+
+function sortBySelected(){
+  const el=document.getElementById('sortSelect');
+  if(el && el.value) sortRows(el.value);
+}
+
+async function resetApp(){
+  if(confirm('Reset sẽ xóa toàn bộ dữ liệu trong app. Bạn có chắc muốn reset không?')){
+    rows=[{}];
+    current=0;
+    await saveData();
+    scheduleAutoSave('reset dữ liệu');
+    renderTable();
+    alert('Đã reset dữ liệu.');
+  }
+}
+
+async function exportPDF(){
+  const pages=document.getElementById('printPages');
+  const oldHTML=pages.innerHTML;
+  try{
+    const r=getCurrentPrintableRow();
+    if(!hasRecordData(r)){
+      alert('Dòng đang chọn chưa có thông tin khách hàng để xuất PDF. Vui lòng nhập hoặc chọn đúng dòng có dữ liệu.');
+      return;
+    }
+    await saveData();
+    pages.innerHTML=`<div class="sheet"><div class="topSmall">${soLuuTruHtml(r.soLuuTru||'')}</div><div class="cover">${getCoverHTML(r)}</div></div>`;
+    await document.fonts.ready;
+    await new Promise(res=>setTimeout(res,300));
+    fitAllCovers();
+    await new Promise(res=>setTimeout(res,200));
+    const pageArea = document.querySelector('.pageArea');
+    if(pageArea) { pageArea.scrollTop = 0; pageArea.scrollLeft = 0; }
+    window.scrollTo(0,0);
+    const sheet=pages.querySelector('.sheet');
+    const canvas=await html2canvas(sheet,{scale:2,useCORS:true,backgroundColor:'#ffffff',scrollX:0,scrollY:0});
+    const img=canvas.toDataURL('image/jpeg',0.95);
+    const pdf=new jspdf.jsPDF('landscape','mm','a3');
+    pdf.addImage(img,'JPEG',0,0,420,297);
+    const safeName=(r.hoTen?String(r.hoTen).replace(/[\/:*?"<>|]+/g,'_').trim()+'_':'');
+    const name='BIA_BENH_AN_RHM_A3_'+safeName+new Date().toISOString().slice(0,10)+'.pdf';
+    pdf.save(name);
+  }catch(err){
+    alert('Không xuất được PDF. Vui lòng thử lại. Lỗi: ' + err.message);
+    console.error(err);
+  }finally{
+    pages.innerHTML=oldHTML;
+    loadForm();
+  }
+}
+
+async function exportAllPDF(){
+  const pages=document.getElementById('printPages');
+  const oldHTML=pages.innerHTML;
+  try{
+    const exportRows=prepareRowsForOutput();
+    if(exportRows.length===0){
+      alert('Không có dòng hồ sơ/khách hàng nào để xuất PDF. Vui lòng nhập hoặc chọn dữ liệu trước.');
+      return;
+    }
+    await saveData();
+    if(!confirm('Quá trình xuất toàn bộ ra PDF có thể mất vài phút tùy số lượng. Bạn có muốn tiếp tục?')) return;
+    const pdf=new jspdf.jsPDF('landscape','mm','a3');
+    for(let i=0; i<exportRows.length; i++){
+      let r = withHeaderDefaults(exportRows[i]);
+      pages.innerHTML=`<div class="sheet"><div class="topSmall">${soLuuTruHtml(r.soLuuTru||'')}</div><div class="cover">${getCoverHTML(r)}</div></div>`;
+      await document.fonts.ready;
+      await new Promise(res=>setTimeout(res, i===0 ? 600 : 200));
+      fitAllCovers();
+      await new Promise(res=>setTimeout(res,200));
+      const pageArea = document.querySelector('.pageArea');
+      if(pageArea) { pageArea.scrollTop = 0; pageArea.scrollLeft = 0; }
+      window.scrollTo(0,0);
+      const sheet=pages.querySelector('.sheet');
+      const canvas=await html2canvas(sheet,{scale:1.5,useCORS:true,backgroundColor:'#ffffff',scrollX:0,scrollY:0});
+      const img=canvas.toDataURL('image/jpeg',0.85);
+      if(i > 0) pdf.addPage('a3', 'landscape');
+      pdf.addImage(img,'JPEG',0,0,420,297);
+    }
+    const name='BIA_BENH_AN_RHM_A3_ALL_'+new Date().toISOString().slice(0,10)+'.pdf';
+    pdf.save(name);
+  }catch(err){
+    alert('Không xuất được PDF. Vui lòng thử lại. Lỗi: ' + err.message);
+    console.error(err);
+  }finally{
+    pages.innerHTML=oldHTML;
+    loadForm();
+  }
+}
+
+
+async function printOne(){
+  const pages=document.getElementById('printPages');
+  const oldHTML=pages.innerHTML;
+  const r=getCurrentPrintableRow();
+  if(!hasRecordData(r)){
+    alert('Dòng đang chọn chưa có thông tin khách hàng để in. Vui lòng nhập hoặc chọn đúng dòng có dữ liệu.');
+    return;
+  }
+  pages.innerHTML=`<div class="sheet" id="sheet"><div class="topSmall" id="topSmall">${soLuuTruHtml(r.soLuuTru||'')}</div><div class="cover" id="cover">${getCoverHTML(r)}</div></div>`;
+  await document.fonts.ready;
+  await new Promise(res=>setTimeout(res,300));
+  fitAllCovers();
+  await new Promise(res=>setTimeout(res,100));
+  window.print();
+  pages.innerHTML=oldHTML;
+  loadForm();
+}
+
+async function printAll(){
+  const printRows=prepareRowsForOutput();
+  if(printRows.length===0){
+    alert('Không có dòng hồ sơ/khách hàng nào để in. Vui lòng nhập hoặc chọn dữ liệu trước.');
+    return;
+  }
+  const pages=document.getElementById('printPages');
+  const oldHTML=pages.innerHTML;
+  pages.innerHTML=printRows.map(r=>`<div class="sheet" style="page-break-after:always"><div class="topSmall">${soLuuTruHtml(r.soLuuTru||'')}</div><div class="cover">${getCoverHTML(r)}</div></div>`).join('');
+  await document.fonts.ready;
+  await new Promise(res=>setTimeout(res,500));
+  fitAllCovers();
+  await new Promise(res=>setTimeout(res,100));
+  window.print();
+  pages.innerHTML=oldHTML;
+  loadForm();
+}
+
+makeForm();loadSavedRows();loadExternalFolderHandle();
+</script>
+</body>
+</html>
