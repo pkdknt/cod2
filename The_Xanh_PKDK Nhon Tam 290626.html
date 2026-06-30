@@ -369,7 +369,8 @@ async function readXlsxWorkbookInternal(arrayBuffer) {
   const relDoc = parser.parseFromString(relsXml, 'application/xml');
   const relMap = {};
   [...relDoc.getElementsByTagName('Relationship')].forEach(r => {
-    relMap[r.getAttribute('Id')] = normalizeZipPath('xl/' + r.getAttribute('Target'));
+    const target = r.getAttribute('Target') || '';
+    relMap[r.getAttribute('Id')] = normalizeZipPath(target.startsWith('/') ? target : 'xl/' + target);
   });
 
   const sharedStrings = parseSharedStrings(files['xl/sharedStrings.xml'] || '');
@@ -480,12 +481,17 @@ function parseDateStyles(xml) {
 function parseSheetXml(xml, sharedStrings, dateStyleSet) {
   const doc = new DOMParser().parseFromString(xml, 'application/xml');
   const rows = [];
+  let lastRowIndex = -1;
   [...doc.getElementsByTagName('row')].forEach(rowEl => {
-    const rowIndex = Math.max(0, Number(rowEl.getAttribute('r') || rows.length + 1) - 1);
+    const rAttr = rowEl.getAttribute('r');
+    const rowIndex = rAttr ? Math.max(0, Number(rAttr) - 1) : lastRowIndex + 1;
+    lastRowIndex = rowIndex;
     const row = rows[rowIndex] || [];
+    let lastColIndex = -1;
     [...rowEl.getElementsByTagName('c')].forEach(c => {
-      const ref = c.getAttribute('r') || '';
-      const colIndex = colLettersToIndex(ref.replace(/[0-9]/g,''));
+      const ref = c.getAttribute('r');
+      const colIndex = ref ? colLettersToIndex(ref.replace(/[0-9]/g,'')) : lastColIndex + 1;
+      lastColIndex = colIndex;
       const type = c.getAttribute('t');
       const style = Number(c.getAttribute('s') || -1);
       const vNode = c.getElementsByTagName('v')[0];

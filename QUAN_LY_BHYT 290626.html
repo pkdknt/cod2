@@ -385,12 +385,21 @@ function syncTableDateFromPicker(id, pickerValue) {
   if (txtInput) txtInput.value = dmy;
   
   autoSave();
-  render();
+  let picker = document.getElementById('p_exp_' + id);
+  let tr = picker ? picker.closest('tr') : null;
+  if (tr) {
+    let st = statusOf(r);
+    tr.className = tr.className.replace(/row-\w+/g, 'row-' + st);
+    let tds = tr.getElementsByTagName('td');
+    if (tds[17]) tds[17].textContent = r.days;
+    if (tds[23]) tds[23].innerHTML = badge(st);
+  }
+  renderStats();
 }
 
 function render(){renderStats(); let arr=getFiltered(), limit=Number(document.getElementById('pageSize').value)||500, show=arr.slice(0,limit); document.getElementById('countText').textContent=`Hiển thị ${show.length.toLocaleString('vi-VN')}/${arr.length.toLocaleString('vi-VN')} dòng lọc, tổng ${rows.length.toLocaleString('vi-VN')} dòng`; let h='<thead><tr>'+columns.map((c,i)=>`<th class="${i===0?'stickyA':i===1?'stickyB':i===2?'stickyC':''}">${c[1]}</th>`).join('')+'</tr></thead><tbody>'; show.forEach((r,n)=>{let st=statusOf(r); h+=`<tr class="row-${st} ${selected.has(r.id)?'selected':''}" onclick="selectRow(event,'${r.id}')">`; columns.forEach((c,i)=>{let k=c[0], cls=i===0?'stickyA':i===1?'stickyB c-name':i===2?'stickyC c-small':(['birthPlace','kcb'].includes(k)?'c-long':(k==='note'?'c-note':'c-small')); if(k==='stt')h+=`<td class="${cls}"><input type="checkbox" ${selected.has(r.id)?'checked':''}> ${n+1}</td>`; else if(k==='action')h+=`<td><button class="blue" onclick="event.stopPropagation();markCalled('${r.id}')">Đã gọi</button> <button onclick="event.stopPropagation();markZalo('${r.id}')">Zalo</button> <button onclick="event.stopPropagation();markRecall('${r.id}')">Hẹn lại</button> <button onclick="event.stopPropagation();markRenewed('${r.id}')">Đã GH</button></td>`; else if(k==='days')h+=`<td>${r.days===''?'':r.days}</td>`; else if(k==='cardStatus')h+=`<td>${badge(st)}</td>`; else if(k==='expiry')h+=`<td class="${cls}"><div class="date-input-container"><input type="text" id="t_exp_${r.id}" value="${attr(r[k])}" placeholder="dd/mm/yyyy" oninput="maskDate(this)" onchange="syncTableDateFromText('${r.id}',this.value)"><input type="date" id="p_exp_${r.id}" value="${dateToYmd(r[k])}" onchange="syncTableDateFromPicker('${r.id}',this.value)"></div></td>`; else if(k==='needCall')h+=`<td><select onchange="edit('${r.id}','${k}',this.value)"><option ${r[k]==='Có'?'selected':''}>Có</option><option ${r[k]==='Không'?'selected':''}>Không</option></select></td>`; else if(k==='renewType')h+=`<td><select onchange="edit('${r.id}','${k}',this.value)">${['','Chưa gia hạn','Đang chờ','Đã gia hạn','Tăng mới'].map(x=>`<option ${r[k]===x?'selected':''}>${x}</option>`).join('')}</select></td>`; else if(['birthPlace','kcb','note'].includes(k))h+=`<td class="${cls}"><textarea onchange="edit('${r.id}','${k}',this.value)">${html(r[k])}</textarea></td>`; else h+=`<td class="${cls}"><input value="${attr(r[k])}" onchange="edit('${r.id}','${k}',this.value)"></td>`; }); h+='</tr>'}); h+='</tbody>'; document.getElementById('tbl').innerHTML=h}
 function selectRow(e,id){if(['INPUT','SELECT','TEXTAREA','BUTTON'].includes(e.target.tagName))return; selected.has(id)?selected.delete(id):selected.add(id); render()}
-function edit(id,k,v){let r=rows.find(x=>x.id===id); if(!r)return; r[k]=v; recalc(r); autoSave(); render()}
+function edit(id,k,v){let r=rows.find(x=>x.id===id); if(!r)return; r[k]=v; recalc(r); autoSave(); renderStats()}
 function addRow(){let r=blank(); rows.unshift(recalc(r)); selected.clear(); selected.add(r.id); autoSave(); render()}
 function addFromForm(){let r=blank(); ['name','bhxh','cccd','dob','gender','phone','kcb','expiry','callDate','renewType','note'].forEach(k=>r[k]=document.getElementById('f_'+k).value); rows.unshift(recalc(r)); clearForm(); dedupeRows(false); render(); saveNow()}
 function clearForm(){['name','bhxh','cccd','dob','gender','phone','kcb','expiry','callDate','renewType','note'].forEach(k=>document.getElementById('f_'+k).value=''); document.getElementById('f_expiry_picker').value=''; document.getElementById('f_dob_picker').value='';}

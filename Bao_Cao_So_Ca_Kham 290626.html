@@ -2243,7 +2243,7 @@ function renderInputTable(){
     r+=`<td class="total">${fmt(deptTotal(currentMonth,dep))}</td></tr>`;
     return r;
   }).join('');
-  let total='<tr class="total-row"><th class="sticky-col excel-total-label" colspan="2">Tổng số ca khám/ Ngày<br>(Cấp Cứu đến KSK lái xe)</th>';
+  let total='<tr class="total-row"><th class="sticky-col excel-total-label" colspan="2">Tổng số ca khám/ Ngày<br>( Trừ các Khoa nền màu xanh)</th>';
   spans.forEach(w=>{
     let weekSum=0, weekWeight=0;
     w.slots.forEach(s=>{
@@ -2399,7 +2399,7 @@ function renderDeptWeekCompare(){
     const avg=used?Math.round(total/used):0;
     return `<tr><td>${i+1}</td><td class="dept-name">${htmlSafe(dep)}</td>${cells}<td class="year-total">${total?fmt(total):''}</td><td>${avg?fmt(avg):''}</td><td>${best.value?`${best.label} (${fmt(best.value)})`:''}</td></tr>`;
   }).join('');
-  let totalCase='<tr class="compare-total-case"><th colspan="2" class="dept-name" style="text-align:center">Tổng số ca khám/Ngày<br>(Cấp Cứu đến KSK lái xe)</th>';
+  let totalCase='<tr class="compare-total-case"><th colspan="2" class="dept-name" style="text-align:center">Tổng số ca khám/Ngày<br>( Trừ các Khoa nền màu xanh)</th>';
   let grandCase=0, usedCase=0, bestCase={label:'',value:0};
   weeks.forEach((w,i)=>{
     const val=weekTotalCase(ymv,w);
@@ -4125,7 +4125,7 @@ async function importExternalExcel(event){
 function saveConfig(){state.title=document.getElementById('titleInput').value||state.title; state.clinic=document.getElementById('clinicInput').value||state.clinic; state.note=document.getElementById('noteInput').value||DEFAULT_NOTE; persist(); renderAll(); toast('Đã lưu cấu hình app.')}
 function factoryReset(){if(confirm('Reset toàn bộ về dữ liệu mẫu ban đầu?')){localStorage.removeItem(STORE_KEY); state=loadState(); renderAll();}}
 function renderConfig(){document.getElementById('appTitle').textContent=state.title||'Báo Cáo Số Ca Khám'; document.getElementById('titleInput').value=state.title||''; document.getElementById('clinicInput').value=state.clinic||''; document.getElementById('noteInput').value=state.note||DEFAULT_NOTE; const footerInfo=document.getElementById('footerInfo'); if(footerInfo) footerInfo.innerText='';}
-function renderAll(full=true){if(typeof normalizeDataTemplateDepartments==='function') normalizeDataTemplateDepartments(); renderConfig(); renderKPI(); renderSummaryTable(); renderInputTable(); renderDeptList(); syncCompareControls(); renderDeptWeekCompare(); renderDeptYearCompare(); renderDeptOverYearCompare(); renderCompareModeUI(); renderCharts(); const m=document.getElementById('dataEntryModal'); if(m && !m.classList.contains('hidden') && typeof renderDataEntryTable==='function') renderDataEntryTable();}
+function renderAll(full=true){let act=null;if(document.activeElement&&document.activeElement.tagName==='INPUT')act=document.activeElement.getAttribute('onchange');if(typeof normalizeDataTemplateDepartments==='function') normalizeDataTemplateDepartments(); renderConfig(); renderKPI(); renderSummaryTable(); renderInputTable(); renderDeptList(); syncCompareControls(); renderDeptWeekCompare(); renderDeptYearCompare(); renderDeptOverYearCompare(); renderCompareModeUI(); renderCharts(); const m=document.getElementById('dataEntryModal'); if(m && !m.classList.contains('hidden') && typeof renderDataEntryTable==='function') renderDataEntryTable();if(act){setTimeout(()=>{for(const el of document.querySelectorAll('input')){if(el.getAttribute('onchange')===act){try{el.focus({preventScroll:true});}catch(e){}break;}}},0);}}
 initControls(); setupTabs(); renderAll(); restoreDriveHint(); enableHiddenHorizontalScroll();
 
 

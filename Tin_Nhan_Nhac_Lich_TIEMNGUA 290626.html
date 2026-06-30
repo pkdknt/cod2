@@ -626,7 +626,10 @@
     function sortedRows(rows) {
       if (!state.sortKey) return rows;
       const dir = state.sortDir === 'desc' ? -1 : 1;
-      return [...rows].sort((a, b) => compareValues(a, b, state.sortKey) * dir);
+      return [...rows].sort((a, b) => {
+        const diff = compareValues(a, b, state.sortKey);
+        return diff !== 0 ? diff * dir : (Number(a.STT || 0) - Number(b.STT || 0));
+      });
     }
     function filteredRecords() {
       const q = normalizeText(state.search);
@@ -708,9 +711,9 @@
           const field = cell.dataset.edit;
           let value = cell.textContent.trim();
           if (field === 'Ho_Ten') value = normalizeName(value);
+          if (cell.textContent !== value) cell.textContent = value;
           record[field] = value;
           if (field === 'Template') record._manualTemplate = true;
-          renderTable();
           updateStats();
           scheduleSave();
         });

@@ -1212,9 +1212,11 @@
         if (aEmpty) return 1;
         if (bEmpty) return -1;
         if (typeof av === 'number' && typeof bv === 'number') {
-          return (av - bv || Number(a.STT || 0) - Number(b.STT || 0)) * dir;
+          const diff = av - bv;
+          return diff !== 0 ? diff * dir : (Number(a.STT || 0) - Number(b.STT || 0));
         }
-        return (String(av).localeCompare(String(bv), 'vi', { numeric: true }) || Number(a.STT || 0) - Number(b.STT || 0)) * dir;
+        const diff = String(av).localeCompare(String(bv), 'vi', { numeric: true });
+        return diff !== 0 ? diff * dir : (Number(a.STT || 0) - Number(b.STT || 0));
       });
     }
 
@@ -1323,14 +1325,18 @@
           const field = cell.dataset.edit;
           let value = cell.textContent.trim();
           if (field === 'Ho_Ten') value = normalizeFullNameForSms(value);
+          if (cell.textContent !== value) cell.textContent = value;
           record[field] = value;
           if (field === 'Template') {
             record._manualTemplate = true;
             record._autoTemplate = false;
           } else if (record._eligible && !record._manualTemplate) {
             applyTemplateRule(record, false);
+            const templateCell = tr.querySelector('[data-edit="Template"]');
+            if (templateCell && templateCell.textContent !== record.Template) {
+              templateCell.textContent = record.Template;
+            }
           }
-          renderTable();
           updateStats();
           scheduleSave();
         });

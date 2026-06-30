@@ -1197,7 +1197,7 @@ function renderEdit(){
   const multi=['diaChi','lyDo','quaTrinhBenhLy','tienSuBanThan','chanDoan','xuTri','ghiChu','nguoiNha','chanDoanNoiGioiThieu','toanThan','giaDinh'];
   const box=document.getElementById('editBox');
   if(!box)return;
-  box.innerHTML=FIELDS.map(([id,label])=>`<div class="editField"><label>${label}</label>${multi.includes(id)?`<textarea oninput="updateField('${id}',this.value)">${p[id]||''}</textarea>`:`<input value="${(p[id]||'').replace(/"/g,'&quot;')}" oninput="updateField('${id}',this.value)"/>`}</div>`).join('')
+  box.innerHTML=FIELDS.map(([id,label])=>`<div class="editField"><label>${label}</label>${multi.includes(id)?`<textarea oninput="updateField('${id}',this.value)">${htmlSafe(p[id])}</textarea>`:`<input value="${htmlSafe(p[id])}" oninput="updateField('${id}',this.value)"/>`}</div>`).join('')
 }
 const val=(p,k)=>String((p&&p[k])||''); const htmlSafe=s=>String(s||'').replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m])); const line=(txt,cls='full')=>`<span class="line ${cls}">${txt||''}</span>`;
 function dailyTableBlock(p){

@@ -1,7 +1,8 @@
 <!DOCTYPE html>
 <html lang="vi"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>VĂN PHÒNG PHẨM</title>
+<title>HỘ LÝ</title>
+<!-- PATCH 2026-06-29: Đổi tên app thành HỘ LÝ, giữ nguyên toàn bộ chức năng -->
 <!-- FINAL: Giữ nguyên toàn bộ chức năng gốc; cố định cột STT↔ĐVT và cố định dòng tiêu đề STT→Xóa trong bảng báo cáo -->
 <style>
 :root {
@@ -979,7 +980,7 @@ body.controls-hidden-20260627 #report.report-total-overview-20260627{
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 </head>
 <body>
-<header><h2>VĂN PHÒNG PHẨM</h2></header>
+<header><h2>HỘ LÝ</h2></header>
 <div id="controlToggleBar" class="noprint control-toggle-bar-20260627">
   <button id="toggleMainControlsBtn" onclick="toggleMainControls()">Ẩn khu điều khiển</button>
   <div id="compactReportMonthYear" class="compact-report-title-20260627">BÁO CÁO THÁNG 6 / NĂM 2026</div>
@@ -1295,7 +1296,7 @@ function reportNhanVienLayHang(){
      </div>`;
  document.getElementById('report').innerHTML=h;
  const titleEl=document.getElementById('printTitle');
- if(titleEl) titleEl.innerHTML=(localStorage.getItem('appName')||document.title||'VĂN PHÒNG PHẨM')+'<br>BÁO CÁO LẤY HÀNG THÁNG '+m+' / '+y;
+ if(titleEl) titleEl.innerHTML=(localStorage.getItem('appName')||document.title||'HỘ LÝ')+'<br>BÁO CÁO LẤY HÀNG THÁNG '+m+' / '+y;
  snapshotReportToLocalStorage();
  scheduleCloudAutoSave('lay-hang-report');
 }
@@ -1323,7 +1324,7 @@ function reportChiTietNhanVienLayHang(){
      </div>`;
  document.getElementById('report').innerHTML=h;
  const titleEl=document.getElementById('printTitle');
- if(titleEl) titleEl.innerHTML=(localStorage.getItem('appName')||document.title||'VĂN PHÒNG PHẨM')+'<br>BÁO CÁO NHÂN VIÊN LẤY HÀNG THÁNG '+m+' / '+y;
+ if(titleEl) titleEl.innerHTML=(localStorage.getItem('appName')||document.title||'HỘ LÝ')+'<br>BÁO CÁO NHÂN VIÊN LẤY HÀNG THÁNG '+m+' / '+y;
  snapshotReportToLocalStorage();
  scheduleCloudAutoSave('employee-lay-hang-report');
 }
@@ -1373,7 +1374,7 @@ function exportExcel(){
  if(!table){alert('Hãy tạo báo cáo trước');return;}
  refreshReportSTT();
  let cleanTable=cleanReportTableForOutput();
- let appName=localStorage.getItem('appName')||document.title||'VĂN PHÒNG PHẨM';
+ let appName=localStorage.getItem('appName')||document.title||'HỘ LÝ';
  let html='<html><head><meta charset="utf-8"></head><body><h2>'+appName+'</h2><h3>Tháng '+document.getElementById('thang').value+' / '+document.getElementById('nam').value+'</h3>'+cleanTable.outerHTML+'</body></html>';
  let blob=new Blob([html],{type:'application/vnd.ms-excel'});
  let a=document.createElement('a');
@@ -1383,15 +1384,15 @@ function exportExcel(){
 }
 
 function saveAppName(){
- const name=document.getElementById('appName').value||'VĂN PHÒNG PHẨM';
+ const name=document.getElementById('appName').value||'HỘ LÝ';
  localStorage.setItem('appName',name);
  document.querySelector('header h2').textContent=name;
  document.title=name;
  scheduleCloudAutoSave('app-name');
 }
 (function(){
- const defaultAppName='VĂN PHÒNG PHẨM';
- const oldDefaultNames=['QL Kho PRO Ultimate','QUẢN LÝ KHO PRO ULTIMATE','QUẢN LÝ KHO'];
+ const defaultAppName='HỘ LÝ';
+ const oldDefaultNames=['QL Kho PRO Ultimate','QUẢN LÝ KHO PRO ULTIMATE','QUẢN LÝ KHO','VĂN PHÒNG PHẨM'];
  let n=localStorage.getItem('appName');
  const normalizedName=String(n||'').trim().toUpperCase();
  const isOldDefaultName=oldDefaultNames.some(x=>x.toUpperCase()===normalizedName);
@@ -1532,7 +1533,7 @@ window.addEventListener('beforeprint',function(){
  if(t){
   const isEmployeeLayHang=!!document.querySelector('#report table.employee-layhang-report');
   const isLayHang=!!document.querySelector('#report table.layhang-report');
-  t.innerHTML=(localStorage.getItem('appName')||document.title||'VĂN PHÒNG PHẨM')+'<br>'+ (isEmployeeLayHang ? ('BÁO CÁO NHÂN VIÊN LẤY HÀNG THÁNG '+document.getElementById('thang').value+' / '+document.getElementById('nam').value) : (isLayHang ? ('BÁO CÁO LẤY HÀNG THÁNG '+document.getElementById('thang').value+' / '+document.getElementById('nam').value) : ('Tháng '+document.getElementById('thang').value+' / '+document.getElementById('nam').value)));
+  t.innerHTML=(localStorage.getItem('appName')||document.title||'HỘ LÝ')+'<br>'+ (isEmployeeLayHang ? ('BÁO CÁO NHÂN VIÊN LẤY HÀNG THÁNG '+document.getElementById('thang').value+' / '+document.getElementById('nam').value) : (isLayHang ? ('BÁO CÁO LẤY HÀNG THÁNG '+document.getElementById('thang').value+' / '+document.getElementById('nam').value) : ('Tháng '+document.getElementById('thang').value+' / '+document.getElementById('nam').value)));
  }
 });
 
@@ -1568,7 +1569,7 @@ function collectAppPayload(){
    version: 3,
    savedAt: new Date().toISOString(),
    db: db(),
-   appName: localStorage.getItem('appName') || document.title || 'VĂN PHÒNG PHẨM',
+   appName: localStorage.getItem('appName') || document.title || 'HỘ LÝ',
    reportHTML: localStorage.getItem('REPORT_SAVED_HTML') || '',
    reportFilter: JSON.parse(localStorage.getItem('REPORT_LAST_FILTER') || '{}')
  };
@@ -1859,7 +1860,7 @@ async function resetAllData(){
  localStorage.removeItem(CLOUD_SAVE_BOX_VISIBLE_KEY);
  localStorage.setItem(RESET_BLOCK_AUTO_RESTORE_KEY,'1');
 
- const defaultName='VĂN PHÒNG PHẨM';
+ const defaultName='HỘ LÝ';
  document.title=defaultName;
  const headerTitle=document.querySelector('header h2');
  if(headerTitle) headerTitle.textContent=defaultName;
@@ -4735,7 +4736,7 @@ function escapeExcelExportHtml20260622XL(value){
 }
 
 function buildExcelExportHtml20260622XL(cleanTable){
- const appName=localStorage.getItem('appName') || document.querySelector('header h2')?.textContent || document.title || 'VĂN PHÒNG PHẨM';
+ const appName=localStorage.getItem('appName') || document.querySelector('header h2')?.textContent || document.title || 'HỘ LÝ';
  const reportMonth=document.getElementById('thang')?.value || '';
  const reportYear=document.getElementById('nam')?.value || '';
  const excelStyle=`
@@ -5746,7 +5747,9 @@ refreshItems();
      const slx=parseG(row.cells[days+8]?.innerText || '');
      const dgx=parseG(row.cells[days+9]?.innerText || '');
      if(row.cells[days+3]){
-       row.cells[days+3].innerText=fmtG(td);
+        if(document.activeElement !== row.cells[days+3]) {
+          row.cells[days+3].innerText=fmtG(td);
+        }
        row.cells[days+3].title=hasManualTonDauG(ten,m,y)
          ? 'Tồn đầu đã nhập thủ công trong tháng này'
          : 'Tự lấy từ Tồn cuối tháng trước';
@@ -6031,7 +6034,9 @@ refreshItems();
      const slx=parseH(row.cells[days+8]?.innerText || '');
      const dgx=parseH(row.cells[days+9]?.innerText || '');
      if(row.cells[days+3]){
-       row.cells[days+3].innerText=fmtH(td);
+        if(document.activeElement !== row.cells[days+3]) {
+          row.cells[days+3].innerText=fmtH(td);
+        }
        row.cells[days+3].title=op.source==='manual'
          ? 'Tồn đầu đã nhập thủ công trong tháng này'
          : (op.source==='report' ? 'Tự lấy từ Tồn cuối báo cáo tháng trước đã cập nhật' : 'Tự tính từ dữ liệu phiếu tháng trước');
@@ -7218,7 +7223,7 @@ refreshItems();
    const table=cleanRawTableForOutputK();
    if(!table){ alert('Hãy nhập hoặc tạo báo cáo trước'); return; }
    snapshotRawReportK();
-   const appName=localStorage.getItem('appName')||document.title||'VĂN PHÒNG PHẨM';
+   const appName=localStorage.getItem('appName')||document.title||'HỘ LÝ';
    const html='<html><head><meta charset="utf-8"></head><body><h2>'+escK(appName)+'</h2><h3>Bảng báo cáo nhập ngoài - giữ nguyên dòng/cột</h3>'+table.outerHTML+'</body></html>';
    const blob=new Blob([html],{type:'application/vnd.ms-excel'});
    const a=document.createElement('a');
@@ -7791,7 +7796,7 @@ refreshItems();
      const op=openingForMonth(ten,m,y);
      td=op.value;
      if(row.cells[I.td]){
-       row.cells[I.td].innerText=fmtM(td);
+       if(document.activeElement !== row.cells[I.td]) row.cells[I.td].innerText=fmtM(td);
        row.cells[I.td].classList.add('calc-td','fmt-num');
        row.cells[I.td].dataset.autoTonDauSource=op.source;
        row.cells[I.td].title=op.source==='manual'
@@ -8178,17 +8183,17 @@ refreshItems();
     return t.hasManualTD ? {found:true,value:t.manualTD,source:'ton-dau-thu-cong'} : {found:false,value:0,source:''};
   }
   function openingN(ten,m,y){
+    const manual=manualCurrentOpeningN(ten,m,y);
+    if(manual.found) return manual;
     const prev=prevMY_N(m,y);
     const snap=closingFromSnapshotN(ten,prev.m,prev.y);
     if(snap.found) return snap;
     const calc=closingFromDbN(ten,prev.m,prev.y);
     if(calc.found) return calc;
-    const manual=manualCurrentOpeningN(ten,m,y);
-    if(manual.found) return manual;
     return {found:false,value:0,source:'mac-dinh-0'};
   }
   function sumDailyN(row,days){ let s=0; for(let d=1; d<=days; d++) s += parseN(textN(row.cells[2+d])); return s; }
-  function setNumN(cell,val){ if(cell){ cell.innerText=fmtN(val); cell.classList.add('fmt-num'); } }
+  function setNumN(cell,val){ if(cell){ if(document.activeElement === cell) return; cell.innerText=fmtN(val); cell.classList.add('fmt-num'); } }
   function recalcRowN(row,m,y){
     if(!row || row.rowIndex<1) return;
     const I={d:daysN(m,y),td:idxFixedN('tondau',m,y),sln:idxFixedN('slnhap',m,y),dgn:idxFixedN('dgnhap',m,y),ttn:idxFixedN('ttnhap',m,y),slx:idxFixedN('slxuat',m,y),dgx:idxFixedN('dgxuat',m,y),ttx:idxFixedN('ttxuat',m,y),tienton:idxFixedN('tienton',m,y),tc:idxFixedN('toncuoi',m,y)};
@@ -9197,7 +9202,7 @@ function toggleMainControls(){
     return tr;
   }
   function cellText(cell){ return String(cell?.innerText || cell?.textContent || '').trim(); }
-  function setNum(cell,v){ if(cell && !empty(v)) cell.innerText=fmtN(v); }
+  function setNum(cell,v){ if(cell && !empty(v)) { if(document.activeElement === cell) return; cell.innerText=fmtN(v); } }
   function addNum(cell,v){ if(!cell || empty(v)) return; cell.innerText=fmtN(parseN(cellText(cell))+parseN(v)); }
   function setText(cell,v){ if(cell && !empty(v)) cell.innerText=text(v); }
   function appendDate(cell,v){
@@ -9548,6 +9553,7 @@ function toggleMainControls(){
   }
   function setNum(cell,val){
     if(!cell) return;
+    if(document.activeElement === cell) return;
     cell.innerText=fmtN(val);
     cell.classList.add('fmt-num');
   }

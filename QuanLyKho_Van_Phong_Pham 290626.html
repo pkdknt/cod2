@@ -1,8 +1,7 @@
 <!DOCTYPE html>
 <html lang="vi"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>VẬT TƯ Y TẾ</title>
-<!-- PATCH 2026-06-29: Đổi tên app thành VẬT TƯ Y TẾ, giữ nguyên toàn bộ chức năng -->
+<title>VĂN PHÒNG PHẨM</title>
 <!-- FINAL: Giữ nguyên toàn bộ chức năng gốc; cố định cột STT↔ĐVT và cố định dòng tiêu đề STT→Xóa trong bảng báo cáo -->
 <style>
 :root {
@@ -980,7 +979,7 @@ body.controls-hidden-20260627 #report.report-total-overview-20260627{
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 </head>
 <body>
-<header><h2>VẬT TƯ Y TẾ</h2></header>
+<header><h2>VĂN PHÒNG PHẨM</h2></header>
 <div id="controlToggleBar" class="noprint control-toggle-bar-20260627">
   <button id="toggleMainControlsBtn" onclick="toggleMainControls()">Ẩn khu điều khiển</button>
   <div id="compactReportMonthYear" class="compact-report-title-20260627">BÁO CÁO THÁNG 6 / NĂM 2026</div>
@@ -1296,7 +1295,7 @@ function reportNhanVienLayHang(){
      </div>`;
  document.getElementById('report').innerHTML=h;
  const titleEl=document.getElementById('printTitle');
- if(titleEl) titleEl.innerHTML=(localStorage.getItem('appName')||document.title||'VẬT TƯ Y TẾ')+'<br>BÁO CÁO LẤY HÀNG THÁNG '+m+' / '+y;
+ if(titleEl) titleEl.innerHTML=(localStorage.getItem('appName')||document.title||'VĂN PHÒNG PHẨM')+'<br>BÁO CÁO LẤY HÀNG THÁNG '+m+' / '+y;
  snapshotReportToLocalStorage();
  scheduleCloudAutoSave('lay-hang-report');
 }
@@ -1324,7 +1323,7 @@ function reportChiTietNhanVienLayHang(){
      </div>`;
  document.getElementById('report').innerHTML=h;
  const titleEl=document.getElementById('printTitle');
- if(titleEl) titleEl.innerHTML=(localStorage.getItem('appName')||document.title||'VẬT TƯ Y TẾ')+'<br>BÁO CÁO NHÂN VIÊN LẤY HÀNG THÁNG '+m+' / '+y;
+ if(titleEl) titleEl.innerHTML=(localStorage.getItem('appName')||document.title||'VĂN PHÒNG PHẨM')+'<br>BÁO CÁO NHÂN VIÊN LẤY HÀNG THÁNG '+m+' / '+y;
  snapshotReportToLocalStorage();
  scheduleCloudAutoSave('employee-lay-hang-report');
 }
@@ -1374,7 +1373,7 @@ function exportExcel(){
  if(!table){alert('Hãy tạo báo cáo trước');return;}
  refreshReportSTT();
  let cleanTable=cleanReportTableForOutput();
- let appName=localStorage.getItem('appName')||document.title||'VẬT TƯ Y TẾ';
+ let appName=localStorage.getItem('appName')||document.title||'VĂN PHÒNG PHẨM';
  let html='<html><head><meta charset="utf-8"></head><body><h2>'+appName+'</h2><h3>Tháng '+document.getElementById('thang').value+' / '+document.getElementById('nam').value+'</h3>'+cleanTable.outerHTML+'</body></html>';
  let blob=new Blob([html],{type:'application/vnd.ms-excel'});
  let a=document.createElement('a');
@@ -1384,15 +1383,15 @@ function exportExcel(){
 }
 
 function saveAppName(){
- const name=document.getElementById('appName').value||'VẬT TƯ Y TẾ';
+ const name=document.getElementById('appName').value||'VĂN PHÒNG PHẨM';
  localStorage.setItem('appName',name);
  document.querySelector('header h2').textContent=name;
  document.title=name;
  scheduleCloudAutoSave('app-name');
 }
 (function(){
- const defaultAppName='VẬT TƯ Y TẾ';
- const oldDefaultNames=['QL Kho PRO Ultimate','QUẢN LÝ KHO PRO ULTIMATE','QUẢN LÝ KHO','VĂN PHÒNG PHẨM','HỘ LÝ'];
+ const defaultAppName='VĂN PHÒNG PHẨM';
+ const oldDefaultNames=['QL Kho PRO Ultimate','QUẢN LÝ KHO PRO ULTIMATE','QUẢN LÝ KHO'];
  let n=localStorage.getItem('appName');
  const normalizedName=String(n||'').trim().toUpperCase();
  const isOldDefaultName=oldDefaultNames.some(x=>x.toUpperCase()===normalizedName);
@@ -1533,7 +1532,7 @@ window.addEventListener('beforeprint',function(){
  if(t){
   const isEmployeeLayHang=!!document.querySelector('#report table.employee-layhang-report');
   const isLayHang=!!document.querySelector('#report table.layhang-report');
-  t.innerHTML=(localStorage.getItem('appName')||document.title||'VẬT TƯ Y TẾ')+'<br>'+ (isEmployeeLayHang ? ('BÁO CÁO NHÂN VIÊN LẤY HÀNG THÁNG '+document.getElementById('thang').value+' / '+document.getElementById('nam').value) : (isLayHang ? ('BÁO CÁO LẤY HÀNG THÁNG '+document.getElementById('thang').value+' / '+document.getElementById('nam').value) : ('Tháng '+document.getElementById('thang').value+' / '+document.getElementById('nam').value)));
+  t.innerHTML=(localStorage.getItem('appName')||document.title||'VĂN PHÒNG PHẨM')+'<br>'+ (isEmployeeLayHang ? ('BÁO CÁO NHÂN VIÊN LẤY HÀNG THÁNG '+document.getElementById('thang').value+' / '+document.getElementById('nam').value) : (isLayHang ? ('BÁO CÁO LẤY HÀNG THÁNG '+document.getElementById('thang').value+' / '+document.getElementById('nam').value) : ('Tháng '+document.getElementById('thang').value+' / '+document.getElementById('nam').value)));
  }
 });
 
@@ -1569,7 +1568,7 @@ function collectAppPayload(){
    version: 3,
    savedAt: new Date().toISOString(),
    db: db(),
-   appName: localStorage.getItem('appName') || document.title || 'VẬT TƯ Y TẾ',
+   appName: localStorage.getItem('appName') || document.title || 'VĂN PHÒNG PHẨM',
    reportHTML: localStorage.getItem('REPORT_SAVED_HTML') || '',
    reportFilter: JSON.parse(localStorage.getItem('REPORT_LAST_FILTER') || '{}')
  };
@@ -1860,7 +1859,7 @@ async function resetAllData(){
  localStorage.removeItem(CLOUD_SAVE_BOX_VISIBLE_KEY);
  localStorage.setItem(RESET_BLOCK_AUTO_RESTORE_KEY,'1');
 
- const defaultName='VẬT TƯ Y TẾ';
+ const defaultName='VĂN PHÒNG PHẨM';
  document.title=defaultName;
  const headerTitle=document.querySelector('header h2');
  if(headerTitle) headerTitle.textContent=defaultName;
@@ -4736,7 +4735,7 @@ function escapeExcelExportHtml20260622XL(value){
 }
 
 function buildExcelExportHtml20260622XL(cleanTable){
- const appName=localStorage.getItem('appName') || document.querySelector('header h2')?.textContent || document.title || 'VẬT TƯ Y TẾ';
+ const appName=localStorage.getItem('appName') || document.querySelector('header h2')?.textContent || document.title || 'VĂN PHÒNG PHẨM';
  const reportMonth=document.getElementById('thang')?.value || '';
  const reportYear=document.getElementById('nam')?.value || '';
  const excelStyle=`
@@ -7219,7 +7218,7 @@ refreshItems();
    const table=cleanRawTableForOutputK();
    if(!table){ alert('Hãy nhập hoặc tạo báo cáo trước'); return; }
    snapshotRawReportK();
-   const appName=localStorage.getItem('appName')||document.title||'VẬT TƯ Y TẾ';
+   const appName=localStorage.getItem('appName')||document.title||'VĂN PHÒNG PHẨM';
    const html='<html><head><meta charset="utf-8"></head><body><h2>'+escK(appName)+'</h2><h3>Bảng báo cáo nhập ngoài - giữ nguyên dòng/cột</h3>'+table.outerHTML+'</body></html>';
    const blob=new Blob([html],{type:'application/vnd.ms-excel'});
    const a=document.createElement('a');
@@ -8179,13 +8178,13 @@ refreshItems();
     return t.hasManualTD ? {found:true,value:t.manualTD,source:'ton-dau-thu-cong'} : {found:false,value:0,source:''};
   }
   function openingN(ten,m,y){
+    const manual=manualCurrentOpeningN(ten,m,y);
+    if(manual.found) return manual;
     const prev=prevMY_N(m,y);
     const snap=closingFromSnapshotN(ten,prev.m,prev.y);
     if(snap.found) return snap;
     const calc=closingFromDbN(ten,prev.m,prev.y);
     if(calc.found) return calc;
-    const manual=manualCurrentOpeningN(ten,m,y);
-    if(manual.found) return manual;
     return {found:false,value:0,source:'mac-dinh-0'};
   }
   function sumDailyN(row,days){ let s=0; for(let d=1; d<=days; d++) s += parseN(textN(row.cells[2+d])); return s; }
