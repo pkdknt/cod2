@@ -66,6 +66,21 @@ export default function TiemChungPage() {
   // Protocols autocomplete dropdown filter
   const [vaccineInputVal, setVaccineInputVal] = useState('');
   const [showVaccineDropdown, setShowVaccineDropdown] = useState(false);
+  const vaccineDropdownRef = React.useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent | TouchEvent) => {
+      if (vaccineDropdownRef.current && !vaccineDropdownRef.current.contains(event.target as Node)) {
+        setShowVaccineDropdown(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener('touchstart', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('touchstart', handleClickOutside);
+    };
+  }, []);
 
   // Load saved schedules from database
   const fetchSavedSchedules = async () => {
@@ -407,7 +422,7 @@ export default function TiemChungPage() {
             <div className="space-y-3">
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-bold text-slate-500 mb-1">Ngày sinh (dd/mm/yyyy)</label>
+                  <label className="block text-xs font-bold text-slate-500 mb-1">Ngày sinh</label>
                   <input
                     placeholder="dd/mm/yyyy"
                     value={dob}
@@ -430,7 +445,7 @@ export default function TiemChungPage() {
               </div>
 
               {/* Vaccine dropdown autocomplete */}
-              <div className="relative">
+              <div ref={vaccineDropdownRef} className="relative">
                 <label className="block text-xs font-bold text-slate-500 mb-1">Chọn vắc xin tiêm *</label>
                 <div className="relative">
                   <input
@@ -439,7 +454,6 @@ export default function TiemChungPage() {
                     value={vaccineInputVal}
                     onFocus={() => setShowVaccineDropdown(true)}
                     onClick={() => setShowVaccineDropdown(true)}
-                    onBlur={() => setTimeout(() => setShowVaccineDropdown(false), 200)}
                     onChange={(e) => {
                       setVaccineInputVal(e.target.value);
                       setSelectedVaccine(e.target.value);
@@ -457,7 +471,6 @@ export default function TiemChungPage() {
                 {showVaccineDropdown && (
                   <div 
                     className="absolute left-0 right-0 z-50 bg-white border border-slate-200 rounded-2xl shadow-xl mt-1.5 max-h-[200px] overflow-y-auto"
-                    onMouseDown={(e) => e.preventDefault()}
                   >
                     {filteredVaccineList.length === 0 ? (
                       <div className="p-3 text-xs text-slate-400 font-bold">Không tìm thấy vắc xin nào</div>
@@ -466,8 +479,7 @@ export default function TiemChungPage() {
                         <button
                           key={v}
                           type="button"
-                          onMouseDown={(e) => {
-                            e.preventDefault();
+                          onClick={() => {
                             setSelectedVaccine(v);
                             setVaccineInputVal(v);
                             setShowVaccineDropdown(false);
@@ -545,26 +557,109 @@ export default function TiemChungPage() {
                   Vui lòng chọn Vắc xin và Phác đồ ở cột bên trái để thiết lập lịch tiêm.
                 </div>
               ) : (
-                <div className="overflow-x-auto">
-                  <table className="w-full text-xs">
-                    <thead>
-                      <tr className="bg-teal-50/50 text-teal-800 font-bold h-9">
-                        <th className="pl-4 w-20">Mũi tiêm</th>
-                        <th className="w-40 text-center">Ngày tiêm thực tế</th>
-                        <th className="w-40 text-center">Ngày hẹn tự tính</th>
-                        <th className="w-40 text-center">Đường tiêm</th>
-                        <th className="pl-4">Ghi chú mũi tiêm</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {DOSE_LABELS.map((label, idx) => {
-                        const statusObj = getDoseStatus(idx, computedDates[idx]);
-                        
-                        return (
-                          <tr key={label} className="border-b border-slate-100 h-11 hover:bg-slate-50/50">
-                            <td className="pl-4 font-bold text-slate-700">{label}</td>
-                            <td className="text-center px-2">
-                              <div className="flex items-center gap-1">
+                <>
+                  {/* Desktop Table View */}
+                  <div className="hidden md:block overflow-x-auto">
+                    <table className="w-full text-xs">
+                      <thead>
+                        <tr className="bg-teal-50/50 text-teal-800 font-bold h-9">
+                          <th className="pl-4 w-20">Mũi tiêm</th>
+                          <th className="w-40 text-center">Ngày tiêm thực tế</th>
+                          <th className="w-40 text-center">Ngày hẹn tự tính</th>
+                          <th className="w-40 text-center">Đường tiêm</th>
+                          <th className="pl-4">Ghi chú mũi tiêm</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {DOSE_LABELS.map((label, idx) => {
+                          const statusObj = getDoseStatus(idx, computedDates[idx]);
+                          
+                          return (
+                            <tr key={label} className="border-b border-slate-100 h-11 hover:bg-slate-50/50">
+                              <td className="pl-4 font-bold text-slate-700">{label}</td>
+                              <td className="text-center px-2">
+                                <div className="flex items-center gap-1">
+                                  <input
+                                    placeholder="dd/mm/yyyy"
+                                    value={dates[idx]}
+                                    onChange={(e) => {
+                                      const isDel = e.target.value.length < (dates[idx] || "").length;
+                                      handleActualDateInput(idx, maskDateText(e.target.value, isDel));
+                                    }}
+                                    className="w-full text-center border border-slate-200 rounded-lg p-1 text-xs font-semibold outline-none focus:border-teal-500"
+                                  />
+                                  <input
+                                    type="date"
+                                    onChange={(e) => handleActualDatePicker(idx, e.target.value)}
+                                    className="w-6 h-6 p-0 border-0 outline-none cursor-pointer bg-transparent"
+                                  />
+                                </div>
+                              </td>
+                              <td className="text-center px-2">
+                                {idx === 0 ? (
+                                  <span className="text-[10px] font-bold text-slate-400">Mốc gốc</span>
+                                ) : (
+                                  <div className="flex items-center gap-1">
+                                    <input
+                                      placeholder="dd/mm/yyyy"
+                                      value={dueOverrides[idx] || (computedDates[idx] ? fmtDate(computedDates[idx]) : '')}
+                                      onChange={(e) => {
+                                        const currentVal = dueOverrides[idx] || (computedDates[idx] ? fmtDate(computedDates[idx]) : '');
+                                        const isDel = e.target.value.length < currentVal.length;
+                                        handleDueOverrideInput(idx, maskDateText(e.target.value, isDel));
+                                      }}
+                                      className="w-full text-center border border-slate-200 rounded-lg p-1 text-xs font-semibold outline-none focus:border-teal-500"
+                                    />
+                                    <input
+                                      type="date"
+                                      onChange={(e) => handleDueDatePicker(idx, e.target.value)}
+                                      className="w-6 h-6 p-0 border-0 outline-none cursor-pointer bg-transparent"
+                                    />
+                                  </div>
+                                )}
+                              </td>
+                              <td className="text-center px-2 text-[10px] text-slate-500 italic leading-tight max-w-[120px]">
+                                {activeProtocol.route}
+                              </td>
+                              <td className="pl-4 px-2">
+                                <div className="flex flex-col gap-1">
+                                  <input
+                                    type="text"
+                                    placeholder="Ghi chú..."
+                                    value={notes[idx]}
+                                    onChange={(e) => handleNoteInput(idx, e.target.value)}
+                                    className="w-full border border-slate-200 rounded-lg p-1 text-xs font-medium outline-none focus:border-teal-500"
+                                  />
+                                  <span className={`px-2 py-0.5 rounded-full text-[9px] font-bold text-center self-start ${statusObj.className}`}>
+                                    {statusObj.label}
+                                  </span>
+                                </div>
+                              </td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  </div>
+
+                  {/* Mobile Cards View */}
+                  <div className="block md:hidden space-y-4">
+                    {DOSE_LABELS.map((label, idx) => {
+                      const statusObj = getDoseStatus(idx, computedDates[idx]);
+                      
+                      return (
+                        <div key={label} className="border border-slate-200 rounded-2xl p-4 space-y-3 bg-slate-55">
+                          <div className="flex items-center justify-between border-b border-slate-100 pb-2">
+                            <span className="font-bold text-slate-800 text-xs">{label}</span>
+                            <span className={`px-2 py-0.5 rounded-full text-[9px] font-bold ${statusObj.className}`}>
+                              {statusObj.label}
+                            </span>
+                          </div>
+                          
+                          <div className="grid grid-cols-2 gap-3">
+                            <div>
+                              <label className="block text-[10px] font-bold text-slate-400 mb-1">Ngày tiêm thực tế</label>
+                              <div className="flex items-center gap-1 bg-white border border-slate-200 rounded-xl px-2 py-1.5 focus-within:border-teal-500 transition-colors">
                                 <input
                                   placeholder="dd/mm/yyyy"
                                   value={dates[idx]}
@@ -572,7 +667,7 @@ export default function TiemChungPage() {
                                     const isDel = e.target.value.length < (dates[idx] || "").length;
                                     handleActualDateInput(idx, maskDateText(e.target.value, isDel));
                                   }}
-                                  className="w-full text-center border border-slate-200 rounded-lg p-1 text-xs font-semibold outline-none focus:border-teal-500"
+                                  className="w-full text-center text-xs font-semibold outline-none bg-transparent"
                                 />
                                 <input
                                   type="date"
@@ -580,12 +675,16 @@ export default function TiemChungPage() {
                                   className="w-6 h-6 p-0 border-0 outline-none cursor-pointer bg-transparent"
                                 />
                               </div>
-                            </td>
-                            <td className="text-center px-2">
+                            </div>
+                            
+                            <div>
+                              <label className="block text-[10px] font-bold text-slate-400 mb-1">Ngày hẹn tự tính</label>
                               {idx === 0 ? (
-                                <span className="text-[10px] font-bold text-slate-400">Mốc gốc</span>
+                                <div className="text-[11px] font-bold text-slate-400 py-2.5 text-center bg-slate-100 rounded-xl">
+                                  Mốc gốc
+                                </div>
                               ) : (
-                                <div className="flex items-center gap-1">
+                                <div className="flex items-center gap-1 bg-white border border-slate-200 rounded-xl px-2 py-1.5 focus-within:border-teal-500 transition-colors">
                                   <input
                                     placeholder="dd/mm/yyyy"
                                     value={dueOverrides[idx] || (computedDates[idx] ? fmtDate(computedDates[idx]) : '')}
@@ -594,7 +693,7 @@ export default function TiemChungPage() {
                                       const isDel = e.target.value.length < currentVal.length;
                                       handleDueOverrideInput(idx, maskDateText(e.target.value, isDel));
                                     }}
-                                    className="w-full text-center border border-slate-200 rounded-lg p-1 text-xs font-semibold outline-none focus:border-teal-500"
+                                    className="w-full text-center text-xs font-semibold outline-none bg-transparent"
                                   />
                                   <input
                                     type="date"
@@ -603,30 +702,31 @@ export default function TiemChungPage() {
                                   />
                                 </div>
                               )}
-                            </td>
-                            <td className="text-center px-2 text-[10px] text-slate-500 italic leading-tight max-w-[120px]">
-                              {activeProtocol.route}
-                            </td>
-                            <td className="pl-4 px-2">
-                              <div className="flex flex-col gap-1">
+                            </div>
+                          </div>
+
+                          <div className="grid grid-cols-1 gap-2 pt-1">
+                            <div>
+                              <label className="block text-[10px] font-bold text-slate-400 mb-1">Ghi chú & Đường dùng</label>
+                              <div className="flex gap-2">
                                 <input
                                   type="text"
                                   placeholder="Ghi chú..."
                                   value={notes[idx]}
                                   onChange={(e) => handleNoteInput(idx, e.target.value)}
-                                  className="w-full border border-slate-200 rounded-lg p-1 text-xs font-medium outline-none focus:border-teal-500"
+                                  className="w-full border border-slate-200 bg-white rounded-xl px-3 py-2 text-xs font-medium outline-none focus:border-teal-500"
                                 />
-                                <span className={`px-2 py-0.5 rounded-full text-[9px] font-bold text-center self-start ${statusObj.className}`}>
-                                  {statusObj.label}
-                                </span>
+                                <div className="flex items-center justify-center border border-slate-200 bg-slate-50 rounded-xl px-3 text-[10px] font-bold text-slate-500 whitespace-nowrap min-h-[38px]">
+                                  {activeProtocol.route || "Tiêm bắp"}
+                                </div>
                               </div>
-                            </td>
-                          </tr>
-                        );
-                      })}
-                    </tbody>
-                  </table>
-                </div>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </>
               )}
             </div>
             
@@ -736,53 +836,113 @@ export default function TiemChungPage() {
                   </div>
                 </div>
               )}
-              <table className="w-full text-xs text-left">
-                <thead>
-                  <tr className="bg-teal-50/50 text-teal-800 font-bold h-10 border-b border-slate-200 uppercase text-[10px]">
-                    <th className="pl-4 w-10 text-center">
-                      <input 
-                        type="checkbox" 
-                        className="rounded border-slate-300 text-teal-600 focus:ring-teal-500"
-                        checked={savedSchedules.length > 0 && selectedIds.length === savedSchedules.length}
-                        onChange={(e) => {
-                          if (e.target.checked) {
-                            setSelectedIds(savedSchedules.map(item => item._id));
-                          } else {
-                            setSelectedIds([]);
-                          }
-                        }}
-                      />
-                    </th>
-                    <th className="text-center w-12">STT</th>
-                    <th className="w-28 text-center">Ngày sinh</th>
-                    <th className="w-32 text-center">Vắc xin theo dõi</th>
-                    <th className="w-44 pl-4">Phác đồ áp dụng</th>
-                    <th className="w-40 text-center">Tiến độ tiêm gần nhất</th>
-                    <th className="w-24 text-center">Tác vụ</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {savedSchedules.length === 0 ? (
-                    <tr>
-                      <td colSpan={8} className="text-center py-20 text-slate-400 font-bold">
-                        Không tìm thấy hồ sơ theo dõi tiêm chủng nào.
-                      </td>
+
+              {/* Desktop Table View */}
+              <div className="hidden md:block">
+                <table className="w-full text-xs text-left">
+                  <thead>
+                    <tr className="bg-teal-50/50 text-teal-800 font-bold h-10 border-b border-slate-200 uppercase text-[10px]">
+                      <th className="pl-4 w-10 text-center">
+                        <input 
+                          type="checkbox" 
+                          className="rounded border-slate-300 text-teal-600 focus:ring-teal-500"
+                          checked={savedSchedules.length > 0 && selectedIds.length === savedSchedules.length}
+                          onChange={(e) => {
+                            if (e.target.checked) {
+                              setSelectedIds(savedSchedules.map(item => item._id));
+                            } else {
+                              setSelectedIds([]);
+                            }
+                          }}
+                        />
+                      </th>
+                      <th className="text-center w-12">STT</th>
+                      <th className="w-28 text-center">Ngày sinh</th>
+                      <th className="w-32 text-center">Vắc xin theo dõi</th>
+                      <th className="w-44 pl-4">Phác đồ áp dụng</th>
+                      <th className="w-40 text-center">Tiến độ tiêm gần nhất</th>
+                      <th className="w-24 text-center">Tác vụ</th>
                     </tr>
-                  ) : (
-                    savedSchedules.map((item, index) => {
-                      // Find last actual date index
-                      const lastActualIndex = item.dates ? [...item.dates].reverse().findIndex(d => d !== '') : -1;
-                      const nextDoseIndex = lastActualIndex === -1 ? 0 : 5 - lastActualIndex;
-                      
-                      const actualDoseCount = item.dates ? item.dates.filter((d: string) => d !== '').length : 0;
-                      
-                      return (
-                        <tr key={item._id} className="border-b border-slate-100 h-10 hover:bg-slate-50 transition-colors">
-                          <td className="pl-4 text-center">
+                  </thead>
+                  <tbody>
+                    {savedSchedules.length === 0 ? (
+                      <tr>
+                        <td colSpan={8} className="text-center py-20 text-slate-400 font-bold">
+                          Không tìm thấy hồ sơ theo dõi tiêm chủng nào.
+                        </td>
+                      </tr>
+                    ) : (
+                      savedSchedules.map((item, index) => {
+                        const actualDoseCount = item.dates ? item.dates.filter((d: string) => d !== '').length : 0;
+                        
+                        return (
+                          <tr key={item._id} className="border-b border-slate-100 h-10 hover:bg-slate-50 transition-colors">
+                            <td className="pl-4 text-center">
+                              <input 
+                                type="checkbox" 
+                                className="rounded border-slate-300 text-teal-600 focus:ring-teal-500"
+                                checked={selectedIds.includes(item._id)}
+                                onChange={(e) => {
+                                  if (e.target.checked) {
+                                    setSelectedIds(prev => [...prev, item._id]);
+                                  } else {
+                                    setSelectedIds(prev => prev.filter(id => id !== item._id));
+                                  }
+                                }}
+                              />
+                            </td>
+                            <td className="text-center text-slate-400 font-bold">{index + 1}</td>
+                            <td className="text-center text-slate-500">{item.dob || ''}</td>
+                            <td className="text-center font-bold text-teal-800 bg-teal-50/10">{item.vaccine}</td>
+                            <td className="pl-4 text-slate-500 text-[11px] truncate max-w-xs" title={item.protocolId}>
+                              {DATA.protocols.find(p => p.id === item.protocolId)?.object || item.protocolId}
+                            </td>
+                            <td className="text-center">
+                              <span className="px-2 py-0.5 rounded-full text-[9px] bg-sky-100 text-sky-800 font-bold">
+                                Đã tiêm {actualDoseCount}/6 mũi
+                              </span>
+                            </td>
+                            <td className="text-center space-x-2">
+                              <button
+                                onClick={() => handleLoadSchedule(item)}
+                                className="text-teal-600 hover:text-teal-800 font-bold"
+                              >
+                                Sửa
+                              </button>
+                              <button
+                                onClick={() => handleDeleteSchedule(item._id)}
+                                className="text-red-500 hover:text-red-700 font-bold"
+                              >
+                                Xóa
+                              </button>
+                            </td>
+                          </tr>
+                        );
+                      })
+                    )}
+                  </tbody>
+                </table>
+              </div>
+
+              {/* Mobile Card List View */}
+              <div className="block md:hidden divide-y divide-slate-100">
+                {savedSchedules.length === 0 ? (
+                  <div className="text-center py-12 text-slate-400 font-bold">
+                    Không tìm thấy hồ sơ theo dõi tiêm chủng nào.
+                  </div>
+                ) : (
+                  savedSchedules.map((item, index) => {
+                    const actualDoseCount = item.dates ? item.dates.filter((d: string) => d !== '').length : 0;
+                    const isChecked = selectedIds.includes(item._id);
+                    
+                    return (
+                      <div key={item._id} className="p-4 space-y-2 bg-white">
+                        <div className="flex items-start justify-between">
+                          <div className="flex items-center gap-2">
                             <input 
                               type="checkbox" 
                               className="rounded border-slate-300 text-teal-600 focus:ring-teal-500"
-                              checked={selectedIds.includes(item._id)}
+                              checked={isChecked}
                               onChange={(e) => {
                                 if (e.target.checked) {
                                   setSelectedIds(prev => [...prev, item._id]);
@@ -791,38 +951,40 @@ export default function TiemChungPage() {
                                 }
                               }}
                             />
-                          </td>
-                          <td className="text-center text-slate-400 font-bold">{index + 1}</td>
-                          <td className="text-center text-slate-500">{item.dob || ''}</td>
-                          <td className="text-center font-bold text-teal-800 bg-teal-50/10">{item.vaccine}</td>
-                          <td className="pl-4 text-slate-500 text-[11px] truncate max-w-xs" title={item.protocolId}>
-                            {DATA.protocols.find(p => p.id === item.protocolId)?.object || item.protocolId}
-                          </td>
-                          <td className="text-center">
-                            <span className="px-2 py-0.5 rounded-full text-[9px] bg-sky-100 text-sky-800 font-bold">
-                              Đã tiêm {actualDoseCount}/6 mũi
-                            </span>
-                          </td>
-                          <td className="text-center space-x-2">
-                            <button
-                              onClick={() => handleLoadSchedule(item)}
-                              className="text-teal-600 hover:text-teal-800 font-bold"
-                            >
-                              Sửa
-                            </button>
-                            <button
-                              onClick={() => handleDeleteSchedule(item._id)}
-                              className="text-red-500 hover:text-red-700 font-bold"
-                            >
-                              Xóa
-                            </button>
-                          </td>
-                        </tr>
-                      );
-                    })
-                  )}
-                </tbody>
-              </table>
+                            <span className="text-slate-400 font-bold text-xs">#{index + 1}</span>
+                            <span className="font-bold text-teal-800 text-sm">{item.vaccine}</span>
+                          </div>
+                          <span className="px-2 py-0.5 rounded-full text-[9px] bg-sky-100 text-sky-800 font-bold">
+                            Đã tiêm {actualDoseCount}/6 mũi
+                          </span>
+                        </div>
+                        
+                        <div className="text-xs text-slate-500 space-y-1 pl-6">
+                          <p><b>Ngày sinh:</b> {item.dob || 'Không rõ'}</p>
+                          <p className="truncate max-w-xs" title={item.protocolId}>
+                            <b>Phác đồ:</b> {DATA.protocols.find(p => p.id === item.protocolId)?.object || item.protocolId}
+                          </p>
+                        </div>
+
+                        <div className="flex justify-end gap-3 pt-2 pl-6">
+                          <button
+                            onClick={() => handleLoadSchedule(item)}
+                            className="px-3 py-1 bg-teal-50 text-teal-700 rounded-lg text-xs font-bold hover:bg-teal-100 transition-colors"
+                          >
+                            Sửa
+                          </button>
+                          <button
+                            onClick={() => handleDeleteSchedule(item._id)}
+                            className="px-3 py-1 bg-red-50 text-red-650 rounded-lg text-xs font-bold hover:bg-red-100 transition-colors"
+                          >
+                            Xóa
+                          </button>
+                        </div>
+                      </div>
+                    );
+                  })
+                )}
+              </div>
             </div>
           </div>
         </div>

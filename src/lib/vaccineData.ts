@@ -105,7 +105,7 @@ export const DATA = {
     },
     {
       id: "P6_7",
-      vaccine: "Indirad",
+      vaccine: "Indirab",
       disease: "1.Dại",
       object: "Người bình thường chưa tiêm",
       schedule:
@@ -116,7 +116,7 @@ export const DATA = {
     },
     {
       id: "P6_8",
-      vaccine: " Indirad ",
+      vaccine: "Indirab",
       disease: "2.Dại",
       object: "Suy giảm miễn dịch",
       schedule:
@@ -127,7 +127,7 @@ export const DATA = {
     },
     {
       id: "P6_9",
-      vaccine: "Indirad",
+      vaccine: "Indirab",
       disease: "3.Dại",
       object: "Đã tiêm trước đó",
       schedule: "Mũi 1: Tiêm lần đầu (ngày 0)\nMũi 2: 3 ngày sau mũi 1 (ngày 3)",
@@ -137,7 +137,7 @@ export const DATA = {
     },
     {
       id: "P6_10",
-      vaccine: "Indirad",
+      vaccine: "Indirab",
       disease: "4.Dại",
       object: "Phơi nhiễm độ III (vết cắn chảy máu da/niêm mạc)",
       schedule:
@@ -622,6 +622,36 @@ export const DATA = {
       route: "Tiêm bắp sâu 0,5ml",
       sourceRow: 53,
     },
+    {
+      id: "P54_58",
+      vaccine: "Twinrix",
+      disease: "Viêm gan A và B",
+      object: "Từ 12 tháng đến dưới 16 tuổi",
+      schedule:
+        "Mũi 1: Lần tiêm đầu tiên\nMũi 2: 6 tháng sau mũi 1 (tiêm cách mũi 1 khoảng từ 6 đến 12 tháng)",
+      route: "Tiêm bắp",
+      sourceRow: 54,
+    },
+    {
+      id: "P55_59",
+      vaccine: "Twinrix",
+      disease: "Viêm gan A và B",
+      object: "Từ 16 tuổi trở lên (lịch 3 mũi chuẩn)",
+      schedule:
+        "Mũi 1: Lần tiêm đầu tiên\nMũi 2: 1 tháng sau mũi 1 (tiêm cách mũi 1 ít nhất 1 tháng)\nMũi 3: 5 tháng sau mũi 2 (hoặc cách mũi 1 là 6 tháng)",
+      route: "Tiêm bắp",
+      sourceRow: 55,
+    },
+    {
+      id: "P56_60",
+      vaccine: "Twinrix",
+      disease: "Viêm gan A và B",
+      object: "Từ 16 tuổi trở lên (lịch tiêm nhanh trong trường hợp cấp bách)",
+      schedule:
+        "Mũi 1: Lần tiêm đầu tiên\nMũi 2: 7 ngày sau mũi 1\nMũi 3: 14 ngày sau mũi 2\nMũi 4: 12 tháng sau mũi 3 (mũi nhắc lại)",
+      route: "Tiêm bắp",
+      sourceRow: 56,
+    },
   ],
   vaccines: [
     "Bạch hầu, ho gà, uốn ván, bại liệt và Hib - Pemtaxim",
@@ -631,7 +661,7 @@ export const DATA = {
     "Cúm mùa - Influvac Tetra",
     "Cúm mùa - Ivacflu - S",
     "Dại - Abhayrab",
-    "Dại - Indirad",
+    "Dại - Indirab",
     "Huyết thanh kháng uốn ván - SAT",
     "PHẾ CẦU 10 - Synfloric",
     "PHẾ CẦU 13 - Prevenar 13",
@@ -650,6 +680,7 @@ export const DATA = {
     "Viêm Gan A - Avaxim 160UI/ 1ml",
     "Viêm Gan A - Avaxim 80UI/ 0.5ml",
     "Viêm Gan A - Havax 0.5ml",
+    "Viêm gan A và B - Twinrix",
     "Viêm gan B - Gene - Hbvac",
     "Viêm gan B - Heberbiovac",
     "Viêm màng não, nhiễm khuẩn huyết, viêm phổi do não mô cầu khuẩn nhóm A,C,Y,W-135 - Menactra",

@@ -970,7 +970,7 @@ img, table, textarea, input, select {
           },
           {
             id: "P6_7",
-            vaccine: "Indirad",
+            vaccine: "Indirab",
             disease: "1.Dại",
             object: "Người bình thường chưa tiêm",
             schedule:
@@ -981,7 +981,7 @@ img, table, textarea, input, select {
           },
           {
             id: "P6_8",
-            vaccine: " Indirad ",
+            vaccine: "Indirab",
             disease: "2.Dại",
             object: "Suy giảm miễn dịch",
             schedule:
@@ -992,7 +992,7 @@ img, table, textarea, input, select {
           },
           {
             id: "P6_9",
-            vaccine: "Indirad",
+            vaccine: "Indirab",
             disease: "3.Dại",
             object: "Đã tiêm trước đó",
             schedule: "Mũi 1: Tiêm lần đầu (ngày 0)\nMũi 2: 3 ngày sau mũi 1 (ngày 3)",
@@ -1002,7 +1002,7 @@ img, table, textarea, input, select {
           },
           {
             id: "P6_10",
-            vaccine: "Indirad",
+            vaccine: "Indirab",
             disease: "4.Dại",
             object: "Phơi nhiễm độ III (vết cắn chảy máu da/niêm mạc)",
             schedule:
@@ -1487,10 +1487,40 @@ img, table, textarea, input, select {
             route: "Tiêm bắp sâu 0,5ml",
             sourceRow: 53,
           },
+          {
+            id: "P54_58",
+            vaccine: "Twinrix",
+            disease: "Viêm gan A và B",
+            object: "Từ 12 tháng đến dưới 16 tuổi",
+            schedule:
+              "Mũi 1: Lần tiêm đầu tiên\nMũi 2: 6 tháng sau mũi 1 (tiêm cách mũi 1 khoảng từ 6 đến 12 tháng)",
+            route: "Tiêm bắp",
+            sourceRow: 54,
+          },
+          {
+            id: "P55_59",
+            vaccine: "Twinrix",
+            disease: "Viêm gan A và B",
+            object: "Từ 16 tuổi trở lên (lịch 3 mũi chuẩn)",
+            schedule:
+              "Mũi 1: Lần tiêm đầu tiên\nMũi 2: 1 tháng sau mũi 1 (tiêm cách mũi 1 ít nhất 1 tháng)\nMũi 3: 5 tháng sau mũi 2 (hoặc cách mũi 1 là 6 tháng)",
+            route: "Tiêm bắp",
+            sourceRow: 55,
+          },
+          {
+            id: "P56_60",
+            vaccine: "Twinrix",
+            disease: "Viêm gan A và B",
+            object: "Từ 16 tuổi trở lên (lịch tiêm nhanh trong trường hợp cấp bách)",
+            schedule:
+              "Mũi 1: Lần tiêm đầu tiên\nMũi 2: 7 ngày sau mũi 1\nMũi 3: 14 ngày sau mũi 2\nMũi 4: 12 tháng sau mũi 3 (mũi nhắc lại)",
+            route: "Tiêm bắp",
+            sourceRow: 56,
+          },
         ],
         vaccines: [
           "Abhayrab",
-          "Indirad",
+          "Indirab",
           "Avaxim 160UI/ 1ml",
           "Avaxim 80UI/ 0.5ml",
           "Heberbiovac",
@@ -1516,6 +1546,7 @@ img, table, textarea, input, select {
           "Rotateq",
           "Rotavin",
           "Synfloric",
+          "Twinrix",
           "Prevenar 13",
           "Prevenar 20",
           "VA-Mengoc-BC",
@@ -1800,11 +1831,19 @@ img, table, textarea, input, select {
         return { labels, intervals, notes };
       }
       function vaccineDisplayName(v) {
-        let p = DATA.protocols.find((x) => x.vaccine === v);
+        // Find matching protocol case-insensitively to be safe
+        let p = DATA.protocols.find((x) => norm(x.vaccine) === norm(v));
         if (!p) return v;
         let disease = (p.disease || "").replace(/^\d+\./, "");
         disease = disease.split("(")[0].trim();
-        return disease ? disease + " - " + v : v;
+        if (disease) {
+          const prefix = disease.toLowerCase() + " -";
+          if (v.toLowerCase().startsWith(prefix)) {
+            return v;
+          }
+          return disease + " - " + v;
+        }
+        return v;
       }
       
       function setupVaccineDropdown() {
@@ -1814,7 +1853,36 @@ img, table, textarea, input, select {
 
         function renderList(filter = "") {
           dropdown.innerHTML = "";
-          const items = [...new Set(DATA.vaccines.map(v => vaccineDisplayName(v)))].sort();
+          
+          // Map to display names and normalize/standardize dashes
+          const rawItems = DATA.vaccines.map(v => {
+            let name = vaccineDisplayName(v).trim();
+            name = name.replace(/\s*[\-–—]\s*/g, " - ");
+            return name;
+          });
+          
+          // Case-insensitive and unicode-normalized deduplication
+          const items = [];
+          const seen = new Set();
+          
+          rawItems.forEach(item => {
+            const normalized = item.normalize("NFC").toLowerCase().trim();
+            if (!seen.has(normalized)) {
+              seen.add(normalized);
+              
+              // Standardize case for known brands:
+              let cleanItem = item;
+              if (normalized.includes("abhayrab")) {
+                cleanItem = "Dại - Abhayrab";
+              } else if (normalized.includes("indirab") || normalized.includes("indirad")) {
+                cleanItem = "Dại - Indirab";
+              }
+              
+              items.push(cleanItem);
+            }
+          });
+          
+          items.sort();
           const q = norm(filter);
           
           const filtered = items.filter(v => norm(v).includes(q));
@@ -2325,6 +2393,192 @@ img, table, textarea, input, select {
         }
         return changed;
       }
+      function sanitizeRabiesProtocols() {
+        let changed = false;
+        DATA.protocols.forEach((p) => {
+          const vNorm = norm(p.vaccine);
+          if (vNorm === norm("Dại - Abhayrab") || vNorm === norm("Abhayrab")) {
+            if (p.vaccine !== "Abhayrab") {
+              p.vaccine = "Abhayrab";
+              changed = true;
+            }
+          } else if (
+            vNorm === norm("Dại - Indirab") || vNorm === norm("Indirab") ||
+            vNorm === norm("Dại - Indirad") || vNorm === norm("Indirad")
+          ) {
+            if (p.vaccine !== "Indirab") {
+              p.vaccine = "Indirab";
+              changed = true;
+            }
+          }
+        });
+        DATA.vaccines = [...new Set(DATA.protocols.map((x) => x.vaccine))];
+        return changed;
+      }
+      function ensureRabiesProtocolsPatch() {
+        let changed = false;
+        const defaultAbhayrab = [
+          {
+            id: "P5_3",
+            vaccine: "Abhayrab",
+            disease: "1.Dại",
+            object: "Người bình thường chưa tiêm",
+            schedule:
+              "Mũi 1: Tiêm lần đầu (ngày 0)\nMũi 2: 3 ngày sau mũi 1 (ngày 3)\nMũi 3: 4 ngày sau mũi 2 (ngày 7)\nMũi 4: 7 ngày sau mũi 3 (ngày 14)",
+            route:
+              "Tiêm bắp (hoặc tiêm dưới da) - TE: Tiêm khu vực 2 bên phía trước ngoài của bắp đùi. - Người lớn: vùng cơ Delta hoặc tiêm dưới da",
+            sourceRow: 5,
+          },
+          {
+            id: "P5_4",
+            vaccine: "Abhayrab",
+            disease: "2.Dại",
+            object: "Suy giảm miễn dịch",
+            schedule:
+              "Mũi 1: Tiêm lần đầu (ngày 0)\nMũi 2: 3 ngày sau mũi 1 (ngày 3)\nMũi 3: 4 ngày sau mũi 2 (ngày 7)\nMũi 4: 7 ngày sau mũi 3 (ngày 14)\nMũi 5: 14 ngày sau mũi 4 (ngày 28)",
+            route:
+              "Tiêm bắp (hoặc tiêm dưới da) - TE: Tiêm khu vực 2 bên phía trước ngoài của bắp đùi. - Người lớn: vùng cơ Delta hoặc tiêm dưới da",
+            sourceRow: 5,
+          },
+          {
+            id: "P5_5",
+            vaccine: "Abhayrab",
+            disease: "3.Dại",
+            object: "Đã tiêm trước đó",
+            schedule: "Mũi 1: Tiêm lần đầu (ngày 0)\nMũi 2: 3 ngày sau mũi 1 (ngày 3)",
+            route:
+              "Tiêm bắp (hoặc tiêm dưới da) - TE: Tiêm khu vực 2 bên phía trước ngoài của bắp đùi. - Người lớn: vùng cơ Delta hoặc tiêm dưới da",
+            sourceRow: 5,
+          },
+          {
+            id: "P5_6",
+            vaccine: "Abhayrab",
+            disease: "4.Dại",
+            object: "Phơi nhiễm độ III (vết cắn chảy máu da/niêm mạc)",
+            schedule:
+              "Mũi 1: Tiêm lần đầu (ngày 0)\nMũi 2: 3 ngày sau mũi 1 (ngày 3)\nMũi 3: 4 ngày sau mũi 2 (ngày 7)\nMũi 4: 7 ngày sau mũi 3 (ngày 14)",
+            route:
+              "Tiêm bắp (hoặc tiêm dưới da) - TE: Tiêm khu vực 2 bên phía trước ngoài của bắp đùi. - Người lớn: vùng cơ Delta hoặc tiêm dưới da",
+            sourceRow: 5,
+          }
+        ];
+        const defaultIndirab = [
+          {
+            id: "P6_7",
+            vaccine: "Indirab",
+            disease: "1.Dại",
+            object: "Người bình thường chưa tiêm",
+            schedule:
+              "Mũi 1: Tiêm lần đầu (ngày 0)\nMũi 2: 3 ngày sau mũi 1 (ngày 3)\nMũi 3: 4 ngày sau mũi 2 (ngày 7)\nMũi 4: 7 ngày sau mũi 3 (ngày 14)",
+            route:
+              "Tiêm bắp (hoặc tiêm dưới da) - TE: Tiêm khu vực 2 bên phía trước ngoài của bắp đùi. - Người lớn: vùng cơ Delta hoặc tiêm dưới da",
+            sourceRow: 6,
+          },
+          {
+            id: "P6_8",
+            vaccine: "Indirab",
+            disease: "2.Dại",
+            object: "Suy giảm miễn dịch",
+            schedule:
+              "Mũi 1: Tiêm lần đầu (ngày 0)\nMũi 2: 3 ngày sau mũi 1 (ngày 3)\nMũi 3: 4 ngày sau mũi 2 (ngày 7)\nMũi 4: 7 ngày sau mũi 3 (ngày 14)\nMũi 5: 14 ngày sau mũi 4 (ngày 28)",
+            route:
+              "Tiêm bắp (hoặc tiêm dưới da) - TE: Tiêm khu vực 2 bên phía trước ngoài của bắp đùi. - Người lớn: vùng cơ Delta hoặc tiêm dưới da",
+            sourceRow: 6,
+          },
+          {
+            id: "P6_9",
+            vaccine: "Indirab",
+            disease: "3.Dại",
+            object: "Đã tiêm trước đó",
+            schedule: "Mũi 1: Tiêm lần đầu (ngày 0)\nMũi 2: 3 ngày sau mũi 1 (ngày 3)",
+            route:
+              "Tiêm bắp (hoặc tiêm dưới da) - TE: Tiêm khu vực 2 bên phía trước ngoài của bắp đùi. - Người lớn: vùng cơ Delta hoặc tiêm dưới da",
+            sourceRow: 6,
+          },
+          {
+            id: "P6_10",
+            vaccine: "Indirab",
+            disease: "4.Dại",
+            object: "Phơi nhiễm độ III (vết cắn chảy máu da/niêm mạc)",
+            schedule:
+              "Mũi 1: Tiêm lần đầu (ngày 0)\nMũi 2: 3 ngày sau mũi 1 (ngày 3)\nMũi 3: 4 ngày sau mũi 2 (ngày 7)\nMũi 4: 7 ngày sau mũi 3 (ngày 14)",
+            route:
+              "Tiêm bắp (hoặc tiêm dưới da) - TE: Tiêm khu vực 2 bên phía trước ngoài của bắp đùi. - Người lớn: vùng cơ Delta hoặc tiêm dưới da",
+            sourceRow: 6,
+          }
+        ];
+
+        defaultAbhayrab.forEach(p => {
+          if (!DATA.protocols.some(x => x.id === p.id)) {
+            DATA.protocols.push(p);
+            changed = true;
+          }
+        });
+
+        defaultIndirab.forEach(p => {
+          if (!DATA.protocols.some(x => x.id === p.id)) {
+            DATA.protocols.push(p);
+            changed = true;
+          }
+        });
+
+        if (changed) {
+          DATA.vaccines = [...new Set(DATA.protocols.map((x) => x.vaccine))];
+        }
+        return changed;
+      }
+      function ensureTwinrixProtocolsPatch() {
+        let changed = false;
+        const defaultTwinrix = [
+          {
+            id: "P54_58",
+            vaccine: "Twinrix",
+            disease: "Viêm gan A và B",
+            object: "Từ 12 tháng đến dưới 16 tuổi",
+            schedule:
+              "Mũi 1: Lần tiêm đầu tiên\nMũi 2: 6 tháng sau mũi 1 (tiêm cách mũi 1 khoảng từ 6 đến 12 tháng)",
+            route: "Tiêm bắp",
+            sourceRow: 54,
+          },
+          {
+            id: "P55_59",
+            vaccine: "Twinrix",
+            disease: "Viêm gan A và B",
+            object: "Từ 16 tuổi trở lên (lịch 3 mũi chuẩn)",
+            schedule:
+              "Mũi 1: Lần tiêm đầu tiên\nMũi 2: 1 tháng sau mũi 1 (tiêm cách mũi 1 ít nhất 1 tháng)\nMũi 3: 5 tháng sau mũi 2 (hoặc cách mũi 1 là 6 tháng)",
+            route: "Tiêm bắp",
+            sourceRow: 55,
+          },
+          {
+            id: "P56_60",
+            vaccine: "Twinrix",
+            disease: "Viêm gan A và B",
+            object: "Từ 16 tuổi trở lên (lịch tiêm nhanh trong trường hợp cấp bách)",
+            schedule:
+              "Mũi 1: Lần tiêm đầu tiên\nMũi 2: 7 ngày sau mũi 1\nMũi 3: 14 ngày sau mũi 2\nMũi 4: 12 tháng sau mũi 3 (mũi nhắc lại)",
+            route: "Tiêm bắp",
+            sourceRow: 56,
+          }
+        ];
+
+        defaultTwinrix.forEach(p => {
+          if (!DATA.protocols.some(x => x.id === p.id)) {
+            DATA.protocols.push(p);
+            changed = true;
+          }
+        });
+
+        if (!DATA.vaccines.some(v => norm(v) === norm("Twinrix"))) {
+          DATA.vaccines.push("Twinrix");
+          changed = true;
+        }
+
+        if (changed) {
+          DATA.vaccines = [...new Set(DATA.protocols.map((x) => x.vaccine))];
+        }
+        return changed;
+      }
       function loadCustomProtocolsAndEnsureDefaults() {
         let changed = false;
         try {
@@ -2339,6 +2593,9 @@ img, table, textarea, input, select {
         } catch (e) {}
         changed = ensurePrevenar13AdultProtocolPatch() || changed;
         changed = sanitizePrevenar20Protocols() || changed;
+        changed = sanitizeRabiesProtocols() || changed;
+        changed = ensureRabiesProtocolsPatch() || changed;
+        changed = ensureTwinrixProtocolsPatch() || changed;
         if (changed) {
           try {
             localStorage.setItem(

@@ -43,6 +43,7 @@ export default function Sidebar() {
 
 
   const otherItems = [
+    { name: 'Lịch tiêm vắc xin', href: '/tiem-chung', icon: Syringe },
     { name: 'Tra cứu nhanh', href: '/tra-cuu-nhanh', icon: Search },
     { name: 'CSKH Tiêm Chủng', href: '/cskh-tiem-chung', icon: ClipboardList },
     { name: 'Bảng giá Vắc xin', href: '/vaccine-prices', icon: DollarSign },
@@ -147,11 +148,12 @@ export default function Sidebar() {
       </aside>
 
       {/* Mobile Bottom Navigation */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 flex items-center justify-around h-16 z-50 shadow-[0_-4px_20px_rgba(0,0,0,0.05)] pb-safe">
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 flex items-center overflow-x-auto whitespace-nowrap h-16 z-50 shadow-[0_-4px_20px_rgba(0,0,0,0.05)] pb-safe scrollbar-none px-2 gap-1">
         {[...navItems, ...otherItems].map((item) => {
           const isActive = pathname === item.href;
           // Shorten names for mobile to avoid wrapping
           let mobileName = item.name;
+          if (mobileName === 'Lịch tiêm vắc xin') mobileName = 'Lịch tiêm';
           if (mobileName === 'Tra cứu nhanh') mobileName = 'Tra cứu';
           if (mobileName === 'CSKH Tiêm Chủng') mobileName = 'CSKH';
           if (mobileName === 'Bảng giá Vắc xin') mobileName = 'Giá';
@@ -161,7 +163,7 @@ export default function Sidebar() {
             <Link
               key={item.name}
               href={item.href}
-              className={`flex flex-col items-center justify-center w-full h-full space-y-1 transition-colors ${
+              className={`flex flex-col items-center justify-center min-w-[72px] flex-1 h-full space-y-1 transition-colors ${
                 isActive ? 'text-teal-600' : 'text-slate-400 hover:text-slate-600'
               }`}
             >

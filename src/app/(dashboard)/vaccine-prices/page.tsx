@@ -5,6 +5,18 @@ import React, { useState, useEffect } from 'react';
 import { Search, Plus, Trash2, Edit2, DollarSign, Save, X, Activity, ChevronDown } from 'lucide-react';
 import { DATA, norm, matchSearch } from '@/lib/vaccineData';
 
+// Helpers to format inputs with thousands separator dots
+const formatNumberWithDots = (val: string | number) => {
+  if (val === undefined || val === null) return '';
+  const clean = val.toString().replace(/[^0-9]/g, '');
+  if (!clean) return '';
+  return new Intl.NumberFormat('vi-VN').format(Number(clean));
+};
+
+const parseNumberFromDots = (val: string) => {
+  return val.replace(/[^0-9]/g, '');
+};
+
 export default function VaccinePricesPage() {
   const [items, setItems] = useState<any[]>([]);
   const [qSearch, setQSearch] = useState('');
@@ -16,6 +28,21 @@ export default function VaccinePricesPage() {
   const [price, setPrice] = useState('');
   const [checkupPrice, setCheckupPrice] = useState('0');
   const [showDropdown, setShowDropdown] = useState(false);
+  const dropdownRef = React.useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent | TouchEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setShowDropdown(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener('touchstart', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('touchstart', handleClickOutside);
+    };
+  }, []);
 
   const filteredVaccines = DATA.vaccines.filter((v: string) => matchSearch(v, name));
 
@@ -99,7 +126,7 @@ export default function VaccinePricesPage() {
 
   // Format number to currency
   const formatCurrency = (val: number) => {
-    return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(val);
+    return new Intl.NumberFormat('vi-VN').format(val);
   };
 
   return (
@@ -124,7 +151,7 @@ export default function VaccinePricesPage() {
           </h3>
           
           <form onSubmit={handleSave} className="space-y-4">
-            <div className="relative">
+            <div ref={dropdownRef} className="relative">
               <label className="block text-xs font-bold text-slate-500 mb-1">Tên vắc xin *</label>
               <div className="relative">
                 <input
@@ -134,7 +161,6 @@ export default function VaccinePricesPage() {
                   value={name}
                   onFocus={() => setShowDropdown(true)}
                   onClick={() => setShowDropdown(true)}
-                  onBlur={() => setTimeout(() => setShowDropdown(false), 200)}
                   onChange={(e) => {
                     setName(e.target.value);
                     setShowDropdown(true);
@@ -151,7 +177,6 @@ export default function VaccinePricesPage() {
               {showDropdown && (
                 <div 
                   className="absolute left-0 right-0 z-50 bg-white border border-slate-200 rounded-2xl shadow-xl mt-1.5 max-h-[200px] overflow-y-auto"
-                  onMouseDown={(e) => e.preventDefault()}
                 >
                   {filteredVaccines.length === 0 ? (
                     <div className="p-3 text-xs text-slate-400 font-bold">Thêm vắc xin tùy chỉnh...</div>
@@ -160,8 +185,7 @@ export default function VaccinePricesPage() {
                       <button
                         key={v}
                         type="button"
-                        onMouseDown={(e) => {
-                          e.preventDefault();
+                        onClick={() => {
                           setName(v);
                           setShowDropdown(false);
                         }}
@@ -196,9 +220,9 @@ export default function VaccinePricesPage() {
                   type="text"
                   required
                   inputMode="numeric"
-                  placeholder="VD: 1290000"
-                  value={price}
-                  onChange={(e) => setPrice(e.target.value.replace(/[^0-9]/g, ''))}
+                  placeholder="VD: 1.290.000"
+                  value={formatNumberWithDots(price)}
+                  onChange={(e) => setPrice(parseNumberFromDots(e.target.value))}
                   className="w-full rounded-xl border border-slate-200 p-2.5 text-xs font-semibold outline-none focus:border-teal-500"
                 />
               </div>
@@ -208,9 +232,9 @@ export default function VaccinePricesPage() {
                   type="text"
                   required
                   inputMode="numeric"
-                  placeholder="VD: 50000"
-                  value={checkupPrice}
-                  onChange={(e) => setCheckupPrice(e.target.value.replace(/[^0-9]/g, ''))}
+                  placeholder="VD: 50.000"
+                  value={formatNumberWithDots(checkupPrice)}
+                  onChange={(e) => setCheckupPrice(parseNumberFromDots(e.target.value))}
                   className="w-full rounded-xl border border-slate-200 p-2.5 text-xs font-semibold outline-none focus:border-teal-500"
                 />
               </div>

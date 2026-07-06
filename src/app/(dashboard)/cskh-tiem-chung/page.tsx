@@ -462,7 +462,7 @@ export default function CskhTiemChungPage() {
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-bold text-slate-500 mb-1">Ngày sinh (dd/mm/yyyy)</label>
+                  <label className="block text-xs font-bold text-slate-500 mb-1">Ngày sinh</label>
                   <input
                     placeholder="dd/mm/yyyy"
                     value={dob}
