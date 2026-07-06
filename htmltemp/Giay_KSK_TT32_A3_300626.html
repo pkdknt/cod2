@@ -1,0 +1,1582 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>App chạy mailing Giấy khám sức khỏe TT32 A3</title>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<style>
+:root{--blue:#0f3b66;--line:#222;--bg:#eef2f7;--danger:#b91c1c;--ok:#15803d}
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,Helvetica,sans-serif;background:var(--bg);color:#111}
+header{background:linear-gradient(135deg,#0f3b66,#1769aa);color:#fff;padding:14px 18px;box-shadow:0 3px 12px #0002}
+header h1{font-size:22px;margin:0 0 4px} header p{margin:0;font-size:13px;opacity:.95}.toolbar{position:sticky;top:0;z-index:20;background:#fff;border-bottom:1px solid #d7dde8;padding:10px;display:flex;gap:8px;flex-wrap:wrap;align-items:center;box-shadow:0 2px 8px #0001}
+button,.fileLabel{border:0;border-radius:9px;padding:9px 12px;background:#0f3b66;color:#fff;font-weight:700;cursor:pointer;font-size:13px;display:inline-flex;align-items:center;gap:5px}button.secondary{background:#475569}.danger{background:#b91c1c}.ok{background:#15803d}.print{background:#7c3aed}.sky{background:#0284c7}.fileLabel input{display:none}
+input,select,textarea{border:1px solid #cbd5e1;border-radius:8px;padding:8px;font-size:13px;background:#fff;width:100%}.toolbar input,.toolbar select{width:auto}label{font-weight:700;font-size:12px;color:#334155}.wrap{display:grid;grid-template-columns:380px 1fr;gap:12px;padding:12px}.panel{background:#fff;border-radius:12px;padding:12px;box-shadow:0 2px 12px #0001;border:1px solid #e2e8f0}.panel h2{font-size:17px;color:var(--blue);margin:0 0 10px}.hint{font-size:12px;color:#475569;line-height:1.45;background:#f8fafc;border-left:4px solid #0f3b66;padding:8px;border-radius:6px;margin:8px 0}.list{max-height:260px;overflow:auto;border:1px solid #e2e8f0;border-radius:8px}table.ui{width:100%;border-collapse:collapse}.ui th,.ui td{border:1px solid #e2e8f0;padding:7px;font-size:12px;vertical-align:top}.ui th{background:#f1f5f9;text-align:left;color:#1e293b;position:sticky;top:0}.rowActive{background:#dcfce7!important}.grid1{display:grid;gap:8px}.grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px}.editBox{max-height:calc(100vh - 420px);min-height:220px;overflow:auto;padding-right:4px}.sectionHeader{background:#e0f2fe;color:#0f3b66;border-radius:8px;padding:8px 10px;font-weight:800;font-size:13px;margin-top:6px}.editField{display:grid;gap:3px}.editField textarea{min-height:54px;resize:vertical}.dataToggle{width:100%;margin:12px 0 8px;background:#0f3b66;justify-content:space-between}.dataPanel{display:none;border:1px solid #dbe3ef;border-radius:10px;background:#f8fafc;padding:10px;margin-bottom:8px}.dataPanel.open{display:block}.small{font-size:12px;color:#64748b}.previewArea{overflow:auto;max-height:calc(100vh - 154px);background:#64748b;padding:16px;border-radius:12px}.sheet{width:420mm;height:297mm;background:#fff;margin:0 auto 16px;position:relative;color:#000;box-shadow:0 3px 15px #0005;padding:8mm;font-family:'Times New Roman',serif;font-size:14.5pt;line-height:1.18;print-color-adjust:exact}.a3grid{display:grid;grid-template-columns:1fr 1fr;gap:10mm;height:100%}.half{height:100%;overflow:hidden;position:relative}.docPage{height:100%;width:100%;position:relative;overflow:hidden;background:#fff;padding:0}.center{text-align:center}.bold{font-weight:bold}.italic{font-style:italic}.upper{text-transform:uppercase}.titleTop{font-size:15.5pt;font-weight:bold;line-height:1.15}.mainTitle{font-size:22pt;font-weight:bold;text-align:center;margin:11mm 0 8mm}.subTitle{font-size:18pt;font-weight:bold;text-align:center;margin:5mm 0}.line{display:inline-block;border-bottom:1px dotted #111;min-height:5mm;vertical-align:bottom;padding:0 2mm;white-space:pre-wrap;overflow-wrap:anywhere}.line.full{width:100%}.row{display:flex;gap:2mm;align-items:flex-end;margin:2mm 0;flex-wrap:wrap}.fill{flex:1 1 auto;min-width:20mm}.photoBox{width:44mm;height:62mm;border:1px solid #222;display:flex;align-items:center;justify-content:center;text-align:center;font-size:14pt;line-height:1.18;overflow:hidden;background:#fff}.photoBox img{width:100%;height:100%;object-fit:cover}.coverGrid{display:grid;grid-template-columns:48mm 1fr;gap:7mm;align-items:start}.note{font-size:12.5pt;line-height:1.15;margin:2mm 0}.sectionTitle{font-size:15.5pt;font-weight:bold;margin:3mm 0 2mm}.formTable{border-collapse:collapse;width:100%;table-layout:fixed}.formTable td,.formTable th{border:1px solid #222;padding:1.3mm 1.6mm;vertical-align:top;font-family:'Times New Roman',serif;font-size:13pt;line-height:1.12}.formTable th{text-align:center;font-weight:bold}.historyTable td,.historyTable th{font-size:12.2pt;padding:1mm 1.2mm}.historyTable .stt{width:7mm;text-align:center}.historyTable .ck{width:8mm;text-align:center}.doctorCol{width:40mm;text-align:center;font-weight:bold}.clinicalTable td,.clinicalTable th{font-size:13pt;padding:1mm 1.3mm;line-height:1.15}.clinicalTable .num{width:9mm;text-align:center;font-weight:bold}.clinicalTable .letter{width:9mm;text-align:center}.clinicalTable .signcol{width:40mm}.clinicalTable .lineCell{border-bottom:1px dotted #222;min-height:5mm}.clinicalTitle{font-weight:bold}.clinicalSub{font-style:italic}.dottedLine{border-bottom:1px dotted #222;min-height:5.2mm;display:block;width:100%;white-space:pre-wrap;overflow-wrap:anywhere;padding:0 1mm}.signature{position:absolute;right:20mm;text-align:center;width:75mm}.signature .name{margin-top:38mm;font-weight:bold}.conclusionSig{bottom:35mm}.requestSig{right:20mm;top:130mm;width:80mm}.tiny{font-size:11.5pt}.pageLabel{position:absolute;right:0;bottom:0;font-family:Arial,Helvetica,sans-serif;font-size:9px;color:#999}.hiddenForRange{display:none!important}.breakSmall{height:2mm}.historyPart2{margin-top:4mm}.physicalBlock{position:absolute;left:0;right:0;top:151mm}.clinicalStart{position:absolute;left:0;right:0;bottom:0}.clinicalCont{height:100%}.labPage .formTable td,.labPage .formTable th{font-size:13.3pt}.labPage .sectionTitle{font-size:16pt}.labSigDate{margin-top:8mm;text-align:right;padding-right:28mm;font-style:italic}.coverPage{height:100%;display:flex;flex-direction:column;font-size:12.45pt;line-height:1.12;padding:0!important}.coverPage .titleTop{font-size:13.15pt;margin-bottom:.75mm}.coverPage .tiny{font-size:9.6pt;line-height:1.1}.coverPage .mainTitle{font-size:16.7pt;margin:6.2mm 0 4.4mm}.coverPage .coverHeader{display:grid;grid-template-columns:1fr 1.14fr;gap:6mm;text-align:center;margin-bottom:3.4mm}.coverPage .coverHeader>div{min-width:0}.coverPage .soGiayLine{text-align:left;padding-left:16mm;margin-top:3mm}.coverPage .coverGrid{display:grid;grid-template-columns:43mm 1fr;gap:5mm;align-items:start}.coverPage .photoBox{width:40mm;height:54mm;font-size:10.9pt;line-height:1.12;flex-shrink:0}.coverPage .row{display:flex;align-items:flex-end;gap:1.4mm;flex-wrap:wrap;margin:1.55mm 0}.coverPage .row .line{flex:1 1 auto;min-width:14mm;max-width:100%}.coverPage .line{min-height:4.2mm;padding:0 1mm;white-space:pre-wrap;overflow-wrap:anywhere}.coverPage .note{font-size:9.4pt;line-height:1.13;margin:1.25mm 0 1.35mm}.coverPage .subTitle{font-size:13pt;margin:2.8mm 0 1.8mm}.coverPage .sectionTitle{font-size:12.2pt;margin:1.35mm 0 1mm}.coverPage .historyIntro{font-size:10.4pt;line-height:1.13}.coverPage .familyDetail{margin-top:1.25mm}.coverPage .historyTable{width:100%;table-layout:fixed;margin-top:1.2mm}.coverPage .historyTable td,.coverPage .historyTable th{font-size:9.8pt;padding:.8mm .9mm;line-height:1.08;vertical-align:top;overflow-wrap:anywhere;word-break:break-word}.coverPage .historyTable thead th{font-weight:bold;text-align:center;line-height:1.04;vertical-align:middle;white-space:nowrap;overflow-wrap:normal;word-break:normal}.coverPage .historyTable .stt{width:8.2mm;text-align:center}.coverPage .historyTable .ck{width:11.2mm;text-align:center}.coverPage .historyTable thead .stt,.coverPage .historyTable thead .ck{white-space:nowrap}.coverPage .historyTable tbody tr{height:8.8mm}.coverPage .historyTable td:nth-child(2),.coverPage .historyTable td:nth-child(6){font-size:9.25pt;line-height:1.06}.historyPage{height:100%;display:flex;flex-direction:column;font-size:11.05pt;line-height:1.2;padding:0!important;overflow:hidden}.historyPage .historyTable{width:100%;table-layout:fixed;margin:0}.historyPage .historyTable td,.historyPage .historyTable th{font-size:10.28pt;padding:1.05mm 1.08mm;line-height:1.18;vertical-align:top;overflow-wrap:anywhere;word-break:break-word}.historyPage .historyTable .stt{width:8.1mm;text-align:center;vertical-align:middle}.historyPage .historyTable .ck{width:10.8mm;text-align:center;vertical-align:middle}.historyPage .historyTable tbody tr{height:11mm}.historyPage .sectionTitle{font-size:12.55pt;font-weight:bold;margin:3mm 0 1.6mm}.historyPage .historyPart2{margin-top:3mm}.historyPage .questionText{font-size:10.95pt;line-height:1.2}.historyPage .historyDots{margin-top:1mm}.historyPage .dottedLine{min-height:5.35mm;padding:0 1mm;line-height:1.18;overflow:hidden}.historyPage .historyQuestionRow{display:flex;align-items:flex-end;gap:1.4mm;flex-wrap:wrap;margin-top:2mm;font-size:10.95pt;line-height:1.2}.historyPage .historyQuestionRow .line{flex:1 1 auto;min-width:18mm;max-width:100%}.historyPage .historyDeclare{display:grid;grid-template-columns:1.15fr 1fr;gap:9mm;align-items:start;margin-top:2.8mm;margin-bottom:6.8mm;min-height:26mm}.historyPage .declarationText{font-size:10.75pt;line-height:1.22}.historyPage .requestSigInline{text-align:center;font-size:10.55pt;line-height:1.18;display:flex;flex-direction:column;justify-content:flex-end;min-height:26mm}.historyPage .requestSigInline .sigDate{font-style:italic;min-height:9mm;margin-bottom:.6mm}.historyPage .historyPhysical{margin-top:0}.historyPage .measureRow{display:flex;align-items:flex-end;gap:1.4mm;flex-wrap:wrap;margin:1.55mm 0;font-size:10.95pt;line-height:1.2}.historyPage .measureRow .line{flex:1 1 auto;min-width:13mm;max-width:100%}.historyPage .historyClinical{margin-top:3.7mm;flex:1 1 auto;display:flex;flex-direction:column;min-height:0}.historyPage .clinicalTable{width:100%;table-layout:fixed}.historyPage .clinicalTable td,.historyPage .clinicalTable th{font-size:10.25pt;padding:1.05mm 1.15mm;line-height:1.18;vertical-align:top;overflow-wrap:anywhere;word-break:break-word}.historyPage .clinicalTable th{text-align:center;vertical-align:middle}.historyPage .clinicalTable .num{width:8mm;text-align:center;font-weight:bold;vertical-align:middle}.historyPage .clinicalTable .letter{width:9mm;text-align:center;vertical-align:middle}.historyPage .clinicalTable .signcol{width:44mm}.historyPage .clinicalTable .clinicalTitle{font-weight:bold;text-decoration:underline}.historyPage .clinicalTable .clinicalSub{font-style:italic;font-weight:bold}.overlay{position:fixed;inset:0;background:rgba(15,59,102,.45);backdrop-filter:blur(4px);z-index:9999;display:none;align-items:center;justify-content:center}.overlay.active{display:flex}.loaderBox{background:#fff;border-radius:16px;padding:28px;max-width:430px;width:90%;text-align:center;box-shadow:0 10px 30px #0003}.spinner{width:52px;height:52px;border:5px solid #e2e8f0;border-top-color:#0f3b66;border-radius:50%;margin:0 auto 16px;animation:spin .9s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}body.fastPdfMode .sheet{box-shadow:none;margin:0;background:#fff}body.fastPdfMode .previewArea{background:#fff;overflow:visible}@page{size:A3 landscape;margin:0}@media print{html,body{margin:0!important;padding:0!important;background:#fff!important}.noPrint,header,.toolbar,.panel:not(.printable){display:none!important}.wrap{display:block!important;padding:0!important;margin:0!important}.panel.printable{padding:0!important;margin:0!important;border:0!important;box-shadow:none!important;background:transparent!important}.previewArea{max-height:none!important;overflow:visible!important;padding:0!important;margin:0!important;background:#fff!important}.sheet{box-shadow:none!important;margin:0!important;width:420mm!important;height:297mm!important;padding:8mm!important;page-break-after:always;break-after:page}.sheet.noBreakAfter{page-break-after:avoid!important;break-after:avoid!important}.hiddenForRange{display:none!important}}
+
+
+/* ===== CHỈNH MẶT 1 - TRANG 1 THEO MẪU WORD NGƯỜI DÙNG GỬI ===== */
+.labPage{
+  font-size:10.7pt!important;
+  line-height:1.22!important;
+  padding:0!important;
+}
+.labPage .labTitle{
+  font-size:10.9pt!important;
+  font-weight:bold!important;
+  text-decoration:underline!important;
+  margin:0 0 2.2mm 0!important;
+}
+.labPage .labTable{
+  width:100%!important;
+  border-collapse:collapse!important;
+  table-layout:fixed!important;
+  border:1px solid #111!important;
+  margin:0!important;
+}
+.labPage .labTable th,
+.labPage .labTable td{
+  border:1px solid #111!important;
+  font-family:'Times New Roman',serif!important;
+  font-size:10.35pt!important;
+  line-height:1.24!important;
+  color:#000!important;
+  padding:1.65mm 2.25mm!important;
+  vertical-align:top!important;
+  background:#fff!important;
+  overflow:hidden!important;
+}
+.labPage .labTable th{
+  text-align:center!important;
+  vertical-align:middle!important;
+  font-weight:bold!important;
+  height:13mm!important;
+  line-height:1.18!important;
+}
+.labPage .labDoctorCol{
+  width:42mm!important;
+  text-align:center!important;
+  font-weight:bold!important;
+}
+.labPage .labBloodRow td{height:67mm!important;}
+.labPage .labUrineRow td{height:38mm!important;}
+.labPage .labImageRow td{height:38mm!important;}
+.labPage .labTextLine{
+  display:flex!important;
+  align-items:flex-end!important;
+  gap:1.1mm!important;
+  width:100%!important;
+  min-width:0!important;
+  min-height:5.4mm!important;
+  margin:1.15mm 0!important;
+  line-height:1.2!important;
+}
+.labPage .labTextLine.compact{margin:.7mm 0!important;min-height:5mm!important;}
+.labPage .labTextLine.twoCols{gap:3mm!important;}
+.labPage .labTextLabel{
+  flex:0 0 auto!important;
+  white-space:nowrap!important;
+}
+.labPage .labLine{
+  display:block!important;
+  flex:1 1 auto!important;
+  width:auto!important;
+  min-width:0!important;
+  max-width:100%!important;
+  border-bottom:1px dotted #222!important;
+  min-height:4.4mm!important;
+  height:4.6mm!important;
+  line-height:4.45mm!important;
+  vertical-align:bottom!important;
+  white-space:nowrap!important;
+  overflow:hidden!important;
+  text-overflow:clip!important;
+  padding:0 .8mm!important;
+}
+.labPage .labTextLine.twoCols .labLine{flex:1 1 0!important;}
+.labPage .labLine.w122,.labPage .labLine.w108,.labPage .labLine.w94,
+.labPage .labLine.w70,.labPage .labLine.w54,.labPage .labLine.w47,
+.labPage .labLine.w44,.labPage .labLine.w38,.labPage .labLine.w34{width:auto!important;}
+.labPage .labDotted{
+  display:block!important;
+  width:100%!important;
+  max-width:100%!important;
+  border-bottom:1px dotted #222!important;
+  min-height:5.7mm!important;
+  height:5.8mm!important;
+  line-height:5.6mm!important;
+  padding:0 1mm!important;
+  white-space:nowrap!important;
+  overflow:hidden!important;
+}
+.labPage .labConclusionTitle{
+  font-size:10.9pt!important;
+  font-weight:bold!important;
+  margin:9mm 0 2.4mm 0!important;
+}
+.labPage .labConclusionLine{
+  display:flex!important;
+  align-items:flex-end!important;
+  gap:1.1mm!important;
+  font-size:10.6pt!important;
+  margin:2.1mm 0!important;
+  line-height:1.18!important;
+  width:100%!important;
+  min-width:0!important;
+}
+.labPage .labConclusionLine b{white-space:nowrap!important;flex:0 0 auto!important;}
+.labPage .labConclusionLine .labLine{flex:1 1 auto!important;width:auto!important;min-width:0!important;}
+.labPage .labConclusionExtra{width:100%!important;margin-left:0!important;}
+.labPage .labSignature{
+  position:absolute!important;
+  right:8mm!important;
+  bottom:16mm!important;
+  width:84mm!important;
+  text-align:center!important;
+  font-size:10.45pt!important;
+  line-height:1.16!important;
+}
+.labPage .labSignature .labSigDate{
+  text-align:center!important;
+  margin:0 0 1.2mm 0!important;
+  padding:0!important;
+  font-style:italic!important;
+}
+.labPage .labSignature .name{
+  margin-top:22mm!important;
+  font-weight:bold!important;
+}
+.labPage .labSignature .nameDots{
+  display:block!important;
+  width:100%!important;
+  height:5.5mm!important;
+  border-bottom:1px dotted #222!important;
+}
+.labPage .labSignature .signatureNameLine{
+  display:block!important;
+  width:100%!important;
+  min-height:5.5mm!important;
+  line-height:5.5mm!important;
+  border-bottom:1px dotted #222!important;
+  font-weight:bold!important;
+  text-transform:uppercase!important;
+}
+.labPage .labSignature .signatureNameLine.hasData{
+  border-bottom:1px solid transparent!important;
+}
+@media print{
+  .labPage .labTable th,.labPage .labTable td{border:1px solid #111!important;}
+  .labPage .labBloodRow td{height:67mm!important;}
+  .labPage .labUrineRow td{height:38mm!important;}
+  .labPage .labImageRow td{height:38mm!important;}
+  .labPage .labSignature{right:8mm!important;bottom:16mm!important;}
+}
+
+
+
+/* ===== THIẾT KẾ LẠI TOÀN BỘ MẶT 2 - TRANG 1 & TRANG 2 THEO MẪU ẢNH ===== */
+.backSheet > .pageLabel,
+.clinicalPageV2 .pageLabel,
+.historyPageV2 .pageLabel{display:none!important}
+
+.historyPageV2,
+.clinicalPageV2{
+  height:100%!important;
+  width:100%!important;
+  padding:0!important;
+  overflow:hidden!important;
+  font-family:'Times New Roman',serif!important;
+  color:#000!important;
+  background:#fff!important;
+  font-size:10.15pt!important;
+  line-height:1.13!important;
+}
+
+.historyPageV2 table,
+.clinicalPageV2 table{
+  border-collapse:collapse!important;
+  table-layout:fixed!important;
+  width:100%!important;
+  border:1px solid #111!important;
+}
+
+.historyPageV2 td,
+.historyPageV2 th,
+.clinicalPageV2 td,
+.clinicalPageV2 th{
+  border:1px solid #111!important;
+  font-family:'Times New Roman',serif!important;
+  color:#000!important;
+  background:#fff!important;
+  vertical-align:top!important;
+  overflow:hidden!important;
+  word-break:normal!important;
+  overflow-wrap:anywhere!important;
+}
+
+/* Bảng tiền sử bệnh ở đầu mặt 2 - trang 1 */
+.historyPageV2 .historyTopTable{
+  margin:0 0 3.2mm 0!important;
+}
+.historyPageV2 .historyTopTable td{
+  font-size:9.25pt!important;
+  line-height:1.08!important;
+  padding:.85mm .9mm!important;
+  height:8.7mm!important;
+}
+.historyPageV2 .historyTopTable .carryRow td{
+  height:6mm!important;
+  padding:.45mm .9mm!important;
+}
+.historyPageV2 .historyTopTable .stt{
+  width:7mm!important;
+  min-width:7mm!important;
+  max-width:7mm!important;
+  text-align:center!important;
+  vertical-align:middle!important;
+  padding-left:0!important;
+  padding-right:0!important;
+}
+.historyPageV2 .historyTopTable .ck{
+  width:7.2mm!important;
+  min-width:7.2mm!important;
+  max-width:7.2mm!important;
+  text-align:center!important;
+  vertical-align:middle!important;
+  padding-left:0!important;
+  padding-right:0!important;
+}
+.historyPageV2 .sectionTitle{
+  font-size:10.55pt!important;
+  font-weight:bold!important;
+  margin:1.6mm 0 1.05mm 0!important;
+  line-height:1.12!important;
+}
+.historyPageV2 .questionText{
+  font-size:9.75pt!important;
+  line-height:1.18!important;
+  margin:.8mm 0!important;
+}
+.historyPageV2 .historyDots{
+  margin:.8mm 0 1.6mm 0!important;
+}
+.historyPageV2 .dottedLine{
+  display:block!important;
+  width:100%!important;
+  height:5.2mm!important;
+  min-height:5.2mm!important;
+  line-height:5mm!important;
+  border-bottom:1px dotted #222!important;
+  padding:0 1mm!important;
+  white-space:nowrap!important;
+  overflow:hidden!important;
+}
+.historyPageV2 .historyQuestionRow,
+.historyPageV2 .measureRow{
+  display:flex!important;
+  align-items:flex-end!important;
+  gap:1.2mm!important;
+  flex-wrap:nowrap!important;
+  margin:1mm 0!important;
+  font-size:9.85pt!important;
+  line-height:1.12!important;
+}
+.historyPageV2 .historyQuestionRow span,
+.historyPageV2 .measureRow span{
+  white-space:nowrap!important;
+  flex:0 0 auto!important;
+}
+.historyPageV2 .line{
+  flex:1 1 auto!important;
+  min-width:10mm!important;
+  height:4.5mm!important;
+  min-height:4.5mm!important;
+  line-height:4.3mm!important;
+  padding:0 .8mm!important;
+  border-bottom:1px dotted #222!important;
+  white-space:nowrap!important;
+  overflow:hidden!important;
+}
+.historyPageV2 .historyDeclare{
+  display:grid!important;
+  grid-template-columns:1.18fr .92fr!important;
+  gap:7mm!important;
+  align-items:start!important;
+  margin:1.5mm 0 5.4mm 0!important;
+  min-height:25mm!important;
+}
+.historyPageV2 .declarationText{
+  font-size:9.6pt!important;
+  line-height:1.2!important;
+}
+.historyPageV2 .requestSigInline{
+  text-align:center!important;
+  font-size:9.4pt!important;
+  line-height:1.15!important;
+  padding-top:1.2mm!important;
+}
+.historyPageV2 .requestSigInline .sigDate{
+  font-style:italic!important;
+  height:9.5mm!important;
+  margin-bottom:.5mm!important;
+}
+.historyPageV2 .historyPhysical{
+  margin:0!important;
+  padding:0!important;
+}
+.historyPageV2 .historyPhysical .sectionTitle{
+  margin-top:0!important;
+}
+.historyPageV2 .historyClinical{
+  margin-top:2.1mm!important;
+}
+
+/* Bảng khám lâm sàng - cột số và cột a,b,c... hẹp vừa đủ chứa ký tự */
+.historyPageV2 .clinicalTable,
+.clinicalPageV2 .clinicalTable{
+  font-size:9.6pt!important;
+  line-height:1.08!important;
+}
+.historyPageV2 .clinicalTable th,
+.clinicalPageV2 .clinicalTable th{
+  text-align:center!important;
+  vertical-align:middle!important;
+  font-weight:bold!important;
+  font-size:9.35pt!important;
+  line-height:1.05!important;
+  padding:.75mm .8mm!important;
+  height:7.2mm!important;
+}
+.historyPageV2 .clinicalTable td,
+.clinicalPageV2 .clinicalTable td{
+  font-size:9.45pt!important;
+  line-height:1.08!important;
+  padding:.65mm .95mm!important;
+  height:6.85mm!important;
+}
+.historyPageV2 .clinicalTable .firstcol,
+.historyPageV2 .clinicalTable .letter,
+.clinicalPageV2 .clinicalTable .firstcol,
+.clinicalPageV2 .clinicalTable .letter,
+.clinicalPageV2 .clinicalTable .num{
+  width:5.8mm!important;
+  min-width:5.8mm!important;
+  max-width:5.8mm!important;
+  text-align:center!important;
+  vertical-align:middle!important;
+  font-weight:bold!important;
+  padding-left:0!important;
+  padding-right:0!important;
+  white-space:nowrap!important;
+}
+.historyPageV2 .clinicalTable .itemcol,
+.clinicalPageV2 .clinicalTable .itemcol{
+  width:40mm!important;
+  vertical-align:middle!important;
+}
+.historyPageV2 .clinicalTable .valuecol,
+.clinicalPageV2 .clinicalTable .valuecol{
+  vertical-align:middle!important;
+}
+.historyPageV2 .clinicalTable .signcol,
+.clinicalPageV2 .clinicalTable .signcol{
+  width:39mm!important;
+  min-width:39mm!important;
+  max-width:39mm!important;
+  text-align:center!important;
+  vertical-align:middle!important;
+}
+.historyPageV2 .clinicalTable .signHead,
+.clinicalPageV2 .clinicalTable .signHead{
+  line-height:1.05!important;
+}
+.historyPageV2 .clinicalTable .clinicalTitle,
+.clinicalPageV2 .clinicalTable .clinicalTitle{
+  font-weight:bold!important;
+  text-decoration:underline!important;
+  vertical-align:middle!important;
+}
+.historyPageV2 .clinicalTable .clinicalSub,
+.clinicalPageV2 .clinicalTable .clinicalSub{
+  font-weight:bold!important;
+  font-style:italic!important;
+}
+.historyPageV2 .clinicalTable .phanLoaiText,
+.clinicalPageV2 .clinicalTable .phanLoaiText{
+  font-weight:normal!important;
+  font-style:normal!important;
+}
+
+/* Mặt 2 - trang 2 */
+.clinicalPageV2 .clinicalTable{
+  margin:0!important;
+}
+.clinicalPageV2 .clinicalTable td{
+  height:7mm!important;
+}
+.clinicalPageV2 .clinicalTable .topRows td{
+  height:7.4mm!important;
+}
+.clinicalPageV2 .clinicalTable .bigBlock td{
+  height:32mm!important;
+}
+.clinicalPageV2 .clinicalTable .sanBlock td{
+  height:29mm!important;
+}
+.clinicalPageV2 .clinicalTable .sectionHead td{
+  height:6.9mm!important;
+  vertical-align:middle!important;
+}
+.clinicalPageV2 .clinicalTable .visionRow td{
+  height:19mm!important;
+}
+.clinicalPageV2 .clinicalTable .hearingRow td{
+  height:23mm!important;
+}
+.clinicalPageV2 .clinicalTable .rhmRow td{
+  height:19mm!important;
+}
+.clinicalValueLine{
+  display:block!important;
+  width:100%!important;
+  min-height:4.35mm!important;
+  line-height:4.1mm!important;
+  border-bottom:1px dotted #222!important;
+  padding:0 .7mm!important;
+  white-space:nowrap!important;
+  overflow:hidden!important;
+}
+.clinicalInlineLine{
+  display:inline-block!important;
+  min-width:25mm!important;
+  height:4.2mm!important;
+  line-height:4mm!important;
+  border-bottom:1px dotted #222!important;
+  padding:0 .7mm!important;
+  vertical-align:bottom!important;
+  white-space:nowrap!important;
+  overflow:hidden!important;
+}
+.clinicalInlineLine.small{min-width:18mm!important}
+.clinicalInlineLine.med{min-width:34mm!important}
+.clinicalIndent{
+  padding-left:16mm!important;
+}
+.clinicalIndent2{
+  padding-left:42mm!important;
+}
+@media print{
+  .backSheet > .pageLabel,
+  .clinicalPageV2 .pageLabel,
+  .historyPageV2 .pageLabel{display:none!important}
+  .historyPageV2 td,
+  .historyPageV2 th,
+  .clinicalPageV2 td,
+  .clinicalPageV2 th{border:1px solid #111!important}
+}
+
+
+/* ===== MẶT 2 - TRANG 1: kéo phần KHÁM THỂ LỰC + KHÁM LÂM SÀNG xuống sát cuối trang ===== */
+.historyPageV2{
+  position:relative!important;
+  display:block!important;
+}
+.historyPageV2 .historyBottomStretch{
+  position:absolute!important;
+  left:0!important;
+  right:0!important;
+  bottom:0!important;
+  height:99mm!important;
+  display:flex!important;
+  flex-direction:column!important;
+  overflow:hidden!important;
+}
+.historyPageV2 .historyBottomStretch .historyPhysical{
+  flex:0 0 auto!important;
+  margin:0 0 1.2mm 0!important;
+  padding:0!important;
+}
+.historyPageV2 .historyBottomStretch .historyPhysical .sectionTitle{
+  margin:0 0 1.1mm 0!important;
+}
+.historyPageV2 .historyBottomStretch .measureRow{
+  margin:.82mm 0!important;
+  line-height:1.08!important;
+}
+.historyPageV2 .historyBottomStretch .historyClinical{
+  flex:1 1 auto!important;
+  min-height:0!important;
+  margin:1.25mm 0 0 0!important;
+  display:flex!important;
+  flex-direction:column!important;
+  overflow:hidden!important;
+}
+.historyPageV2 .historyBottomStretch .historyClinical .sectionTitle{
+  flex:0 0 auto!important;
+  margin:0 0 1.1mm 0!important;
+}
+.historyPageV2 .historyBottomStretch .clinicalTableP1{
+  flex:1 1 auto!important;
+  height:100%!important;
+  min-height:0!important;
+}
+.historyPageV2 .historyBottomStretch .clinicalTableP1 th{
+  height:7mm!important;
+}
+.historyPageV2 .historyBottomStretch .clinicalTableP1 td{
+  height:auto!important;
+  padding-top:.56mm!important;
+  padding-bottom:.56mm!important;
+}
+.historyPageV2 .historyBottomStretch .clinicalTableP1 .clinicalValueLine{
+  min-height:4.1mm!important;
+  line-height:3.95mm!important;
+}
+
+
+
+/* ===== MẶT 2 - TRANG 1 & 2: TĂNG CHỮ TO, CÂN KHUNG IN, KHÔNG TRÀN/ĐÈ ===== */
+.backSheet .historyPageV2,
+.backSheet .clinicalPageV2{
+  font-size:11.05pt!important;
+  line-height:1.08!important;
+  letter-spacing:0!important;
+}
+.backSheet .historyPageV2 *,
+.backSheet .clinicalPageV2 *{
+  box-sizing:border-box!important;
+}
+
+/* Trang 1 - phần tiền sử phía trên */
+.backSheet .historyPageV2 .historyTopTable{
+  margin:0 0 3mm 0!important;
+}
+.backSheet .historyPageV2 .historyTopTable td{
+  font-size:10.15pt!important;
+  line-height:1.06!important;
+  padding:.72mm .82mm!important;
+  height:8.65mm!important;
+}
+.backSheet .historyPageV2 .historyTopTable .carryRow td{
+  height:5.8mm!important;
+  padding:.35mm .82mm!important;
+  font-size:9.65pt!important;
+}
+.backSheet .historyPageV2 .historyTopTable .stt{
+  width:6.6mm!important;
+  min-width:6.6mm!important;
+  max-width:6.6mm!important;
+  font-size:10.15pt!important;
+}
+.backSheet .historyPageV2 .historyTopTable .ck{
+  width:6.8mm!important;
+  min-width:6.8mm!important;
+  max-width:6.8mm!important;
+  font-size:10pt!important;
+}
+.backSheet .historyPageV2 .sectionTitle{
+  font-size:11.25pt!important;
+  line-height:1.08!important;
+  margin:1.35mm 0 .9mm 0!important;
+}
+.backSheet .historyPageV2 .questionText{
+  font-size:10.45pt!important;
+  line-height:1.12!important;
+  margin:.72mm 0!important;
+}
+.backSheet .historyPageV2 .historyDots{
+  margin:.62mm 0 1.25mm 0!important;
+}
+.backSheet .historyPageV2 .dottedLine{
+  height:5.15mm!important;
+  min-height:5.15mm!important;
+  line-height:4.95mm!important;
+  font-size:10.45pt!important;
+  padding:0 .8mm!important;
+}
+.backSheet .historyPageV2 .historyQuestionRow,
+.backSheet .historyPageV2 .measureRow{
+  font-size:10.65pt!important;
+  line-height:1.08!important;
+  margin:.82mm 0!important;
+  gap:1.1mm!important;
+}
+.backSheet .historyPageV2 .line{
+  height:4.6mm!important;
+  min-height:4.6mm!important;
+  line-height:4.4mm!important;
+  font-size:10.65pt!important;
+  padding:0 .65mm!important;
+}
+.backSheet .historyPageV2 .historyDeclare{
+  grid-template-columns:1.22fr .9fr!important;
+  gap:6mm!important;
+  margin:1.25mm 0 4.7mm 0!important;
+  min-height:23.8mm!important;
+}
+.backSheet .historyPageV2 .declarationText{
+  font-size:10.25pt!important;
+  line-height:1.15!important;
+}
+.backSheet .historyPageV2 .requestSigInline{
+  font-size:10pt!important;
+  line-height:1.1!important;
+  padding-top:.9mm!important;
+}
+.backSheet .historyPageV2 .requestSigInline .sigDate{
+  height:8.8mm!important;
+}
+
+/* Trang 1 - kéo khối khám thể lực/lâm sàng sát trang, chữ lớn nhất an toàn */
+.backSheet .historyPageV2 .historyBottomStretch{
+  height:100.5mm!important;
+  bottom:0!important;
+}
+.backSheet .historyPageV2 .historyBottomStretch .historyPhysical{
+  margin:0 0 1.05mm 0!important;
+}
+.backSheet .historyPageV2 .historyBottomStretch .historyPhysical .sectionTitle,
+.backSheet .historyPageV2 .historyBottomStretch .historyClinical .sectionTitle{
+  font-size:11.45pt!important;
+  line-height:1.06!important;
+  margin:0 0 .85mm 0!important;
+}
+.backSheet .historyPageV2 .historyBottomStretch .measureRow{
+  font-size:10.75pt!important;
+  line-height:1.05!important;
+  margin:.68mm 0!important;
+}
+.backSheet .historyPageV2 .historyBottomStretch .historyClinical{
+  margin:1.05mm 0 0 0!important;
+}
+
+/* Bảng khám lâm sàng chung của mặt 2 */
+.backSheet .historyPageV2 .clinicalTable,
+.backSheet .clinicalPageV2 .clinicalTable{
+  font-size:10.85pt!important;
+  line-height:1.05!important;
+}
+.backSheet .historyPageV2 .clinicalTable th,
+.backSheet .clinicalPageV2 .clinicalTable th{
+  font-size:10.55pt!important;
+  line-height:1.02!important;
+  padding:.62mm .7mm!important;
+  height:7.15mm!important;
+}
+.backSheet .historyPageV2 .clinicalTable td,
+.backSheet .clinicalPageV2 .clinicalTable td{
+  font-size:10.85pt!important;
+  line-height:1.04!important;
+  padding:.58mm .82mm!important;
+  overflow:hidden!important;
+}
+.backSheet .historyPageV2 .clinicalTable .clinicalTitle,
+.backSheet .clinicalPageV2 .clinicalTable .clinicalTitle,
+.backSheet .historyPageV2 .clinicalTable .clinicalSub,
+.backSheet .clinicalPageV2 .clinicalTable .clinicalSub{
+  font-size:10.9pt!important;
+  line-height:1.03!important;
+}
+.backSheet .historyPageV2 .clinicalTable .firstcol,
+.backSheet .historyPageV2 .clinicalTable .letter,
+.backSheet .clinicalPageV2 .clinicalTable .firstcol,
+.backSheet .clinicalPageV2 .clinicalTable .letter,
+.backSheet .clinicalPageV2 .clinicalTable .num{
+  width:5.6mm!important;
+  min-width:5.6mm!important;
+  max-width:5.6mm!important;
+  padding-left:0!important;
+  padding-right:0!important;
+  font-size:10.45pt!important;
+  line-height:1!important;
+}
+.backSheet .historyPageV2 .clinicalTable .itemcol,
+.backSheet .clinicalPageV2 .clinicalTable .itemcol{
+  width:39mm!important;
+}
+.backSheet .historyPageV2 .clinicalTable .signcol,
+.backSheet .clinicalPageV2 .clinicalTable .signcol{
+  width:38mm!important;
+  min-width:38mm!important;
+  max-width:38mm!important;
+}
+.backSheet .historyPageV2 .clinicalTable .signHead,
+.backSheet .clinicalPageV2 .clinicalTable .signHead{
+  font-size:10.1pt!important;
+  line-height:1.02!important;
+}
+.backSheet .clinicalValueLine{
+  min-height:4.35mm!important;
+  height:4.35mm!important;
+  line-height:4.15mm!important;
+  font-size:10.65pt!important;
+  padding:0 .65mm!important;
+  white-space:nowrap!important;
+  overflow:hidden!important;
+}
+.backSheet .clinicalInlineLine{
+  height:4.35mm!important;
+  line-height:4.15mm!important;
+  font-size:10.65pt!important;
+  padding:0 .65mm!important;
+  white-space:nowrap!important;
+  overflow:hidden!important;
+}
+.backSheet .clinicalInlineLine.small{min-width:16mm!important}
+.backSheet .clinicalInlineLine.med{min-width:31mm!important}
+
+/* Trang 1 - bảng nội khoa chiếm gọn phần cuối, không tràn khung */
+.backSheet .historyPageV2 .historyBottomStretch .clinicalTableP1{
+  height:100%!important;
+}
+.backSheet .historyPageV2 .historyBottomStretch .clinicalTableP1 th{
+  height:7.35mm!important;
+}
+.backSheet .historyPageV2 .historyBottomStretch .clinicalTableP1 td{
+  height:auto!important;
+  padding-top:.52mm!important;
+  padding-bottom:.52mm!important;
+}
+.backSheet .historyPageV2 .historyBottomStretch .clinicalTableP1 .clinicalValueLine{
+  min-height:4.25mm!important;
+  height:4.25mm!important;
+  line-height:4.05mm!important;
+}
+
+/* Trang 2 - tăng chữ và cân lại chiều cao từng khối */
+.backSheet .clinicalPageV2 .clinicalTableP2{
+  margin:0!important;
+}
+.backSheet .clinicalPageV2 .clinicalTableP2 td{
+  height:7.25mm!important;
+}
+.backSheet .clinicalPageV2 .clinicalTableP2 .topRows td{
+  height:7.55mm!important;
+}
+.backSheet .clinicalPageV2 .clinicalTableP2 .bigBlock td{
+  height:33.5mm!important;
+  line-height:1.08!important;
+}
+.backSheet .clinicalPageV2 .clinicalTableP2 .sanBlock td{
+  height:30mm!important;
+  line-height:1.08!important;
+}
+.backSheet .clinicalPageV2 .clinicalTableP2 .sectionHead td{
+  height:7.15mm!important;
+  vertical-align:middle!important;
+}
+.backSheet .clinicalPageV2 .clinicalTableP2 .visionRow td{
+  height:20mm!important;
+  line-height:1.08!important;
+}
+.backSheet .clinicalPageV2 .clinicalTableP2 .hearingRow td{
+  height:24.5mm!important;
+  line-height:1.08!important;
+}
+.backSheet .clinicalPageV2 .clinicalTableP2 .rhmRow td{
+  height:20mm!important;
+  line-height:1.08!important;
+}
+.backSheet .clinicalIndent{
+  padding-left:13mm!important;
+}
+.backSheet .clinicalIndent2{
+  padding-left:38mm!important;
+}
+
+@media print{
+  .backSheet .historyPageV2,
+  .backSheet .clinicalPageV2{
+    font-size:11.05pt!important;
+    line-height:1.08!important;
+  }
+  .backSheet .historyPageV2 td,
+  .backSheet .historyPageV2 th,
+  .backSheet .clinicalPageV2 td,
+  .backSheet .clinicalPageV2 th{
+    border:1px solid #111!important;
+    overflow:hidden!important;
+  }
+}
+
+
+
+/* ===== MẶT 2 - TRANG 1: DÃN CÁCH TỪ KHÁM THỂ LỰC TRỞ XUỐNG ===== */
+/* Khối này được kéo cao hơn sát dưới phần "Người đề nghị khám sức khỏe",
+   đồng thời các dòng được giãn đều để in A3 đẹp, không tràn khung. */
+.backSheet .historyPageV2 .historyBottomStretch{
+  height:124.5mm!important;
+  bottom:0!important;
+  padding-top:0!important;
+}
+.backSheet .historyPageV2 .historyBottomStretch .historyPhysical{
+  margin:0 0 2.4mm 0!important;
+  padding:0!important;
+}
+.backSheet .historyPageV2 .historyBottomStretch .historyPhysical .sectionTitle{
+  font-size:11.65pt!important;
+  line-height:1.12!important;
+  margin:0 0 1.65mm 0!important;
+}
+.backSheet .historyPageV2 .historyBottomStretch .measureRow{
+  font-size:10.95pt!important;
+  line-height:1.18!important;
+  margin:1.55mm 0!important;
+  min-height:5.8mm!important;
+  align-items:flex-end!important;
+}
+.backSheet .historyPageV2 .historyBottomStretch .measureRow .line{
+  height:5.25mm!important;
+  min-height:5.25mm!important;
+  line-height:5.05mm!important;
+}
+.backSheet .historyPageV2 .historyBottomStretch .historyClinical{
+  margin:2.55mm 0 0 0!important;
+  flex:1 1 auto!important;
+  min-height:0!important;
+}
+.backSheet .historyPageV2 .historyBottomStretch .historyClinical .sectionTitle{
+  font-size:11.65pt!important;
+  line-height:1.12!important;
+  margin:0 0 1.65mm 0!important;
+}
+.backSheet .historyPageV2 .historyBottomStretch .clinicalTableP1{
+  height:100%!important;
+  table-layout:fixed!important;
+}
+.backSheet .historyPageV2 .historyBottomStretch .clinicalTableP1 th{
+  height:8.35mm!important;
+  font-size:10.55pt!important;
+  line-height:1.08!important;
+  padding:.82mm .75mm!important;
+}
+.backSheet .historyPageV2 .historyBottomStretch .clinicalTableP1 td{
+  height:auto!important;
+  padding-top:1.05mm!important;
+  padding-bottom:1.05mm!important;
+  line-height:1.14!important;
+  vertical-align:middle!important;
+}
+.backSheet .historyPageV2 .historyBottomStretch .clinicalTableP1 .clinicalTitle,
+.backSheet .historyPageV2 .historyBottomStretch .clinicalTableP1 .clinicalSub,
+.backSheet .historyPageV2 .historyBottomStretch .clinicalTableP1 .phanLoaiText{
+  line-height:1.14!important;
+}
+.backSheet .historyPageV2 .historyBottomStretch .clinicalTableP1 .clinicalValueLine{
+  min-height:5.25mm!important;
+  height:5.25mm!important;
+  line-height:5.05mm!important;
+}
+@media print{
+  .backSheet .historyPageV2 .historyBottomStretch{
+    height:124.5mm!important;
+    bottom:0!important;
+  }
+  .backSheet .historyPageV2 .historyBottomStretch .clinicalTableP1 td{
+    overflow:hidden!important;
+  }
+}
+
+
+
+/* ===== MẶT 2 - TRANG 2: DÃN DÒNG, KÉO KHUNG XUỐNG SÁT/Ngang Hàng Mặt 1 Trang 2 ===== */
+/* Chỉ chỉnh bố cục in của trang 2 mặt sau, giữ nguyên toàn bộ JS/chức năng app. */
+.backSheet .clinicalPageV2{
+  height:100%!important;
+  display:flex!important;
+  flex-direction:column!important;
+  overflow:hidden!important;
+}
+.backSheet .clinicalPageV2 .clinicalTableP2{
+  flex:1 1 auto!important;
+  height:100%!important;
+  min-height:276mm!important;
+  max-height:100%!important;
+  table-layout:fixed!important;
+  margin:0!important;
+}
+.backSheet .clinicalPageV2 .clinicalTableP2 td{
+  font-size:10.85pt!important;
+  line-height:1.16!important;
+  padding:.82mm .92mm!important;
+  height:8mm!important;
+  vertical-align:middle!important;
+  overflow:hidden!important;
+}
+.backSheet .clinicalPageV2 .clinicalTableP2 .topRows td{
+  height:8.05mm!important;
+  line-height:1.16!important;
+}
+.backSheet .clinicalPageV2 .clinicalTableP2 .bigBlock td{
+  height:37mm!important;
+  line-height:1.18!important;
+  vertical-align:top!important;
+  padding-top:1.7mm!important;
+  padding-bottom:1.7mm!important;
+}
+.backSheet .clinicalPageV2 .clinicalTableP2 .sanBlock td{
+  height:32.5mm!important;
+  line-height:1.18!important;
+  vertical-align:top!important;
+  padding-top:1.7mm!important;
+  padding-bottom:1.7mm!important;
+}
+.backSheet .clinicalPageV2 .clinicalTableP2 .sectionHead td{
+  height:8mm!important;
+  line-height:1.16!important;
+  vertical-align:middle!important;
+  padding-top:.9mm!important;
+  padding-bottom:.9mm!important;
+}
+.backSheet .clinicalPageV2 .clinicalTableP2 .visionRow td{
+  height:22mm!important;
+  line-height:1.18!important;
+  vertical-align:middle!important;
+  padding-top:1.35mm!important;
+  padding-bottom:1.35mm!important;
+}
+.backSheet .clinicalPageV2 .clinicalTableP2 .hearingRow td{
+  height:26.5mm!important;
+  line-height:1.18!important;
+  vertical-align:middle!important;
+  padding-top:1.35mm!important;
+  padding-bottom:1.35mm!important;
+}
+.backSheet .clinicalPageV2 .clinicalTableP2 .rhmRow td{
+  height:22mm!important;
+  line-height:1.18!important;
+  vertical-align:middle!important;
+  padding-top:1.35mm!important;
+  padding-bottom:1.35mm!important;
+}
+.backSheet .clinicalPageV2 .clinicalTableP2 b,
+.backSheet .clinicalPageV2 .clinicalTableP2 i,
+.backSheet .clinicalPageV2 .clinicalTableP2 span{
+  line-height:1.18!important;
+}
+.backSheet .clinicalPageV2 .clinicalTableP2 .clinicalSub{
+  font-size:10.95pt!important;
+  line-height:1.16!important;
+}
+.backSheet .clinicalPageV2 .clinicalTableP2 .letter,
+.backSheet .clinicalPageV2 .clinicalTableP2 .num{
+  font-size:10.45pt!important;
+  line-height:1.06!important;
+  vertical-align:middle!important;
+}
+.backSheet .clinicalPageV2 .clinicalTableP2 .signcol{
+  vertical-align:middle!important;
+}
+.backSheet .clinicalPageV2 .clinicalTableP2 .clinicalValueLine{
+  min-height:5.1mm!important;
+  height:5.1mm!important;
+  line-height:4.95mm!important;
+  font-size:10.65pt!important;
+}
+.backSheet .clinicalPageV2 .clinicalInlineLine{
+  height:5mm!important;
+  min-height:5mm!important;
+  line-height:4.85mm!important;
+  font-size:10.65pt!important;
+}
+.backSheet .clinicalPageV2 .clinicalInlineLine.small{min-width:17mm!important}
+.backSheet .clinicalPageV2 .clinicalInlineLine.med{min-width:32mm!important}
+.backSheet .clinicalPageV2 .clinicalIndent{
+  padding-left:13mm!important;
+}
+.backSheet .clinicalPageV2 .clinicalIndent2{
+  padding-left:38mm!important;
+}
+@media print{
+  .backSheet .clinicalPageV2{
+    height:100%!important;
+    display:flex!important;
+    overflow:hidden!important;
+  }
+  .backSheet .clinicalPageV2 .clinicalTableP2{
+    height:100%!important;
+    min-height:276mm!important;
+    max-height:100%!important;
+  }
+  .backSheet .clinicalPageV2 .clinicalTableP2 td{
+    overflow:hidden!important;
+  }
+}
+
+
+
+/* ===== KHUNG ẢNH 4x6 CHUẨN: NGANG 4CM x CAO 6CM ===== */
+.photoBox,
+.coverPage .photoBox{
+  width:40mm!important;
+  height:60mm!important;
+  min-width:40mm!important;
+  max-width:40mm!important;
+  min-height:60mm!important;
+  max-height:60mm!important;
+  flex:0 0 40mm!important;
+}
+.photoBox img,
+.coverPage .photoBox img{
+  width:100%!important;
+  height:100%!important;
+  object-fit:cover!important;
+}
+.coverPage .coverGrid{
+  grid-template-columns:40mm 1fr!important;
+  gap:5mm!important;
+}
+@media print{
+  .photoBox,
+  .coverPage .photoBox{
+    width:40mm!important;
+    height:60mm!important;
+    min-width:40mm!important;
+    max-width:40mm!important;
+    min-height:60mm!important;
+    max-height:60mm!important;
+    flex:0 0 40mm!important;
+  }
+  .coverPage .coverGrid{grid-template-columns:40mm 1fr!important;}
+}
+
+
+/* ===== BỎ DẤU CHẤM CHẤM KHI Ô ĐÃ CÓ DỮ LIỆU ===== */
+.line.hasData,
+.dottedLine.hasData,
+.clinicalValueLine.hasData,
+.clinicalInlineLine.hasData,
+.labLine.hasData,
+.labDotted.hasData{
+  border-bottom:1px solid transparent!important;
+}
+@media print{
+  .line.hasData,
+  .dottedLine.hasData,
+  .clinicalValueLine.hasData,
+  .clinicalInlineLine.hasData,
+  .labLine.hasData,
+  .labDotted.hasData{
+    border-bottom:1px solid transparent!important;
+  }
+}
+
+
+/* ===== SỐ GIẤY KSK: NHẬP SỐ/CODE, TỰ GIỮ ĐUÔI /26/ hoặc /27/ ===== */
+.coverPage .soGiayEditable{
+  display:inline-block!important;
+  min-width:42mm!important;
+  padding:0 .8mm!important;
+  outline:0!important;
+  border-bottom:1px solid transparent!important;
+  white-space:nowrap!important;
+  text-align:left!important;
+}
+.coverPage .soGiayEditable:focus{
+  background:#fff7ed!important;
+  box-shadow:0 0 0 1px #f59e0b inset!important;
+}
+@media print{
+  .coverPage .soGiayEditable{
+    background:transparent!important;
+    box-shadow:none!important;
+    outline:0!important;
+  }
+}
+
+</style>
+</head>
+<body>
+<div id="loader" class="overlay"><div class="loaderBox"><div class="spinner"></div><h3 id="loaderTitle">Đang xử lý...</h3><p id="loaderText" class="small">Vui lòng chờ trong giây lát.</p></div></div>
+<header class="noPrint"><h1>APP CHẠY MAILING GIẤY KHÁM SỨC KHỎE TT32 A3</h1><p>Nhập Excel → tự nhận diện cột → chỉnh sửa → in A3 2 mặt hoặc xuất PDF theo mẫu Word Mẫu số 1 - Phụ lục XXIV.</p></header>
+<div class="toolbar noPrint">
+  <label class="fileLabel">Nhập Excel<input id="excelFile" type="file" accept=".xlsx,.xls,.csv" /></label>
+  <label class="fileLabel secondary">Nhập ảnh 4x6<input id="photoFile" type="file" accept="image/*" /></label>
+  <button onclick="addBlank()">Thêm hồ sơ</button>
+  <button onclick="deleteCurrent()" class="danger">Xóa hồ sơ</button>
+  <button onclick="resetAllData()" class="danger" style="background:#991b1b">Reset toàn bộ</button>
+  <button onclick="exportData()" class="secondary">Xuất Excel</button>
+  <button onclick="exportBackup()" class="secondary">Sao lưu JSON</button>
+  <label class="fileLabel secondary">Phục hồi JSON<input id="backupFile" type="file" accept=".json" /></label>
+  <span style="display:inline-flex;align-items:center;gap:4px"><label for="fromRec">Từ:</label><input type="number" id="fromRec" value="1" min="1" style="width:65px" /></span>
+  <span style="display:inline-flex;align-items:center;gap:4px"><label for="toRec">Đến:</label><input type="number" id="toRec" value="1" min="1" style="width:65px" /></span>
+  <span style="display:inline-flex;align-items:center;gap:4px"><label for="sidePrint">Mặt in:</label><select id="sidePrint"><option value="both">Cả 2 mặt</option><option value="front">Mặt trước</option><option value="back">Mặt sau</option></select></span>
+  <button onclick="printRange()" class="print">In A3</button>
+  <button onclick="exportPdf()" class="sky">Xuất PDF</button>
+  <button onclick="showAll()" class="secondary">Hiện tất cả</button>
+</div>
+<div class="wrap">
+  <aside class="panel noPrint">
+    <h2>Danh sách hồ sơ</h2>
+    <div class="hint">Có thể nhập Excel nhiều dòng. App tự dò các cột tương tự: họ tên, giới tính, sinh năm, tuổi, CCCD, địa chỉ, lý do khám, chiều cao, cân nặng, mạch, huyết áp, kết luận...</div>
+    <button type="button" id="headerToggleBtn" class="dataToggle" onclick="togglePanel('headerPanel','headerArrow')"><span>Đổi thông tin đầu mẫu</span><span id="headerArrow">▼</span></button>
+    <div id="headerPanel" class="dataPanel open"><div id="headerEditBox" class="grid1"></div><button onclick="resetHeaderSettings()" class="secondary" style="margin-top:8px;width:100%">Khôi phục mặc định</button></div>
+    <div class="list"><table class="ui"><thead><tr><th>#</th><th>Họ tên</th><th>Năm sinh</th><th>CCCD</th></tr></thead><tbody id="patientRows"></tbody></table></div>
+    <button type="button" id="dataToggleBtn" class="dataToggle" onclick="togglePanel('dataPanel','dataArrow')"><span>Nhập / sửa dữ liệu thủ công</span><span id="dataArrow">▼</span></button>
+    <div id="dataPanel" class="dataPanel open"><div id="editBox" class="editBox grid1"></div></div>
+  </aside>
+  <main class="panel printable"><div id="preview" class="previewArea"></div></main>
+</div>
+<script>
+const DEFAULT_HEADER={
+  phuLuc:'Phụ lục số XXIV',
+  thongTu:'(Ban hành kèm theo Thông tư số 32/2023/TT-BYT ngày 31 tháng 12 năm 2023 của Bộ trưởng Bộ Y Tế)',
+  mauSo:'Mẫu số 1.',
+  mauTitle:'MẪU GIẤY KHÁM SỨC KHỎE DÙNG CHO NGƯỜI TỪ ĐỦ 18 TUỔI TRỞ LÊN',
+  congTy:'CÔNG TY TNHH PKĐK NHƠN TÂM',
+  phongKham:'PHÒNG KHÁM ĐA KHOA NHƠN TÂM',
+  quocHieu:'CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM',
+  docLap:'Độc lập - Tự do - Hạnh phúc',
+  soMacDinh:'/26/GKSK-PKNT.',
+  diaDanh:'',
+  noiCapMacDinh:'',
+  nguoiKetLuan:''
+};
+const HEADER_FIELDS=[
+ ['phuLuc','Phụ lục'],['thongTu','Dòng thông tư'],['mauSo','Mẫu số'],['mauTitle','Tên mẫu'],['congTy','Tên công ty'],['phongKham','Tên phòng khám'],['quocHieu','Quốc hiệu'],['docLap','Tiêu ngữ'],['soMacDinh','Số mặc định (sửa /26 hoặc /27 một lần áp dụng tất cả mailing)'],['diaDanh','Địa danh ký (để trống sẽ hiện dấu chấm; sửa 1 lần áp dụng tất cả mailing)'],['noiCapMacDinh','Nơi cấp CCCD mặc định (có thể để trống)'],['nguoiKetLuan','Người kết luận (Hiền / Ba / nhập tên khác / để trống)']
+];
+const FIELD_GROUPS=[
+ {title:'HÀNH CHÍNH', fields:[
+  ['soGiay','Số / code giấy KSK (chỉ nhập số trước /26 hoặc /27; đuôi năm sửa 1 lần áp dụng tất cả)'],['hoTen','Họ và tên'],['gioiTinh','Giới tính'],['namSinh','Sinh năm / ngày sinh'],['tuoi','Tuổi'],['cccd','Số CMND/CCCD/Hộ chiếu/định danh'],['capNgay','Cấp ngày'],['noiCap','Nơi cấp'],['diaChi','Chỗ ở hiện tại'],['lyDo','Lý do khám sức khỏe']
+ ]},
+ {title:'TIỀN SỬ - CÂU HỎI KHÁC', fields:[
+  ['tienSuGiaDinh','Bệnh trong gia đình nếu có','textarea'],['thuocDangDung','Đang điều trị/thuốc đang dùng','textarea'],['tienSuThaiSan','Tiền sử thai sản','textarea'],['benhKhac','Bệnh khác ghi rõ']
+ ]},
+ {title:'TIỀN SỬ BẢN THÂN - CHỌN CÓ/KHÔNG', fields:[
+  ['h1','1. Bệnh/thương trong 5 năm qua','select'],['h2','2. Bệnh thần kinh/thương ở đầu','select'],['h3','3. Bệnh mắt/giảm thị lực','select'],['h4','4. Bệnh ở tai/giảm sức nghe/thăng bằng','select'],['h5','5. Bệnh ở tim/nhồi máu cơ tim','select'],['h6','6. Phẫu thuật can thiệp tim - mạch','select'],['h7','7. Tăng huyết áp','select'],['h8','8. Khó thở','select'],['h9','9. Bệnh phổi/hen/khí phế thũng','select'],['h10','10. Bệnh thận/lọc máu','select'],['h11','11. Nghiện rượu, bia','select'],['h12','12. Đái tháo đường/tăng đường huyết','select'],['h13','13. Bệnh tâm thần','select'],['h14','14. Mất ý thức/rối loạn ý thức','select'],['h15','15. Ngất/chóng mặt','select'],['h16','16. Bệnh tiêu hóa','select'],['h17','17. Rối loạn giấc ngủ/ngưng thở khi ngủ','select'],['h18','18. Tai biến mạch máu não/liệt','select'],['h19','19. Bệnh/tổn thương cột sống','select'],['h20','20. Sử dụng rượu thường xuyên','select'],['h21','21. Sử dụng ma túy/chất gây nghiện','select'],['h22','22. Bệnh khác','select']
+ ]},
+ {title:'I. KHÁM THỂ LỰC', fields:[
+  ['chieuCao','Chiều cao (cm)'],['canNang','Cân nặng (kg)'],['bmi','Chỉ số BMI'],['mach','Mạch (lần/phút)'],['huyetAp','Huyết áp'],['phanLoaiTheLuc','Phân loại thể lực']
+ ]},
+ {title:'II. KHÁM LÂM SÀNG', fields:[
+  ['tuanHoan','Tuần hoàn','textarea'],['plTuanHoan','Phân loại Tuần hoàn'],['hoHap','Hô hấp','textarea'],['plHoHap','Phân loại Hô hấp'],['tieuHoa','Tiêu hóa','textarea'],['plTieuHoa','Phân loại Tiêu hóa'],['thanTietNieu','Thận - Tiết niệu','textarea'],['plThanTietNieu','Phân loại Thận - Tiết niệu'],['noiTiet','Nội tiết','textarea'],['plNoiTiet','Phân loại Nội tiết'],['coXuongKhop','Cơ - xương - khớp','textarea'],['plCoXuongKhop','Phân loại Cơ xương khớp'],['thanKinh','Thần kinh','textarea'],['plThanKinh','Phân loại Thần kinh'],['tamThan','Tâm thần','textarea'],['plTamThan','Phân loại Tâm thần'],['ngoaiKhoa','Ngoại khoa','textarea'],['plNgoaiKhoa','Phân loại Ngoại khoa'],['daLieu','Da liễu','textarea'],['plDaLieu','Phân loại Da liễu'],['sanPhuKhoa','Sản phụ khoa','textarea'],['plSanPhuKhoa','Phân loại Sản phụ khoa'],['matKhongKinhPhai','Mắt không kính phải'],['matKhongKinhTrai','Mắt không kính trái'],['matCoKinhPhai','Mắt có kính phải'],['matCoKinhTrai','Mắt có kính trái'],['benhMat','Bệnh về mắt','textarea'],['plMat','Phân loại Mắt'],['taiTraiNoiThuong','Tai trái nói thường'],['taiTraiNoiTham','Tai trái nói thầm'],['taiPhaiNoiThuong','Tai phải nói thường'],['taiPhaiNoiTham','Tai phải nói thầm'],['benhTMH','Bệnh tai mũi họng','textarea'],['plTMH','Phân loại TMH'],['rhmHamTren','RHM hàm trên'],['rhmHamDuoi','RHM hàm dưới'],['benhRHM','Bệnh RHM','textarea'],['plRHM','Phân loại RHM']
+ ]},
+ {title:'III. CẬN LÂM SÀNG - IV. KẾT LUẬN', fields:[
+  ['soLuongHC','Số lượng HC'],['soLuongBC','Số lượng Bạch cầu'],['soLuongTC','Số lượng tiểu cầu'],['duongMau','Đường máu'],['ure','Urê'],['creatinin','Creatinin'],['asat','ASAT(GOT)'],['alat','ALAT(GPT)'],['duongNuocTieu','Đường nước tiểu'],['proteinNuocTieu','Protein nước tiểu'],['khacNuocTieu','Nước tiểu khác'],['xqTimPhoi','Chẩn đoán hình ảnh XQ tim phổi thẳng','textarea'],['phanLoaiSucKhoe','Phân loại sức khỏe'],['cacBenhTat','Các bệnh, tật nếu có','textarea'],['ngayKetLuan','Ngày kết luận'],['nguoiKetLuan','Người kết luận']
+ ]}
+];
+const ALIASES={
+ soGiay:['so','số','cod','code','ma','mã','ma so','mã số','so code','số code','so cod','số cod','so giay','số giấy','so gksk','số gksk'],hoTen:['ho ten','họ tên','ten benh nhan','tên bệnh nhân','benh nhan','họ và tên'],gioiTinh:['gioi tinh','giới tính','phai','phái'],namSinh:['nam sinh','năm sinh','ngay sinh','ngày sinh','date of birth','dob','sinh năm'],tuoi:['tuoi','tuổi'],cccd:['cccd','cmnd','ho chieu','hộ chiếu','dinh danh','định danh','so dinh danh','số định danh'],capNgay:['cap ngay','cấp ngày','ngay cap','ngày cấp'],noiCap:['noi cap','nơi cấp','tai','tại'],diaChi:['dia chi','địa chỉ','cho o','chỗ ở','thuong tru','thường trú','address'],lyDo:['ly do','lý do','ly do kham','lý do khám','muc dich','mục đích'],chieuCao:['chieu cao','chiều cao','height'],canNang:['can nang','cân nặng','weight'],bmi:['bmi','chỉ số bmi','chi so bmi'],mach:['mach','mạch'],huyetAp:['huyet ap','huyết áp','blood pressure'],phanLoaiTheLuc:['phan loai the luc','phân loại thể lực'],phanLoaiSucKhoe:['phan loai suc khoe','phân loại sức khỏe','ket luan','kết luận'],cacBenhTat:['benh tat','bệnh tật','cac benh tat','các bệnh tật'],ngayKetLuan:['ngay ket luan','ngày kết luận','ngay kham','ngày khám'],nguoiKetLuan:['nguoi ket luan','người kết luận','bac si','bác sĩ','bs']
+};
+let headerSettings={...DEFAULT_HEADER};
+let patients=[];let current=0;
+const DB_NAME='kskTT32A3DB_v1'; const DB_STORE='appData';
+function h(v){return String(v??'').replace(/[&<>'"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[m]));}
+function norm(s){return String(s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/đ/g,'d').replace(/[^a-z0-9]/g,' ').replace(/\s+/g,' ').trim();}
+function pad2(n){return String(n).padStart(2,'0')}
+function parseDateLike(v){
+ if(v===undefined||v===null||v==='')return null;
+ if(typeof v==='number'){
+  let d=XLSX.SSF.parse_date_code(v); if(d)return {d:d.d,m:d.m,y:d.y};
+ }
+ let s=String(v).trim(); let m=s.match(/(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{2,4})/); if(m){let y=+m[3]; if(y<100)y+=2000; return {d:+m[1],m:+m[2],y};}
+ m=s.match(/(19|20)\d{2}/); if(m)return {y:+m[0]}; return null;
+}
+function dateText(v){let d=parseDateLike(v); if(!d)return String(v||'').trim(); return d.d?`${pad2(d.d)}/${pad2(d.m)}/${d.y}`:String(d.y)}
+function yearText(v){let d=parseDateLike(v); if(d)return String(d.y); return String(v||'').trim()}
+function calcAge(v){let d=parseDateLike(v); if(!d||!d.y)return ''; let now=new Date(); let age=now.getFullYear()-d.y; return age>0&&age<130?String(age):''}
+function cleanGender(v){let s=String(v||'').trim();let n=norm(s);if(n==='m'||n==='male'||n.includes('nam'))return 'Nam';if(n==='f'||n==='female'||n.includes('nu'))return 'Nữ';return s;}
+function valueOf(p,k,def=''){return p&&p[k]!==undefined&&p[k]!==null&&String(p[k]).trim()!==''?String(p[k]):def;}
+function hasData(v){return v!==undefined&&v!==null&&String(v).trim()!=='';}
+const DEFAULT_NGUOI_KET_LUAN_OPTIONS=['BS.CKI.NGUYỄN THỊ HIỀN','BS.CKI.LÊ THỊ THU BA'];
+function normalizeDoctorName(v){
+  let s=String(v??'').trim();
+  if(!s)return '';
+  // Chuẩn hóa BS.CKI. để không bị dư khoảng trắng sau dấu chấm.
+  s=s.replace(/BS\.\s*CKI\.\s*/ig,'BS.CKI.');
+  s=s.replace(/\s+/g,' ').trim();
+  return s;
+}
+function getNguoiKetLuanChung(){return normalizeDoctorName(headerSettings.nguoiKetLuan);}
+function applyNguoiKetLuanToAll(val){
+  const name=normalizeDoctorName(val);
+  headerSettings.nguoiKetLuan=name;
+  patients.forEach(p=>{if(p)p.nguoiKetLuan=name;});
+}
+function signatureName(p){
+  const name=normalizeDoctorName((p&&p.nguoiKetLuan)||getNguoiKetLuanChung());
+  return `<span class="signatureNameLine ${hasData(name)?'hasData':''}">${h(name||'')}</span>`;
+}
+function line(v,cls='fill'){return `<span class="line ${cls} ${hasData(v)?'hasData':''}">${h(v||'')}</span>`}
+function dotted(v){return `<span class="dottedLine ${hasData(v)?'hasData':''}">${h(v||'')}</span>`}
+function shortYearCode(y){
+  let m=String(y||'').match(/(19|20)\d{2}|\d{2}/);
+  return m?m[0].slice(-2):'';
+}
+function normalizeYearCodeInSoGiayText(text){
+  let s=String(text??'').trim();
+  // Năm dạng 2026/2027 luôn rút gọn thành 26/27 trong mã giấy.
+  s=s.replace(/\/((?:19|20)\d{2})\//g,(m,y)=>`/${String(y).slice(-2)}/`);
+  s=s.replace(/^((?:19|20)\d{2})\//,(m,y)=>`${String(y).slice(-2)}/`);
+  return s;
+}
+function buildSoGiaySuffixFromYear(y){
+  let yy=shortYearCode(y);
+  return yy?`/${yy}/GKSK-PKNT.`:'';
+}
+function normalizeSoGiaySuffixText(v){
+  let s=normalizeYearCodeInSoGiayText(String(v??'').trim());
+  s=s.replace(/^số\s*[:：]?\s*/i,'').trim();
+  if(!s)return '';
+  // Cho phép nhập nhanh 26, /26, 26/ hoặc /26/ rồi tự thành /26/GKSK-PKNT.
+  let onlyYear=s.match(/^\/?(\d{2})\/?$/);
+  if(onlyYear)return buildSoGiaySuffixFromYear(onlyYear[1]);
+  // Nếu thiếu dấu / đầu thì tự thêm để luôn có dạng /26/GKSK-PKNT.
+  if(/^\d{2}\//.test(s))s='/'+s;
+  // Nếu người dùng nhập 2026 ở đầu/giữa chuỗi thì vẫn rút còn 26.
+  s=normalizeYearCodeInSoGiayText(s);
+  return s;
+}
+function getCurrentSoGiaySuffix(){
+  return normalizeSoGiaySuffixText(headerSettings.soMacDinh||DEFAULT_HEADER.soMacDinh||'/26/GKSK-PKNT.') || '/26/GKSK-PKNT.';
+}
+function soGiaySuffix(p={}){
+  // Đuôi /26, /27... là thiết lập chung. Sửa 1 lần sẽ áp dụng cho tất cả hồ sơ/mailing.
+  return getCurrentSoGiaySuffix();
+}
+function normalizeSoGiayRaw(v){
+  let raw=String(v??'').trim();
+  if(!raw)return '';
+  raw=raw.replace(/^số\s*[:：]?\s*/i,'').trim();
+  raw=normalizeYearCodeInSoGiayText(raw);
+  return raw;
+}
+function extractSoGiayParts(v){
+  let raw=normalizeSoGiayRaw(v);
+  if(!raw)return {prefix:'',suffix:''};
+  // 123/26/GKSK-PKNT. hoặc 123/2026/GKSK-PKNT. -> prefix=123, suffix=/26/GKSK-PKNT.
+  let m=raw.match(/^(.*?)(\/(?:\d{2}|(?:19|20)\d{2})\/.*)$/);
+  if(m)return {prefix:String(m[1]||'').trim(),suffix:normalizeSoGiaySuffixText(m[2])};
+  // /26/GKSK-PKNT. hoặc 26/GKSK-PKNT. -> chỉ là đuôi chung.
+  m=raw.match(/^(?:\/)?((?:\d{2}|(?:19|20)\d{2})\/.*)$/);
+  if(m)return {prefix:'',suffix:normalizeSoGiaySuffixText('/'+m[1])};
+  // Tránh hiểu nhầm mã hồ sơ 2 chữ số (ví dụ 26) thành đuôi năm.
+  // Đổi nhanh năm bằng cách sửa ô "Số mặc định" thành 26/27 hoặc sửa phần /26/, /27/ trên bản xem trước.
+  return {prefix:raw,suffix:''};
+}
+function stripSuffixFromSoGiayValue(v){
+  let parts=extractSoGiayParts(v);
+  return parts.prefix||'';
+}
+function stripAllSoGiaySuffixes(){
+  patients.forEach(p=>{
+    if(!p)return;
+    let parts=extractSoGiayParts(p.soGiay);
+    if(parts.suffix)p.soGiay=parts.prefix||'';
+  });
+}
+function isOnlySoGiaySuffix(raw,p={}){
+  raw=normalizeSoGiayRaw(raw);
+  if(!raw)return true;
+  let parts=extractSoGiayParts(raw);
+  if(!parts.prefix && parts.suffix)return true;
+  let suffix=soGiaySuffix(p);
+  let def=String(DEFAULT_HEADER.soMacDinh||'').trim();
+  let head=String(headerSettings.soMacDinh||'').trim();
+  return raw===suffix || raw===def || raw===head;
+}
+function formatSoGiay(p={}){
+  let raw=normalizeSoGiayRaw(p.soGiay);
+  let suffix=soGiaySuffix(p);
+  if(!raw || isOnlySoGiaySuffix(raw,p))return suffix;
+  let parts=extractSoGiayParts(raw);
+  if(parts.suffix)return (parts.prefix||'')+suffix;
+  return raw+suffix;
+}
+async function updateSoGiayFromPreview(index,value){
+  index=Number(index);
+  if(!patients[index])return;
+  let parts=extractSoGiayParts(value);
+  // Nếu sửa /26, /27... ngay trên bản xem trước thì lưu thành đuôi chung cho toàn bộ mailing.
+  if(parts.suffix){
+    headerSettings.soMacDinh=parts.suffix;
+    stripAllSoGiaySuffixes();
+  }
+  patients[index].soGiay=parts.prefix||'';
+  current=index;
+  await saveData(false);
+  renderRows();
+  renderHeaderEdit();
+  renderEdit();
+  renderPreview();
+}
+function openDB(){return new Promise((resolve,reject)=>{const req=indexedDB.open(DB_NAME,1);req.onupgradeneeded=()=>req.result.createObjectStore(DB_STORE);req.onsuccess=()=>resolve(req.result);req.onerror=()=>reject(req.error);});}
+async function idbSet(key,val){const db=await openDB();return new Promise((resolve,reject)=>{const tx=db.transaction(DB_STORE,'readwrite');tx.objectStore(DB_STORE).put(val,key);tx.oncomplete=()=>{db.close();resolve()};tx.onerror=()=>{db.close();reject(tx.error)}})}
+async function idbGet(key){const db=await openDB();return new Promise((resolve,reject)=>{const tx=db.transaction(DB_STORE,'readonly');const req=tx.objectStore(DB_STORE).get(key);req.onsuccess=()=>{db.close();resolve(req.result)};req.onerror=()=>{db.close();reject(req.error)}})}
+async function saveData(renderNow=true){try{await idbSet('main',{patients,headerSettings,current,savedAt:new Date().toISOString()});}catch(e){console.warn(e);try{localStorage.setItem('kskTT32A3_backup',JSON.stringify({patients,headerSettings,current}));}catch(_){}} if(renderNow)render();}
+function cleanRemovedNoiCapDefault(){const oldNorm='ctccs qlhc ve ttxh';if(norm(headerSettings.noiCapMacDinh)===oldNorm)headerSettings.noiCapMacDinh='';patients.forEach(p=>{if(p&&norm(p.noiCap)===oldNorm)p.noiCap='';});}
+function cleanDefaultDiaDanh(){
+  // Bỏ mặc định "Nhà Bè" cũ; nếu cần địa danh, nhập 1 lần ở Đổi thông tin đầu mẫu.
+  if(norm(headerSettings.diaDanh)==='nha be')headerSettings.diaDanh='';
+}
+function normalizeSavedSoGiay(){stripAllSoGiaySuffixes();patients.forEach(p=>{if(p&&isOnlySoGiaySuffix(p.soGiay,p))p.soGiay='';});}
+async function initApp(){try{let saved=await idbGet('main');if(!saved){try{saved=JSON.parse(localStorage.getItem('kskTT32A3_backup')||'null')}catch(_){}}if(saved){patients=Array.isArray(saved.patients)?saved.patients:[];headerSettings={...DEFAULT_HEADER,...(saved.headerSettings||{})};current=Math.min(saved.current||0,Math.max(0,patients.length-1));}}catch(e){console.warn(e)} cleanRemovedNoiCapDefault(); cleanDefaultDiaDanh(); normalizeSavedSoGiay(); if(!patients.length)patients=[blankPatient()]; applyNguoiKetLuanToAll(headerSettings.nguoiKetLuan); render();}
+function blankPatient(){return {soGiay:'',noiCap:headerSettings.noiCapMacDinh||'',nguoiKetLuan:getNguoiKetLuanChung()};}
+function findCol(row,aliases){let keys=Object.keys(row); let aliasNorm=aliases.map(norm); return keys.find(k=>aliasNorm.includes(norm(k))) || keys.find(k=>aliases.some(a=>norm(k).includes(norm(a)))) || '';}
+function mapRow(row){let out=blankPatient(); Object.entries(ALIASES).forEach(([id,als])=>{let col=findCol(row,als); if(col){let v=row[col]; if(id==='gioiTinh')v=cleanGender(v); if(id==='namSinh')v=yearText(v); if(id==='capNgay'||id==='ngayKetLuan')v=dateText(v); if(id==='soGiay')v=normalizeSoGiayRaw(v); out[id]=String(v??'').trim();}}); if(!out.tuoi && out.namSinh)out.tuoi=calcAge(out.namSinh); out.nguoiKetLuan=getNguoiKetLuanChung(); if(!out.noiCap)out.noiCap=headerSettings.noiCapMacDinh||''; if(isOnlySoGiaySuffix(out.soGiay,out))out.soGiay=''; return out;}
+document.getElementById('excelFile').addEventListener('change',e=>{let f=e.target.files[0]; if(!f)return; showLoader('Đang nhập Excel','Đang đọc toàn bộ sheet đầu tiên và tự dò tên cột...'); let r=new FileReader(); r.onload=async ev=>{try{let wb=XLSX.read(ev.target.result,{type:'array',cellDates:false,dense:false});let ws=wb.Sheets[wb.SheetNames[0]];let data=XLSX.utils.sheet_to_json(ws,{defval:'',raw:true,blankrows:false});patients=data.map(mapRow).filter(p=>Object.values(p).some(v=>String(v||'').trim()!==''));if(!patients.length)patients=[blankPatient()];current=0;await saveData(false);render();alert('Đã nhập '+patients.length+' hồ sơ từ Excel.');}catch(err){alert('Lỗi nhập Excel: '+(err.message||err));}finally{hideLoader();e.target.value='';}}; r.onerror=()=>{hideLoader();alert('Không đọc được file Excel.');}; r.readAsArrayBuffer(f);});
+document.getElementById('photoFile').addEventListener('change',e=>{let f=e.target.files[0]; if(!f)return; let r=new FileReader(); r.onload=async ev=>{patients[current]=patients[current]||blankPatient();patients[current].photo=ev.target.result;await saveData();}; r.readAsDataURL(f); e.target.value='';});
+document.getElementById('backupFile').addEventListener('change',e=>{let f=e.target.files[0]; if(!f)return; let r=new FileReader(); r.onload=async ev=>{try{let data=JSON.parse(ev.target.result);patients=Array.isArray(data.patients)?data.patients:[];headerSettings={...DEFAULT_HEADER,...(data.headerSettings||{})};current=0;if(!patients.length)patients=[blankPatient()];await saveData(false);render();alert('Đã phục hồi dữ liệu JSON.');}catch(err){alert('File JSON không hợp lệ.');}finally{e.target.value='';}}; r.readAsText(f);});
+function togglePanel(id,arrow){let el=document.getElementById(id);el.classList.toggle('open');document.getElementById(arrow).textContent=el.classList.contains('open')?'▼':'▶';}
+function render(){renderRows();renderHeaderEdit();renderEdit();renderPreview();document.getElementById('fromRec').max=patients.length;document.getElementById('toRec').max=patients.length;document.getElementById('toRec').value=patients.length||1;}
+function renderRows(){let tb=document.getElementById('patientRows');tb.innerHTML=patients.map((p,i)=>`<tr class="${i===current?'rowActive':''}" onclick="selectPatient(${i})"><td>${i+1}</td><td>${h(p.hoTen||'')}</td><td>${h(p.namSinh||'')}</td><td>${h(p.cccd||'')}</td></tr>`).join('');}
+function renderHeaderEdit(){
+  let box=document.getElementById('headerEditBox');
+  const doctorOptions=`<datalist id="nguoiKetLuanOptions">${DEFAULT_NGUOI_KET_LUAN_OPTIONS.map(n=>`<option value="${h(n)}"></option>`).join('')}</datalist>`;
+  box.innerHTML=doctorOptions+HEADER_FIELDS.map(([id,label])=>{
+    const val=headerSettings[id]||'';
+    if(id==='nguoiKetLuan')return `<div class="editField"><label>${h(label)}</label><input list="nguoiKetLuanOptions" value="${h(val)}" placeholder="Để trống = hiện dấu chấm; hoặc chọn BS.CKI.NGUYỄN THỊ HIỀN / BS.CKI.LÊ THỊ THU BA / nhập tên khác" oninput="updateHeaderField('${id}',this.value)"><div class="small">Xóa trắng ô này sẽ in dấu chấm ở chữ ký. Nhập/chọn 1 lần sẽ áp dụng cho tất cả hồ sơ mailing.</div></div>`;
+    if(id==='diaDanh')return `<div class="editField"><label>${h(label)}</label><input value="${h(val)}" placeholder="Để trống sẽ in .............. hoặc nhập địa danh tùy ý" oninput="updateHeaderField('${id}',this.value)"><div class="small">Để trống sẽ bỏ chữ địa danh và hiện dấu chấm; nhập 1 lần sẽ áp dụng cho tất cả hồ sơ mailing.</div></div>`;
+    return `<div class="editField"><label>${h(label)}</label><input value="${h(val)}" oninput="updateHeaderField('${id}',this.value)"></div>`;
+  }).join('');
+}
+async function updateHeaderField(id,val){
+  if(id==='soMacDinh'){
+    headerSettings[id]=normalizeSoGiaySuffixText(val)||val;
+    stripAllSoGiaySuffixes();
+  }else if(id==='nguoiKetLuan'){
+    applyNguoiKetLuanToAll(val);
+  }else if(id==='diaDanh'){
+    headerSettings[id]=String(val||'').trim();
+  }else{
+    headerSettings[id]=val;
+  }
+  await saveData(false);
+  if(id==='nguoiKetLuan')renderEdit();
+  renderPreview();
+}
+function renderEdit(){let p=patients[current]||blankPatient();let html='';FIELD_GROUPS.forEach(g=>{html+=`<div class="sectionHeader">${h(g.title)}</div>`;g.fields.forEach(([id,label,type])=>{let val=p[id]||'';if(type==='textarea')html+=`<div class="editField"><label>${h(label)}</label><textarea oninput="updateField('${id}',this.value)">${h(val)}</textarea></div>`;else if(type==='select')html+=`<div class="editField"><label>${h(label)}</label><select onchange="updateField('${id}',this.value)"><option value="" ${!val?'selected':''}>Để trống</option><option value="Không" ${val==='Không'?'selected':''}>Không</option><option value="Có" ${val==='Có'?'selected':''}>Có</option></select></div>`;else if(id==='nguoiKetLuan')html+=`<div class="editField"><label>${h(label)}</label><input list="nguoiKetLuanOptions" value="${h(val)}" placeholder="Để trống = dấu chấm; hoặc chọn BS Hiền / BS Ba / nhập tên khác" oninput="updateField('${id}',this.value)"><div class="small">Sửa tại đây cũng áp dụng cho tất cả hồ sơ mailing.</div></div>`;else html+=`<div class="editField"><label>${h(label)}</label><input value="${h(val)}" oninput="updateField('${id}',this.value)"></div>`;});});box=document.getElementById('editBox');box.innerHTML=html;}
+async function updateField(id,val){
+  patients[current]=patients[current]||blankPatient();
+  if(id==='nguoiKetLuan'){
+    applyNguoiKetLuanToAll(val);
+    renderHeaderEdit();
+  }else{
+    patients[current][id]=val;
+    if(id==='namSinh'&&!patients[current].tuoi)patients[current].tuoi=calcAge(val);
+  }
+  await saveData(false);
+  renderRows();
+  renderPreview();
+}
+function selectPatient(i){current=i;saveData(false);render();}
+function addBlank(){patients.push(blankPatient());current=patients.length-1;saveData();}
+function deleteCurrent(){if(!patients.length)return;if(!confirm('Xóa hồ sơ đang chọn?'))return;patients.splice(current,1);if(!patients.length)patients=[blankPatient()];current=Math.max(0,Math.min(current,patients.length-1));saveData();}
+function resetAllData(){if(!confirm('Reset sẽ xóa toàn bộ hồ sơ và ảnh đã nhập. Tiếp tục?'))return;patients=[blankPatient()];current=0;saveData();}
+function resetHeaderSettings(){if(!confirm('Khôi phục thông tin đầu mẫu về mặc định?'))return;headerSettings={...DEFAULT_HEADER};patients.forEach(p=>{p.nguoiKetLuan=headerSettings.nguoiKetLuan;if(!p.noiCap)p.noiCap=headerSettings.noiCapMacDinh||'';if(isOnlySoGiaySuffix(p.soGiay,p))p.soGiay='' });saveData();}
+function historyMark(p,id,choice){return (p[id]||'')===choice?'✓':'';}
+const HLEFT=[['h1','Có bệnh hay bị thương trong 5 năm qua'],['h2','Có bệnh thần kinh hay bị thương ở đầu'],['h3','Bệnh mắt hoặc giảm thị lực (trừ trường hợp đeo kính thuốc)'],['h4','Bệnh ở tai, giảm sức nghe hoặc thăng bằng'],['h5','Bệnh ở tim, hoặc nhồi máu cơ tim, các bệnh tim mạch khác'],['h6','Phẫu thuật can thiệp tim - mạch (thay van, bắc cầu nối, tạo hình mạch, máy tạo nhịp, đặt slent mạch, ghép tim)'],['h7','Tăng huyết áp'],['h8','Khó thở'],['h9','Bệnh phổi, hen, khí phế thũng, viêm phế quản mạn tính'],['h10','Bệnh thận, lọc máu'],['h11','Nghiện rượu, bia']];
+const HRIGHT=[['h12','Đái tháo đường hoặc kiểm soát tăng đường huyết'],['h13','Bệnh tâm thần'],['h14','Mất ý thức, rối loạn ý thức'],['h15','Ngất, chóng mặt'],['h16','Bệnh tiêu hóa'],['h17','Rối loạn giấc ngủ, ngừng thở khi ngủ, ngủ rũ ban ngày, ngáy to'],['h18','Tai biến mạch máu não hoặc liệt'],['h19','Bệnh hoặc tổn thương cột sống'],['h20','Sử dụng rượu thường xuyên, liên tục'],['h21','Sử dụng ma túy và chất gây nghiện'],['h22','Bệnh khác (ghi rõ)']];
+function historyRows(p,start,end){let rows=''; for(let n=start;n<=end;n++){let L=HLEFT[n-1];let R=HRIGHT[n-1]; let rName=R?h(R[1])+(R[0]==='h22'&&p.benhKhac?'<br>'+h(p.benhKhac):''):''; rows+=`<tr><td class="stt">${n}</td><td>${L?h(L[1]):''}</td><td class="ck">${L?historyMark(p,L[0],'Có'):''}</td><td class="ck">${L?historyMark(p,L[0],'Không'):''}</td><td class="stt">${n+11}</td><td>${rName}</td><td class="ck">${R?historyMark(p,R[0],'Có'):''}</td><td class="ck">${R?historyMark(p,R[0],'Không'):''}</td></tr>`;} return rows;}
+function coverPage(p,i){let photo=p.photo?`<img src="${p.photo}">`:'Ảnh<br>(4 x 6 cm) (đóng dấu ráp<br>lai hoặc Scan ảnh)';return `<div class="docPage coverPage">
+  <div class="center titleTop">${h(headerSettings.phuLuc)}</div>
+  <div class="center italic tiny">${h(headerSettings.thongTu)}</div>
+  <div class="center bold" style="margin-top:1.8mm">${h(headerSettings.mauSo)}</div>
+  <div class="center bold" style="font-size:14pt;margin:2mm 0 4.8mm">${h(headerSettings.mauTitle)}</div>
+  <div class="coverHeader">
+    <div>
+      <div>${h(headerSettings.congTy)}</div>
+      <div class="bold">${h(headerSettings.phongKham)}</div>
+      <div>-------</div>
+      <div class="soGiayLine">Số: <b><span class="soGiayEditable" contenteditable="true" spellcheck="false" onblur="updateSoGiayFromPreview(${i},this.innerText)" title="Nhập số/code. Sửa /26 hoặc /27 tại đây sẽ áp dụng cho tất cả mailing.">${h(formatSoGiay(p))}</span></b></div>
+    </div>
+    <div>
+      <div class="bold">${h(headerSettings.quocHieu)}</div>
+      <div class="bold">${h(headerSettings.docLap)}</div>
+      <div>---------------</div>
+    </div>
+  </div>
+  <div class="mainTitle">GIẤY KHÁM SỨC KHỎE</div>
+  <div class="coverGrid">
+    <div class="photoBox">${photo}</div>
+    <div>
+      <div class="row"><span>1. Họ và tên (<i>viết chữ in hoa</i>):</span> ${line((p.hoTen||'').toUpperCase(),'fill')}</div>
+      <div class="row"><span>2. Giới tính:</span> ${line(p.gioiTinh,'fill')}</div>
+      <div class="row"><span>3. Sinh năm:</span> ${line(p.namSinh,'fill')} <span>(Tuổi:</span> ${line(p.tuoi,'fill')}<span>)</span></div>
+      <div class="row"><span>4. Số CMND/CCCD /Hộ chiếu/định danh CD:</span> ${line(p.cccd,'fill')}</div>
+      <div class="row"><span>5. Cấp ngày:</span> ${line(p.capNgay,'fill')} <span>Tại:</span> ${line(valueOf(p,'noiCap',headerSettings.noiCapMacDinh||''),'fill')}</div>
+      <div class="row"><span>6. Chỗ ở hiện tại:</span> ${line(p.diaChi,'fill')}</div>
+    </div>
+  </div>
+  <div class="note"><b>* Lưu ý:</b> Trường hợp đối tượng KSK có CCCD gắn chíp hoặc có số định danh công dân đã thực hiện kết nối với cơ sở dữ liệu quốc gia về dân cư, phần <b>HÀNH CHÍNH</b> nêu trên chỉ cần ghi các mục (1) Họ và tên, (3) Ngày tháng năm sinh, (4) số định danh công dân.</div>
+  <div class="row"><span>7. Lý do khám sức khỏe:</span>${line(p.lyDo,'fill')}</div>
+  <div class="subTitle">TIỀN SỬ BỆNH CỦA ĐỐI TƯỢNG KHÁM SỨC KHỎE</div>
+  <div class="sectionTitle">1. Tiền sử gia đình:</div>
+  <div class="historyIntro">Có ai trong gia đình ông (bà) mắc một trong các bệnh: truyền nhiễm, tim mạch, đái tháo đường, lao, hen phế quản, ung thư, động kinh, rối loạn tâm thần, bệnh khác:</div>
+  <div class="familyDetail">a) Không □ b) Có □ ; Nếu “có”, đề nghị ghi cụ thể tên bệnh: ${line(p.tienSuGiaDinh,'fill')}</div>
+  <div class="sectionTitle">2. Tiền sử bản thân: <span style="font-weight:normal">Ông (bà) đã/đang mắc bệnh, tình trạng bệnh nào sau đây không?</span></div>
+  <table class="formTable historyTable">
+    <thead><tr><th class="stt">TT</th><th>Tên bệnh, tật</th><th class="ck">Có</th><th class="ck">Không</th><th class="stt">TT</th><th>Tên bệnh, tật</th><th class="ck">Có</th><th class="ck">Không</th></tr></thead>
+    <tbody>${historyRows(p,1,6)}</tbody>
+  </table>
+</div>`;}
+function clinicalValue(v){return `<span class="clinicalValueLine ${hasData(v)?'hasData':''}">${h(v||'')}</span>`}
+function clinicalInline(v,cls=''){return `<span class="clinicalInlineLine ${cls} ${hasData(v)?'hasData':''}">${h(v||'')}</span>`}
+function historyCarryRow(p){
+  return `<tr class="carryRow">
+    <td class="stt"></td><td>(tạo nhịp, đặt stent mạch, ghép tim)</td><td class="ck"></td><td class="ck"></td>
+    <td class="stt"></td><td>ngáy, ngáy to</td><td class="ck"></td><td class="ck"></td>
+  </tr>`;
+}
+function historyPage(p){return `<div class="docPage historyPageV2">
+  <table class="formTable historyTable historyTopTable">
+    <tbody>${historyCarryRow(p)}${historyRows(p,7,11)}</tbody>
+  </table>
+
+  <div class="sectionTitle">3. Câu hỏi khác (nếu có):</div>
+  <div class="questionText">a) Ông (bà) có đang điều trị bệnh gì không? Nếu có, xin hãy liệt kê các thuốc đang dùng và liều lượng:</div>
+  <div class="historyDots">${dotted(p.thuocDangDung)}${dotted('')}</div>
+  <div class="historyQuestionRow"><span>b) Tiền sử thai sản (Đối với phụ nữ):</span>${line(p.tienSuThaiSan,'fill')}</div>
+  ${dotted('')}
+  <div class="historyDeclare">
+    <div class="declarationText">Tôi xin cam đoan những điều khai trên đây hoàn toàn đúng với sự thật theo sự hiểu biết của tôi.</div>
+    <div class="requestSigInline">
+      <div class="sigDate">.............., ngày ........ tháng ........ năm ..........</div>
+      <div><b>Người đề nghị khám sức khỏe</b></div>
+      <div><i>(Ký và ghi rõ họ, tên)</i></div>
+    </div>
+  </div>
+
+  <div class="historyBottomStretch">
+  <div class="historyPhysical">
+    <div class="sectionTitle">I. KHÁM THỂ LỰC</div>
+    <div class="measureRow"><span>- Chiều cao:</span>${line(p.chieuCao,'fill')}<span>cm; - Cân nặng:</span>${line(p.canNang,'fill')}<span>kg; - Chỉ số BMI:</span>${line(p.bmi,'fill')}</div>
+    <div class="measureRow"><span>- Mạch:</span>${line(p.mach,'fill')}<span>lần/phút; - Huyết áp:</span>${line(p.huyetAp,'fill')}<span>mmHg</span></div>
+    <div class="measureRow"><span>Phân loại thể lực:</span>${line(p.phanLoaiTheLuc,'fill')}</div>
+  </div>
+
+  <div class="historyClinical">
+    <div class="sectionTitle">II. KHÁM LÂM SÀNG</div>
+    <table class="formTable clinicalTable clinicalTableP1">
+      <colgroup>
+        <col style="width:5.8mm"><col style="width:5.8mm"><col style="width:40mm"><col><col style="width:39mm">
+      </colgroup>
+      <thead>
+        <tr><th colspan="4">Nội dung khám</th><th class="signcol signHead">Họ tên và chữ ký của<br>Bác sỹ chuyên khoa</th></tr>
+      </thead>
+      <tbody>
+        <tr><td class="firstcol" rowspan="9">1.</td><td colspan="3" class="clinicalTitle">Nội khoa</td><td class="signcol" rowspan="9"></td></tr>
+        <tr><td class="letter">a)</td><td class="itemcol"><span class="clinicalSub">Tuần hoàn</span></td><td class="valuecol">${clinicalValue(p.tuanHoan)}</td></tr>
+        <tr><td class="letter"></td><td class="itemcol"><span class="phanLoaiText">Phân loại</span></td><td class="valuecol">${clinicalValue(p.plTuanHoan)}</td></tr>
+        <tr><td class="letter">b)</td><td class="itemcol"><span class="clinicalSub">Hô hấp</span></td><td class="valuecol">${clinicalValue(p.hoHap)}</td></tr>
+        <tr><td class="letter"></td><td class="itemcol"><span class="phanLoaiText">Phân loại</span></td><td class="valuecol">${clinicalValue(p.plHoHap)}</td></tr>
+        <tr><td class="letter">c)</td><td class="itemcol"><span class="clinicalSub">Tiêu hóa</span></td><td class="valuecol">${clinicalValue(p.tieuHoa)}</td></tr>
+        <tr><td class="letter"></td><td class="itemcol"><span class="phanLoaiText">Phân loại</span></td><td class="valuecol">${clinicalValue(p.plTieuHoa)}</td></tr>
+        <tr><td class="letter">d)</td><td class="itemcol"><span class="clinicalSub">Thận-Tiết niệu</span></td><td class="valuecol">${clinicalValue(p.thanTietNieu)}</td></tr>
+        <tr><td class="letter"></td><td class="itemcol"><span class="phanLoaiText">Phân loại</span></td><td class="valuecol">${clinicalValue(p.plThanTietNieu)}</td></tr>
+      </tbody>
+    </table>
+  </div>
+  </div>
+</div>`;}
+function clinicalPage(p){return `<div class="docPage clinicalPageV2">
+  <table class="formTable clinicalTable clinicalTableP2">
+    <colgroup>
+      <col style="width:5.8mm"><col style="width:40mm"><col><col style="width:39mm">
+    </colgroup>
+    <tbody>
+      <tr class="topRows"><td class="letter">đ)</td><td class="itemcol"><span class="clinicalSub">Nội tiết</span></td><td class="valuecol">${clinicalValue(p.noiTiet)}</td><td class="signcol" rowspan="8"></td></tr>
+      <tr class="topRows"><td class="letter"></td><td class="itemcol">Phân loại</td><td class="valuecol">${clinicalValue(p.plNoiTiet)}</td></tr>
+      <tr class="topRows"><td class="letter">e)</td><td class="itemcol"><span class="clinicalSub">Cơ - xương - khớp</span></td><td class="valuecol">${clinicalValue(p.coXuongKhop)}</td></tr>
+      <tr class="topRows"><td class="letter"></td><td class="itemcol">Phân loại</td><td class="valuecol">${clinicalValue(p.plCoXuongKhop)}</td></tr>
+      <tr class="topRows"><td class="letter">g)</td><td class="itemcol"><span class="clinicalSub">Thần kinh</span></td><td class="valuecol">${clinicalValue(p.thanKinh)}</td></tr>
+      <tr class="topRows"><td class="letter"></td><td class="itemcol">Phân loại</td><td class="valuecol">${clinicalValue(p.plThanKinh)}</td></tr>
+      <tr class="topRows"><td class="letter">h)</td><td class="itemcol"><span class="clinicalSub">Tâm thần</span></td><td class="valuecol">${clinicalValue(p.tamThan)}</td></tr>
+      <tr class="topRows"><td class="letter"></td><td class="itemcol">Phân loại</td><td class="valuecol">${clinicalValue(p.plTamThan)}</td></tr>
+
+      <tr class="bigBlock">
+        <td class="num">2.</td>
+        <td colspan="2">
+          <b>Ngoại khoa, Da liễu:</b><br>
+          - <i>Ngoại khoa:</i> ${h(p.ngoaiKhoa||'')}<br>
+          <span>Phân loại:</span> ${h(p.plNgoaiKhoa||'')}<br>
+          - <i>Da liễu:</i> ${h(p.daLieu||'')}<br>
+          <span>Phân loại:</span> ${h(p.plDaLieu||'')}
+        </td>
+        <td class="signcol"></td>
+      </tr>
+
+      <tr class="sanBlock">
+        <td class="num">3.</td>
+        <td colspan="2">
+          <b>Sản phụ khoa:</b><br>
+          ${dotted(p.sanPhuKhoa)}
+          <span>Phân loại:</span> ${h(p.plSanPhuKhoa||'')}
+        </td>
+        <td class="signcol"></td>
+      </tr>
+
+      <tr class="sectionHead"><td class="num">4.</td><td colspan="2"><b>Mắt:</b></td><td class="signcol" rowspan="4"></td></tr>
+      <tr class="visionRow"><td></td><td colspan="2"><i>Kết quả khám thị lực:</i> Không kính: Mắt phải${clinicalInline(p.matKhongKinhPhai,'small')} Mắt trái${clinicalInline(p.matKhongKinhTrai,'small')}<br><span class="clinicalIndent">Có kính: Mắt phải${clinicalInline(p.matCoKinhPhai,'small')} Mắt trái${clinicalInline(p.matCoKinhTrai,'small')}</span></td></tr>
+      <tr><td></td><td colspan="2"><i>Các bệnh về mắt (nếu có):</i> ${h(p.benhMat||'')}</td></tr>
+      <tr><td></td><td colspan="2">Phân loại: ${h(p.plMat||'')}</td></tr>
+
+      <tr class="sectionHead"><td class="num">5.</td><td colspan="2"><b>Tai - Mũi - Họng</b></td><td class="signcol" rowspan="4"></td></tr>
+      <tr class="hearingRow"><td></td><td colspan="2"><i>Kết quả khám thính lực:</i><br>Tai trái: Nói thường${clinicalInline(p.taiTraiNoiThuong,'med')} m; Nói thầm${clinicalInline(p.taiTraiNoiTham,'small')} m<br>Tai phải: Nói thường${clinicalInline(p.taiPhaiNoiThuong,'med')} m; Nói thầm${clinicalInline(p.taiPhaiNoiTham,'small')} m</td></tr>
+      <tr><td></td><td colspan="2"><i>Các bệnh về tai mũi họng (nếu có):</i> ${h(p.benhTMH||'')}</td></tr>
+      <tr><td></td><td colspan="2">Phân loại: ${h(p.plTMH||'')}</td></tr>
+
+      <tr class="sectionHead"><td class="num">6.</td><td colspan="2"><b>Răng - Hàm - Mặt</b></td><td class="signcol" rowspan="4"></td></tr>
+      <tr class="rhmRow"><td></td><td colspan="2"><i>Kết quả khám:</i> <span class="clinicalIndent">Hàm trên:${clinicalInline(p.rhmHamTren,'med')}</span><br><span class="clinicalIndent2">Hàm dưới:${clinicalInline(p.rhmHamDuoi,'med')}</span></td></tr>
+      <tr><td></td><td colspan="2">Các bệnh về răng hàm mặt (nếu có): ${h(p.benhRHM||'')}</td></tr>
+      <tr><td></td><td colspan="2">Phân loại ${h(p.plRHM||'')}</td></tr>
+    </tbody>
+  </table>
+</div>`;}
+
+function conclusionPlaceText(){
+  const place=String(headerSettings.diaDanh||'').trim();
+  return place?h(place):'..............';
+}
+function conclusionDateText(p){
+  let v=p.ngayKetLuan||''; let d=parseDateLike(v); let place=conclusionPlaceText();
+  if(d&&d.d)return `${place}, ngày ${pad2(d.d)} tháng ${pad2(d.m)} năm ${d.y}`;
+  if(String(v).trim())return `${place}, ${h(String(v).trim())}`;
+  return `${place}, ngày...... tháng......... năm.........`;
+}
+
+function labLine(v,cls=''){return `<span class="labLine ${cls} ${hasData(v)?'hasData':''}">${h(v||'')}</span>`}
+function labTextLine(label,v,extraClass=''){return `<div class="labTextLine ${extraClass}"><span class="labTextLabel">${label}</span>${labLine(v)}</div>`}
+function labTextLine2(label1,v1,label2,v2){return `<div class="labTextLine twoCols"><span class="labTextLabel">${label1}</span>${labLine(v1)}<span class="labTextLabel">${label2}</span>${labLine(v2)}</div>`}
+function labDotted(v=''){return `<div class="labDotted ${hasData(v)?'hasData':''}">${h(v||'')}</div>`}
+function labPage(p){return `<div class="docPage labPage">
+  <div class="labTitle">III. KHÁM CẬN LÂM SÀNG</div>
+  <table class="labTable"><thead><tr><th>Nội dung khám</th><th class="labDoctorCol">Họ tên, chữ ký của<br>Bác sỹ</th></tr></thead><tbody>
+    <tr class="labBloodRow"><td><b>1. Xét nghiệm máu:</b>
+      <div style="height:1mm"></div>
+      <b>a) Công thức máu:</b>
+      ${labTextLine('Số lượng HC:',p.soLuongHC)}
+      ${labTextLine('Số lượng Bạch cầu:',p.soLuongBC)}
+      ${labTextLine('Số lượng tiểu cầu:',p.soLuongTC)}
+      <div style="height:.7mm"></div>
+      ${labTextLine('<b>b) Sinh hóa máu:</b> Đường máu:',p.duongMau,'compact')}
+      ${labTextLine2('Urê:',p.ure,'Creatinin:',p.creatinin)}
+      ${labTextLine2('ASAT(GOT):',p.asat,'ALAT (GPT):',p.alat)}</td><td></td></tr>
+    <tr class="labUrineRow"><td><b>2. Xét nghiệm nước tiểu:</b>
+      ${labTextLine('<b>a) Đường:</b>',p.duongNuocTieu)}
+      ${labTextLine('<b>b) Protein:</b>',p.proteinNuocTieu)}
+      ${labTextLine('<b>c) Khác (nếu có):</b>',p.khacNuocTieu)}</td><td></td></tr>
+    <tr class="labImageRow"><td><b>3. Chẩn đoán hình ảnh (XQ tim phổi thẳng):</b>${labDotted(p.xqTimPhoi)}${labDotted('')}${labDotted('')}</td><td></td></tr>
+  </tbody></table>
+  <div class="labConclusionTitle">IV. KẾT LUẬN</div>
+  <div class="labConclusionLine"><b>1. Phân loại sức khỏe:</b>${labLine(p.phanLoaiSucKhoe)}</div>
+  <div class="labConclusionLine"><b>2. Các bệnh, tật (nếu có):</b>${labLine(p.cacBenhTat)}</div>
+  <div class="labDotted labConclusionExtra"></div>
+  <div class="labSignature"><div class="labSigDate">${conclusionDateText(p)}</div><b>NGƯỜI KẾT LUẬN</b><br><i>(Ký, ghi rõ họ tên và đóng dấu)</i><div class="name">${signatureName(p)}</div></div>
+</div>`;}
+function makeSheet(p,i,side){let label=side==='front'?'Mặt trước':'Mặt sau';let content=side==='front'?`<div class="half">${labPage(p)}</div><div class="half">${coverPage(p,i)}</div>`:`<div class="half">${historyPage(p)}</div><div class="half">${clinicalPage(p)}</div>`;let sheetLabel=side==='front'?'':`<div class="pageLabel">${label} - Hồ sơ ${i+1}</div>`;return `<section class="sheet ${side}Sheet" data-index="${i+1}" data-side="${side}"><div class="a3grid">${content}</div>${sheetLabel}</section>`;}
+function renderPreview(){let prev=document.getElementById('preview');prev.innerHTML=patients.map((p,i)=>makeSheet(p,i,'front')+makeSheet(p,i,'back')).join('');}
+function applyRangeVisibility(){let from=Math.max(1,parseInt(document.getElementById('fromRec').value||'1'));let to=Math.min(patients.length,parseInt(document.getElementById('toRec').value||String(patients.length)));if(to<from){let t=from;from=to;to=t;}let side=document.getElementById('sidePrint').value;document.querySelectorAll('.sheet').forEach(s=>{let idx=+s.dataset.index;let sd=s.dataset.side;let hide=idx<from||idx>to||(side!=='both'&&sd!==side);s.classList.toggle('hiddenForRange',hide);});let visible=[...document.querySelectorAll('.sheet:not(.hiddenForRange)')];document.querySelectorAll('.sheet').forEach(s=>s.classList.remove('noBreakAfter'));if(visible.length)visible[visible.length-1].classList.add('noBreakAfter');return visible;}
+function printRange(){applyRangeVisibility();setTimeout(()=>window.print(),100);}
+function showAll(){document.querySelectorAll('.sheet').forEach(s=>s.classList.remove('hiddenForRange','noBreakAfter'));}
+async function exportPdf(){let sheets=applyRangeVisibility(); if(!sheets.length){alert('Không có trang để xuất.');return;} showLoader('Đang tạo PDF','Đang kết xuất từng mặt A3. Nếu nhiều hồ sơ, vui lòng chờ thêm vài phút.'); document.body.classList.add('fastPdfMode'); try{const {jsPDF}=window.jspdf;let pdf=new jsPDF({orientation:'landscape',unit:'mm',format:'a3',compress:true});for(let i=0;i<sheets.length;i++){document.getElementById('loaderText').textContent=`Đang xuất trang ${i+1}/${sheets.length}...`;let canvas=await html2canvas(sheets[i],{scale:2,useCORS:true,backgroundColor:'#ffffff',logging:false});let img=canvas.toDataURL('image/jpeg',0.92);if(i>0)pdf.addPage('a3','landscape');pdf.addImage(img,'JPEG',0,0,420,297);}pdf.save('Giay_KSK_TT32_A3.pdf');}catch(e){console.error(e);alert('Lỗi xuất PDF: '+(e.message||e));}finally{document.body.classList.remove('fastPdfMode');hideLoader();}}
+function exportData(){let rows=patients.map((p,i)=>({STT:i+1,soGiayIn:formatSoGiay(p),...p,photo:p.photo?'[Có ảnh]':''}));let ws=XLSX.utils.json_to_sheet(rows);let wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,'Du_lieu_KSK');XLSX.writeFile(wb,'Du_lieu_Giay_KSK_TT32_A3.xlsx');}
+function exportBackup(){let blob=new Blob([JSON.stringify({patients,headerSettings,savedAt:new Date().toISOString()},null,2)],{type:'application/json'});let a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='Sao_luu_Giay_KSK_TT32_A3.json';a.click();URL.revokeObjectURL(a.href);}
+function showLoader(title,text){document.getElementById('loaderTitle').textContent=title||'Đang xử lý...';document.getElementById('loaderText').textContent=text||'Vui lòng chờ trong giây lát.';document.getElementById('loader').classList.add('active');}
+function hideLoader(){document.getElementById('loader').classList.remove('active');}
+initApp();
+</script>
+</body>
+</html>
