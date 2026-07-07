@@ -50,6 +50,32 @@ export async function POST(req: Request) {
   try {
     await connectToDatabase();
     const body = await req.json();
+
+    if (Array.isArray(body)) {
+      const results = [];
+      for (const item of body) {
+        if (!item.patientName || !item.vaccine || !item.protocolId) continue;
+        
+        const schedule = await CskhVaccine.create({
+          patientCode: item.patientCode ? String(item.patientCode).trim() : undefined,
+          patientName: String(item.patientName).trim(),
+          phone: item.phone ? String(item.phone).trim() : undefined,
+          dob: item.dob || '',
+          gender: item.gender || '',
+          address: item.address ? String(item.address).trim() : undefined,
+          vaccine: String(item.vaccine).trim(),
+          protocolId: String(item.protocolId).trim(),
+          dates: item.dates || ['', '', '', '', '', ''],
+          dueOverrides: item.dueOverrides || ['', '', '', '', '', ''],
+          notes: item.notes || ['', '', '', '', '', ''],
+          called: item.called || [false, false, false, false, false, false],
+          messaged: item.messaged || [false, false, false, false, false, false]
+        });
+        results.push(schedule);
+      }
+      return NextResponse.json({ message: `Đã nhập thành công ${results.length} hồ sơ!`, count: results.length });
+    }
+
     const { id, patientCode, patientName, phone, dob, gender, address, vaccine, protocolId, dates, dueOverrides, notes, called, messaged } = body;
 
     if (!patientName || !vaccine || !protocolId) {

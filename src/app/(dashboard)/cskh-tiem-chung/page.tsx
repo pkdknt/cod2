@@ -12,6 +12,8 @@ import {
   Save,
   Trash2,
   Download,
+  Upload,
+  FileSpreadsheet,
   Printer,
   ChevronDown,
   Info,
@@ -68,6 +70,14 @@ export default function CskhTiemChungPage() {
   const [activeEditId, setActiveEditId] = useState<string | null>(null);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
 
+  // Excel Import State
+  const [showImportModal, setShowImportModal] = useState(false);
+  const [importFile, setImportFile] = useState<File | null>(null);
+  const [sheetsList, setSheetsList] = useState<string[]>([]);
+  const [selectedSheet, setSelectedSheet] = useState('');
+  const [importStatus, setImportStatus] = useState('');
+  const [isImporting, setIsImporting] = useState(false);
+
   // Protocols autocomplete dropdown filter
   const [vaccineInputVal, setVaccineInputVal] = useState('');
   const [showVaccineDropdown, setShowVaccineDropdown] = useState(false);
@@ -91,6 +101,159 @@ export default function CskhTiemChungPage() {
   useEffect(() => {
     fetchSavedSchedules();
   }, [qSearch, filterVaccine]);
+
+  const handleExcelUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setImportFile(file);
+    setImportStatus('Đang đọc file...');
+
+    const reader = new FileReader();
+    reader.onload = (evt) => {
+      try {
+        if (!XLSX) return;
+        const data = new Uint8Array(evt.target?.result as ArrayBuffer);
+        const workbook = XLSX.read(data, { type: 'array' });
+        setSheetsList(workbook.SheetNames);
+        setSelectedSheet(workbook.SheetNames[0] || '');
+        setImportStatus('Đọc file thành công. Hãy chọn sheet để nhập.');
+      } catch (err: any) {
+        setImportStatus('Lỗi đọc file: ' + err.message);
+      }
+    };
+    reader.readAsArrayBuffer(file);
+  };
+
+  const triggerImport = async () => {
+    if (!importFile || !selectedSheet) {
+      alert('Vui lòng chọn file và sheet');
+      return;
+    }
+    setIsImporting(true);
+    setImportStatus('Đang phân tích và tải lên database...');
+    try {
+      if (!XLSX) throw new Error('Thư viện Excel chưa được tải');
+      
+      const fileData = await importFile.arrayBuffer();
+      const workbook = XLSX.read(new Uint8Array(fileData), { type: 'array' });
+      const sheet = workbook.Sheets[selectedSheet];
+      const json = XLSX.utils.sheet_to_json(sheet) as any[];
+
+      // Map columns intelligently
+      const mappedItems = json.map((row: any) => {
+        const findVal = (keys: string[]) => {
+          const matchKey = Object.keys(row).find((k) =>
+            keys.includes(k.trim().toLowerCase())
+          );
+          return matchKey ? String(row[matchKey]).trim() : '';
+        };
+
+        const patientName = findVal(['họ tên', 'ho ten', 'tên', 'ten', 'tên người tiêm', 'họ tên người tiêm', 'patientname', 'name', 'họ và tên']);
+        const rawVaccine = findVal(['vắc xin', 'vacxin', 'vaccine', 'tên vắc xin']);
+        const rawProtocol = findVal(['phác đồ', 'phac do', 'đối tượng', 'doi tuong', 'protocol']);
+        
+        let vaccine = '';
+        let protocolId = '';
+        
+        if (rawVaccine) {
+          const matchedProto = DATA.protocols.find(p => 
+            p.vaccine.toLowerCase().trim() === rawVaccine.toLowerCase().trim() ||
+            p.vaccine.toLowerCase().includes(rawVaccine.toLowerCase().trim()) ||
+            rawVaccine.toLowerCase().includes(p.vaccine.toLowerCase().trim())
+          );
+          
+          if (matchedProto) {
+            vaccine = matchedProto.vaccine;
+            protocolId = matchedProto.id;
+            
+            const allMatchingProtos = DATA.protocols.filter(p => p.vaccine === matchedProto.vaccine);
+            if (allMatchingProtos.length > 1) {
+              if (rawProtocol) {
+                const bestProto = allMatchingProtos.find(p => 
+                  p.object.toLowerCase().includes(rawProtocol.toLowerCase().trim()) ||
+                  p.id.toLowerCase() === rawProtocol.toLowerCase().trim()
+                );
+                if (bestProto) {
+                  protocolId = bestProto.id;
+                }
+              } else {
+                const dobVal = findVal(['ngày sinh', 'ngay sinh', 'dob', 'birth']);
+                const dobDate = dobVal ? parseDate(dobVal) : null;
+                if (dobDate) {
+                  const ageMonths = monthsAge(dobDate, new Date());
+                  if (matchedProto.vaccine === 'Prevenar 13' || matchedProto.vaccine === 'Prevenar 20') {
+                    if (ageMonths < 7) {
+                      const p = allMatchingProtos.find(p => p.id.includes('P2_0') || p.id.includes('P50_50'));
+                      if (p) protocolId = p.id;
+                    } else if (ageMonths < 12) {
+                      const p = allMatchingProtos.find(p => p.id.includes('P3_1') || p.id.includes('P51_51'));
+                      if (p) protocolId = p.id;
+                    } else if (ageMonths < 24) {
+                      const p = allMatchingProtos.find(p => p.id.includes('P4_2') || p.id.includes('P52_52'));
+                      if (p) protocolId = p.id;
+                    } else {
+                      const p = allMatchingProtos.find(p => p.id.includes('ADULT') || p.id.includes('P53_53'));
+                      if (p) protocolId = p.id;
+                    }
+                  }
+                }
+              }
+            }
+          } else {
+            vaccine = rawVaccine;
+            protocolId = 'CUSTOM';
+          }
+        }
+
+        const dates = [
+          findVal(['mũi 1', 'mui 1', 'ngày tiêm 1', 'ngay tiem 1']),
+          findVal(['mũi 2', 'mui 2', 'ngày tiêm 2', 'ngay tiem 2']),
+          findVal(['mũi 3', 'mui 3', 'ngày tiêm 3', 'ngay tiem 3']),
+          findVal(['mũi 4', 'mui 4', 'ngày tiêm 4', 'ngay tiem 4']),
+          findVal(['mũi 5', 'mui 5', 'ngày tiêm 5', 'ngay tiem 5']),
+          findVal(['mũi 6', 'mui 6', 'mũi nhắc', 'ngày tiêm 6', 'ngay tiem 6', 'mui nhac'])
+        ].map(d => d ? maskDateText(d) : '');
+
+        return {
+          patientCode: findVal(['mã đối tượng', 'mã bn', 'ma doi tuong', 'mã bệnh nhân', 'code', 'patientcode']),
+          patientName,
+          phone: findVal(['số điện thoại', 'điện thoại', 'sđt', 'so dien thoai', 'phone']),
+          dob: findVal(['ngày sinh', 'ngay sinh', 'dob', 'birth']) ? maskDateText(findVal(['ngày sinh', 'ngay sinh', 'dob', 'birth'])) : '',
+          gender: findVal(['giới tính', 'gioi tinh', 'gender', 'sex']),
+          address: findVal(['địa chỉ', 'dia chi', 'address']),
+          vaccine,
+          protocolId,
+          dates
+        };
+      });
+
+      const validItems = mappedItems.filter((item) => item.patientName && item.vaccine);
+      if (validItems.length === 0) {
+        throw new Error('Không tìm thấy dòng dữ liệu hợp lệ nào chứa đầy đủ Họ tên và Tên vắc xin');
+      }
+
+      setImportStatus(`Đang upload ${validItems.length} dòng dữ liệu...`);
+
+      const response = await fetch('/api/cskh-tiem-chung', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(validItems)
+      });
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.message);
+
+      alert(result.message);
+      setShowImportModal(false);
+      setImportFile(null);
+      setSheetsList([]);
+      fetchSavedSchedules();
+    } catch (err: any) {
+      setImportStatus('Lỗi import: ' + err.message);
+    } finally {
+      setIsImporting(false);
+    }
+  };
 
   // Autocomplete search match
   const filteredVaccineList = DATA.vaccines.filter((v) =>
@@ -365,6 +528,12 @@ export default function CskhTiemChungPage() {
           </p>
         </div>
         <div className="flex flex-wrap gap-2">
+          <button
+            onClick={() => setShowImportModal(true)}
+            className="inline-flex items-center gap-1.5 rounded-xl border border-teal-250 bg-teal-50 px-4 py-2.5 text-xs font-bold text-teal-700 hover:bg-teal-100 transition-colors"
+          >
+            <Upload className="h-4 w-4" /> Nhập Excel Khách Hàng
+          </button>
           <button
             onClick={() => window.print()}
             className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-xs font-bold text-slate-700 transition-all hover:bg-slate-55"
@@ -944,6 +1113,91 @@ export default function CskhTiemChungPage() {
           onEdit={handleLoadSchedule}
           onDelete={handleDeleteSchedule}
         />
+      )}
+      {/* SheetJS Excel Import Modal */}
+      {showImportModal && (
+        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-fade-in">
+          <div className="bg-white rounded-3xl border border-slate-200 max-w-md w-full p-6 shadow-2xl space-y-6">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+              <h3 className="font-extrabold text-slate-800 text-base uppercase tracking-wider">
+                Nhập danh sách từ Excel
+              </h3>
+              <button
+                onClick={() => {
+                  setShowImportModal(false);
+                  setImportFile(null);
+                  setSheetsList([]);
+                }}
+                className="text-slate-400 hover:text-slate-650 text-lg font-bold"
+              >
+                ×
+              </button>
+            </div>
+
+            <div className="space-y-4">
+              <div>
+                <label className="block text-xs font-bold text-slate-500 mb-1">Chọn file Excel (.xlsx / .xls)</label>
+                <div className="border-2 border-dashed border-slate-200 rounded-2xl p-4 flex flex-col items-center justify-center bg-slate-50 hover:bg-slate-100/50 cursor-pointer relative">
+                  <FileSpreadsheet className="h-8 w-8 text-teal-600 mb-2 animate-bounce" />
+                  <span className="text-xs font-bold text-slate-600">
+                    {importFile ? importFile.name : 'Kéo thả hoặc click chọn file'}
+                  </span>
+                  <input
+                    type="file"
+                    accept=".xlsx, .xls"
+                    onChange={handleExcelUpload}
+                    className="absolute inset-0 opacity-0 cursor-pointer"
+                  />
+                </div>
+              </div>
+
+              {sheetsList.length > 0 && (
+                <div>
+                  <label className="block text-xs font-bold text-slate-500 mb-1">Chọn Sheet dữ liệu</label>
+                  <select
+                    value={selectedSheet}
+                    onChange={(e) => setSelectedSheet(e.target.value)}
+                    className="w-full rounded-xl border border-slate-200 p-2.5 text-xs font-semibold outline-none focus:border-teal-500"
+                  >
+                    {sheetsList.map((name) => (
+                      <option key={name} value={name}>
+                        {name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
+
+              {importStatus && (
+                <div className="rounded-xl bg-teal-50/50 border border-teal-100 p-3 text-[11px] font-semibold text-teal-700 leading-relaxed">
+                  {importStatus}
+                </div>
+              )}
+            </div>
+
+            <div className="flex justify-end gap-2 border-t border-slate-100 pt-4">
+              <button
+                type="button"
+                onClick={() => {
+                  setShowImportModal(false);
+                  setImportFile(null);
+                  setSheetsList([]);
+                }}
+                className="rounded-xl border border-slate-200 px-4 py-2 text-xs font-bold text-slate-700 hover:bg-slate-55"
+              >
+                Hủy
+              </button>
+              <button
+                type="button"
+                disabled={isImporting || !importFile || sheetsList.length === 0}
+                onClick={triggerImport}
+                className="rounded-xl bg-teal-600 px-5 py-2 text-xs font-bold text-white hover:bg-teal-500 disabled:opacity-50 disabled:cursor-not-allowed shadow-md shadow-teal-900/10"
+              >
+                {isImporting ? 'Đang nhập...' : 'Bắt đầu Nhập'}
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );
