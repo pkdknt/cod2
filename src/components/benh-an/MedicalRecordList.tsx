@@ -104,6 +104,7 @@ export default function MedicalRecordList({
                     checked={items.length > 0 && selectedIds.length === items.length}
                   />
                 </th>
+                <th className="w-14 text-center">STT</th>
                 <th className="w-20 text-center">Số ngoại trú</th>
                 <th className="w-20 text-center">Số lưu trữ</th>
                 <th className="w-32 text-center">Loại bệnh án</th>
@@ -118,18 +119,18 @@ export default function MedicalRecordList({
             <tbody>
               {loading ? (
                 <tr>
-                  <td colSpan={10} className="text-center py-20 text-slate-450 font-bold">
+                  <td colSpan={11} className="text-center py-20 text-slate-450 font-bold">
                     Đang truy vấn database...
                   </td>
                 </tr>
               ) : items.length === 0 ? (
                 <tr>
-                  <td colSpan={10} className="text-center py-20 text-slate-400 font-bold">
+                  <td colSpan={11} className="text-center py-20 text-slate-400 font-bold">
                     Không tìm thấy dữ liệu hồ sơ bệnh án nào.
                   </td>
                 </tr>
               ) : (
-                items.map((item) => (
+                items.map((item, index) => (
                   <tr key={item._id} className="border-b border-slate-100 h-11 hover:bg-slate-50 transition-colors">
                     <td className="text-center pl-4">
                       <input
@@ -138,6 +139,7 @@ export default function MedicalRecordList({
                         onChange={(e) => onSelectRow(item._id as string, e.target.checked)}
                       />
                     </td>
+                    <td className="text-center text-slate-400 font-bold">{index + 1}</td>
                     <td className="text-center text-slate-400 font-bold">{item.soNgoaiTru || '-'}</td>
                     <td className="text-center text-slate-400 font-bold">{item.soLuuTru || '-'}</td>
                     <td className="text-center">

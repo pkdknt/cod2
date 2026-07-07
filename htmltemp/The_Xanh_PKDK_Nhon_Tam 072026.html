@@ -12,10 +12,35 @@
     :root { --ink:#111; --border:#222; --paper:#fff; --ui:#0f766e; }
     * { box-sizing: border-box; }
     body { margin:0; font-family: Arial, sans-serif; background:#f2f4f7; color:#111; }
-    .toolbar { position: sticky; top: 0; z-index: 5; background: #fff; border-bottom: 1px solid #ddd; padding: 14px 18px; box-shadow: 0 2px 12px rgba(0,0,0,.06); }
+    .app-shell { display:grid; grid-template-columns: 430px minmax(0, 1fr); min-height:100vh; }
+    .left-pane { background:#fff; border-right:1px solid #dbe3ec; height:100vh; overflow:auto; position:sticky; top:0; z-index:10; }
+    .preview-pane { min-width:0; overflow:auto; }
+    .top-actions { display:flex; flex-wrap:wrap; gap:8px; margin:10px 0 12px; }
+    .toolbar.collapsed .control-content { display:none; }
+    .toolbar.collapsed { padding-bottom:10px; }
+    .panel-title { display:flex; align-items:center; justify-content:space-between; gap:10px; padding:10px 12px; background:#e6fffb; border-bottom:1px solid #b2f5ea; }
+    .panel-title b { color:#0f766e; font-size:14px; }
+    .toggle-panel-btn { min-height:32px; padding:6px 10px; border-radius:7px; background:#0f766e; color:#fff; font-size:12px; }
+    .manual-entry { margin-top:10px; border:1px solid #cbd5e1; border-radius:12px; background:#fff; overflow:hidden; }
+    .manual-entry.collapsed .manual-body { display:none; }
+    .manual-body { padding:12px; }
+    .manual-grid { display:grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap:10px; align-items:end; }
+    .manual-grid label.wide { grid-column:1 / -1; }
+
+    .manual-with-sign { grid-template-columns: 1.05fr .95fr; align-items:start; }
+    .manual-person-fields, .manual-sign-fields { display:grid; grid-template-columns:1fr; gap:10px; }
+    .manual-sign-fields { border:1px solid #ef4444; padding:10px; border-radius:8px; background:#fff; }
+    .manual-sign-fields label { gap:5px; }
+    @media screen and (max-width: 900px) { .manual-with-sign { grid-template-columns:1fr; } }
+    .manual-list { margin-top:10px; max-height:170px; overflow:auto; border:1px solid #e2e8f0; border-radius:10px; background:#f8fafc; }
+    .manual-list table { width:100%; border-collapse:collapse; font-size:12px; }
+    .manual-list th, .manual-list td { border-bottom:1px solid #e2e8f0; padding:6px; text-align:left; vertical-align:top; }
+    .manual-list button { min-height:26px; padding:4px 8px; border-radius:6px; background:#dc2626; font-size:12px; }
+
+    .toolbar { background: #fff; padding: 14px 16px; box-shadow:none; }
     .toolbar h1 { margin:0 0 8px; font-size:20px; color:#0f172a; }
     .toolbar p { margin:0 0 12px; color:#475569; font-size:13px; }
-    .grid { display:grid; grid-template-columns: repeat(4, minmax(180px, 1fr)); gap:10px; align-items:end; }
+    .grid { display:grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap:10px; align-items:end; }
     label { font-size:12px; font-weight:700; color:#334155; display:flex; flex-direction:column; gap:4px; }
     input, select, button { font: inherit; border:1px solid #cbd5e1; border-radius:8px; padding:8px 10px; background:#fff; min-height:38px; }
     input[type="number"] { width:110px; }
@@ -34,53 +59,142 @@
     .data-panel .panel-body { padding:0 12px 12px; }
     .template-grid { display:grid; grid-template-columns: repeat(4, minmax(180px, 1fr)); gap:10px; align-items:end; }
     .template-grid input { width:100%; min-width:0; }
-    @media screen and (max-width: 900px) { .template-grid { grid-template-columns: repeat(1, minmax(180px, 1fr)); } }
+    @media screen and (max-width: 900px) { .template-grid { grid-template-columns: repeat(1, minmax(180px, 1fr)); } .app-shell { grid-template-columns:1fr; } .left-pane { position:relative; height:auto; } .manual-grid { grid-template-columns:1fr; } }
     .preview-wrap { padding:22px; display:flex; flex-direction:column; align-items:center; gap:18px; }
     .empty { padding:40px; background:#fff; border-radius:14px; border:1px dashed #94a3b8; color:#64748b; max-width:850px; text-align:center; }
 
     .page { width:29.7cm; height:21cm; background:var(--paper); display:grid; grid-template-columns:14.6cm 14.6cm; grid-template-rows:9.9cm 9.9cm; column-gap:0; row-gap:0; padding:.60cm .25cm; page-break-after:always; box-shadow: 0 6px 28px rgba(15,23,42,.12); transform-origin:top center; }
-    .card { width:14.6cm; height:9.9cm; border:1px solid var(--border); position:relative; overflow:hidden; background:white; unicode-bidi:embed; font-family:'Times New Roman','Arial','Tahoma','Segoe UI',sans-serif; color:var(--ink); }
+    /* ===== BỐ CỤC THẺ ỔN ĐỊNH - KHÔNG ĐÈ CHỮ / KHÔNG TRÀN KHUNG ===== */
+    .card {
+      width:14.6cm;
+      height:9.9cm;
+      border:1px solid var(--border);
+      position:relative;
+      overflow:hidden;
+      background:white;
+      unicode-bidi:embed;
+      font-family:'Times New Roman','Arial','Tahoma','Segoe UI',sans-serif;
+      color:var(--ink);
+      padding:.22cm .26cm .20cm .26cm;
+    }
     .card::after { content:""; position:absolute; inset:.07cm; border:0.45px solid var(--border); pointer-events:none; }
-    .logo { position:absolute; left:.28cm; top:.20cm; width:.78cm; height:.88cm; object-fit:contain; z-index:1; }
-    .company { position:absolute; left:1.05cm; top:.18cm; width:4.15cm; text-align:center; font-size:8.4pt; line-height:1.03; font-weight:400; overflow:hidden; }
-    .company b { font-size:8.7pt; }
-    .cert-no { position:absolute; left:1.60cm; top:1.28cm; width:4.55cm; font-size:11.2pt; white-space:nowrap; overflow:hidden; }
+    .card-inner { position:relative; z-index:1; height:100%; display:grid; grid-template-rows:1.68cm 1fr .70cm; gap:.12cm; min-width:0; }
+
+    .card-head { display:grid; grid-template-columns:6.15cm 1fr; column-gap:.22cm; align-items:start; min-height:0; }
+    /* Logo có cột riêng, to hơn và không dùng đè lớp; chữ công ty + số chứng nhận luôn nằm bên phải logo. */
+    .brand-block { display:grid; grid-template-columns:1.55cm minmax(0,4.45cm); grid-template-rows:auto auto; column-gap:.16cm; row-gap:.02cm; align-items:start; min-width:0; overflow:hidden; }
+    .logo { grid-column:1; grid-row:1 / 3; width:1.10cm; height:1.22cm; object-fit:contain; align-self:start; justify-self:center; margin-top:.02cm; z-index:2; flex:0 0 auto; }
+    .company { grid-column:2; grid-row:1; text-align:center; font-size:8.0pt; line-height:1.02; font-weight:400; overflow:hidden; min-width:0; padding-left:0; padding-right:.04cm; z-index:1; }
+    .company b { font-size:8.25pt; }
+    .cert-no { grid-column:2; grid-row:2; font-size:10.45pt; line-height:1.05; white-space:nowrap; overflow:hidden; text-overflow:clip; padding-left:0; margin-top:.07cm; min-width:0; }
     .cert-no b { font-weight:700; }
-    .nation { position:absolute; right:.25cm; top:.18cm; width:6.75cm; text-align:center; font-size:8.45pt; font-weight:700; line-height:1.05; overflow:hidden; }
-    .nation .sub { display:block; font-weight:700; font-size:8.25pt; margin-top:.04cm; }
-    .ornament { display:flex; justify-content:center; align-items:center; margin-top:.02cm; }
-    .ornament img { width:2.65cm; height:auto; display:block; object-fit:contain; }
-    .title { position:absolute; right:.25cm; top:1.26cm; width:6.65cm; height:.85cm; text-align:center; font-size:13.2pt; line-height:1.28; font-weight:700; letter-spacing:.15px; overflow:visible; padding-top:.04cm; }
-    .photo-box { position:absolute; left:.36cm; top:2.18cm; width:3.10cm; height:4.45cm; border:1px solid var(--border); }
-    .fields { position:absolute; left:3.65cm; top:2.10cm; width:10.50cm; height:6.40cm; font-size:11.2pt; line-height:1.28; overflow:visible; }
-    .fields .line { white-space:normal; overflow-wrap:normal; word-break:normal; margin-bottom:.08cm; max-width:10.50cm; }
-    .fields b { overflow-wrap:normal; word-break:normal; }
-    .fields b { font-weight:700; }
-    .fields .line:nth-child(4), .fields .line:nth-child(5) { line-height:1.25; max-width:10.50cm; }
-    .signature { position:absolute; right:.50cm; top:6.15cm; width:3.30cm; text-align:center; font-size:10.15pt; line-height:1.05; font-weight:700; z-index:2; }
-    .doctor { position:absolute; right:.25cm; bottom:.30cm; width:6.20cm; text-align:right; font-size:10.1pt; font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:clip; }
+    .right-head { text-align:center; min-width:0; overflow:hidden; }
+    .nation { width:100%; text-align:center; font-size:8.45pt; font-weight:700; line-height:1.08; overflow:hidden; white-space:normal; }
+    .nation .sub { display:block; font-weight:700; font-size:8.25pt; margin-top:.02cm; }
+    .ornament { display:flex; justify-content:center; align-items:center; height:.24cm; margin-top:.02cm; overflow:hidden; }
+    .ornament img { width:2.20cm; max-height:.22cm; height:auto; display:block; object-fit:contain; }
+    .title { width:100%; text-align:center; font-size:13.0pt; line-height:1.14; font-weight:700; letter-spacing:.12px; overflow:hidden; margin-top:.03cm; white-space:normal; }
+
+    .card-body { display:grid; grid-template-columns:3.20cm 1fr; column-gap:.28cm; min-height:0; overflow:hidden; }
+    .photo-box { width:3.10cm; height:4.45cm; border:1px solid var(--border); align-self:start; margin-top:.18cm; }
+    .fields { min-width:0; max-width:100%; height:100%; font-size:11.05pt; line-height:1.20; overflow:hidden; padding-top:.08cm; }
+    .fields .line { display:block; white-space:normal; overflow-wrap:anywhere; word-break:normal; margin-bottom:.055cm; max-width:100%; }
+    .fields b { font-weight:700; overflow-wrap:anywhere; word-break:normal; }
+
+    /* Vùng chữ ký cố định giống mẫu: chức danh nằm bên phải ngang khu vực Ngày khám/Kết luận, tên bác sĩ nằm sát dưới bên phải. */
+    .card-foot { position:absolute; right:.45cm; top:5.05cm; bottom:.42cm; width:4.65cm; z-index:3; display:block; pointer-events:none; }
+    .sign-zone { width:100%; height:100%; display:grid; grid-template-rows:auto 1fr auto; min-width:0; }
+    .signature { text-align:center; font-size:10.15pt; line-height:1.05; font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:clip; }
+    .doctor { text-align:right; font-size:10.1pt; line-height:1.05; font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:clip; }
     @media screen and (max-width: 1300px) { .preview-wrap { align-items:flex-start; overflow:auto; } .page { zoom:.75; } }
     @media screen and (max-width: 900px) { .page { zoom:.55; } }
     .break { break-after:page; }
 
     @page { size:A4 landscape; margin:0; }
     @media print {
-      html,body,*{
+      html, body {
+        width:29.7cm !important;
+        min-width:29.7cm !important;
+        height:auto !important;
+        margin:0 !important;
+        padding:0 !important;
+        background:white !important;
+        overflow:visible !important;
+      }
+      *{
         font-kerning: normal;
         text-rendering: geometricPrecision;
         -webkit-font-smoothing: antialiased;
+        print-color-adjust: exact;
+        -webkit-print-color-adjust: exact;
       }
-      body { background:white; }
-      .toolbar, .hint, .empty { display:none !important; }
-      .preview-wrap { padding:0; gap:0; display:block; }
-      .page { margin:0; box-shadow:none; page-break-after:always; zoom:1 !important; transform:none !important; }
+      .left-pane, .toolbar, .hint, .empty, .top-actions { display:none !important; }
+      .app-shell {
+        display:block !important;
+        width:29.7cm !important;
+        min-width:29.7cm !important;
+        min-height:0 !important;
+        margin:0 !important;
+        padding:0 !important;
+      }
+      .preview-pane {
+        display:block !important;
+        width:29.7cm !important;
+        min-width:29.7cm !important;
+        margin:0 !important;
+        padding:0 !important;
+        overflow:visible !important;
+      }
+      .preview-wrap {
+        width:29.7cm !important;
+        min-width:29.7cm !important;
+        margin:0 !important;
+        padding:0 !important;
+        gap:0 !important;
+        display:block !important;
+        overflow:visible !important;
+      }
+      .page {
+        width:29.7cm !important;
+        height:21cm !important;
+        margin:0 !important;
+        padding:.60cm .25cm !important;
+        box-shadow:none !important;
+        display:grid !important;
+        grid-template-columns:14.6cm 14.6cm !important;
+        grid-template-rows:9.9cm 9.9cm !important;
+        column-gap:0 !important;
+        row-gap:0 !important;
+        page-break-after:always;
+        break-after:page;
+        zoom:1 !important;
+        transform:none !important;
+        overflow:hidden !important;
+      }
+      .page:last-child { page-break-after:auto; break-after:auto; }
+      .card {
+        width:14.6cm !important;
+        height:9.9cm !important;
+        break-inside:avoid;
+        page-break-inside:avoid;
+        overflow:hidden !important;
+      }
     }
   </style>
 </head>
 <body>
-  <section class="toolbar">
+<div class="app-shell">
+  <aside class="left-pane">
+  <section class="toolbar" id="toolbar">
     <h1>App Mail Merge thẻ Chứng Nhận Sức Khỏe</h1>
-    <p>Đọc Excel ngay trên trình duyệt → chọn sheet → map cột → in A4 ngang, 4 thẻ/trang, mỗi thẻ lớn 14.6 × 9.9 cm. Bản portable ưu tiên đọc .xlsx offline, dễ chép sang máy khác.</p>
+    <p>Đọc Excel ngay trên trình duyệt → chọn sheet → map cột → in A4 ngang, 4 thẻ/trang, mỗi thẻ lớn 14.6 × 9.9 cm.</p>
+    <div class="top-actions">
+      <button id="toggleControlsBtn" type="button" class="secondary">Ẩn vùng điều khiển</button>
+      <button id="toggleManualBtn" type="button" class="ghost">Ẩn/hiện vùng nhập tay</button>
+      <button id="chooseLogoBtn" type="button">Chọn logo</button>
+      <button id="resetLogoBtn" type="button" class="ghost">Logo mặc định</button>
+    </div>
+    <div class="control-content">
     <div class="grid">
       <label>File Excel (.xlsx)
         <input id="fileInput" type="file" accept=".xlsx,.xls,.xlsm,.csv" />
@@ -119,17 +233,6 @@
           <option value="column">Lấy theo cột Ngày khám trong Excel</option>
         </select>
       </label>
-      <label>Người ký
-        <select id="signMode">
-          <option value="alternate">Luân phiên 2 người ký</option>
-          <option value="director">Tất cả: GIÁM ĐỐC</option>
-          <option value="vice">Tất cả: PHÓ GIÁM ĐỐC</option>
-        </select>
-      </label>
-      <label>Chức danh 1 <input id="role1" value="GIÁM ĐỐC" /></label>
-      <label>Tên ký 1 <input id="signer1" value="BS. CKI. NGUYỄN THỊ HIỀN" /></label>
-      <label>Chức danh 2 <input id="role2" value="PHÓ GIÁM ĐỐC" /></label>
-      <label>Tên ký 2 <input id="signer2" value="BS. CKI. LÊ THỊ THU BA" /></label>
       <button id="renderBtn">Tạo thẻ</button>
       <button id="printBtn" class="secondary">In / Lưu PDF</button>
       <button id="clearBtn" class="ghost">Xóa preview</button>
@@ -166,13 +269,52 @@
         <div class="hint">Các dòng trong khung này có thể sửa tự do. Sau khi sửa, bấm “Tạo thẻ” để cập nhật vào mẫu in.</div>
       </div>
     </details>
+    <section class="manual-entry" id="manualPanel">
+      <div class="panel-title"><b>Nhập tay thông tin thẻ</b><button id="manualPanelToggleBtn" type="button" class="toggle-panel-btn">Ẩn vùng này</button></div>
+      <div class="manual-body">
+        <div class="manual-grid manual-with-sign">
+          <div class="manual-person-fields">
+            <label>Code <input id="manualCodeInput" placeholder="VD: 001" /></label>
+            <label>Họ tên <input id="manualNameInput" placeholder="Nhập họ tên" /></label>
+            <label>Năm sinh <input id="manualBirthInput" placeholder="VD: 1998" /></label>
+            <label>Giới tính <input id="manualGenderInput" placeholder="Nam/Nữ" /></label>
+            <label>Hiện cư ngụ tại <input id="manualAddressInput" placeholder="Nhập địa chỉ" /></label>
+            <label>Đơn vị <input id="manualUnitInput" placeholder="Nhập tên công ty/đơn vị" /></label>
+            <label>Ngày khám riêng <input id="manualExamDateInput" placeholder="VD: 29/05/2026" /></label>
+          </div>
+          <div class="manual-sign-fields">
+            <label>Người ký
+              <select id="signMode">
+                <option value="alternate">Luân phiên 2 người ký</option>
+                <option value="director">Tất cả: GIÁM ĐỐC</option>
+                <option value="vice">Tất cả: PHÓ GIÁM ĐỐC</option>
+              </select>
+            </label>
+            <label>Chức danh 1 <input id="role1" value="GIÁM ĐỐC" /></label>
+            <label>Tên ký 1 <input id="signer1" value="BS. CKI. NGUYỄN THỊ HIỀN" /></label>
+            <label>Chức danh 2 <input id="role2" value="PHÓ GIÁM ĐỐC" /></label>
+            <label>Tên ký 2 <input id="signer2" value="BS. CKI. LÊ THỊ THU BA" /></label>
+          </div>
+        </div>
+        <div class="row">
+          <button id="addManualRowBtn" type="button">Thêm vào danh sách</button>
+          <button id="clearManualRowsBtn" type="button" class="ghost">Xóa danh sách nhập tay</button>
+        </div>
+        <div class="manual-list" id="manualRowsList"><table><tbody><tr><td>Chưa có dòng nhập tay.</td></tr></tbody></table></div>
+        <div class="hint">Có thể nhập nhiều người. Nếu chọn “Lấy theo cột Ngày khám”, app sẽ dùng ô “Ngày khám riêng”; nếu để trống sẽ dùng ngày nhập tay chung.</div>
+      </div>
+    </section>
+
     <div class="hint">Tip: nên dùng file .xlsx để app tự chạy ổn định trên nhiều máy, kể cả khi không có mạng. Khi in nhớ chọn khổ A4, Landscape/Ngang, Scale 100%, tắt Header & Footer của trình duyệt.</div>
     <div id="status" class="status"></div>
+    </div>
   </section>
+  </aside>
 
-  <main class="preview-wrap" id="preview">
+  <main class="preview-wrap preview-pane" id="preview">
     <div class="empty">Upload file Excel rồi chọn sheet + map cột là chạy được nha.</div>
   </main>
+</div>
 
 <script>
 const defaultLogo = 'data:image/png;base64,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';
@@ -180,9 +322,11 @@ let currentLogo = defaultLogo;
 let workbook = null;
 let currentRows = [];
 let headers = [];
+let manualRows = [];
 
 const $ = id => document.getElementById(id);
 const mapIds = ['colCode','colName','colBirth','colGender','colAddress','colUnit','colDate'];
+const manualKeyMap = { colCode:'__code', colName:'__name', colBirth:'__birth', colGender:'__gender', colAddress:'__address', colUnit:'__unit', colDate:'__examDate' };
 const aliases = {
   colCode: ['code','mã','ma','số','so'],
   colName: ['họ tên','ho ten','tên','ten','name'],
@@ -311,6 +455,10 @@ function escapeHtml(v) {
   return String(v == null ? '' : v).replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
 }
 function val(row, selectId) {
+  if (row && row.__manual && manualKeyMap && manualKeyMap[selectId]) {
+    const manualKey = manualKeyMap[selectId];
+    return row[manualKey] == null ? '' : row[manualKey];
+  }
   const key = $(selectId).value;
   return key ? (row[key] == null ? '' : row[key]) : '';
 }
@@ -602,11 +750,32 @@ $('manualDate').addEventListener('change', () => {
   if (currentRows.length) renderCards();
 });
 
+$('chooseLogoBtn').addEventListener('click', () => {
+  $('logoInput').click();
+});
+
+$('resetLogoBtn').addEventListener('click', () => {
+  currentLogo = defaultLogo;
+  $('logoInput').value = '';
+  renderCards();
+  setStatus('Đã đổi về logo mặc định.');
+});
+
 $('logoInput').addEventListener('change', (e) => {
-  const file = e.target.files[0];
+  const file = e.target.files && e.target.files[0];
   if (!file) return;
+  if (!file.type || !file.type.startsWith('image/')) {
+    alert('Vui lòng chọn file hình ảnh logo: PNG, JPG, JPEG, WEBP...');
+    e.target.value = '';
+    return;
+  }
   const reader = new FileReader();
-  reader.onload = () => { currentLogo = reader.result; renderCards(); };
+  reader.onload = () => {
+    currentLogo = reader.result;
+    renderCards();
+    setStatus('Đã cập nhật logo mới.');
+  };
+  reader.onerror = () => alert('Không đọc được file logo, vui lòng chọn lại file khác.');
   reader.readAsDataURL(file);
 });
 
@@ -671,43 +840,82 @@ function cardHtml(row, i) {
   const gender = escapeHtml(displayVal(row, 'colGender'));
   const address = escapeHtml(displayVal(row, 'colAddress'));
   const unit = escapeHtml(displayVal(row, 'colUnit'));
-  const examDate = $('dateMode').value === 'column' ? escapeHtml(displayVal(row, 'colDate')) : escapeHtml(String($('manualDate').value || '').replace(/\s+/g, ' ').trim());
+  const examDateText = row && row.__manual
+    ? (displayVal(row, 'colDate') || String($('manualDate').value || '').replace(/\s+/g, ' ').trim())
+    : ($('dateMode').value === 'column' ? displayVal(row, 'colDate') : String($('manualDate').value || '').replace(/\s+/g, ' ').trim());
+  const examDate = escapeHtml(examDateText);
   const signer = getSigner(i);
   return `<section class="card">
-    <img class="logo" src="${currentLogo}" alt="logo" />
-    <div class="company">${tpl('tplCompanyLine1','CTY TNHH PKĐK NHƠN TÂM')}<br><b>${tpl('tplCompanyLine2','PHÒNG KHÁM ĐA KHOA')}<br>${tpl('tplCompanyLine3','NHƠN TÂM')}</b></div>
-    <div class="cert-no">${tpl('tplCertPrefix','Số:')} <b>${code || tpl('tplDefaultCode','Code')}</b> &nbsp;&nbsp; ${tpl('tplCertSuffix','/26/CNSKTX')}</div>
-    <div class="nation">${tpl('tplNation','CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM')}<span class="sub">${tpl('tplNationSub','Độc lập – Tự do – Hạnh phúc')}</span><span class="ornament"><img src="data:image/png;base64,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" alt="hoa văn" /></span></div>
-    <div class="title">${tpl('tplTitle','CHỨNG NHẬN SỨC KHỎE')}</div>
-    <div class="photo-box"></div>
-    <div class="fields">
-      <div class="line">${tpl('tplLabelName','Họ tên:')} <b>${name || tpl('tplDefaultName','Tên')}</b></div>
-      <div class="line">${tpl('tplLabelBirth','Sinh năm:')} <b>${birth || tpl('tplDefaultBirth','Năm Sinh')}</b></div>
-      <div class="line">${tpl('tplLabelGender','Giới tính:')} &nbsp;<b>${gender || tpl('tplDefaultGender','Giới Tính')}</b></div>
-      <div class="line">${tpl('tplLabelAddress','Hiện cư ngụ tại:')} <b>${address || tpl('tplDefaultAddress','ĐC')}</b></div>
-      <div class="line">${tpl('tplLabelUnit','Đơn vị:')} <b>${unit || tpl('tplDefaultUnit','Đơn vị')}</b></div>
-      <div class="line">${tpl('tplLabelExamDate','Kiểm tra sức khỏe ngày:')} <b>${examDate}</b></div>
-      <div class="line">${tpl('tplLabelConclusion','Kết luận:')} <b>${tpl('tplConclusion','ĐỦ SỨC KHỎE')}</b></div>
+    <div class="card-inner">
+      <div class="card-head">
+        <div class="brand-block">
+          <img class="logo" src="${currentLogo}" alt="logo" />
+          <div class="company">${tpl('tplCompanyLine1','CTY TNHH PKĐK NHƠN TÂM')}<br><b>${tpl('tplCompanyLine2','PHÒNG KHÁM ĐA KHOA')}<br>${tpl('tplCompanyLine3','NHƠN TÂM')}</b></div>
+          <div class="cert-no">${tpl('tplCertPrefix','Số:')} <b>${code || tpl('tplDefaultCode','Code')}</b> &nbsp;&nbsp; ${tpl('tplCertSuffix','/26/CNSKTX')}</div>
+        </div>
+        <div class="right-head">
+          <div class="nation">${tpl('tplNation','CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM')}<span class="sub">${tpl('tplNationSub','Độc lập – Tự do – Hạnh phúc')}</span><span class="ornament"><img src="data:image/png;base64,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" alt="hoa văn" /></span></div>
+          <div class="title">${tpl('tplTitle','CHỨNG NHẬN SỨC KHỎE')}</div>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="photo-box"></div>
+        <div class="fields">
+          <div class="line">${tpl('tplLabelName','Họ tên:')} <b>${name || tpl('tplDefaultName','Tên')}</b></div>
+          <div class="line">${tpl('tplLabelBirth','Sinh năm:')} <b>${birth || tpl('tplDefaultBirth','Năm Sinh')}</b></div>
+          <div class="line">${tpl('tplLabelGender','Giới tính:')} <b>${gender || tpl('tplDefaultGender','Giới Tính')}</b></div>
+          <div class="line">${tpl('tplLabelAddress','Hiện cư ngụ tại:')} <b>${address || tpl('tplDefaultAddress','ĐC')}</b></div>
+          <div class="line">${tpl('tplLabelUnit','Đơn vị:')} <b>${unit || tpl('tplDefaultUnit','Đơn vị')}</b></div>
+          <div class="line">${tpl('tplLabelExamDate','Kiểm tra sức khỏe ngày:')} <b>${examDate}</b></div>
+          <div class="line">${tpl('tplLabelConclusion','Kết luận:')} <b>${tpl('tplConclusion','ĐỦ SỨC KHỎE')}</b></div>
+        </div>
+      </div>
+      <div class="card-foot">
+        <div class="sign-zone">
+          <div class="signature">${escapeHtml(signer.role)}</div>
+          <div></div>
+          <div class="doctor">${escapeHtml(signer.name)}</div>
+        </div>
+      </div>
     </div>
-    <div class="signature">${escapeHtml(signer.role)}</div>
-    <div class="doctor">${escapeHtml(signer.name)}</div>
   </section>`;
 }
 
-function renderCards() {
-  if (!currentRows.length) {
+function hasManualRowData(row) {
+  return !!(row && (row.__code || row.__name || row.__birth || row.__gender || row.__address || row.__unit || row.__examDate));
+}
+
+function getRowsForRender() {
+  const rows = Array.isArray(currentRows) ? currentRows.slice() : [];
+  const pendingManual = getManualInputRow();
+  const hasPending = hasManualRowData(pendingManual);
+  const hasSamePending = hasPending && manualRows.some(r =>
+    r.__code === pendingManual.__code &&
+    r.__name === pendingManual.__name &&
+    r.__birth === pendingManual.__birth &&
+    r.__gender === pendingManual.__gender &&
+    r.__address === pendingManual.__address &&
+    r.__unit === pendingManual.__unit &&
+    r.__examDate === pendingManual.__examDate
+  );
+  return rows.concat(manualRows).concat(hasPending && !hasSamePending ? [pendingManual] : []);
+}
+
+function renderCards(rowsOverride) {
+  const rowsToRender = Array.isArray(rowsOverride) ? rowsOverride : getRowsForRender();
+  if (!rowsToRender.length) {
     $('preview').innerHTML = '<div class="empty">Chưa có dữ liệu để tạo thẻ.</div>';
     return;
   }
   const pages = [];
-  for (let i = 0; i < currentRows.length; i += 4) {
-    const slice = currentRows.slice(i, i + 4);
+  for (let i = 0; i < rowsToRender.length; i += 4) {
+    const slice = rowsToRender.slice(i, i + 4);
     const cards = slice.map((row, offset) => cardHtml(row, i + offset)).join('');
     pages.push(`<div class="page">${cards}</div>`);
   }
   $('preview').innerHTML = pages.join('');
   safeRequestAnimationFrame(fitAllCards);
-  setStatus(`Đã tạo ${currentRows.length} thẻ / ${pages.length} trang A4.`);
+  setStatus(`Đã tạo ${rowsToRender.length} thẻ / ${pages.length} trang A4.`);
 }
 
 function shrinkToFit(el, minPt = 7.2, step = 0.2) {
@@ -727,13 +935,99 @@ function shrinkToFit(el, minPt = 7.2, step = 0.2) {
 }
 
 function fitAllCards() {
-  Array.prototype.forEach.call(document.querySelectorAll('.fields'), el => { el.style.lineHeight = '1.28'; });
-  Array.prototype.forEach.call(document.querySelectorAll('.title'), el => { el.style.lineHeight = '1.28'; });
-  Array.prototype.forEach.call(document.querySelectorAll('.nation'), el => shrinkToFit(el, 7.2, 0.2));
-  Array.prototype.forEach.call(document.querySelectorAll('.company'), el => shrinkToFit(el, 7.2, 0.2));
-  Array.prototype.forEach.call(document.querySelectorAll('.doctor'), el => shrinkToFit(el, 8.2, 0.2));
+  Array.prototype.forEach.call(document.querySelectorAll('.fields'), el => { el.style.fontSize = ''; el.style.lineHeight = '1.20'; shrinkToFit(el, 7.4, 0.2); });
+  Array.prototype.forEach.call(document.querySelectorAll('.title'), el => { el.style.fontSize = ''; el.style.lineHeight = '1.14'; shrinkToFit(el, 9.0, 0.2); });
+  Array.prototype.forEach.call(document.querySelectorAll('.nation'), el => { el.style.fontSize = ''; shrinkToFit(el, 7.2, 0.2); });
+  Array.prototype.forEach.call(document.querySelectorAll('.company'), el => { el.style.fontSize = ''; shrinkToFit(el, 7.0, 0.2); });
+  Array.prototype.forEach.call(document.querySelectorAll('.cert-no'), el => { el.style.fontSize = ''; shrinkToFit(el, 7.8, 0.2); });
+  Array.prototype.forEach.call(document.querySelectorAll('.signature'), el => { el.style.fontSize = ''; shrinkToFit(el, 7.8, 0.2); });
+  Array.prototype.forEach.call(document.querySelectorAll('.doctor'), el => { el.style.fontSize = ''; shrinkToFit(el, 8.0, 0.2); });
 }
 
+
+
+function getManualInputRow() {
+  return {
+    __manual: true,
+    __code: String($('manualCodeInput').value || '').trim(),
+    __name: String($('manualNameInput').value || '').trim(),
+    __birth: String($('manualBirthInput').value || '').trim(),
+    __gender: String($('manualGenderInput').value || '').trim(),
+    __address: String($('manualAddressInput').value || '').trim(),
+    __unit: String($('manualUnitInput').value || '').trim(),
+    __examDate: String($('manualExamDateInput').value || '').trim()
+  };
+}
+
+function clearManualInputs() {
+  ['manualCodeInput','manualNameInput','manualBirthInput','manualGenderInput','manualAddressInput','manualUnitInput','manualExamDateInput'].forEach(id => { $(id).value = ''; });
+  $('manualCodeInput').focus();
+}
+
+function refreshManualRowsList() {
+  const box = $('manualRowsList');
+  if (!manualRows.length) {
+    box.innerHTML = '<table><tbody><tr><td>Chưa có dòng nhập tay.</td></tr></tbody></table>';
+    return;
+  }
+  const rowsHtml = manualRows.map((r, idx) => `<tr>
+    <td>${idx + 1}</td>
+    <td><b>${escapeHtml(r.__name || '(chưa có tên)')}</b><br>${escapeHtml(r.__code || '')}</td>
+    <td>${escapeHtml(r.__birth || '')}<br>${escapeHtml(r.__gender || '')}</td>
+    <td>${escapeHtml(r.__unit || '')}</td>
+    <td><button type="button" data-remove-manual="${idx}">Xóa</button></td>
+  </tr>`).join('');
+  box.innerHTML = `<table><thead><tr><th>#</th><th>Tên/Code</th><th>NS/GT</th><th>Đơn vị</th><th></th></tr></thead><tbody>${rowsHtml}</tbody></table>`;
+}
+
+function addManualRow() {
+  const row = getManualInputRow();
+  if (!row.__code && !row.__name && !row.__birth && !row.__gender && !row.__address && !row.__unit && !row.__examDate) {
+    setStatus('Chưa có thông tin nhập tay để thêm.');
+    return;
+  }
+  manualRows.push(row);
+  refreshManualRowsList();
+  clearManualInputs();
+  setStatus(`Đã thêm ${manualRows.length} dòng nhập tay.`);
+}
+
+function renderManualRows() {
+  if (!manualRows.length) addManualRow();
+  if (!manualRows.length) return;
+  renderCards(manualRows.slice());
+}
+
+$('toggleControlsBtn').addEventListener('click', () => {
+  const toolbar = $('toolbar');
+  toolbar.classList.toggle('collapsed');
+  $('toggleControlsBtn').textContent = toolbar.classList.contains('collapsed') ? 'Hiện vùng điều khiển' : 'Ẩn vùng điều khiển';
+});
+
+function toggleManualPanel() {
+  const panel = $('manualPanel');
+  panel.classList.toggle('collapsed');
+  const hidden = panel.classList.contains('collapsed');
+  $('manualPanelToggleBtn').textContent = hidden ? 'Hiện vùng này' : 'Ẩn vùng này';
+}
+
+$('toggleManualBtn').addEventListener('click', toggleManualPanel);
+$('manualPanelToggleBtn').addEventListener('click', toggleManualPanel);
+$('addManualRowBtn').addEventListener('click', addManualRow);
+$('clearManualRowsBtn').addEventListener('click', () => {
+  manualRows = [];
+  refreshManualRowsList();
+  setStatus('Đã xóa danh sách nhập tay.');
+});
+$('manualRowsList').addEventListener('click', (e) => {
+  const btn = e.target && e.target.closest('button[data-remove-manual]');
+  if (!btn) return;
+  const idx = Number(btn.getAttribute('data-remove-manual'));
+  manualRows.splice(idx, 1);
+  refreshManualRowsList();
+  setStatus(`Còn ${manualRows.length} dòng nhập tay.`);
+});
+refreshManualRowsList();
 
 document.addEventListener('input', (e) => {
   if (e.target && String(e.target.id || '').startsWith('tpl') && currentRows.length) {

@@ -42,7 +42,8 @@ export default function KskDriverList({
           <table className="w-full text-xs text-left">
             <thead>
               <tr className="bg-teal-50/50 text-teal-800 font-bold h-11 border-b border-slate-200 uppercase text-[10px] tracking-wider">
-                <th className="pl-4 w-16 text-center">Số phiếu</th>
+                <th className="w-14 text-center pl-4">STT</th>
+                <th className="w-16 text-center">Số phiếu</th>
                 <th className="pl-4">Họ và tên</th>
                 <th className="w-24 text-center">Giới tính</th>
                 <th className="w-32 text-center">Ngày sinh</th>
@@ -56,20 +57,21 @@ export default function KskDriverList({
             <tbody>
               {loading ? (
                 <tr>
-                  <td colSpan={9} className="text-center py-20 text-slate-450 font-bold">
+                  <td colSpan={10} className="text-center py-20 text-slate-450 font-bold">
                     Đang truy vấn database...
                   </td>
                 </tr>
               ) : patients.length === 0 ? (
                 <tr>
-                  <td colSpan={9} className="text-center py-20 text-slate-400 font-bold">
+                  <td colSpan={10} className="text-center py-20 text-slate-400 font-bold">
                     Không tìm thấy hồ sơ sức khỏe lái xe nào.
                   </td>
                 </tr>
               ) : (
-                patients.map((item) => (
+                patients.map((item, index) => (
                   <tr key={item._id} className="border-b border-slate-100 h-11 hover:bg-slate-50 transition-colors">
-                    <td className="text-center text-slate-400 font-bold">{item.soPhieu}</td>
+                    <td className="text-center pl-4 text-slate-400 font-bold">{index + 1}</td>
+                    <td className="text-center text-slate-450 font-bold">{item.soPhieu}</td>
                     <td className="pl-4 font-bold text-slate-800">{item.hoTen}</td>
                     <td className="text-center text-slate-600">{item.gioiTinh}</td>
                     <td className="text-center text-slate-500">{item.ngaySinh}</td>
