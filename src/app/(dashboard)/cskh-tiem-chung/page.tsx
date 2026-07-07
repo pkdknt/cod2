@@ -138,19 +138,75 @@ export default function CskhTiemChungPage() {
       const fileData = await importFile.arrayBuffer();
       const workbook = XLSX.read(new Uint8Array(fileData), { type: 'array' });
       const sheet = workbook.Sheets[selectedSheet];
-      const json = XLSX.utils.sheet_to_json(sheet) as any[];
+      
+      // Parse as array of arrays (AOA) first to detect header row index
+      const aoa = XLSX.utils.sheet_to_json(sheet, { header: 1 }) as any[][];
+      
+      // Find the header row index
+      let headerRowIndex = 0;
+      const nameKeywords = ['họ tên', 'ho ten', 'tên người tiêm', 'họ tên người tiêm', 'họ và tên', 'tên khách hàng', 'tên bệnh nhân', 'bệnh nhân'];
+      const vaccineKeywords = ['vắc xin', 'vacxin', 'vaccine', 'tên vắc xin', 'tên thuốc'];
+      
+      for (let i = 0; i < Math.min(aoa.length, 15); i++) {
+        const row = aoa[i];
+        if (!Array.isArray(row)) continue;
+        
+        let hasName = false;
+        let hasVaccine = false;
+        
+        for (const cell of row) {
+          if (!cell) continue;
+          const cellStr = String(cell).trim().toLowerCase();
+          
+          if (nameKeywords.some(kw => cellStr.includes(kw) || kw.includes(cellStr))) {
+            hasName = true;
+          }
+          if (vaccineKeywords.some(kw => cellStr.includes(kw) || kw.includes(cellStr))) {
+            hasVaccine = true;
+          }
+        }
+        
+        if (hasName || hasVaccine) {
+          headerRowIndex = i;
+          break;
+        }
+      }
+
+      const headers = (aoa[headerRowIndex] || []).map(h => h ? String(h).trim() : '');
+      const json: any[] = [];
+      
+      for (let i = headerRowIndex + 1; i < aoa.length; i++) {
+        const rowData = aoa[i];
+        if (!rowData || rowData.length === 0) continue;
+        
+        const obj: any = {};
+        let hasData = false;
+        for (let j = 0; j < headers.length; j++) {
+          const key = headers[j];
+          if (!key) continue;
+          const cellVal = rowData[j];
+          if (cellVal !== undefined && cellVal !== null && cellVal !== '') {
+            obj[key] = cellVal;
+            hasData = true;
+          }
+        }
+        if (hasData) {
+          json.push(obj);
+        }
+      }
 
       // Map columns intelligently
       const mappedItems = json.map((row: any) => {
         const findVal = (keys: string[]) => {
-          const matchKey = Object.keys(row).find((k) =>
-            keys.includes(k.trim().toLowerCase())
-          );
+          const matchKey = Object.keys(row).find((k) => {
+            const cleanK = k.trim().toLowerCase();
+            return keys.some(key => cleanK.includes(key) || key.includes(cleanK));
+          });
           return matchKey ? String(row[matchKey]).trim() : '';
         };
 
-        const patientName = findVal(['họ tên', 'ho ten', 'tên', 'ten', 'tên người tiêm', 'họ tên người tiêm', 'patientname', 'name', 'họ và tên']);
-        const rawVaccine = findVal(['vắc xin', 'vacxin', 'vaccine', 'tên vắc xin']);
+        const patientName = findVal(['họ tên', 'ho ten', 'tên người tiêm', 'họ tên người tiêm', 'patientname', 'name', 'họ và tên', 'khách hàng', 'bệnh nhân']);
+        const rawVaccine = findVal(['vắc xin', 'vacxin', 'vaccine', 'tên vắc xin', 'tên thuốc', 'tên vacxin']);
         const rawProtocol = findVal(['phác đồ', 'phac do', 'đối tượng', 'doi tuong', 'protocol']);
         
         let vaccine = '';
@@ -178,7 +234,7 @@ export default function CskhTiemChungPage() {
                   protocolId = bestProto.id;
                 }
               } else {
-                const dobVal = findVal(['ngày sinh', 'ngay sinh', 'dob', 'birth']);
+                const dobVal = findVal(['ngày sinh', 'ngay sinh', 'dob', 'birth', 'năm sinh']);
                 const dobDate = dobVal ? parseDate(dobVal) : null;
                 if (dobDate) {
                   const ageMonths = monthsAge(dobDate, new Date());
@@ -206,22 +262,30 @@ export default function CskhTiemChungPage() {
           }
         }
 
-        const dates = [
-          findVal(['mũi 1', 'mui 1', 'ngày tiêm 1', 'ngay tiem 1']),
-          findVal(['mũi 2', 'mui 2', 'ngày tiêm 2', 'ngay tiem 2']),
-          findVal(['mũi 3', 'mui 3', 'ngày tiêm 3', 'ngay tiem 3']),
-          findVal(['mũi 4', 'mui 4', 'ngày tiêm 4', 'ngay tiem 4']),
-          findVal(['mũi 5', 'mui 5', 'ngày tiêm 5', 'ngay tiem 5']),
-          findVal(['mũi 6', 'mui 6', 'mũi nhắc', 'ngày tiêm 6', 'ngay tiem 6', 'mui nhac'])
-        ].map(d => d ? maskDateText(d) : '');
+        const findDateVal = (doseNum: number) => {
+          const matchKey = Object.keys(row).find((k) => {
+            const cleanK = k.trim().toLowerCase();
+            const hasDose = cleanK.includes(`mũi ${doseNum}`) || cleanK.includes(`mui ${doseNum}`) || (doseNum === 6 && (cleanK.includes('mũi nhắc') || cleanK.includes('mui nhac')));
+            if (!hasDose) return false;
+            
+            const isReminder = cleanK.includes('hẹn') || cleanK.includes('kế hoạch') || cleanK.includes('ke hoach') || cleanK.includes('dự kiến') || cleanK.includes('du kien');
+            return !isReminder;
+          });
+          return matchKey ? String(row[matchKey]).trim() : '';
+        };
+
+        const dates = [1, 2, 3, 4, 5, 6].map(idx => {
+          const v = findDateVal(idx);
+          return v ? maskDateText(v) : '';
+        });
 
         return {
           patientCode: findVal(['mã đối tượng', 'mã bn', 'ma doi tuong', 'mã bệnh nhân', 'code', 'patientcode']),
           patientName,
-          phone: findVal(['số điện thoại', 'điện thoại', 'sđt', 'so dien thoai', 'phone']),
-          dob: findVal(['ngày sinh', 'ngay sinh', 'dob', 'birth']) ? maskDateText(findVal(['ngày sinh', 'ngay sinh', 'dob', 'birth'])) : '',
-          gender: findVal(['giới tính', 'gioi tinh', 'gender', 'sex']),
-          address: findVal(['địa chỉ', 'dia chi', 'address']),
+          phone: findVal(['số điện thoại', 'điện thoại', 'sđt', 'so dien thoai', 'phone', 'đt', 'dt']),
+          dob: findVal(['ngày sinh', 'ngay sinh', 'dob', 'birth', 'năm sinh']) ? maskDateText(findVal(['ngày sinh', 'ngay sinh', 'dob', 'birth', 'năm sinh'])) : '',
+          gender: findVal(['giới tính', 'gioi tinh', 'gender', 'sex', 'nam/nữ']),
+          address: findVal(['địa chỉ', 'dia chi', 'address', 'nơi ở', 'noi o']),
           vaccine,
           protocolId,
           dates
@@ -230,7 +294,7 @@ export default function CskhTiemChungPage() {
 
       const validItems = mappedItems.filter((item) => item.patientName && item.vaccine);
       if (validItems.length === 0) {
-        throw new Error('Không tìm thấy dòng dữ liệu hợp lệ nào chứa đầy đủ Họ tên và Tên vắc xin');
+        throw new Error('Không tìm thấy dòng dữ liệu hợp lệ nào chứa đầy đủ Họ tên và Tên vắc xin (Gợi ý: Hãy kiểm tra xem file Excel đã có cột Họ tên và Vắc xin chưa)');
       }
 
       setImportStatus(`Đang upload ${validItems.length} dòng dữ liệu...`);
