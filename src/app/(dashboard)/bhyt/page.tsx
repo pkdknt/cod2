@@ -1,7 +1,7 @@
 'use strict';
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import {
   Search,
   Plus,
@@ -9,7 +9,10 @@ import {
   Download,
   Upload,
   FileSpreadsheet,
-  Trash
+  Trash,
+  ArrowUpDown,
+  ArrowUp,
+  ArrowDown
 } from 'lucide-react';
 import { getDaysRemaining } from '@/lib/utils';
 import { BhytService, BhytCustomerData } from '@/services/BhytService';
@@ -34,8 +37,99 @@ export default function BhytPage() {
   const [sortBy, setSortBy] = useState('days');
   const [pageSize, setPageSize] = useState(100);
   const [page, setPage] = useState(1);
+  const [sortKey, setSortKey] = useState<string>('');
+  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
+
+  const requestSort = (key: string) => {
+    let direction: 'asc' | 'desc' = 'asc';
+    if (sortKey === key && sortDirection === 'asc') {
+      direction = 'desc';
+    }
+    setSortKey(key);
+    setSortDirection(direction);
+  };
+
+  const renderSortIcon = (key: string) => {
+    if (sortKey !== key) {
+      return <ArrowUpDown className="inline-block ml-1 h-3 w-3 opacity-40 text-slate-400 group-hover:opacity-100 transition-opacity" />;
+    }
+    if (sortDirection === 'asc') {
+      return <ArrowUp className="inline-block ml-1 h-3 w-3 text-teal-600 font-bold" />;
+    }
+    return <ArrowDown className="inline-block ml-1 h-3 w-3 text-teal-600 font-bold" />;
+  };
 
   const [customers, setCustomers] = useState<BhytCustomerData[]>([]);
+  const sortedCustomers = useMemo(() => {
+    if (!sortKey) return customers;
+    
+    return [...customers].sort((a, b) => {
+      let aVal: any;
+      let bVal: any;
+
+      if (sortKey === 'name') {
+        aVal = a.name || '';
+        bVal = b.name || '';
+        return sortDirection === 'asc' 
+          ? aVal.localeCompare(bVal, 'vi', { sensitivity: 'accent' }) 
+          : bVal.localeCompare(aVal, 'vi', { sensitivity: 'accent' });
+      } else if (sortKey === 'bhxh') {
+        aVal = a.bhxh || '';
+        bVal = b.bhxh || '';
+        return sortDirection === 'asc' ? aVal.localeCompare(bVal) : bVal.localeCompare(aVal);
+      } else if (sortKey === 'cccd') {
+        aVal = a.cccd || '';
+        bVal = b.cccd || '';
+        return sortDirection === 'asc' ? aVal.localeCompare(bVal) : bVal.localeCompare(aVal);
+      } else if (sortKey === 'dob') {
+        aVal = a.dob || '';
+        bVal = b.dob || '';
+        return sortDirection === 'asc' ? aVal.localeCompare(bVal) : bVal.localeCompare(aVal);
+      } else if (sortKey === 'gender') {
+        aVal = a.gender || '';
+        bVal = b.gender || '';
+        return sortDirection === 'asc' ? aVal.localeCompare(bVal) : bVal.localeCompare(aVal);
+      } else if (sortKey === 'birthPlace') {
+        aVal = a.birthPlace || '';
+        bVal = b.birthPlace || '';
+        return sortDirection === 'asc' ? aVal.localeCompare(bVal) : bVal.localeCompare(aVal);
+      } else if (sortKey === 'kcb') {
+        aVal = a.kcb || '';
+        bVal = b.kcb || '';
+        return sortDirection === 'asc' ? aVal.localeCompare(bVal) : bVal.localeCompare(aVal);
+      } else if (sortKey === 'phone') {
+        aVal = a.phone || '';
+        bVal = b.phone || '';
+        return sortDirection === 'asc' ? aVal.localeCompare(bVal) : bVal.localeCompare(aVal);
+      } else if (sortKey === 'expiry') {
+        aVal = a.expiry || '';
+        bVal = b.expiry || '';
+        return sortDirection === 'asc' ? aVal.localeCompare(bVal) : bVal.localeCompare(aVal);
+      } else if (sortKey === 'daysRemaining') {
+        const aRem = getDaysRemaining(a.expiry) ?? 9999;
+        const bRem = getDaysRemaining(b.expiry) ?? 9999;
+        return sortDirection === 'asc' ? aRem - bRem : bRem - aRem;
+      } else if (sortKey === 'amount') {
+        aVal = parseFloat(String(a.amount || '0').replace(/[^0-9.-]+/g, '')) || 0;
+        bVal = parseFloat(String(b.amount || '0').replace(/[^0-9.-]+/g, '')) || 0;
+        return sortDirection === 'asc' ? aVal - bVal : bVal - aVal;
+      } else if (sortKey === 'months') {
+        aVal = parseInt(a.months || '0', 10) || 0;
+        bVal = parseInt(b.months || '0', 10) || 0;
+        return sortDirection === 'asc' ? aVal - bVal : bVal - aVal;
+      } else if (sortKey === 'renewType') {
+        aVal = a.renewType || '';
+        bVal = b.renewType || '';
+        return sortDirection === 'asc' ? aVal.localeCompare(bVal) : bVal.localeCompare(aVal);
+      } else if (sortKey === 'contactStatus') {
+        aVal = a.contactStatus || '';
+        bVal = b.contactStatus || '';
+        return sortDirection === 'asc' ? aVal.localeCompare(bVal) : bVal.localeCompare(aVal);
+      }
+      return 0;
+    });
+  }, [customers, sortKey, sortDirection]);
+
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [totalCount, setTotalCount] = useState(0);
@@ -589,22 +683,52 @@ export default function BhytPage() {
                 </th>
                 <th className="w-14 text-center border-r border-slate-200">STT</th>
                 <th className="w-20 text-center border-r border-slate-200">Chi tiết</th>
-                <th className="w-48 text-left sticky left-12 z-30 bg-teal-50 border-r border-slate-200 pl-4">HỌ TÊN</th>
-                <th className="w-36 text-center border-r border-slate-200">Mã số BHXH</th>
-                <th className="w-32 text-center border-r border-slate-200">CCCD</th>
-                <th className="w-28 text-center border-r border-slate-200">Ngày sinh</th>
-                <th className="w-24 text-center border-r border-slate-200">Giới tính</th>
-                <th className="w-40 text-center border-r border-slate-200">Nơi khai sinh</th>
-                <th className="w-56 text-center border-r border-slate-200">KCB ban đầu</th>
-                <th className="w-28 text-center border-r border-slate-200">Ngày gọi</th>
-                <th className="w-28 text-center border-r border-slate-200">Số tiền đóng</th>
-                <th className="w-24 text-center border-r border-slate-200">Số tháng</th>
-                <th className="w-28 text-center border-r border-slate-200">Điện thoại</th>
-                <th className="w-36 text-center border-r border-slate-200">Hạn thẻ đến ngày</th>
-                <th className="w-24 text-center border-r border-slate-200">Hạn còn lại</th>
+                <th className="w-48 text-left sticky left-12 z-30 bg-teal-50 border-r border-slate-200 pl-4 cursor-pointer select-none group hover:bg-teal-100/50 transition-colors" onClick={() => requestSort('name')}>
+                  <div className="flex items-center gap-1">HỌ TÊN {renderSortIcon('name')}</div>
+                </th>
+                <th className="w-36 text-center border-r border-slate-200 cursor-pointer select-none group hover:bg-teal-100/50 transition-colors" onClick={() => requestSort('bhxh')}>
+                  <div className="flex items-center justify-center gap-1">Mã số BHXH {renderSortIcon('bhxh')}</div>
+                </th>
+                <th className="w-32 text-center border-r border-slate-200 cursor-pointer select-none group hover:bg-teal-100/50 transition-colors" onClick={() => requestSort('cccd')}>
+                  <div className="flex items-center justify-center gap-1">CCCD {renderSortIcon('cccd')}</div>
+                </th>
+                <th className="w-28 text-center border-r border-slate-200 cursor-pointer select-none group hover:bg-teal-100/50 transition-colors" onClick={() => requestSort('dob')}>
+                  <div className="flex items-center justify-center gap-1">Ngày sinh {renderSortIcon('dob')}</div>
+                </th>
+                <th className="w-24 text-center border-r border-slate-200 cursor-pointer select-none group hover:bg-teal-100/50 transition-colors" onClick={() => requestSort('gender')}>
+                  <div className="flex items-center justify-center gap-1">Giới tính {renderSortIcon('gender')}</div>
+                </th>
+                <th className="w-40 text-center border-r border-slate-200 cursor-pointer select-none group hover:bg-teal-100/50 transition-colors" onClick={() => requestSort('birthPlace')}>
+                  <div className="flex items-center justify-center gap-1">Nơi khai sinh {renderSortIcon('birthPlace')}</div>
+                </th>
+                <th className="w-56 text-center border-r border-slate-200 cursor-pointer select-none group hover:bg-teal-100/50 transition-colors" onClick={() => requestSort('kcb')}>
+                  <div className="flex items-center justify-center gap-1">KCB ban đầu {renderSortIcon('kcb')}</div>
+                </th>
+                <th className="w-28 text-center border-r border-slate-200 cursor-pointer select-none group hover:bg-teal-100/50 transition-colors" onClick={() => requestSort('callDate')}>
+                  <div className="flex items-center justify-center gap-1">Ngày gọi {renderSortIcon('callDate')}</div>
+                </th>
+                <th className="w-28 text-center border-r border-slate-200 cursor-pointer select-none group hover:bg-teal-100/50 transition-colors" onClick={() => requestSort('amount')}>
+                  <div className="flex items-center justify-center gap-1">Số tiền đóng {renderSortIcon('amount')}</div>
+                </th>
+                <th className="w-24 text-center border-r border-slate-200 cursor-pointer select-none group hover:bg-teal-100/50 transition-colors" onClick={() => requestSort('months')}>
+                  <div className="flex items-center justify-center gap-1">Số tháng {renderSortIcon('months')}</div>
+                </th>
+                <th className="w-28 text-center border-r border-slate-200 cursor-pointer select-none group hover:bg-teal-100/50 transition-colors" onClick={() => requestSort('phone')}>
+                  <div className="flex items-center justify-center gap-1">Điện thoại {renderSortIcon('phone')}</div>
+                </th>
+                <th className="w-36 text-center border-r border-slate-200 cursor-pointer select-none group hover:bg-teal-100/50 transition-colors" onClick={() => requestSort('expiry')}>
+                  <div className="flex items-center justify-center gap-1">Hạn thẻ đến ngày {renderSortIcon('expiry')}</div>
+                </th>
+                <th className="w-24 text-center border-r border-slate-200 cursor-pointer select-none group hover:bg-teal-100/50 transition-colors" onClick={() => requestSort('daysRemaining')}>
+                  <div className="flex items-center justify-center gap-1">Hạn còn lại {renderSortIcon('daysRemaining')}</div>
+                </th>
                 <th className="w-24 text-center border-r border-slate-200">Cần gọi</th>
-                <th className="w-32 text-center border-r border-slate-200">Gia hạn</th>
-                <th className="w-40 text-center border-r border-slate-200">Trạng thái liên hệ</th>
+                <th className="w-32 text-center border-r border-slate-200 cursor-pointer select-none group hover:bg-teal-100/50 transition-colors" onClick={() => requestSort('renewType')}>
+                  <div className="flex items-center justify-center gap-1">Gia hạn {renderSortIcon('renewType')}</div>
+                </th>
+                <th className="w-40 text-center border-r border-slate-200 cursor-pointer select-none group hover:bg-teal-100/50 transition-colors" onClick={() => requestSort('contactStatus')}>
+                  <div className="flex items-center justify-center gap-1">Trạng thái liên hệ {renderSortIcon('contactStatus')}</div>
+                </th>
                 <th className="w-44 text-center border-r border-slate-200">Ghi chú</th>
                 <th className="w-20 text-center">Xóa</th>
               </tr>
@@ -627,14 +751,14 @@ export default function BhytPage() {
                     </p>
                   </td>
                 </tr>
-              ) : customers.length === 0 ? (
+              ) : sortedCustomers.length === 0 ? (
                 <tr>
                   <td colSpan={21} className="text-center py-20 text-slate-400 font-bold">
                     Không tìm thấy dữ liệu phù hợp
                   </td>
                 </tr>
               ) : (
-                customers.map((c, index) => {
+                sortedCustomers.map((c, index) => {
                   const daysRemaining = getDaysRemaining(c.expiry);
                   let rowColor = '';
                   let badgeColor = '';

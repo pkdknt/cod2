@@ -1,7 +1,7 @@
 'use strict';
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import XLSX from 'xlsx-js-style';
 import {
   CalendarDays,
@@ -18,7 +18,10 @@ import {
   AlertCircle,
   CheckCircle2,
   Clock,
-  Briefcase
+  Briefcase,
+  ArrowUpDown,
+  ArrowUp,
+  ArrowDown
 } from 'lucide-react';
 import {
   DATA,
@@ -57,6 +60,74 @@ export default function TiemChungPage() {
 
   // Database list states
   const [savedSchedules, setSavedSchedules] = useState<any[]>([]);
+  const [sortKey, setSortKey] = useState<string>('');
+  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
+
+  const requestSort = (key: string) => {
+    let direction: 'asc' | 'desc' = 'asc';
+    if (sortKey === key && sortDirection === 'asc') {
+      direction = 'desc';
+    }
+    setSortKey(key);
+    setSortDirection(direction);
+  };
+
+  const renderSortIcon = (key: string) => {
+    if (sortKey !== key) {
+      return <ArrowUpDown className="inline-block ml-1 h-3 w-3 opacity-40 text-slate-400 group-hover:opacity-100 transition-opacity" />;
+    }
+    if (sortDirection === 'asc') {
+      return <ArrowUp className="inline-block ml-1 h-3 w-3 text-teal-600 font-bold" />;
+    }
+    return <ArrowDown className="inline-block ml-1 h-3 w-3 text-teal-600 font-bold" />;
+  };
+
+  const sortedSchedules = useMemo(() => {
+    if (!sortKey) return savedSchedules;
+    
+    return [...savedSchedules].sort((a, b) => {
+      let aVal: any;
+      let bVal: any;
+
+      if (sortKey === 'name') {
+        aVal = a.patientName || '';
+        bVal = b.patientName || '';
+        return sortDirection === 'asc' 
+          ? aVal.localeCompare(bVal, 'vi', { sensitivity: 'accent' }) 
+          : bVal.localeCompare(aVal, 'vi', { sensitivity: 'accent' });
+      } else if (sortKey === 'phone') {
+        aVal = a.phone || '';
+        bVal = b.phone || '';
+        return sortDirection === 'asc' 
+          ? aVal.localeCompare(bVal, 'vi', { sensitivity: 'accent' }) 
+          : bVal.localeCompare(aVal, 'vi', { sensitivity: 'accent' });
+      } else if (sortKey === 'dob') {
+        aVal = a.dob || '';
+        bVal = b.dob || '';
+        return sortDirection === 'asc' 
+          ? aVal.localeCompare(bVal, 'vi', { sensitivity: 'accent' }) 
+          : bVal.localeCompare(aVal, 'vi', { sensitivity: 'accent' });
+      } else if (sortKey === 'vaccine') {
+        aVal = a.vaccine || '';
+        bVal = b.vaccine || '';
+        return sortDirection === 'asc' 
+          ? aVal.localeCompare(bVal, 'vi', { sensitivity: 'accent' }) 
+          : bVal.localeCompare(aVal, 'vi', { sensitivity: 'accent' });
+      } else if (sortKey === 'protocol') {
+        aVal = DATA.protocols.find(p => p.id === a.protocolId)?.object || a.protocolId || '';
+        bVal = DATA.protocols.find(p => p.id === b.protocolId)?.object || b.protocolId || '';
+        return sortDirection === 'asc' 
+          ? aVal.localeCompare(bVal, 'vi', { sensitivity: 'accent' }) 
+          : bVal.localeCompare(aVal, 'vi', { sensitivity: 'accent' });
+      } else if (sortKey === 'progress') {
+        const aCount = a.dates ? a.dates.filter((d: string) => d !== '').length : 0;
+        const bCount = b.dates ? b.dates.filter((d: string) => d !== '').length : 0;
+        return sortDirection === 'asc' ? aCount - bCount : bCount - aCount;
+      }
+      return 0;
+    });
+  }, [savedSchedules, sortKey, sortDirection]);
+
   const [qSearch, setQSearch] = useState('');
   const [filterVaccine, setFilterVaccine] = useState('');
   const [loading, setLoading] = useState(false);
@@ -891,22 +962,36 @@ export default function TiemChungPage() {
                         />
                       </th>
                       <th className="text-center w-12 border border-slate-200">STT</th>
-                      <th className="w-28 text-center border border-slate-200">Ngày sinh</th>
-                      <th className="w-32 text-center border border-slate-200">Vắc xin theo dõi</th>
-                      <th className="w-44 pl-4 border border-slate-200 py-2">Phác đồ áp dụng</th>
-                      <th className="w-40 text-center border border-slate-200">Tiến độ tiêm gần nhất</th>
+                      <th className="pl-4 border border-slate-200 py-2 cursor-pointer select-none group hover:bg-slate-50 hover:text-slate-700 transition-colors" onClick={() => requestSort('name')}>
+                        <div className="flex items-center gap-1">Họ tên người tiêm {renderSortIcon('name')}</div>
+                      </th>
+                      <th className="w-28 text-center border border-slate-200 cursor-pointer select-none group hover:bg-slate-50 hover:text-slate-700 transition-colors" onClick={() => requestSort('phone')}>
+                        <div className="flex items-center justify-center gap-1">Điện thoại {renderSortIcon('phone')}</div>
+                      </th>
+                      <th className="w-28 text-center border border-slate-200 cursor-pointer select-none group hover:bg-slate-50 hover:text-slate-700 transition-colors" onClick={() => requestSort('dob')}>
+                        <div className="flex items-center justify-center gap-1">Ngày sinh {renderSortIcon('dob')}</div>
+                      </th>
+                      <th className="w-32 text-center border border-slate-200 cursor-pointer select-none group hover:bg-slate-50 hover:text-slate-700 transition-colors" onClick={() => requestSort('vaccine')}>
+                        <div className="flex items-center justify-center gap-1">Vắc xin theo dõi {renderSortIcon('vaccine')}</div>
+                      </th>
+                      <th className="w-44 pl-4 border border-slate-200 cursor-pointer select-none group hover:bg-slate-50 hover:text-slate-700 transition-colors" onClick={() => requestSort('protocol')}>
+                        <div className="flex items-center gap-1">Phác đồ áp dụng {renderSortIcon('protocol')}</div>
+                      </th>
+                      <th className="w-40 text-center border border-slate-200 cursor-pointer select-none group hover:bg-slate-50 hover:text-slate-700 transition-colors" onClick={() => requestSort('progress')}>
+                        <div className="flex items-center justify-center gap-1">Tiến độ tiêm gần nhất {renderSortIcon('progress')}</div>
+                      </th>
                       <th className="w-24 text-center border border-slate-200">Tác vụ</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {savedSchedules.length === 0 ? (
+                    {sortedSchedules.length === 0 ? (
                       <tr>
-                        <td colSpan={8} className="text-center py-20 text-slate-400 font-bold">
+                        <td colSpan={9} className="text-center py-20 text-slate-400 font-bold">
                           Không tìm thấy hồ sơ theo dõi tiêm chủng nào.
                         </td>
                       </tr>
                     ) : (
-                      savedSchedules.map((item, index) => {
+                      sortedSchedules.map((item, index) => {
                         const actualDoseCount = item.dates ? item.dates.filter((d: string) => d !== '').length : 0;
                         
                         return (
@@ -926,6 +1011,12 @@ export default function TiemChungPage() {
                               />
                             </td>
                             <td className="text-center text-slate-400 font-bold border border-slate-200">{index + 1}</td>
+                            <td className="pl-4 font-bold text-slate-800 border border-slate-200 py-1.5">
+                              {item.patientCode && <div className="text-[10px] text-teal-600 mb-0.5">{item.patientCode}</div>}
+                              {item.patientName}
+                              {item.address && <div className="text-[9px] text-slate-400 font-normal mt-0.5 max-w-[120px] truncate">{item.address}</div>}
+                            </td>
+                            <td className="text-center text-slate-650 font-semibold border border-slate-200">{item.phone || 'Chưa có'}</td>
                             <td className="text-center text-slate-500 border border-slate-200">{item.dob || ''}</td>
                             <td className="text-center font-bold text-teal-800 bg-teal-50/10 border border-slate-200">{item.vaccine}</td>
                             <td className="pl-4 text-slate-500 text-[11px] truncate max-w-xs border border-slate-200" title={item.protocolId}>
@@ -960,12 +1051,12 @@ export default function TiemChungPage() {
 
               {/* Mobile Card List View */}
               <div className="block md:hidden divide-y divide-slate-100">
-                {savedSchedules.length === 0 ? (
+                {sortedSchedules.length === 0 ? (
                   <div className="text-center py-12 text-slate-400 font-bold">
                     Không tìm thấy hồ sơ theo dõi tiêm chủng nào.
                   </div>
                 ) : (
-                  savedSchedules.map((item, index) => {
+                  sortedSchedules.map((item, index) => {
                     const actualDoseCount = item.dates ? item.dates.filter((d: string) => d !== '').length : 0;
                     const isChecked = selectedIds.includes(item._id);
                     
@@ -993,7 +1084,9 @@ export default function TiemChungPage() {
                           </span>
                         </div>
                         
-                        <div className="text-xs text-slate-500 space-y-1 pl-6">
+                        <div className="text-xs text-slate-505 space-y-1 pl-6">
+                          <p><b>Họ tên:</b> {item.patientName}</p>
+                          {item.phone && <p><b>Số điện thoại:</b> {item.phone}</p>}
                           <p><b>Ngày sinh:</b> {item.dob || 'Không rõ'}</p>
                           <p className="truncate max-w-xs" title={item.protocolId}>
                             <b>Phác đồ:</b> {DATA.protocols.find(p => p.id === item.protocolId)?.object || item.protocolId}
@@ -1003,13 +1096,13 @@ export default function TiemChungPage() {
                         <div className="flex justify-end gap-3 pt-2 pl-6">
                           <button
                             onClick={() => handleLoadSchedule(item)}
-                            className="px-3 py-1 bg-teal-50 text-teal-700 rounded-lg text-xs font-bold hover:bg-teal-100 transition-colors"
+                            className="px-3 py-1 bg-teal-55 text-teal-750 rounded-lg text-xs font-bold hover:bg-teal-100 transition-colors"
                           >
                             Sửa
                           </button>
                           <button
                             onClick={() => handleDeleteSchedule(item._id)}
-                            className="px-3 py-1 bg-red-50 text-red-650 rounded-lg text-xs font-bold hover:bg-red-100 transition-colors"
+                            className="px-3 py-1 bg-red-55 text-red-650 rounded-lg text-xs font-bold hover:bg-red-100 transition-colors"
                           >
                             Xóa
                           </button>

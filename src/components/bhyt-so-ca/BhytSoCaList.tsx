@@ -1,7 +1,5 @@
-'use client';
-
-import React from 'react';
-import { Search } from 'lucide-react';
+import React, { useState, useMemo } from 'react';
+import { Search, ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react';
 import { BhytSoCaData } from '@/services/BhytSoCaService';
 
 interface BhytSoCaListProps {
@@ -31,6 +29,57 @@ export default function BhytSoCaList({
   onDelete,
   monthsList
 }: BhytSoCaListProps) {
+  const [sortKey, setSortKey] = useState<string>('');
+  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
+
+  const requestSort = (key: string) => {
+    let direction: 'asc' | 'desc' = 'asc';
+    if (sortKey === key && sortDirection === 'asc') {
+      direction = 'desc';
+    }
+    setSortKey(key);
+    setSortDirection(direction);
+  };
+
+  const renderSortIcon = (key: string) => {
+    if (sortKey !== key) {
+      return <ArrowUpDown className="inline-block ml-1 h-3 w-3 opacity-40 text-slate-400 group-hover:opacity-100 transition-opacity" />;
+    }
+    if (sortDirection === 'asc') {
+      return <ArrowUp className="inline-block ml-1 h-3 w-3 text-teal-600 font-bold" />;
+    }
+    return <ArrowDown className="inline-block ml-1 h-3 w-3 text-teal-600 font-bold" />;
+  };
+
+  const sortedItems = useMemo(() => {
+    if (!sortKey) return items;
+    
+    return [...items].sort((a, b) => {
+      let aVal: any;
+      let bVal: any;
+
+      if (sortKey === 'date') {
+        aVal = a.date || '';
+        bVal = b.date || '';
+        return sortDirection === 'asc' ? aVal.localeCompare(bVal) : bVal.localeCompare(aVal);
+      } else if (sortKey === 'type') {
+        aVal = a.type || '';
+        bVal = b.type || '';
+        return sortDirection === 'asc' ? aVal.localeCompare(bVal) : bVal.localeCompare(aVal);
+      } else if (sortKey === 'qty') {
+        aVal = a.qty || 0;
+        bVal = b.qty || 0;
+        return sortDirection === 'asc' ? aVal - bVal : bVal - aVal;
+      } else if (sortKey === 'note') {
+        aVal = a.note || '';
+        bVal = b.note || '';
+        return sortDirection === 'asc' 
+          ? aVal.localeCompare(bVal, 'vi', { sensitivity: 'accent' }) 
+          : bVal.localeCompare(aVal, 'vi', { sensitivity: 'accent' });
+      }
+      return 0;
+    });
+  }, [items, sortKey, sortDirection]);
 
   const formatVnDate = (dateStr: string) => {
     if (!dateStr) return '';
@@ -85,10 +134,18 @@ export default function BhytSoCaList({
             <thead>
               <tr className="bg-teal-50/50 text-teal-800 font-bold h-11 border-b border-slate-200 uppercase text-[10px] tracking-wider">
                 <th className="w-16 text-center pl-4">STT</th>
-                <th className="w-36 text-center">Ngày</th>
-                <th className="w-36 text-center">Loại ca</th>
-                <th className="w-24 text-center">Số ca</th>
-                <th className="pl-4">Ghi chú</th>
+                <th className="w-36 text-center cursor-pointer select-none group hover:bg-slate-50 hover:text-slate-705 transition-colors border border-slate-200" onClick={() => requestSort('date')}>
+                  <div className="flex items-center justify-center gap-1">Ngày {renderSortIcon('date')}</div>
+                </th>
+                <th className="w-36 text-center cursor-pointer select-none group hover:bg-slate-50 hover:text-slate-705 transition-colors border border-slate-200" onClick={() => requestSort('type')}>
+                  <div className="flex items-center justify-center gap-1">Loại ca {renderSortIcon('type')}</div>
+                </th>
+                <th className="w-24 text-center cursor-pointer select-none group hover:bg-slate-50 hover:text-slate-705 transition-colors border border-slate-200" onClick={() => requestSort('qty')}>
+                  <div className="flex items-center justify-center gap-1">Số ca {renderSortIcon('qty')}</div>
+                </th>
+                <th className="pl-4 cursor-pointer select-none group hover:bg-slate-50 hover:text-slate-705 transition-colors border border-slate-200" onClick={() => requestSort('note')}>
+                  <div className="flex items-center gap-1">Ghi chú {renderSortIcon('note')}</div>
+                </th>
                 <th className="w-32 text-center">Tác vụ</th>
               </tr>
             </thead>
@@ -99,14 +156,14 @@ export default function BhytSoCaList({
                     Đang tải dữ liệu...
                   </td>
                 </tr>
-              ) : items.length === 0 ? (
+              ) : sortedItems.length === 0 ? (
                 <tr>
                   <td colSpan={6} className="text-center py-16 text-slate-400 font-bold">
                     Chưa có dữ liệu nào phù hợp.
                   </td>
                 </tr>
               ) : (
-                items.map((item, idx) => (
+                sortedItems.map((item, idx) => (
                   <tr key={item._id} className="border-b border-slate-100 h-10 hover:bg-slate-55 transition-colors">
                     <td className="text-center pl-4 font-bold text-slate-400">{idx + 1}</td>
                     <td className="text-center text-slate-700">{formatVnDate(item.date)}</td>

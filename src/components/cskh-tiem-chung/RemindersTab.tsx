@@ -2,7 +2,7 @@
 
 import React, { useState, useMemo, useEffect, useRef } from 'react';
 import XLSX from 'xlsx-js-style';
-import { Search } from 'lucide-react';
+import { Search, ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react';
 import { DATA, parseDate, parseSchedule, addInterval, sequentialInterval, fmtDate, DOSE_LABELS } from '@/lib/vaccineData';
 
 interface RemindersTabProps {
@@ -15,6 +15,27 @@ interface RemindersTabProps {
 export default function RemindersTab({ data, onRefresh, onEdit, onDelete }: RemindersTabProps) {
   const [filterDays, setFilterDays] = useState('30'); // Default < 1 month
   const [qSearch, setQSearch] = useState('');
+  const [sortKey, setSortKey] = useState<string>('due');
+  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
+
+  const requestSort = (key: string) => {
+    let direction: 'asc' | 'desc' = 'asc';
+    if (sortKey === key && sortDirection === 'asc') {
+      direction = 'desc';
+    }
+    setSortKey(key);
+    setSortDirection(direction);
+  };
+
+  const renderSortIcon = (key: string) => {
+    if (sortKey !== key) {
+      return <ArrowUpDown className="inline-block ml-1 h-3 w-3 opacity-40 text-slate-400 group-hover:opacity-100 transition-opacity" />;
+    }
+    if (sortDirection === 'asc') {
+      return <ArrowUp className="inline-block ml-1 h-3 w-3 text-teal-600 font-bold" />;
+    }
+    return <ArrowDown className="inline-block ml-1 h-3 w-3 text-teal-600 font-bold" />;
+  };
 
   // Local state to keep track of live edits so that the UI updates immediately
   const [localEdits, setLocalEdits] = useState<{
@@ -222,13 +243,34 @@ export default function RemindersTab({ data, onRefresh, onEdit, onDelete }: Remi
       }
     });
 
-    // Sort by due date ascending
-    list.sort((a, b) => a.due.getTime() - b.due.getTime());
+    // Apply sorting
+    let sortedList = [...list];
+    if (sortKey === 'due') {
+      sortedList.sort((a, b) => sortDirection === 'asc' ? a.due.getTime() - b.due.getTime() : b.due.getTime() - a.due.getTime());
+    } else if (sortKey === 'patientCode') {
+      sortedList.sort((a, b) => sortDirection === 'asc' ? a.patientCode.localeCompare(b.patientCode) : b.patientCode.localeCompare(a.patientCode));
+    } else if (sortKey === 'name') {
+      sortedList.sort((a, b) => sortDirection === 'asc' 
+        ? a.patientName.localeCompare(b.patientName, 'vi', { sensitivity: 'accent' }) 
+        : b.patientName.localeCompare(a.patientName, 'vi', { sensitivity: 'accent' }));
+    } else if (sortKey === 'phone') {
+      sortedList.sort((a, b) => sortDirection === 'asc' ? a.phone.localeCompare(b.phone) : b.phone.localeCompare(a.phone));
+    } else if (sortKey === 'dob') {
+      sortedList.sort((a, b) => sortDirection === 'asc' ? a.dob.localeCompare(b.dob) : b.dob.localeCompare(a.dob));
+    } else if (sortKey === 'gender') {
+      sortedList.sort((a, b) => sortDirection === 'asc' ? a.gender.localeCompare(b.gender) : b.gender.localeCompare(a.gender));
+    } else if (sortKey === 'address') {
+      sortedList.sort((a, b) => sortDirection === 'asc' ? a.address.localeCompare(b.address) : b.address.localeCompare(a.address));
+    } else if (sortKey === 'vaccineAndDose') {
+      sortedList.sort((a, b) => sortDirection === 'asc' ? a.vaccineAndDose.localeCompare(b.vaccineAndDose) : b.vaccineAndDose.localeCompare(a.vaccineAndDose));
+    } else if (sortKey === 'diff') {
+      sortedList.sort((a, b) => sortDirection === 'asc' ? a.diff - b.diff : b.diff - a.diff);
+    }
 
     // Apply text search filter
     if (qSearch) {
       const q = qSearch.toLowerCase();
-      return list.filter(item => 
+      return sortedList.filter(item => 
         item.patientName.toLowerCase().includes(q) ||
         item.patientCode.toLowerCase().includes(q) ||
         item.vaccineAndDose.toLowerCase().includes(q) ||
@@ -236,8 +278,8 @@ export default function RemindersTab({ data, onRefresh, onEdit, onDelete }: Remi
       );
     }
 
-    return list;
-  }, [data, filterDays, qSearch]);
+    return sortedList;
+  }, [data, filterDays, qSearch, sortKey, sortDirection]);
 
   const handleExport = () => {
     const headers = [
@@ -434,20 +476,38 @@ export default function RemindersTab({ data, onRefresh, onEdit, onDelete }: Remi
             <thead>
               <tr className="bg-slate-50 text-slate-700 font-bold h-11 border-b border-slate-200 uppercase text-[10px]">
                 <th className="pl-6 w-12 border border-slate-200 text-center">STT</th>
-                <th className="w-32 border border-slate-200 px-3">Mã đối tượng</th>
-                <th className="w-44 border border-slate-200 px-3">Họ tên</th>
-                <th className="w-28 border border-slate-200 text-center px-3">Số điện thoại</th>
-                <th className="w-24 border border-slate-200 text-center px-3">Ngày sinh</th>
-                <th className="w-20 border border-slate-200 text-center px-3">Giới tính</th>
-                <th className="min-w-[120px] max-w-[200px] border border-slate-200 px-3">Địa chỉ</th>
-                <th className="w-32 border border-slate-200 px-3">Mũi tiêm</th>
+                <th className="w-32 border border-slate-200 px-3 cursor-pointer select-none group hover:bg-slate-50 hover:text-slate-700 transition-colors" onClick={() => requestSort('patientCode')}>
+                  <div className="flex items-center gap-1">Mã đối tượng {renderSortIcon('patientCode')}</div>
+                </th>
+                <th className="w-44 border border-slate-200 px-3 cursor-pointer select-none group hover:bg-slate-50 hover:text-slate-700 transition-colors" onClick={() => requestSort('name')}>
+                  <div className="flex items-center gap-1">Họ tên {renderSortIcon('name')}</div>
+                </th>
+                <th className="w-28 border border-slate-200 text-center px-3 cursor-pointer select-none group hover:bg-slate-50 hover:text-slate-700 transition-colors" onClick={() => requestSort('phone')}>
+                  <div className="flex items-center justify-center gap-1">Số điện thoại {renderSortIcon('phone')}</div>
+                </th>
+                <th className="w-24 border border-slate-200 text-center px-3 cursor-pointer select-none group hover:bg-slate-50 hover:text-slate-700 transition-colors" onClick={() => requestSort('dob')}>
+                  <div className="flex items-center justify-center gap-1">Ngày sinh {renderSortIcon('dob')}</div>
+                </th>
+                <th className="w-20 border border-slate-200 text-center px-3 cursor-pointer select-none group hover:bg-slate-50 hover:text-slate-700 transition-colors" onClick={() => requestSort('gender')}>
+                  <div className="flex items-center justify-center gap-1">Giới tính {renderSortIcon('gender')}</div>
+                </th>
+                <th className="min-w-[120px] max-w-[200px] border border-slate-200 px-3 cursor-pointer select-none group hover:bg-slate-50 hover:text-slate-700 transition-colors" onClick={() => requestSort('address')}>
+                  <div className="flex items-center gap-1">Địa chỉ {renderSortIcon('address')}</div>
+                </th>
+                <th className="w-32 border border-slate-200 px-3 cursor-pointer select-none group hover:bg-slate-50 hover:text-slate-700 transition-colors" onClick={() => requestSort('vaccineAndDose')}>
+                  <div className="flex items-center gap-1">Mũi tiêm {renderSortIcon('vaccineAndDose')}</div>
+                </th>
                 <th className="w-28 border border-slate-200 text-center px-3">Ngày tiêm</th>
-                <th className="w-28 border border-slate-200 text-center px-3">Kế hoạch tiêm</th>
+                <th className="w-28 border border-slate-200 text-center px-3 cursor-pointer select-none group hover:bg-slate-50 hover:text-slate-700 transition-colors" onClick={() => requestSort('due')}>
+                  <div className="flex items-center justify-center gap-1">Kế hoạch tiêm {renderSortIcon('due')}</div>
+                </th>
                 <th className="w-20 border border-slate-200 text-center px-3">Đã tiêm</th>
                 <th className="w-20 border border-slate-200 text-center px-3">Đã gọi</th>
                 <th className="w-20 border border-slate-200 text-center px-3">Đã nhắn</th>
                 <th className="w-40 border border-slate-200 px-3">Ghi chú nhắc hẹn</th>
-                <th className="w-28 border border-slate-200 px-3">Trạng thái</th>
+                <th className="w-28 border border-slate-200 px-3 cursor-pointer select-none group hover:bg-slate-50 hover:text-slate-700 transition-colors" onClick={() => requestSort('diff')}>
+                  <div className="flex items-center justify-center gap-1">Trạng thái {renderSortIcon('diff')}</div>
+                </th>
                 <th className="w-24 border border-slate-200 text-center pr-6">Thao tác</th>
               </tr>
             </thead>

@@ -1,7 +1,7 @@
 'use strict';
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import XLSX from 'xlsx-js-style';
 import {
   CalendarDays,
@@ -24,7 +24,10 @@ import {
   Clock,
   Briefcase,
   Syringe,
-  ClipboardList
+  ClipboardList,
+  ArrowUpDown,
+  ArrowUp,
+  ArrowDown
 } from 'lucide-react';
 import RemindersTab from '@/components/cskh-tiem-chung/RemindersTab';
 import {
@@ -64,6 +67,73 @@ export default function CskhTiemChungPage() {
 
   // Database list states
   const [savedSchedules, setSavedSchedules] = useState<any[]>([]);
+  const [sortKey, setSortKey] = useState<string>('');
+  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
+
+  const requestSort = (key: string) => {
+    let direction: 'asc' | 'desc' = 'asc';
+    if (sortKey === key && sortDirection === 'asc') {
+      direction = 'desc';
+    }
+    setSortKey(key);
+    setSortDirection(direction);
+  };
+
+  const renderSortIcon = (key: string) => {
+    if (sortKey !== key) {
+      return <ArrowUpDown className="inline-block ml-1 h-3 w-3 opacity-40 text-slate-400 group-hover:opacity-100 transition-opacity" />;
+    }
+    if (sortDirection === 'asc') {
+      return <ArrowUp className="inline-block ml-1 h-3 w-3 text-teal-600 font-bold" />;
+    }
+    return <ArrowDown className="inline-block ml-1 h-3 w-3 text-teal-600 font-bold" />;
+  };
+
+  const sortedSchedules = useMemo(() => {
+    if (!sortKey) return savedSchedules;
+    
+    return [...savedSchedules].sort((a, b) => {
+      let aVal: any;
+      let bVal: any;
+
+      if (sortKey === 'name') {
+        aVal = a.patientName || '';
+        bVal = b.patientName || '';
+        return sortDirection === 'asc' 
+          ? aVal.localeCompare(bVal, 'vi', { sensitivity: 'accent' }) 
+          : bVal.localeCompare(aVal, 'vi', { sensitivity: 'accent' });
+      } else if (sortKey === 'phone') {
+        aVal = a.phone || '';
+        bVal = b.phone || '';
+        return sortDirection === 'asc' 
+          ? aVal.localeCompare(bVal, 'vi', { sensitivity: 'accent' }) 
+          : bVal.localeCompare(aVal, 'vi', { sensitivity: 'accent' });
+      } else if (sortKey === 'dob') {
+        aVal = a.dob || '';
+        bVal = b.dob || '';
+        return sortDirection === 'asc' 
+          ? aVal.localeCompare(bVal, 'vi', { sensitivity: 'accent' }) 
+          : bVal.localeCompare(aVal, 'vi', { sensitivity: 'accent' });
+      } else if (sortKey === 'vaccine') {
+        aVal = a.vaccine || '';
+        bVal = b.vaccine || '';
+        return sortDirection === 'asc' 
+          ? aVal.localeCompare(bVal, 'vi', { sensitivity: 'accent' }) 
+          : bVal.localeCompare(aVal, 'vi', { sensitivity: 'accent' });
+      } else if (sortKey === 'protocol') {
+        aVal = DATA.protocols.find(p => p.id === a.protocolId)?.object || a.protocolId || '';
+        bVal = DATA.protocols.find(p => p.id === b.protocolId)?.object || b.protocolId || '';
+        return sortDirection === 'asc' 
+          ? aVal.localeCompare(bVal, 'vi', { sensitivity: 'accent' }) 
+          : bVal.localeCompare(aVal, 'vi', { sensitivity: 'accent' });
+      } else if (sortKey === 'progress') {
+        const aCount = a.dates ? a.dates.filter((d: string) => d !== '').length : 0;
+        const bCount = b.dates ? b.dates.filter((d: string) => d !== '').length : 0;
+        return sortDirection === 'asc' ? aCount - bCount : bCount - aCount;
+      }
+      return 0;
+    });
+  }, [savedSchedules, sortKey, sortDirection]);
   const [qSearch, setQSearch] = useState('');
   const [filterVaccine, setFilterVaccine] = useState('');
   const [loading, setLoading] = useState(false);
@@ -1145,24 +1215,36 @@ export default function CskhTiemChungPage() {
                       />
                     </th>
                     <th className="text-center w-12 border border-slate-200">STT</th>
-                    <th className="pl-4 border border-slate-200 py-2">Họ tên người tiêm</th>
-                    <th className="w-28 text-center border border-slate-200">Điện thoại</th>
-                    <th className="w-28 text-center border border-slate-200">Ngày sinh</th>
-                    <th className="w-32 text-center border border-slate-200">Vắc xin theo dõi</th>
-                    <th className="w-44 pl-4 border border-slate-200">Phác đồ áp dụng</th>
-                    <th className="w-40 text-center border border-slate-200">Tiến độ tiêm gần nhất</th>
+                    <th className="pl-4 border border-slate-200 py-2 cursor-pointer select-none group hover:bg-slate-50 hover:text-slate-700 transition-colors" onClick={() => requestSort('name')}>
+                      <div className="flex items-center gap-1">Họ tên người tiêm {renderSortIcon('name')}</div>
+                    </th>
+                    <th className="w-28 text-center border border-slate-200 cursor-pointer select-none group hover:bg-slate-50 hover:text-slate-700 transition-colors" onClick={() => requestSort('phone')}>
+                      <div className="flex items-center justify-center gap-1">Điện thoại {renderSortIcon('phone')}</div>
+                    </th>
+                    <th className="w-28 text-center border border-slate-200 cursor-pointer select-none group hover:bg-slate-50 hover:text-slate-700 transition-colors" onClick={() => requestSort('dob')}>
+                      <div className="flex items-center justify-center gap-1">Ngày sinh {renderSortIcon('dob')}</div>
+                    </th>
+                    <th className="w-32 text-center border border-slate-200 cursor-pointer select-none group hover:bg-slate-50 hover:text-slate-700 transition-colors" onClick={() => requestSort('vaccine')}>
+                      <div className="flex items-center justify-center gap-1">Vắc xin theo dõi {renderSortIcon('vaccine')}</div>
+                    </th>
+                    <th className="w-44 pl-4 border border-slate-200 cursor-pointer select-none group hover:bg-slate-50 hover:text-slate-700 transition-colors" onClick={() => requestSort('protocol')}>
+                      <div className="flex items-center gap-1">Phác đồ áp dụng {renderSortIcon('protocol')}</div>
+                    </th>
+                    <th className="w-40 text-center border border-slate-200 cursor-pointer select-none group hover:bg-slate-50 hover:text-slate-700 transition-colors" onClick={() => requestSort('progress')}>
+                      <div className="flex items-center justify-center gap-1">Tiến độ tiêm gần nhất {renderSortIcon('progress')}</div>
+                    </th>
                     <th className="w-24 text-center border border-slate-200">Tác vụ</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {savedSchedules.length === 0 ? (
+                  {sortedSchedules.length === 0 ? (
                     <tr>
                       <td colSpan={9} className="text-center py-20 text-slate-400 font-bold border border-slate-200">
                         Không tìm thấy hồ sơ theo dõi tiêm chủng nào.
                       </td>
                     </tr>
                   ) : (
-                    savedSchedules.map((item, index) => {
+                    sortedSchedules.map((item, index) => {
                       // Find last actual date index
                       const lastActualIndex = item.dates ? [...item.dates].reverse().findIndex(d => d !== '') : -1;
                       const nextDoseIndex = lastActualIndex === -1 ? 0 : 5 - lastActualIndex;
