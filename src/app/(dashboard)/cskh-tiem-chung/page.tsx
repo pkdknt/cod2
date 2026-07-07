@@ -213,11 +213,11 @@ export default function CskhTiemChungPage() {
         };
 
         const patientName = findVal(['họ tên', 'ho ten', 'tên người tiêm', 'họ tên người tiêm', 'patientname', 'name', 'họ và tên', 'khách hàng', 'bệnh nhân']);
-        const rawVaccine = findVal(['vắc xin', 'vacxin', 'vaccine', 'tên vắc xin', 'tên thuốc', 'tên vacxin', 'vắc-xin', 'vac-xin', 'tên thuốc tiêm', 'dịch vụ', 'dich vu']);
+        const rawVaccine = findVal(['vắc xin', 'vacxin', 'vaccine', 'tên vắc xin', 'tên thuốc', 'tên vacxin', 'vắc-xin', 'vac-xin', 'tên thuốc tiêm', 'dịch vụ', 'dich vu', 'tên hàng', 'ten hang', 'tên sản phẩm', 'ten san pham', 'sản phẩm', 'san pham', 'mặt hàng', 'mat hang', 'tên dịch vụ', 'ten dich vu']);
         const rawProtocol = findVal(['phác đồ', 'phac do', 'đối tượng', 'doi tuong', 'protocol']);
         
-        let vaccine = '';
-        let protocolId = '';
+        let vaccine = 'Chưa chọn vắc xin';
+        let protocolId = 'CUSTOM';
         
         if (rawVaccine) {
           const matchedProto = DATA.protocols.find(p => 
@@ -299,13 +299,13 @@ export default function CskhTiemChungPage() {
         };
       });
 
-      const validItems = mappedItems.filter((item) => item.patientName && item.vaccine);
+      const validItems = mappedItems.filter((item) => item.patientName);
       if (validItems.length === 0) {
         const allKeys = Object.keys(json[0] || {});
         const debugMsg = allKeys.length > 0 
           ? `\n\n(Các cột hệ thống đọc được trong file của bạn: "${allKeys.join('", "')}")`
           : '\n\n(Không tìm thấy dữ liệu hoặc cột nào trong file)';
-        throw new Error('Không tìm thấy dòng dữ liệu hợp lệ nào chứa đầy đủ Họ tên và Tên vắc xin.' + debugMsg);
+        throw new Error('Không tìm thấy dòng dữ liệu hợp lệ nào chứa cột Họ tên khách hàng.' + debugMsg);
       }
 
       setImportStatus(`Đang upload ${validItems.length} dòng dữ liệu...`);
