@@ -240,35 +240,123 @@ export default function RemindersTab({ data, onRefresh, onEdit, onDelete }: Remi
   }, [data, filterDays, qSearch]);
 
   const handleExport = () => {
-    const exportData = reminders.map((item, index) => {
+    const headers = [
+      'STT',
+      'Mã đối tượng',
+      'Họ tên',
+      'Số điện thoại',
+      'Ngày sinh',
+      'Giới tính',
+      'Địa chỉ',
+      'Mũi tiêm',
+      'Ngày tiêm',
+      'Kế hoạch tiêm',
+      'Đã tiêm',
+      'Đã gọi',
+      'Đã nhắn tin',
+      'Ghi chú nhắc hẹn'
+    ];
+
+    const rows = reminders.map((item, index) => {
       const vals = getPatientValue(item.patient, item.doseIndex);
-      return {
-        'STT': index + 1,
-        'Mã đối tượng': item.patientCode,
-        'Họ tên': item.patientName,
-        'Số điện thoại': item.phone,
-        'Ngày sinh': item.dob,
-        'Giới tính': item.gender,
-        'Địa chỉ': item.address,
-        'Mũi tiêm': item.vaccineAndDose,
-        'Ngày tiêm': vals.dateStr,
-        'Kế hoạch tiêm': item.plannedDateStr,
-        'Đã tiêm': vals.hasDate ? 'Đã tiêm' : 'Chưa tiêm',
-        'Đã gọi': vals.isCalled ? 'Đã gọi' : 'Chưa gọi',
-        'Đã nhắn tin': vals.isMessaged ? 'Đã nhắn tin' : 'Chưa nhắn tin',
-        'Ghi chú nhắc hẹn': vals.noteStr
-      };
+      return [
+        index + 1,
+        item.patientCode,
+        item.patientName,
+        item.phone,
+        item.dob,
+        item.gender,
+        item.address,
+        item.vaccineAndDose,
+        vals.dateStr,
+        item.plannedDateStr,
+        vals.hasDate ? 'Đã tiêm' : 'Chưa tiêm',
+        vals.isCalled ? 'Đã gọi' : 'Chưa gọi',
+        vals.isMessaged ? 'Đã nhắn tin' : 'Chưa nhắn tin',
+        vals.noteStr
+      ];
     });
 
-    const ws = XLSX.utils.json_to_sheet(exportData);
+    const aoa = [
+      ['DANH SÁCH NHẮC HẸN TIÊM VẮC XIN'],
+      [],
+      headers,
+      ...rows
+    ];
+
+    const ws = XLSX.utils.aoa_to_sheet(aoa);
+
+    // Merge columns A to N for the title in Row 1
+    ws['!merges'] = [
+      { s: { c: 0, r: 0 }, e: { c: 13, r: 0 } }
+    ];
+
+    // Set row heights for padding
+    ws['!rows'] = [
+      { hpt: 30 },
+      { hpt: 15 },
+      { hpt: 22 }
+    ];
     
     // Style all cells in the sheet with borders, fonts, alignments, and fills
     const range = XLSX.utils.decode_range(ws['!ref'] || 'A1:A1');
     for (let R = range.s.r; R <= range.e.r; ++R) {
       for (let C = range.s.c; C <= range.e.c; ++C) {
         const cell_ref = XLSX.utils.encode_cell({ c: C, r: R });
-        if (!ws[cell_ref]) continue;
+        
+        // Ensure the cell exists so we can style it (especially for merged cells)
+        if (!ws[cell_ref]) {
+          ws[cell_ref] = { t: 'z', v: '' };
+        }
 
+        if (R === 0) {
+          // Styled Title row
+          ws[cell_ref].s = {
+            font: {
+              name: 'Arial',
+              sz: 14,
+              bold: true,
+              color: { rgb: '0F766E' }
+            },
+            alignment: {
+              horizontal: 'center',
+              vertical: 'center'
+            }
+          };
+          continue;
+        }
+
+        if (R === 1) {
+          // Spacer row
+          continue;
+        }
+
+        if (R === 2) {
+          // Table header row
+          ws[cell_ref].s = {
+            border: {
+              top: { style: 'thin', color: { rgb: 'A0A0A0' } },
+              bottom: { style: 'thin', color: { rgb: 'A0A0A0' } },
+              left: { style: 'thin', color: { rgb: 'A0A0A0' } },
+              right: { style: 'thin', color: { rgb: 'A0A0A0' } }
+            },
+            font: {
+              name: 'Arial',
+              sz: 10,
+              bold: true
+            },
+            alignment: {
+              horizontal: 'center',
+              vertical: 'center'
+            },
+            fill: {
+              fgColor: { rgb: 'F2F2F2' }
+            }
+          };
+          continue;
+        }
+
+        // Data rows (R >= 3)
         ws[cell_ref].s = {
           border: {
             top: { style: 'thin', color: { rgb: 'A0A0A0' } },
@@ -278,20 +366,13 @@ export default function RemindersTab({ data, onRefresh, onEdit, onDelete }: Remi
           },
           font: {
             name: 'Arial',
-            sz: 10,
-            bold: R === 0
+            sz: 10
           },
           alignment: {
-            horizontal: (R === 0 || C === 0 || C === 3 || C === 4 || C === 5 || C === 8 || C === 9 || C === 10 || C === 11 || C === 12) ? 'center' : 'left',
+            horizontal: (C === 0 || C === 3 || C === 4 || C === 5 || C === 8 || C === 9 || C === 10 || C === 11 || C === 12) ? 'center' : 'left',
             vertical: 'center'
           }
         };
-
-        if (R === 0) {
-          ws[cell_ref].s.fill = {
-            fgColor: { rgb: 'F2F2F2' }
-          };
-        }
       }
     }
 
