@@ -1,8 +1,8 @@
 'use strict';
 'use client';
 
-import React, { useState, useEffect } from 'react';
-import { Search, Plus, Trash2, Edit2, DollarSign, Save, X, Activity, ChevronDown } from 'lucide-react';
+import React, { useState, useEffect, useMemo } from 'react';
+import { Search, Plus, Trash2, Edit2, DollarSign, Save, X, Activity, ChevronDown, ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react';
 import { DATA, norm, matchSearch } from '@/lib/vaccineData';
 
 // Helpers to format inputs with thousands separator dots
@@ -21,6 +21,10 @@ export default function VaccinePricesPage() {
   const [items, setItems] = useState<any[]>([]);
   const [qSearch, setQSearch] = useState('');
   
+  // Sort states
+  const [sortKey, setSortKey] = useState<string | null>(null);
+  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
+
   // Form states
   const [activeEditId, setActiveEditId] = useState<string | null>(null);
   const [name, setName] = useState('');
@@ -29,6 +33,65 @@ export default function VaccinePricesPage() {
   const [checkupPrice, setCheckupPrice] = useState('0');
   const [showDropdown, setShowDropdown] = useState(false);
   const dropdownRef = React.useRef<HTMLDivElement>(null);
+
+  const requestSort = (key: string) => {
+    let direction: 'asc' | 'desc' = 'asc';
+    if (sortKey === key && sortDirection === 'asc') {
+      direction = 'desc';
+    }
+    setSortKey(key);
+    setSortDirection(direction);
+  };
+
+  const renderSortIcon = (key: string) => {
+    if (sortKey !== key) {
+      return <ArrowUpDown className="inline-block ml-1 h-3.5 w-3.5 opacity-40 text-slate-400 group-hover:opacity-100 transition-opacity" />;
+    }
+    if (sortDirection === 'asc') {
+      return <ArrowUp className="inline-block ml-1 h-3.5 w-3.5 text-teal-600 font-bold" />;
+    }
+    return <ArrowDown className="inline-block ml-1 h-3.5 w-3.5 text-teal-600 font-bold" />;
+  };
+
+  const sortedItems = useMemo(() => {
+    if (!sortKey) return items;
+    
+    return [...items].sort((a, b) => {
+      let aVal: any;
+      let bVal: any;
+
+      if (sortKey === 'stt') {
+        const aIndex = items.indexOf(a);
+        const bIndex = items.indexOf(b);
+        return sortDirection === 'asc' ? aIndex - bIndex : bIndex - aIndex;
+      } else if (sortKey === 'name') {
+        aVal = a.name || '';
+        bVal = b.name || '';
+        return sortDirection === 'asc' 
+          ? aVal.localeCompare(bVal, 'vi', { sensitivity: 'accent' }) 
+          : bVal.localeCompare(aVal, 'vi', { sensitivity: 'accent' });
+      } else if (sortKey === 'unit') {
+        aVal = a.unit || '';
+        bVal = b.unit || '';
+        return sortDirection === 'asc' 
+          ? aVal.localeCompare(bVal, 'vi', { sensitivity: 'accent' }) 
+          : bVal.localeCompare(aVal, 'vi', { sensitivity: 'accent' });
+      } else if (sortKey === 'price') {
+        aVal = a.price || 0;
+        bVal = b.price || 0;
+      } else if (sortKey === 'checkupPrice') {
+        aVal = a.checkupPrice || 0;
+        bVal = b.checkupPrice || 0;
+      } else if (sortKey === 'total') {
+        aVal = (a.price || 0) + (a.checkupPrice || 0);
+        bVal = (b.price || 0) + (b.checkupPrice || 0);
+      }
+
+      if (aVal < bVal) return sortDirection === 'asc' ? -1 : 1;
+      if (aVal > bVal) return sortDirection === 'asc' ? 1 : -1;
+      return 0;
+    });
+  }, [items, sortKey, sortDirection]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent | TouchEvent) => {
@@ -284,13 +347,37 @@ export default function VaccinePricesPage() {
               <table className="w-full text-xs text-left">
                 <thead>
                   <tr className="bg-white text-slate-500 font-bold h-10 border-b border-slate-200 uppercase text-[10px] sticky top-0 shadow-sm z-10">
-                    <th className="pl-6 w-12 text-center">STT</th>
-                    <th className="pl-4">Tên Vắc Xin</th>
-                    <th className="w-16 text-center">ĐVT</th>
-                    <th className="w-28 text-right">Đơn giá</th>
-                    <th className="w-28 text-right">Tiền khám</th>
-                    <th className="w-32 text-right pr-6">Tổng tiền</th>
-                    <th className="w-20 text-center">Tác vụ</th>
+                    <th className="pl-6 w-16 text-center cursor-pointer select-none group hover:bg-slate-50 hover:text-slate-700 transition-colors" onClick={() => requestSort('stt')}>
+                      <div className="flex items-center justify-center gap-1">
+                        STT {renderSortIcon('stt')}
+                      </div>
+                    </th>
+                    <th className="pl-4 cursor-pointer select-none group hover:bg-slate-50 hover:text-slate-700 transition-colors" onClick={() => requestSort('name')}>
+                      <div className="flex items-center gap-1">
+                        Tên Vắc Xin {renderSortIcon('name')}
+                      </div>
+                    </th>
+                    <th className="w-16 text-center cursor-pointer select-none group hover:bg-slate-50 hover:text-slate-700 transition-colors" onClick={() => requestSort('unit')}>
+                      <div className="flex items-center justify-center gap-1">
+                        ĐVT {renderSortIcon('unit')}
+                      </div>
+                    </th>
+                    <th className="w-28 text-right cursor-pointer select-none group hover:bg-slate-50 hover:text-slate-700 transition-colors" onClick={() => requestSort('price')}>
+                      <div className="flex items-center justify-end gap-1">
+                        Đơn giá {renderSortIcon('price')}
+                      </div>
+                    </th>
+                    <th className="w-28 text-right cursor-pointer select-none group hover:bg-slate-50 hover:text-slate-700 transition-colors" onClick={() => requestSort('checkupPrice')}>
+                      <div className="flex items-center justify-end gap-1">
+                        Tiền khám {renderSortIcon('checkupPrice')}
+                      </div>
+                    </th>
+                    <th className="w-32 text-right pr-6 cursor-pointer select-none group hover:bg-slate-50 hover:text-slate-700 transition-colors" onClick={() => requestSort('total')}>
+                      <div className="flex items-center justify-end gap-1">
+                        Tổng tiền {renderSortIcon('total')}
+                      </div>
+                    </th>
+                    <th className="w-20 text-center select-none">Tác vụ</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -302,7 +389,7 @@ export default function VaccinePricesPage() {
                       </td>
                     </tr>
                   ) : (
-                    items.map((item, index) => {
+                    sortedItems.map((item, index) => {
                       const checkup = item.checkupPrice || 0;
                       const total = item.price + checkup;
                       return (
