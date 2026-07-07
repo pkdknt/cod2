@@ -243,7 +243,7 @@ export default function RemindersTab({ data, onRefresh, onEdit, onDelete }: Remi
     const exportData = reminders.map((item, index) => {
       const vals = getPatientValue(item.patient, item.doseIndex);
       return {
-        '#': index + 1,
+        'STT': index + 1,
         'Mã đối tượng': item.patientCode,
         'Họ tên': item.patientName,
         'Số điện thoại': item.phone,
@@ -352,7 +352,7 @@ export default function RemindersTab({ data, onRefresh, onEdit, onDelete }: Remi
           <table className="w-full text-xs text-left min-w-[1200px] border-collapse border border-slate-200">
             <thead>
               <tr className="bg-slate-50 text-slate-700 font-bold h-11 border-b border-slate-200 uppercase text-[10px]">
-                <th className="pl-6 w-12 border border-slate-200 text-center">#</th>
+                <th className="pl-6 w-12 border border-slate-200 text-center">STT</th>
                 <th className="w-32 border border-slate-200 px-3">Mã đối tượng</th>
                 <th className="w-44 border border-slate-200 px-3">Họ tên</th>
                 <th className="w-28 border border-slate-200 text-center px-3">Số điện thoại</th>
