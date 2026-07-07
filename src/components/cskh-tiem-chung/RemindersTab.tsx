@@ -8,9 +8,11 @@ import { DATA, parseDate, parseSchedule, addInterval, sequentialInterval, fmtDat
 interface RemindersTabProps {
   data: any[];
   onRefresh?: () => void;
+  onEdit?: (item: any) => void;
+  onDelete?: (id: string) => void;
 }
 
-export default function RemindersTab({ data, onRefresh }: RemindersTabProps) {
+export default function RemindersTab({ data, onRefresh, onEdit, onDelete }: RemindersTabProps) {
   const [filterDays, setFilterDays] = useState('30'); // Default < 1 month
   const [qSearch, setQSearch] = useState('');
 
@@ -452,9 +454,9 @@ export default function RemindersTab({ data, onRefresh }: RemindersTabProps) {
                       
                       <td className="border border-slate-200 px-3">{statusBadge}</td>
                       
-                      {/* Thao tác (Save Status / Manual Save) */}
+                      {/* Thao tác (Save Status / Manual Save / Edit & Delete) */}
                       <td className="pr-6 text-center border border-slate-200">
-                        <div className="flex flex-col items-center gap-1 justify-center min-w-[70px]">
+                        <div className="flex flex-col items-center gap-1.5 justify-center min-w-[80px] py-1">
                           {status === 'saving' && (
                             <span className="text-[10px] text-teal-600 font-bold animate-pulse">Đang lưu...</span>
                           )}
@@ -484,6 +486,28 @@ export default function RemindersTab({ data, onRefresh }: RemindersTabProps) {
                           {(!status || status === 'idle') && (
                             <span className="text-[10px] text-slate-400 font-semibold">—</span>
                           )}
+
+                          {/* Divider and Actions */}
+                          <div className="flex gap-2.5 justify-center border-t border-slate-100 pt-1 w-full">
+                            {onEdit && (
+                              <button
+                                onClick={() => onEdit(item.patient)}
+                                className="text-teal-600 hover:text-teal-800 font-bold text-[10px]"
+                                title="Chỉnh sửa hồ sơ"
+                              >
+                                Sửa
+                              </button>
+                            )}
+                            {onDelete && (
+                              <button
+                                onClick={() => onDelete(item.patientId)}
+                                className="text-red-500 hover:text-red-700 font-bold text-[10px]"
+                                title="Xóa lịch hẹn"
+                              >
+                                Xóa
+                              </button>
+                            )}
+                          </div>
                         </div>
                       </td>
                     </tr>
