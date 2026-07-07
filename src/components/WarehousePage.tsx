@@ -36,8 +36,8 @@ import {
 
 let XLSX: any = null;
 if (typeof window !== 'undefined') {
-  import('xlsx').then((module) => {
-    XLSX = module;
+  import('xlsx-js-style').then((module) => {
+    XLSX = module.default || module;
   });
 }
 
@@ -624,7 +624,125 @@ export default function WarehousePage({ type }: WarehousePageProps) {
       getColTotalSum('tonCuoi')
     ]);
 
-    const worksheet = XLSX.utils.aoa_to_sheet([exportHeaders, ...dataRows]);
+    const titleText = `BÁO CÁO XUẤT NHẬP TỒN KHO: ${warehouseLabel.toUpperCase()} - THÁNG ${reportMonth}`;
+    const aoa = [
+      [titleText],
+      [],
+      exportHeaders,
+      ...dataRows
+    ];
+
+    const worksheet = XLSX.utils.aoa_to_sheet(aoa);
+
+    // Merge title row
+    worksheet['!merges'] = [
+      { s: { c: 0, r: 0 }, e: { c: daysArray.length + 13, r: 0 } }
+    ];
+
+    // Set row heights
+    worksheet['!rows'] = [
+      { hpt: 30 }, // title row
+      { hpt: 15 }, // spacer
+      { hpt: 24 }  // header row
+    ];
+
+    // Style all cells in the sheet with borders, fonts, alignments, and fills
+    const range = XLSX.utils.decode_range(worksheet['!ref'] || 'A1:A1');
+    for (let R = range.s.r; R <= range.e.r; ++R) {
+      for (let C = range.s.c; C <= range.e.c; ++C) {
+        const cell_ref = XLSX.utils.encode_cell({ c: C, r: R });
+        
+        if (!worksheet[cell_ref]) {
+          worksheet[cell_ref] = { t: 'z', v: '' };
+        }
+
+        if (R === 0) {
+          // Styled Title row
+          worksheet[cell_ref].s = {
+            font: {
+              name: 'Arial',
+              sz: 14,
+              bold: true,
+              color: { rgb: '0F766E' }
+            },
+            alignment: {
+              horizontal: 'center',
+              vertical: 'center'
+            }
+          };
+          continue;
+        }
+
+        if (R === 1) {
+          // Spacer row
+          continue;
+        }
+
+        const isTotalRow = (R === range.e.r);
+
+        if (R === 2) {
+          // Table header row
+          worksheet[cell_ref].s = {
+            border: {
+              top: { style: 'thin', color: { rgb: 'A0A0A0' } },
+              bottom: { style: 'thin', color: { rgb: 'A0A0A0' } },
+              left: { style: 'thin', color: { rgb: 'A0A0A0' } },
+              right: { style: 'thin', color: { rgb: 'A0A0A0' } }
+            },
+            font: {
+              name: 'Arial',
+              sz: 9,
+              bold: true
+            },
+            alignment: {
+              horizontal: 'center',
+              vertical: 'center',
+              wrapText: true
+            },
+            fill: {
+              fgColor: { rgb: 'F2F2F2' }
+            }
+          };
+          continue;
+        }
+
+        // Determine alignments for columns
+        let align = 'left';
+        if (C === 0 || C === 2 || (C >= 3 && C < 3 + daysArray.length) || C === 3 + daysArray.length + 1) {
+          align = 'center';
+        } else if (C === 1) {
+          align = 'left';
+        } else {
+          align = 'right';
+        }
+
+        // Data rows (R >= 3)
+        worksheet[cell_ref].s = {
+          border: {
+            top: { style: 'thin', color: { rgb: 'A0A0A0' } },
+            bottom: { style: 'thin', color: { rgb: 'A0A0A0' } },
+            left: { style: 'thin', color: { rgb: 'A0A0A0' } },
+            right: { style: 'thin', color: { rgb: 'A0A0A0' } }
+          },
+          font: {
+            name: 'Arial',
+            sz: 9,
+            bold: isTotalRow
+          },
+          alignment: {
+            horizontal: align,
+            vertical: 'center'
+          }
+        };
+
+        if (isTotalRow) {
+          worksheet[cell_ref].s.fill = {
+            fgColor: { rgb: 'E2E8F0' } // Slate background for totals row
+          };
+        }
+      }
+    }
+
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, 'Kho_NhapXuatTon');
     XLSX.writeFile(workbook, `BaoCao_Kho_${type.toUpperCase()}_NhonTam_${reportMonth}.xlsx`);

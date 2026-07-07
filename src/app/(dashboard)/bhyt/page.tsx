@@ -20,8 +20,8 @@ import BhytEntryForm from '@/components/bhyt/BhytEntryForm';
 // Dynamic import for client-side SheetJS to prevent next build SSR warning
 let XLSX: any = null;
 if (typeof window !== 'undefined') {
-  import('xlsx').then((module) => {
-    XLSX = module;
+  import('xlsx-js-style').then((module) => {
+    XLSX = module.default || module;
   });
 }
 
@@ -283,32 +283,158 @@ export default function BhytPage() {
       return;
     }
 
-    const exportData = customers.map((c, index) => ({
-      'STT': index + 1,
-      'Họ và tên': c.name,
-      'Mã BHXH': c.bhxh,
-      'CCCD': c.cccd || '',
-      'Ngày sinh': c.dob || '',
-      'Giới tính': c.gender || '',
-      'Nơi khai sinh': c.birthPlace || '',
-      'Nơi KCB ban đầu': c.kcb || '',
-      'Ngày biên lai': c.receiptDate || '',
-      'Số biên lai': c.receiptNo || '',
-      'Số tiền': c.amount || '',
-      'Hỗ trợ': c.support || '',
-      'Số tháng': c.months || '',
-      'Mã NV': c.staffCode || '',
-      'Điện thoại': c.phone || '',
-      'Hạn thẻ': c.expiry || '',
-      'Cần gọi': c.needCall || '',
-      'Gia hạn': c.renewType || '',
-      'Ngày gọi': c.callDate || '',
-      'Người quen': c.relation || '',
-      'Ghi chú': c.note || '',
-      'Trạng thái liên hệ': c.contactStatus || ''
-    }));
+    const headers = [
+      'STT',
+      'Họ và tên',
+      'Mã BHXH',
+      'CCCD',
+      'Ngày sinh',
+      'Giới tính',
+      'Nơi khai sinh',
+      'Nơi KCB ban đầu',
+      'Ngày biên lai',
+      'Số biên lai',
+      'Số tiền',
+      'Hỗ trợ',
+      'Số tháng',
+      'Mã NV',
+      'Điện thoại',
+      'Hạn thẻ',
+      'Cần gọi',
+      'Gia hạn',
+      'Ngày gọi',
+      'Người quen',
+      'Ghi chú',
+      'Trạng thái liên hệ'
+    ];
 
-    const worksheet = XLSX.utils.json_to_sheet(exportData);
+    const rows = customers.map((c, index) => [
+      index + 1,
+      c.name,
+      c.bhxh,
+      c.cccd || '',
+      c.dob || '',
+      c.gender || '',
+      c.birthPlace || '',
+      c.kcb || '',
+      c.receiptDate || '',
+      c.receiptNo || '',
+      c.amount || '',
+      c.support || '',
+      c.months || '',
+      c.staffCode || '',
+      c.phone || '',
+      c.expiry || '',
+      c.needCall || '',
+      c.renewType || '',
+      c.callDate || '',
+      c.relation || '',
+      c.note || '',
+      c.contactStatus || ''
+    ]);
+
+    const aoa = [
+      ['DANH SÁCH KHÁCH HÀNG BẢO HIỂM Y TẾ'],
+      [],
+      headers,
+      ...rows
+    ];
+
+    const worksheet = XLSX.utils.aoa_to_sheet(aoa);
+
+    // Merge A1 to V1
+    worksheet['!merges'] = [
+      { s: { c: 0, r: 0 }, e: { c: 21, r: 0 } }
+    ];
+
+    // Set row heights
+    worksheet['!rows'] = [
+      { hpt: 30 },
+      { hpt: 15 },
+      { hpt: 22 }
+    ];
+
+    // Style all cells in the sheet with borders, fonts, alignments, and fills
+    const range = XLSX.utils.decode_range(worksheet['!ref'] || 'A1:A1');
+    for (let R = range.s.r; R <= range.e.r; ++R) {
+      for (let C = range.s.c; C <= range.e.c; ++C) {
+        const cell_ref = XLSX.utils.encode_cell({ c: C, r: R });
+        
+        if (!worksheet[cell_ref]) {
+          worksheet[cell_ref] = { t: 'z', v: '' };
+        }
+
+        if (R === 0) {
+          worksheet[cell_ref].s = {
+            font: {
+              name: 'Arial',
+              sz: 14,
+              bold: true,
+              color: { rgb: '0F766E' }
+            },
+            alignment: {
+              horizontal: 'center',
+              vertical: 'center'
+            }
+          };
+          continue;
+        }
+
+        if (R === 1) {
+          continue;
+        }
+
+        if (R === 2) {
+          worksheet[cell_ref].s = {
+            border: {
+              top: { style: 'thin', color: { rgb: 'A0A0A0' } },
+              bottom: { style: 'thin', color: { rgb: 'A0A0A0' } },
+              left: { style: 'thin', color: { rgb: 'A0A0A0' } },
+              right: { style: 'thin', color: { rgb: 'A0A0A0' } }
+            },
+            font: {
+              name: 'Arial',
+              sz: 10,
+              bold: true
+            },
+            alignment: {
+              horizontal: 'center',
+              vertical: 'center'
+            },
+            fill: {
+              fgColor: { rgb: 'F2F2F2' }
+            }
+          };
+          continue;
+        }
+
+        // Alignments for columns: center for STT (0), BHXH (2), CCCD (3), dob (4), gender (5), dates (8, 14, 15, 18), phone (14), needCall (16), renewType (17), contactStatus (21)
+        let align = 'left';
+        if (C === 0 || C === 2 || C === 3 || C === 4 || C === 5 || C === 8 || C === 12 || C === 14 || C === 15 || C === 16 || C === 17 || C === 18 || C === 21) {
+          align = 'center';
+        } else if (C === 10 || C === 11) {
+          align = 'right';
+        }
+
+        worksheet[cell_ref].s = {
+          border: {
+            top: { style: 'thin', color: { rgb: 'A0A0A0' } },
+            bottom: { style: 'thin', color: { rgb: 'A0A0A0' } },
+            left: { style: 'thin', color: { rgb: 'A0A0A0' } },
+            right: { style: 'thin', color: { rgb: 'A0A0A0' } }
+          },
+          font: {
+            name: 'Arial',
+            sz: 10
+          },
+          alignment: {
+            horizontal: align,
+            vertical: 'center'
+          }
+        };
+      }
+    }
+
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, 'DS BHYT');
     
