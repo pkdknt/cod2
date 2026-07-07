@@ -344,46 +344,46 @@ export default function VaccinePricesPage() {
             </div>
             
             <div className="overflow-x-auto max-h-[60vh] scrollbar-thin scrollbar-thumb-slate-200">
-              <table className="w-full text-xs text-left">
+              <table className="w-full text-xs text-left border-collapse border border-slate-200">
                 <thead>
-                  <tr className="bg-white text-slate-500 font-bold h-10 border-b border-slate-200 uppercase text-[10px] sticky top-0 shadow-sm z-10">
-                    <th className="pl-6 w-16 text-center cursor-pointer select-none group hover:bg-slate-50 hover:text-slate-700 transition-colors" onClick={() => requestSort('stt')}>
+                  <tr className="bg-slate-50 text-slate-700 font-bold h-10 border-b border-slate-200 uppercase text-[10px] sticky top-0 shadow-sm z-10">
+                    <th className="pl-6 w-16 text-center cursor-pointer select-none group hover:bg-slate-50 hover:text-slate-700 transition-colors border border-slate-200" onClick={() => requestSort('stt')}>
                       <div className="flex items-center justify-center gap-1">
                         STT {renderSortIcon('stt')}
                       </div>
                     </th>
-                    <th className="pl-4 cursor-pointer select-none group hover:bg-slate-50 hover:text-slate-700 transition-colors" onClick={() => requestSort('name')}>
+                    <th className="pl-4 cursor-pointer select-none group hover:bg-slate-50 hover:text-slate-700 transition-colors border border-slate-200" onClick={() => requestSort('name')}>
                       <div className="flex items-center gap-1">
                         Tên Vắc Xin {renderSortIcon('name')}
                       </div>
                     </th>
-                    <th className="w-16 text-center cursor-pointer select-none group hover:bg-slate-50 hover:text-slate-700 transition-colors" onClick={() => requestSort('unit')}>
+                    <th className="w-16 text-center cursor-pointer select-none group hover:bg-slate-50 hover:text-slate-700 transition-colors border border-slate-200" onClick={() => requestSort('unit')}>
                       <div className="flex items-center justify-center gap-1">
                         ĐVT {renderSortIcon('unit')}
                       </div>
                     </th>
-                    <th className="w-28 text-right cursor-pointer select-none group hover:bg-slate-50 hover:text-slate-700 transition-colors" onClick={() => requestSort('price')}>
+                    <th className="w-28 text-right cursor-pointer select-none group hover:bg-slate-50 hover:text-slate-700 transition-colors border border-slate-200" onClick={() => requestSort('price')}>
                       <div className="flex items-center justify-end gap-1">
                         Đơn giá {renderSortIcon('price')}
                       </div>
                     </th>
-                    <th className="w-28 text-right cursor-pointer select-none group hover:bg-slate-50 hover:text-slate-700 transition-colors" onClick={() => requestSort('checkupPrice')}>
+                    <th className="w-28 text-right cursor-pointer select-none group hover:bg-slate-50 hover:text-slate-700 transition-colors border border-slate-200" onClick={() => requestSort('checkupPrice')}>
                       <div className="flex items-center justify-end gap-1">
                         Tiền khám {renderSortIcon('checkupPrice')}
                       </div>
                     </th>
-                    <th className="w-32 text-right pr-6 cursor-pointer select-none group hover:bg-slate-50 hover:text-slate-700 transition-colors" onClick={() => requestSort('total')}>
+                    <th className="w-32 text-right pr-6 cursor-pointer select-none group hover:bg-slate-50 hover:text-slate-700 transition-colors border border-slate-200" onClick={() => requestSort('total')}>
                       <div className="flex items-center justify-end gap-1">
                         Tổng tiền {renderSortIcon('total')}
                       </div>
                     </th>
-                    <th className="w-20 text-center select-none">Tác vụ</th>
+                    <th className="w-20 text-center select-none border border-slate-200">Tác vụ</th>
                   </tr>
                 </thead>
                 <tbody>
                   {items.length === 0 ? (
                     <tr>
-                      <td colSpan={7} className="text-center py-20 text-slate-400 font-bold bg-white">
+                      <td colSpan={7} className="text-center py-20 text-slate-400 font-bold bg-white border border-slate-200">
                         <Activity className="h-8 w-8 mx-auto mb-2 text-slate-300" />
                         Chưa có dữ liệu giá vắc xin.
                       </td>
@@ -394,13 +394,13 @@ export default function VaccinePricesPage() {
                       const total = item.price + checkup;
                       return (
                         <tr key={item._id} className="border-b border-slate-100 h-12 hover:bg-teal-50/30 transition-colors bg-white">
-                          <td className="pl-6 text-center text-slate-400 font-bold">{index + 1}</td>
-                          <td className="pl-4 font-bold text-slate-800 text-[13px]">{item.name}</td>
-                          <td className="text-center font-semibold text-slate-600 bg-slate-50">{item.unit}</td>
-                          <td className="text-right font-bold text-slate-700 text-[13px]">{formatCurrency(item.price)}</td>
-                          <td className="text-right font-bold text-slate-500 text-[13px]">{formatCurrency(checkup)}</td>
-                          <td className="text-right pr-6 font-bold text-teal-700 text-[13px]">{formatCurrency(total)}</td>
-                          <td className="text-center space-x-2">
+                          <td className="pl-6 text-center text-slate-400 font-bold border border-slate-200">{index + 1}</td>
+                          <td className="pl-4 font-bold text-slate-800 text-[13px] border border-slate-200">{item.name}</td>
+                          <td className="text-center font-semibold text-slate-600 bg-slate-50 border border-slate-200">{item.unit}</td>
+                          <td className="text-right font-bold text-slate-700 text-[13px] border border-slate-200">{formatCurrency(item.price)}</td>
+                          <td className="text-right font-bold text-slate-500 text-[13px] border border-slate-200">{formatCurrency(checkup)}</td>
+                          <td className="text-right pr-6 font-bold text-teal-700 text-[13px] border border-slate-200">{formatCurrency(total)}</td>
+                          <td className="text-center space-x-2 border border-slate-200">
                             <button
                               onClick={() => handleEdit(item)}
                               className="p-1.5 text-teal-600 hover:bg-teal-100 rounded-lg transition-colors"

@@ -771,6 +771,7 @@ export default function CskhTiemChungPage() {
                           }));
                       
                         const ws = XLSX.utils.json_to_sheet(selectedData);
+                        ws['!views'] = [{ showGridLines: true }];
                         const wb = XLSX.utils.book_new();
                         XLSX.utils.book_append_sheet(wb, ws, "Danh_Sach_Tiem");
                         XLSX.writeFile(wb, "DanhSachGuiTinNhan.xlsx");
@@ -802,10 +803,10 @@ export default function CskhTiemChungPage() {
                   </div>
                 </div>
               )}
-              <table className="w-full text-xs text-left">
+              <table className="w-full text-xs text-left border-collapse border border-slate-200">
                 <thead>
-                  <tr className="bg-teal-50/50 text-teal-800 font-bold h-10 border-b border-slate-200 uppercase text-[10px]">
-                    <th className="pl-4 w-10 text-center">
+                  <tr className="bg-slate-50 text-slate-700 font-bold h-10 border-b border-slate-200 uppercase text-[10px]">
+                    <th className="pl-4 w-10 text-center border border-slate-200">
                       <input 
                         type="checkbox" 
                         className="rounded border-slate-300 text-teal-600 focus:ring-teal-500"
@@ -819,20 +820,20 @@ export default function CskhTiemChungPage() {
                         }}
                       />
                     </th>
-                    <th className="text-center w-12">STT</th>
-                    <th className="pl-4">Họ tên người tiêm</th>
-                    <th className="w-28 text-center">Điện thoại</th>
-                    <th className="w-28 text-center">Ngày sinh</th>
-                    <th className="w-32 text-center">Vắc xin theo dõi</th>
-                    <th className="w-44 pl-4">Phác đồ áp dụng</th>
-                    <th className="w-40 text-center">Tiến độ tiêm gần nhất</th>
-                    <th className="w-24 text-center">Tác vụ</th>
+                    <th className="text-center w-12 border border-slate-200">STT</th>
+                    <th className="pl-4 border border-slate-200 py-2">Họ tên người tiêm</th>
+                    <th className="w-28 text-center border border-slate-200">Điện thoại</th>
+                    <th className="w-28 text-center border border-slate-200">Ngày sinh</th>
+                    <th className="w-32 text-center border border-slate-200">Vắc xin theo dõi</th>
+                    <th className="w-44 pl-4 border border-slate-200">Phác đồ áp dụng</th>
+                    <th className="w-40 text-center border border-slate-200">Tiến độ tiêm gần nhất</th>
+                    <th className="w-24 text-center border border-slate-200">Tác vụ</th>
                   </tr>
                 </thead>
                 <tbody>
                   {savedSchedules.length === 0 ? (
                     <tr>
-                      <td colSpan={8} className="text-center py-20 text-slate-400 font-bold">
+                      <td colSpan={9} className="text-center py-20 text-slate-400 font-bold border border-slate-200">
                         Không tìm thấy hồ sơ theo dõi tiêm chủng nào.
                       </td>
                     </tr>
@@ -846,7 +847,7 @@ export default function CskhTiemChungPage() {
                       
                       return (
                         <tr key={item._id} className="border-b border-slate-100 h-10 hover:bg-slate-50 transition-colors">
-                          <td className="pl-4 text-center">
+                          <td className="pl-4 text-center border border-slate-200">
                             <input 
                               type="checkbox" 
                               className="rounded border-slate-300 text-teal-600 focus:ring-teal-500"
@@ -860,24 +861,24 @@ export default function CskhTiemChungPage() {
                               }}
                             />
                           </td>
-                          <td className="text-center text-slate-400 font-bold">{index + 1}</td>
-                          <td className="pl-4 font-bold text-slate-800">
+                          <td className="text-center text-slate-400 font-bold border border-slate-200">{index + 1}</td>
+                          <td className="pl-4 font-bold text-slate-800 border border-slate-200 py-1.5">
                             {item.patientCode && <div className="text-[10px] text-teal-600 mb-0.5">{item.patientCode}</div>}
                             {item.patientName}
                             {item.address && <div className="text-[9px] text-slate-400 font-normal mt-0.5 max-w-[120px] truncate">{item.address}</div>}
                           </td>
-                          <td className="text-center text-slate-650 font-semibold">{item.phone || 'Chưa có'}</td>
-                          <td className="text-center text-slate-500">{item.dob || ''}</td>
-                          <td className="text-center font-bold text-teal-800 bg-teal-50/10">{item.vaccine}</td>
-                          <td className="pl-4 text-slate-500 text-[11px] truncate max-w-xs" title={item.protocolId}>
+                          <td className="text-center text-slate-650 font-semibold border border-slate-200">{item.phone || 'Chưa có'}</td>
+                          <td className="text-center text-slate-500 border border-slate-200">{item.dob || ''}</td>
+                          <td className="text-center font-bold text-teal-800 bg-teal-50/10 border border-slate-200">{item.vaccine}</td>
+                          <td className="pl-4 text-slate-500 text-[11px] truncate max-w-xs border border-slate-200" title={item.protocolId}>
                             {DATA.protocols.find(p => p.id === item.protocolId)?.object || item.protocolId}
                           </td>
-                          <td className="text-center">
+                          <td className="text-center border border-slate-200">
                             <span className="px-2 py-0.5 rounded-full text-[9px] bg-sky-100 text-sky-800 font-bold">
                               Đã tiêm {actualDoseCount}/6 mũi
                             </span>
                           </td>
-                          <td className="text-center space-x-2">
+                          <td className="text-center space-x-2 border border-slate-200">
                             <button
                               onClick={() => handleLoadSchedule(item)}
                               className="text-teal-600 hover:text-teal-800 font-bold"

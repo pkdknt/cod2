@@ -805,6 +805,7 @@ export default function TiemChungPage() {
                           }));
                       
                         const ws = XLSX.utils.json_to_sheet(selectedData);
+                        ws['!views'] = [{ showGridLines: true }];
                         const wb = XLSX.utils.book_new();
                         XLSX.utils.book_append_sheet(wb, ws, "Danh_Sach_Tiem");
                         XLSX.writeFile(wb, "DanhSachGuiTinNhan.xlsx");
@@ -839,10 +840,10 @@ export default function TiemChungPage() {
 
               {/* Desktop Table View */}
               <div className="hidden md:block">
-                <table className="w-full text-xs text-left">
+                <table className="w-full text-xs text-left border-collapse border border-slate-200">
                   <thead>
-                    <tr className="bg-teal-50/50 text-teal-800 font-bold h-10 border-b border-slate-200 uppercase text-[10px]">
-                      <th className="pl-4 w-10 text-center">
+                    <tr className="bg-slate-50 text-slate-700 font-bold h-10 border-b border-slate-200 uppercase text-[10px]">
+                      <th className="pl-4 w-10 text-center border border-slate-200">
                         <input 
                           type="checkbox" 
                           className="rounded border-slate-300 text-teal-600 focus:ring-teal-500"
@@ -856,12 +857,12 @@ export default function TiemChungPage() {
                           }}
                         />
                       </th>
-                      <th className="text-center w-12">STT</th>
-                      <th className="w-28 text-center">Ngày sinh</th>
-                      <th className="w-32 text-center">Vắc xin theo dõi</th>
-                      <th className="w-44 pl-4">Phác đồ áp dụng</th>
-                      <th className="w-40 text-center">Tiến độ tiêm gần nhất</th>
-                      <th className="w-24 text-center">Tác vụ</th>
+                      <th className="text-center w-12 border border-slate-200">STT</th>
+                      <th className="w-28 text-center border border-slate-200">Ngày sinh</th>
+                      <th className="w-32 text-center border border-slate-200">Vắc xin theo dõi</th>
+                      <th className="w-44 pl-4 border border-slate-200 py-2">Phác đồ áp dụng</th>
+                      <th className="w-40 text-center border border-slate-200">Tiến độ tiêm gần nhất</th>
+                      <th className="w-24 text-center border border-slate-200">Tác vụ</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -877,7 +878,7 @@ export default function TiemChungPage() {
                         
                         return (
                           <tr key={item._id} className="border-b border-slate-100 h-10 hover:bg-slate-50 transition-colors">
-                            <td className="pl-4 text-center">
+                            <td className="pl-4 text-center border border-slate-200">
                               <input 
                                 type="checkbox" 
                                 className="rounded border-slate-300 text-teal-600 focus:ring-teal-500"
@@ -891,18 +892,18 @@ export default function TiemChungPage() {
                                 }}
                               />
                             </td>
-                            <td className="text-center text-slate-400 font-bold">{index + 1}</td>
-                            <td className="text-center text-slate-500">{item.dob || ''}</td>
-                            <td className="text-center font-bold text-teal-800 bg-teal-50/10">{item.vaccine}</td>
-                            <td className="pl-4 text-slate-500 text-[11px] truncate max-w-xs" title={item.protocolId}>
+                            <td className="text-center text-slate-400 font-bold border border-slate-200">{index + 1}</td>
+                            <td className="text-center text-slate-500 border border-slate-200">{item.dob || ''}</td>
+                            <td className="text-center font-bold text-teal-800 bg-teal-50/10 border border-slate-200">{item.vaccine}</td>
+                            <td className="pl-4 text-slate-500 text-[11px] truncate max-w-xs border border-slate-200" title={item.protocolId}>
                               {DATA.protocols.find(p => p.id === item.protocolId)?.object || item.protocolId}
                             </td>
-                            <td className="text-center">
+                            <td className="text-center border border-slate-200">
                               <span className="px-2 py-0.5 rounded-full text-[9px] bg-sky-100 text-sky-800 font-bold">
                                 Đã tiêm {actualDoseCount}/6 mũi
                               </span>
                             </td>
-                            <td className="text-center space-x-2">
+                            <td className="text-center space-x-2 border border-slate-200">
                               <button
                                 onClick={() => handleLoadSchedule(item)}
                                 className="text-teal-600 hover:text-teal-800 font-bold"

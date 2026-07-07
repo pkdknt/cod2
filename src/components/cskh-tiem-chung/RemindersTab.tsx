@@ -259,6 +259,7 @@ export default function RemindersTab({ data, onRefresh }: RemindersTabProps) {
     });
 
     const ws = XLSX.utils.json_to_sheet(exportData);
+    ws['!views'] = [{ showGridLines: true }];
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, "Nhac_Hen");
     XLSX.writeFile(wb, "DanhSachNhacHenTiem.xlsx");
@@ -313,25 +314,25 @@ export default function RemindersTab({ data, onRefresh }: RemindersTabProps) {
         </div>
 
         <div className="overflow-x-auto">
-          <table className="w-full text-xs text-left min-w-[1200px]">
+          <table className="w-full text-xs text-left min-w-[1200px] border-collapse border border-slate-200">
             <thead>
-              <tr className="bg-white text-slate-500 font-bold h-11 border-b border-slate-200 uppercase text-[10px]">
-                <th className="pl-6 w-12">#</th>
-                <th className="w-32">Mã đối tượng</th>
-                <th className="w-44">Họ tên</th>
-                <th className="w-28 text-center">Số điện thoại</th>
-                <th className="w-24 text-center">Ngày sinh</th>
-                <th className="w-20 text-center">Giới tính</th>
-                <th className="min-w-[120px] max-w-[200px]">Địa chỉ</th>
-                <th className="w-32">Mũi tiêm</th>
-                <th className="w-28 text-center">Ngày tiêm</th>
-                <th className="w-28 text-center">Kế hoạch tiêm</th>
-                <th className="w-20 text-center">Đã tiêm</th>
-                <th className="w-20 text-center">Đã gọi</th>
-                <th className="w-20 text-center">Đã nhắn</th>
-                <th className="w-40">Ghi chú nhắc hẹn</th>
-                <th className="w-28">Trạng thái</th>
-                <th className="w-24 text-center pr-6">Thao tác</th>
+              <tr className="bg-slate-50 text-slate-700 font-bold h-11 border-b border-slate-200 uppercase text-[10px]">
+                <th className="pl-6 w-12 border border-slate-200 text-center">#</th>
+                <th className="w-32 border border-slate-200 px-3">Mã đối tượng</th>
+                <th className="w-44 border border-slate-200 px-3">Họ tên</th>
+                <th className="w-28 border border-slate-200 text-center px-3">Số điện thoại</th>
+                <th className="w-24 border border-slate-200 text-center px-3">Ngày sinh</th>
+                <th className="w-20 border border-slate-200 text-center px-3">Giới tính</th>
+                <th className="min-w-[120px] max-w-[200px] border border-slate-200 px-3">Địa chỉ</th>
+                <th className="w-32 border border-slate-200 px-3">Mũi tiêm</th>
+                <th className="w-28 border border-slate-200 text-center px-3">Ngày tiêm</th>
+                <th className="w-28 border border-slate-200 text-center px-3">Kế hoạch tiêm</th>
+                <th className="w-20 border border-slate-200 text-center px-3">Đã tiêm</th>
+                <th className="w-20 border border-slate-200 text-center px-3">Đã gọi</th>
+                <th className="w-20 border border-slate-200 text-center px-3">Đã nhắn</th>
+                <th className="w-40 border border-slate-200 px-3">Ghi chú nhắc hẹn</th>
+                <th className="w-28 border border-slate-200 px-3">Trạng thái</th>
+                <th className="w-24 border border-slate-200 text-center pr-6">Thao tác</th>
               </tr>
             </thead>
             <tbody>
@@ -357,21 +358,21 @@ export default function RemindersTab({ data, onRefresh }: RemindersTabProps) {
 
                   return (
                     <tr key={item._id} className="border-b border-slate-100 h-12 hover:bg-slate-50 transition-colors">
-                      <td className="pl-6 text-slate-400 font-bold">{index + 1}</td>
-                      <td className="font-semibold text-slate-600">{item.patientCode}</td>
-                      <td className="font-bold text-slate-800 uppercase">{item.patientName}</td>
-                      <td className="text-center text-slate-650 font-semibold">{item.phone || '—'}</td>
-                      <td className="text-center text-slate-550">{item.dob}</td>
-                      <td className="text-center text-slate-500 font-semibold">
+                      <td className="pl-6 text-slate-400 font-bold border border-slate-200 text-center">{index + 1}</td>
+                      <td className="font-semibold text-slate-600 border border-slate-200 px-3">{item.patientCode}</td>
+                      <td className="font-bold text-slate-800 uppercase border border-slate-200 px-3">{item.patientName}</td>
+                      <td className="text-center text-slate-650 font-semibold border border-slate-200 px-3">{item.phone || '—'}</td>
+                      <td className="text-center text-slate-550 border border-slate-200 px-3">{item.dob}</td>
+                      <td className="text-center text-slate-500 font-semibold border border-slate-200 px-3">
                         {item.gender === 'Nữ' ? <span className="text-pink-500">♀</span> : item.gender === 'Nam' ? <span className="text-blue-500">♂</span> : ''}
                       </td>
-                      <td className="text-slate-600 truncate max-w-[150px]" title={item.address}>{item.address}</td>
-                      <td className="font-bold text-teal-800">{item.vaccineAndDose}</td>
-                      <td className="text-center text-slate-500 font-semibold">{vals.dateStr || '—'}</td>
-                      <td className="text-center font-bold text-slate-700">{item.plannedDateStr}</td>
+                      <td className="text-slate-600 truncate max-w-[150px] border border-slate-200 px-3" title={item.address}>{item.address}</td>
+                      <td className="font-bold text-teal-800 border border-slate-200 px-3">{item.vaccineAndDose}</td>
+                      <td className="text-center text-slate-500 font-semibold border border-slate-200 px-3">{vals.dateStr || '—'}</td>
+                      <td className="text-center font-bold text-slate-700 border border-slate-200 px-3">{item.plannedDateStr}</td>
                       
                       {/* Checkboxes */}
-                      <td className="text-center">
+                      <td className="text-center border border-slate-200">
                         <input
                           type="checkbox"
                           checked={vals.hasDate}
@@ -382,29 +383,29 @@ export default function RemindersTab({ data, onRefresh }: RemindersTabProps) {
                           className="w-4 h-4 rounded border-slate-300 text-teal-600 focus:ring-teal-500 cursor-pointer"
                         />
                       </td>
-                      <td className="text-center">
+                      <td className="text-center border border-slate-200">
                         <input
                           type="checkbox"
                           checked={vals.isCalled}
                           onChange={(e) => {
                             handleChange(item.patientId, item.doseIndex, 'called', e.target.checked);
                           }}
-                          className="w-4 h-4 rounded border-slate-300 text-teal-600 focus:ring-teal-500 cursor-pointer"
+                          className="w-4 h-4 rounded border-slate-350 text-teal-600 focus:ring-teal-500 cursor-pointer"
                         />
                       </td>
-                      <td className="text-center">
+                      <td className="text-center border border-slate-200">
                         <input
                           type="checkbox"
                           checked={vals.isMessaged}
                           onChange={(e) => {
                             handleChange(item.patientId, item.doseIndex, 'messaged', e.target.checked);
                           }}
-                          className="w-4 h-4 rounded border-slate-300 text-teal-600 focus:ring-teal-500 cursor-pointer"
+                          className="w-4 h-4 rounded border-slate-350 text-teal-600 focus:ring-teal-500 cursor-pointer"
                         />
                       </td>
                       
                       {/* Note Input */}
-                      <td className="py-1">
+                      <td className="py-1 border border-slate-200 px-3">
                         <input
                           type="text"
                           value={vals.noteStr}
@@ -416,10 +417,10 @@ export default function RemindersTab({ data, onRefresh }: RemindersTabProps) {
                         />
                       </td>
                       
-                      <td>{statusBadge}</td>
+                      <td className="border border-slate-200 px-3">{statusBadge}</td>
                       
                       {/* Thao tác (Save Status / Manual Save) */}
-                      <td className="pr-6 text-center">
+                      <td className="pr-6 text-center border border-slate-200">
                         <div className="flex flex-col items-center gap-1 justify-center min-w-[70px]">
                           {status === 'saving' && (
                             <span className="text-[10px] text-teal-600 font-bold animate-pulse">Đang lưu...</span>
