@@ -142,10 +142,14 @@ export default function CskhTiemChungPage() {
       // Parse as array of arrays (AOA) first to detect header row index
       const aoa = XLSX.utils.sheet_to_json(sheet, { header: 1 }) as any[][];
       
+      const cleanString = (str: string) => {
+        return norm(str).replace(/[^a-z0-9]/g, '');
+      };
+
       // Find the header row index
       let headerRowIndex = 0;
-      const nameKeywords = ['họ tên', 'ho ten', 'tên người tiêm', 'họ tên người tiêm', 'họ và tên', 'tên khách hàng', 'tên bệnh nhân', 'bệnh nhân'];
-      const vaccineKeywords = ['vắc xin', 'vacxin', 'vaccine', 'tên vắc xin', 'tên thuốc'];
+      const nameKeywords = ['họ tên', 'ho ten', 'tên người tiêm', 'họ tên người tiêm', 'họ và tên', 'tên khách hàng', 'tên bệnh nhân', 'bệnh nhân'].map(cleanString);
+      const vaccineKeywords = ['vắc xin', 'vacxin', 'vaccine', 'tên vắc xin', 'tên thuốc', 'vắc-xin', 'vac-xin', 'tên thuốc tiêm', 'dịch vụ'].map(cleanString);
       
       for (let i = 0; i < Math.min(aoa.length, 15); i++) {
         const row = aoa[i];
@@ -156,7 +160,7 @@ export default function CskhTiemChungPage() {
         
         for (const cell of row) {
           if (!cell) continue;
-          const cellStr = String(cell).trim().toLowerCase();
+          const cellStr = cleanString(String(cell));
           
           if (nameKeywords.some(kw => cellStr.includes(kw) || kw.includes(cellStr))) {
             hasName = true;
@@ -199,14 +203,17 @@ export default function CskhTiemChungPage() {
       const mappedItems = json.map((row: any) => {
         const findVal = (keys: string[]) => {
           const matchKey = Object.keys(row).find((k) => {
-            const cleanK = k.trim().toLowerCase();
-            return keys.some(key => cleanK.includes(key) || key.includes(cleanK));
+            const cleanK = cleanString(k);
+            return keys.some(key => {
+              const cleanKey = cleanString(key);
+              return cleanK.includes(cleanKey) || cleanKey.includes(cleanK);
+            });
           });
           return matchKey ? String(row[matchKey]).trim() : '';
         };
 
         const patientName = findVal(['họ tên', 'ho ten', 'tên người tiêm', 'họ tên người tiêm', 'patientname', 'name', 'họ và tên', 'khách hàng', 'bệnh nhân']);
-        const rawVaccine = findVal(['vắc xin', 'vacxin', 'vaccine', 'tên vắc xin', 'tên thuốc', 'tên vacxin']);
+        const rawVaccine = findVal(['vắc xin', 'vacxin', 'vaccine', 'tên vắc xin', 'tên thuốc', 'tên vacxin', 'vắc-xin', 'vac-xin', 'tên thuốc tiêm', 'dịch vụ', 'dich vu']);
         const rawProtocol = findVal(['phác đồ', 'phac do', 'đối tượng', 'doi tuong', 'protocol']);
         
         let vaccine = '';
@@ -264,11 +271,11 @@ export default function CskhTiemChungPage() {
 
         const findDateVal = (doseNum: number) => {
           const matchKey = Object.keys(row).find((k) => {
-            const cleanK = k.trim().toLowerCase();
-            const hasDose = cleanK.includes(`mũi ${doseNum}`) || cleanK.includes(`mui ${doseNum}`) || (doseNum === 6 && (cleanK.includes('mũi nhắc') || cleanK.includes('mui nhac')));
+            const cleanK = cleanString(k);
+            const hasDose = cleanK.includes(`mui${doseNum}`) || cleanK.includes(`ngaytiem${doseNum}`) || (doseNum === 6 && cleanK.includes('muinhac'));
             if (!hasDose) return false;
             
-            const isReminder = cleanK.includes('hẹn') || cleanK.includes('kế hoạch') || cleanK.includes('ke hoach') || cleanK.includes('dự kiến') || cleanK.includes('du kien');
+            const isReminder = cleanK.includes('hen') || cleanK.includes('kehoach') || cleanK.includes('dukien');
             return !isReminder;
           });
           return matchKey ? String(row[matchKey]).trim() : '';
@@ -294,7 +301,11 @@ export default function CskhTiemChungPage() {
 
       const validItems = mappedItems.filter((item) => item.patientName && item.vaccine);
       if (validItems.length === 0) {
-        throw new Error('Không tìm thấy dòng dữ liệu hợp lệ nào chứa đầy đủ Họ tên và Tên vắc xin (Gợi ý: Hãy kiểm tra xem file Excel đã có cột Họ tên và Vắc xin chưa)');
+        const allKeys = Object.keys(json[0] || {});
+        const debugMsg = allKeys.length > 0 
+          ? `\n\n(Các cột hệ thống đọc được trong file của bạn: "${allKeys.join('", "')}")`
+          : '\n\n(Không tìm thấy dữ liệu hoặc cột nào trong file)';
+        throw new Error('Không tìm thấy dòng dữ liệu hợp lệ nào chứa đầy đủ Họ tên và Tên vắc xin.' + debugMsg);
       }
 
       setImportStatus(`Đang upload ${validItems.length} dòng dữ liệu...`);
