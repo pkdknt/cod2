@@ -1169,11 +1169,11 @@ export default function CskhTiemChungPage() {
                         const wb = XLSX.utils.book_new();
                         XLSX.utils.book_append_sheet(wb, ws, "Danh_Sach_Tiem");
                         XLSX.writeFile(wb, "DanhSachGuiTinNhan.xlsx");
-                        alert('Đã tải file Excel thành công! Bạn có thể chuyển sang trang Quản Lý Tin Nhắn để tải file này lên.');
+                        alert('Đã xuất file Excel thành công!');
                       }}
                       className="px-3 py-1.5 bg-sky-600 text-white rounded-lg text-xs font-bold hover:bg-sky-500 transition-colors"
                     >
-                      Xuất Excel gửi tin nhắn
+                      Xuất Excel
                     </button>
                     <button 
                       onClick={async () => {

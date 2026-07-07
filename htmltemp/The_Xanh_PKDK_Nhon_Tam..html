@@ -206,7 +206,7 @@
         <input id="headerRow" type="number" min="1" value="1" />
       </label>
       <label>Logo khác (không bắt buộc)
-        <input id="logoInput" type="file" accept="image/*" />
+        <input id="logoInput" type="file" accept="image/*,.png,.jpg,.jpeg,.webp,.gif,.bmp,.svg" />
       </label>
     </div>
 
@@ -239,8 +239,8 @@
     </div>
 
 
-    <details class="data-panel">
-      <summary>Nhập dữ liệu mẫu / Thu nhỏ - Mở rộng</summary>
+    <details class="data-panel" open>
+      <summary>Thông tin đầu thẻ / Nội dung mẫu - Thu nhỏ / Mở rộng</summary>
       <div class="panel-body">
         <div class="template-grid">
           <label>Dòng công ty <input id="tplCompanyLine1" value="CTY TNHH PKĐK NHƠN TÂM" /></label>
@@ -259,14 +259,14 @@
           <label>Nhãn Ngày khám <input id="tplLabelExamDate" value="Kiểm tra sức khỏe ngày:" /></label>
           <label>Nhãn Kết luận <input id="tplLabelConclusion" value="Kết luận:" /></label>
           <label>Nội dung Kết luận <input id="tplConclusion" value="ĐỦ SỨC KHỎE" /></label>
-          <label>Chữ mẫu khi trống - Code <input id="tplDefaultCode" value="Code" /></label>
+          <label>Số chứng nhận mặc định <input id="tplDefaultCode" value="07072602" /></label>
           <label>Chữ mẫu khi trống - Tên <input id="tplDefaultName" value="Tên" /></label>
           <label>Chữ mẫu khi trống - Năm sinh <input id="tplDefaultBirth" value="Năm Sinh" /></label>
           <label>Chữ mẫu khi trống - Giới tính <input id="tplDefaultGender" value="Giới Tính" /></label>
           <label>Chữ mẫu khi trống - Địa chỉ <input id="tplDefaultAddress" value="ĐC" /></label>
           <label>Chữ mẫu khi trống - Đơn vị <input id="tplDefaultUnit" value="Đơn vị" /></label>
         </div>
-        <div class="hint">Các dòng trong khung này có thể sửa tự do. Sau khi sửa, bấm “Tạo thẻ” để cập nhật vào mẫu in.</div>
+        <div class="hint">Các thông tin ở đầu thẻ như tên công ty, phòng khám, số chứng nhận, hậu tố /26/CNSKTX đều sửa được tại đây. Sau khi sửa, bấm “Tạo thẻ” để cập nhật vào mẫu in.</div>
       </div>
     </details>
     <section class="manual-entry" id="manualPanel">
@@ -750,33 +750,63 @@ $('manualDate').addEventListener('change', () => {
   if (currentRows.length) renderCards();
 });
 
-$('chooseLogoBtn').addEventListener('click', () => {
-  $('logoInput').click();
-});
+function isLogoImageFile(file) {
+  if (!file) return false;
+  const typeOk = file.type && file.type.toLowerCase().startsWith('image/');
+  const nameOk = /\.(png|jpe?g|webp|gif|bmp|svg)$/i.test(file.name || '');
+  return typeOk || nameOk;
+}
 
-$('resetLogoBtn').addEventListener('click', () => {
-  currentLogo = defaultLogo;
-  $('logoInput').value = '';
-  renderCards();
-  setStatus('Đã đổi về logo mặc định.');
-});
+function updateLogoOnCards() {
+  const logos = document.querySelectorAll('img.logo');
+  logos.forEach(img => { img.src = currentLogo; });
+}
 
-$('logoInput').addEventListener('change', (e) => {
-  const file = e.target.files && e.target.files[0];
+function handleLogoFile(file, inputEl) {
   if (!file) return;
-  if (!file.type || !file.type.startsWith('image/')) {
-    alert('Vui lòng chọn file hình ảnh logo: PNG, JPG, JPEG, WEBP...');
-    e.target.value = '';
+  if (!isLogoImageFile(file)) {
+    alert('Vui lòng chọn file hình ảnh logo: PNG, JPG, JPEG, WEBP, GIF, BMP hoặc SVG.');
+    if (inputEl) inputEl.value = '';
     return;
   }
   const reader = new FileReader();
   reader.onload = () => {
-    currentLogo = reader.result;
-    renderCards();
+    currentLogo = String(reader.result || defaultLogo);
+    updateLogoOnCards();
+    if (getRowsForRender().length) renderCards();
     setStatus('Đã cập nhật logo mới.');
   };
-  reader.onerror = () => alert('Không đọc được file logo, vui lòng chọn lại file khác.');
+  reader.onerror = () => {
+    alert('Không đọc được file logo, vui lòng chọn lại file khác.');
+    if (inputEl) inputEl.value = '';
+  };
   reader.readAsDataURL(file);
+}
+
+function openLogoPicker() {
+  const input = $('logoInput');
+  if (!input) return;
+  input.value = '';
+  input.click();
+}
+
+$('chooseLogoBtn').addEventListener('click', openLogoPicker);
+
+$('resetLogoBtn').addEventListener('click', () => {
+  currentLogo = defaultLogo;
+  if ($('logoInput')) $('logoInput').value = '';
+  updateLogoOnCards();
+  if (getRowsForRender().length) renderCards();
+  setStatus('Đã đổi về logo mặc định.');
+});
+
+$('logoInput').addEventListener('click', (e) => {
+  e.target.value = '';
+});
+
+$('logoInput').addEventListener('change', (e) => {
+  const file = e.target.files && e.target.files[0];
+  handleLogoFile(file, e.target);
 });
 
 function loadSheet() {
@@ -1030,7 +1060,7 @@ $('manualRowsList').addEventListener('click', (e) => {
 refreshManualRowsList();
 
 document.addEventListener('input', (e) => {
-  if (e.target && String(e.target.id || '').startsWith('tpl') && currentRows.length) {
+  if (e.target && String(e.target.id || '').startsWith('tpl') && getRowsForRender().length) {
     renderCards();
   }
 });

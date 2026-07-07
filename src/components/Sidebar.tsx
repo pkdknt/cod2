@@ -15,7 +15,6 @@ import {
   Car,
   FileBadge,
   FileText,
-  MessageSquare,
   Settings,
   ChevronDown,
   DollarSign,
@@ -43,11 +42,9 @@ export default function Sidebar() {
 
 
   const otherItems = [
-    { name: 'Lịch tiêm vắc xin', href: '/tiem-chung', icon: Syringe },
     { name: 'Tra cứu nhanh', href: '/tra-cuu-nhanh', icon: Search },
     { name: 'CSKH Tiêm Chủng', href: '/cskh-tiem-chung', icon: ClipboardList },
     { name: 'Bảng giá Vắc xin', href: '/vaccine-prices', icon: DollarSign },
-    { name: 'Tin nhắn nhắc', href: '/tin-nhan', icon: MessageSquare },
   ];
 
   return (
@@ -153,11 +150,9 @@ export default function Sidebar() {
           const isActive = pathname === item.href;
           // Shorten names for mobile to avoid wrapping
           let mobileName = item.name;
-          if (mobileName === 'Lịch tiêm vắc xin') mobileName = 'Lịch tiêm';
           if (mobileName === 'Tra cứu nhanh') mobileName = 'Tra cứu';
           if (mobileName === 'CSKH Tiêm Chủng') mobileName = 'CSKH';
           if (mobileName === 'Bảng giá Vắc xin') mobileName = 'Giá';
-          if (mobileName === 'Tin nhắn nhắc') mobileName = 'Tin';
           
           return (
             <Link
