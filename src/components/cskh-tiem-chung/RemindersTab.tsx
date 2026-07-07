@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useMemo, useEffect, useRef } from 'react';
-import * as XLSX from 'xlsx';
+import XLSX from 'xlsx-js-style';
 import { Search } from 'lucide-react';
 import { DATA, parseDate, parseSchedule, addInterval, sequentialInterval, fmtDate, DOSE_LABELS } from '@/lib/vaccineData';
 
@@ -259,7 +259,40 @@ export default function RemindersTab({ data, onRefresh }: RemindersTabProps) {
     });
 
     const ws = XLSX.utils.json_to_sheet(exportData);
-    ws['!views'] = [{ showGridLines: true }];
+    
+    // Style all cells in the sheet with borders, fonts, alignments, and fills
+    const range = XLSX.utils.decode_range(ws['!ref'] || 'A1:A1');
+    for (let R = range.s.r; R <= range.e.r; ++R) {
+      for (let C = range.s.c; C <= range.e.c; ++C) {
+        const cell_ref = XLSX.utils.encode_cell({ c: C, r: R });
+        if (!ws[cell_ref]) continue;
+
+        ws[cell_ref].s = {
+          border: {
+            top: { style: 'thin', color: { rgb: 'A0A0A0' } },
+            bottom: { style: 'thin', color: { rgb: 'A0A0A0' } },
+            left: { style: 'thin', color: { rgb: 'A0A0A0' } },
+            right: { style: 'thin', color: { rgb: 'A0A0A0' } }
+          },
+          font: {
+            name: 'Arial',
+            sz: 10,
+            bold: R === 0
+          },
+          alignment: {
+            horizontal: (R === 0 || C === 0 || C === 3 || C === 4 || C === 5 || C === 8 || C === 9 || C === 10 || C === 11 || C === 12) ? 'center' : 'left',
+            vertical: 'center'
+          }
+        };
+
+        if (R === 0) {
+          ws[cell_ref].s.fill = {
+            fgColor: { rgb: 'F2F2F2' }
+          };
+        }
+      }
+    }
+
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, "Nhac_Hen");
     XLSX.writeFile(wb, "DanhSachNhacHenTiem.xlsx");
