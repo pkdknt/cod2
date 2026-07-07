@@ -213,17 +213,40 @@ export default function CskhTiemChungPage() {
         };
 
         const patientName = findVal(['họ tên', 'ho ten', 'tên người tiêm', 'họ tên người tiêm', 'patientname', 'name', 'họ và tên', 'khách hàng', 'bệnh nhân']);
-        const rawVaccine = findVal(['vắc xin', 'vacxin', 'vaccine', 'tên vắc xin', 'tên thuốc', 'tên vacxin', 'vắc-xin', 'vac-xin', 'tên thuốc tiêm', 'dịch vụ', 'dich vu', 'tên hàng', 'ten hang', 'tên sản phẩm', 'ten san pham', 'sản phẩm', 'san pham', 'mặt hàng', 'mat hang', 'tên dịch vụ', 'ten dich vu']);
+        const rawVaccine = findVal(['mũi tiêm', 'mui tiem', 'vắc xin', 'vacxin', 'vaccine', 'tên vắc xin', 'tên thuốc', 'tên vacxin', 'vắc-xin', 'vac-xin', 'tên thuốc tiêm', 'dịch vụ', 'dich vu', 'tên hàng', 'ten hang', 'tên sản phẩm', 'ten san pham', 'sản phẩm', 'san pham', 'mặt hàng', 'mat hang', 'tên dịch vụ', 'ten dich vu']);
         const rawProtocol = findVal(['phác đồ', 'phac do', 'đối tượng', 'doi tuong', 'protocol']);
         
         let vaccine = 'Chưa chọn vắc xin';
         let protocolId = 'CUSTOM';
+        let doseIndex = 0; // Default to Mũi 1
         
         if (rawVaccine) {
+          const lowerV = rawVaccine.toLowerCase();
+          let cleanVaccineStr = rawVaccine;
+          if (lowerV.includes('mũi 1') || lowerV.includes('mui 1')) {
+            doseIndex = 0;
+            cleanVaccineStr = rawVaccine.replace(/mũi 1|mui 1/gi, '').trim();
+          } else if (lowerV.includes('mũi 2') || lowerV.includes('mui 2')) {
+            doseIndex = 1;
+            cleanVaccineStr = rawVaccine.replace(/mũi 2|mui 2/gi, '').trim();
+          } else if (lowerV.includes('mũi 3') || lowerV.includes('mui 3')) {
+            doseIndex = 2;
+            cleanVaccineStr = rawVaccine.replace(/mũi 3|mui 3/gi, '').trim();
+          } else if (lowerV.includes('mũi 4') || lowerV.includes('mui 4')) {
+            doseIndex = 3;
+            cleanVaccineStr = rawVaccine.replace(/mũi 4|mui 4/gi, '').trim();
+          } else if (lowerV.includes('mũi 5') || lowerV.includes('mui 5')) {
+            doseIndex = 4;
+            cleanVaccineStr = rawVaccine.replace(/mũi 5|mui 5/gi, '').trim();
+          } else if (lowerV.includes('mũi nhắc') || lowerV.includes('mui nhac') || lowerV.includes('nhắc') || lowerV.includes('nhac')) {
+            doseIndex = 5;
+            cleanVaccineStr = rawVaccine.replace(/mũi nhắc|mui nhac|nhắc|nhac/gi, '').trim();
+          }
+          
           const matchedProto = DATA.protocols.find(p => 
-            p.vaccine.toLowerCase().trim() === rawVaccine.toLowerCase().trim() ||
-            p.vaccine.toLowerCase().includes(rawVaccine.toLowerCase().trim()) ||
-            rawVaccine.toLowerCase().includes(p.vaccine.toLowerCase().trim())
+            p.vaccine.toLowerCase().trim() === cleanVaccineStr.toLowerCase().trim() ||
+            p.vaccine.toLowerCase().includes(cleanVaccineStr.toLowerCase().trim()) ||
+            cleanVaccineStr.toLowerCase().includes(p.vaccine.toLowerCase().trim())
           );
           
           if (matchedProto) {
@@ -264,7 +287,7 @@ export default function CskhTiemChungPage() {
               }
             }
           } else {
-            vaccine = rawVaccine;
+            vaccine = cleanVaccineStr;
             protocolId = 'CUSTOM';
           }
         }
@@ -281,10 +304,32 @@ export default function CskhTiemChungPage() {
           return matchKey ? String(row[matchKey]).trim() : '';
         };
 
-        const dates = [1, 2, 3, 4, 5, 6].map(idx => {
+        let dates = [1, 2, 3, 4, 5, 6].map(idx => {
           const v = findDateVal(idx);
           return v ? maskDateText(v) : '';
         });
+
+        let dueOverrides = Array(6).fill('');
+
+        // Fallback: If no separate dose columns exist, search for single actual date and next planned date
+        const hasSeparateDoseCols = dates.some(d => d !== '');
+        if (!hasSeparateDoseCols) {
+          const singleActualDate = findVal(['ngày tiêm', 'ngay tiem', 'ngày tiêm thực tế', 'ngay tiem thuc te']);
+          const singlePlannedDate = findVal(['kế hoạch tiêm', 'ke hoach tiem', 'kế hoạch', 'ke hoach', 'ngày hẹn', 'ngay hen']);
+          
+          if (singleActualDate) {
+            dates[doseIndex] = maskDateText(singleActualDate);
+          }
+          if (singlePlannedDate && doseIndex < 5) {
+            dueOverrides[doseIndex + 1] = maskDateText(singlePlannedDate);
+          }
+        }
+
+        let notes = Array(6).fill('');
+        const canBoTiem = findVal(['cán bộ tiêm', 'can bo tiem', 'người tiêm', 'nguoi tiem', 'bác sĩ', 'bac si', 'y tá', 'y ta', 'điều dưỡng', 'dieu duong']);
+        if (canBoTiem) {
+          notes[doseIndex] = `CB tiêm: ${canBoTiem}`;
+        }
 
         return {
           patientCode: findVal(['mã đối tượng', 'mã bn', 'ma doi tuong', 'mã bệnh nhân', 'code', 'patientcode']),
@@ -295,7 +340,9 @@ export default function CskhTiemChungPage() {
           address: findVal(['địa chỉ', 'dia chi', 'address', 'nơi ở', 'noi o']),
           vaccine,
           protocolId,
-          dates
+          dates,
+          dueOverrides,
+          notes
         };
       });
 
