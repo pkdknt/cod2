@@ -1,17 +1,147 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect, useRef } from 'react';
 import * as XLSX from 'xlsx';
 import { Search } from 'lucide-react';
 import { DATA, parseDate, parseSchedule, addInterval, sequentialInterval, fmtDate, DOSE_LABELS } from '@/lib/vaccineData';
 
 interface RemindersTabProps {
   data: any[];
+  onRefresh?: () => void;
 }
 
-export default function RemindersTab({ data }: RemindersTabProps) {
+export default function RemindersTab({ data, onRefresh }: RemindersTabProps) {
   const [filterDays, setFilterDays] = useState('30'); // Default < 1 month
   const [qSearch, setQSearch] = useState('');
+
+  // Local state to keep track of live edits so that the UI updates immediately
+  const [localEdits, setLocalEdits] = useState<{
+    [patientId: string]: {
+      dates?: string[];
+      called?: boolean[];
+      messaged?: boolean[];
+      notes?: string[];
+    }
+  }>({});
+
+  const [savingStatus, setSavingStatus] = useState<{ [patientId: string]: 'idle' | 'dirty' | 'saving' | 'saved' | 'error' }>({});
+  const [unsavedPatientIds, setUnsavedPatientIds] = useState<Set<string>>(new Set());
+  const timersRef = useRef<{ [patientId: string]: NodeJS.Timeout }>({});
+
+  useEffect(() => {
+    return () => {
+      // Clear all timers on unmount
+      Object.values(timersRef.current).forEach(t => clearTimeout(t));
+    };
+  }, []);
+
+  const getPatientValue = (patient: any, doseIndex: number) => {
+    const patientId = patient._id;
+    const edits = localEdits[patientId] || {};
+    
+    const dates = edits.dates || patient.dates || Array(6).fill('');
+    const notes = edits.notes || patient.notes || Array(6).fill('');
+    const called = edits.called || patient.called || Array(6).fill(false);
+    const messaged = edits.messaged || patient.messaged || Array(6).fill(false);
+
+    return {
+      hasDate: !!dates[doseIndex],
+      dateStr: dates[doseIndex] || '',
+      noteStr: notes[doseIndex] || '',
+      isCalled: !!called[doseIndex],
+      isMessaged: !!messaged[doseIndex]
+    };
+  };
+
+  const handleChange = (patientId: string, doseIndex: number, field: string, value: any) => {
+    const patient = data.find(p => p._id === patientId);
+    if (!patient) return;
+
+    const currentEdits = localEdits[patientId] || {};
+    const dates = [...(currentEdits.dates || patient.dates || Array(6).fill(''))];
+    const notes = [...(currentEdits.notes || patient.notes || Array(6).fill(''))];
+    const called = [...(currentEdits.called || patient.called || Array(6).fill(false))];
+    const messaged = [...(currentEdits.messaged || patient.messaged || Array(6).fill(false))];
+
+    if (field === 'dates') {
+      dates[doseIndex] = value;
+    } else if (field === 'notes') {
+      notes[doseIndex] = value;
+    } else if (field === 'called') {
+      called[doseIndex] = value;
+    } else if (field === 'messaged') {
+      messaged[doseIndex] = value;
+    }
+
+    setLocalEdits(prev => ({
+      ...prev,
+      [patientId]: { dates, notes, called, messaged }
+    }));
+
+    setUnsavedPatientIds(prev => {
+      const next = new Set(prev);
+      next.add(patientId);
+      return next;
+    });
+
+    setSavingStatus(prev => ({ ...prev, [patientId]: 'dirty' }));
+
+    if (timersRef.current[patientId]) {
+      clearTimeout(timersRef.current[patientId]);
+    }
+
+    timersRef.current[patientId] = setTimeout(() => {
+      savePatient(patientId, { dates, notes, called, messaged });
+    }, 10000);
+  };
+
+  const savePatient = async (patientId: string, edits: any) => {
+    const patient = data.find(p => p._id === patientId);
+    if (!patient) return;
+
+    setSavingStatus(prev => ({ ...prev, [patientId]: 'saving' }));
+
+    try {
+      const res = await fetch('/api/cskh-tiem-chung', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          id: patientId,
+          patientCode: patient.patientCode,
+          patientName: patient.patientName,
+          phone: patient.phone,
+          dob: patient.dob,
+          gender: patient.gender,
+          address: patient.address,
+          vaccine: patient.vaccine,
+          protocolId: patient.protocolId,
+          dueOverrides: patient.dueOverrides,
+          dates: edits.dates,
+          notes: edits.notes,
+          called: edits.called,
+          messaged: edits.messaged
+        })
+      });
+
+      if (!res.ok) throw new Error('Auto-save failed');
+
+      setSavingStatus(prev => ({ ...prev, [patientId]: 'saved' }));
+      
+      setUnsavedPatientIds(prev => {
+        const next = new Set(prev);
+        next.delete(patientId);
+        return next;
+      });
+
+      setTimeout(() => {
+        if (onRefresh) onRefresh();
+      }, 800);
+
+    } catch (e) {
+      console.error(e);
+      setSavingStatus(prev => ({ ...prev, [patientId]: 'error' }));
+    }
+  };
 
   // Compute upcoming doses for all patients
   const reminders = useMemo(() => {
@@ -71,6 +201,7 @@ export default function RemindersTab({ data }: RemindersTabProps) {
                 patientId: patient._id,
                 patientCode: patient.patientCode || '',
                 patientName: patient.patientName || '',
+                phone: patient.phone || '',
                 dob: patient.dob || '',
                 gender: patient.gender || '',
                 address: patient.address || '',
@@ -80,6 +211,8 @@ export default function RemindersTab({ data }: RemindersTabProps) {
                 plannedDateStr: fmtDate(activeDue),
                 diff,
                 due: activeDue,
+                doseIndex: i,
+                patient: patient
               });
             }
           }
@@ -96,7 +229,8 @@ export default function RemindersTab({ data }: RemindersTabProps) {
       return list.filter(item => 
         item.patientName.toLowerCase().includes(q) ||
         item.patientCode.toLowerCase().includes(q) ||
-        item.vaccineAndDose.toLowerCase().includes(q)
+        item.vaccineAndDose.toLowerCase().includes(q) ||
+        item.phone.toLowerCase().includes(q)
       );
     }
 
@@ -104,17 +238,25 @@ export default function RemindersTab({ data }: RemindersTabProps) {
   }, [data, filterDays, qSearch]);
 
   const handleExport = () => {
-    const exportData = reminders.map((item, index) => ({
-      '#': index + 1,
-      'Mã đối tượng': item.patientCode,
-      'Họ tên': item.patientName,
-      'Ngày sinh': item.dob,
-      'Giới tính': item.gender,
-      'Địa chỉ': item.address,
-      'Mũi tiêm': item.vaccineAndDose,
-      'Ngày tiêm': item.actualDateStr,
-      'Kế hoạch tiêm': item.plannedDateStr
-    }));
+    const exportData = reminders.map((item, index) => {
+      const vals = getPatientValue(item.patient, item.doseIndex);
+      return {
+        '#': index + 1,
+        'Mã đối tượng': item.patientCode,
+        'Họ tên': item.patientName,
+        'Số điện thoại': item.phone,
+        'Ngày sinh': item.dob,
+        'Giới tính': item.gender,
+        'Địa chỉ': item.address,
+        'Mũi tiêm': item.vaccineAndDose,
+        'Ngày tiêm': vals.dateStr,
+        'Kế hoạch tiêm': item.plannedDateStr,
+        'Đã tiêm': vals.hasDate ? 'Đã tiêm' : 'Chưa tiêm',
+        'Đã gọi': vals.isCalled ? 'Đã gọi' : 'Chưa gọi',
+        'Đã nhắn tin': vals.isMessaged ? 'Đã nhắn tin' : 'Chưa nhắn tin',
+        'Ghi chú nhắc hẹn': vals.noteStr
+      };
+    });
 
     const ws = XLSX.utils.json_to_sheet(exportData);
     const wb = XLSX.utils.book_new();
@@ -132,7 +274,7 @@ export default function RemindersTab({ data }: RemindersTabProps) {
             <Search className="absolute left-3 top-3 h-4 w-4 text-slate-400" />
             <input
               type="text"
-              placeholder="Tên, Mã BN, Vắc xin..."
+              placeholder="Tên, Mã BN, SĐT, Vắc xin..."
               value={qSearch}
               onChange={(e) => setQSearch(e.target.value)}
               className="w-full pl-9 rounded-xl border border-slate-200 p-2.5 text-xs font-semibold outline-none focus:border-teal-500"
@@ -171,25 +313,31 @@ export default function RemindersTab({ data }: RemindersTabProps) {
         </div>
 
         <div className="overflow-x-auto">
-          <table className="w-full text-xs text-left">
+          <table className="w-full text-xs text-left min-w-[1200px]">
             <thead>
-              <tr className="bg-white text-slate-500 font-bold h-11 border-b border-slate-200">
+              <tr className="bg-white text-slate-500 font-bold h-11 border-b border-slate-200 uppercase text-[10px]">
                 <th className="pl-6 w-12">#</th>
                 <th className="w-32">Mã đối tượng</th>
-                <th className="w-48">Họ tên</th>
-                <th className="w-24">Ngày sinh</th>
+                <th className="w-44">Họ tên</th>
+                <th className="w-28 text-center">Số điện thoại</th>
+                <th className="w-24 text-center">Ngày sinh</th>
                 <th className="w-20 text-center">Giới tính</th>
-                <th className="min-w-[150px]">Địa chỉ</th>
+                <th className="min-w-[120px] max-w-[200px]">Địa chỉ</th>
                 <th className="w-32">Mũi tiêm</th>
                 <th className="w-28 text-center">Ngày tiêm</th>
                 <th className="w-28 text-center">Kế hoạch tiêm</th>
-                <th className="w-32 pr-6">Trạng thái</th>
+                <th className="w-20 text-center">Đã tiêm</th>
+                <th className="w-20 text-center">Đã gọi</th>
+                <th className="w-20 text-center">Đã nhắn</th>
+                <th className="w-40">Ghi chú nhắc hẹn</th>
+                <th className="w-28">Trạng thái</th>
+                <th className="w-24 text-center pr-6">Thao tác</th>
               </tr>
             </thead>
             <tbody>
               {reminders.length === 0 ? (
                 <tr>
-                  <td colSpan={10} className="text-center py-20 text-slate-400 font-bold">
+                  <td colSpan={16} className="text-center py-20 text-slate-400 font-bold">
                     Không có lịch hẹn nào thỏa mãn điều kiện.
                   </td>
                 </tr>
@@ -204,20 +352,106 @@ export default function RemindersTab({ data }: RemindersTabProps) {
                     statusBadge = <span className="px-2 py-0.5 rounded text-[10px] bg-amber-50 text-amber-700 font-bold border border-amber-200">Còn {item.diff} ngày</span>;
                   }
 
+                  const vals = getPatientValue(item.patient, item.doseIndex);
+                  const status = savingStatus[item.patientId] || 'idle';
+
                   return (
                     <tr key={item._id} className="border-b border-slate-100 h-12 hover:bg-slate-50 transition-colors">
                       <td className="pl-6 text-slate-400 font-bold">{index + 1}</td>
                       <td className="font-semibold text-slate-600">{item.patientCode}</td>
                       <td className="font-bold text-slate-800 uppercase">{item.patientName}</td>
-                      <td className="text-slate-500">{item.dob}</td>
+                      <td className="text-center text-slate-650 font-semibold">{item.phone || '—'}</td>
+                      <td className="text-center text-slate-550">{item.dob}</td>
                       <td className="text-center text-slate-500 font-semibold">
                         {item.gender === 'Nữ' ? <span className="text-pink-500">♀</span> : item.gender === 'Nam' ? <span className="text-blue-500">♂</span> : ''}
                       </td>
-                      <td className="text-slate-600 truncate max-w-[200px]" title={item.address}>{item.address}</td>
+                      <td className="text-slate-600 truncate max-w-[150px]" title={item.address}>{item.address}</td>
                       <td className="font-bold text-teal-800">{item.vaccineAndDose}</td>
-                      <td className="text-center text-slate-400">{item.actualDateStr}</td>
+                      <td className="text-center text-slate-500 font-semibold">{vals.dateStr || '—'}</td>
                       <td className="text-center font-bold text-slate-700">{item.plannedDateStr}</td>
-                      <td className="pr-6">{statusBadge}</td>
+                      
+                      {/* Checkboxes */}
+                      <td className="text-center">
+                        <input
+                          type="checkbox"
+                          checked={vals.hasDate}
+                          onChange={(e) => {
+                            const dateVal = e.target.checked ? fmtDate(new Date()) : '';
+                            handleChange(item.patientId, item.doseIndex, 'dates', dateVal);
+                          }}
+                          className="w-4 h-4 rounded border-slate-300 text-teal-600 focus:ring-teal-500 cursor-pointer"
+                        />
+                      </td>
+                      <td className="text-center">
+                        <input
+                          type="checkbox"
+                          checked={vals.isCalled}
+                          onChange={(e) => {
+                            handleChange(item.patientId, item.doseIndex, 'called', e.target.checked);
+                          }}
+                          className="w-4 h-4 rounded border-slate-300 text-teal-600 focus:ring-teal-500 cursor-pointer"
+                        />
+                      </td>
+                      <td className="text-center">
+                        <input
+                          type="checkbox"
+                          checked={vals.isMessaged}
+                          onChange={(e) => {
+                            handleChange(item.patientId, item.doseIndex, 'messaged', e.target.checked);
+                          }}
+                          className="w-4 h-4 rounded border-slate-300 text-teal-600 focus:ring-teal-500 cursor-pointer"
+                        />
+                      </td>
+                      
+                      {/* Note Input */}
+                      <td className="py-1">
+                        <input
+                          type="text"
+                          value={vals.noteStr}
+                          placeholder="Ghi chú..."
+                          onChange={(e) => {
+                            handleChange(item.patientId, item.doseIndex, 'notes', e.target.value);
+                          }}
+                          className="w-full max-w-[130px] text-xs px-2 py-1.5 border border-slate-200 rounded-xl outline-none focus:border-teal-500"
+                        />
+                      </td>
+                      
+                      <td>{statusBadge}</td>
+                      
+                      {/* Thao tác (Save Status / Manual Save) */}
+                      <td className="pr-6 text-center">
+                        <div className="flex flex-col items-center gap-1 justify-center min-w-[70px]">
+                          {status === 'saving' && (
+                            <span className="text-[10px] text-teal-600 font-bold animate-pulse">Đang lưu...</span>
+                          )}
+                          {status === 'saved' && (
+                            <span className="text-[10px] text-emerald-600 font-bold">Đã lưu</span>
+                          )}
+                          {status === 'error' && (
+                            <span className="text-[10px] text-red-500 font-bold">Lỗi lưu!</span>
+                          )}
+                          {status === 'dirty' && (
+                            <div className="flex flex-col items-center gap-0.5">
+                              <span className="text-[9px] text-amber-600 font-semibold">Chờ 10s...</span>
+                              <button
+                                onClick={() => {
+                                  if (timersRef.current[item.patientId]) {
+                                    clearTimeout(timersRef.current[item.patientId]);
+                                  }
+                                  const currentEdits = localEdits[item.patientId] || {};
+                                  savePatient(item.patientId, currentEdits);
+                                }}
+                                className="px-1.5 py-0.5 bg-teal-600 hover:bg-teal-500 text-white rounded text-[8px] font-extrabold uppercase tracking-wide shadow-sm"
+                              >
+                                Lưu ngay
+                              </button>
+                            </div>
+                          )}
+                          {(!status || status === 'idle') && (
+                            <span className="text-[10px] text-slate-400 font-semibold">—</span>
+                          )}
+                        </div>
+                      </td>
                     </tr>
                   );
                 })

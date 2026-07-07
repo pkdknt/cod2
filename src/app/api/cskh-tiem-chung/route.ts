@@ -50,7 +50,7 @@ export async function POST(req: Request) {
   try {
     await connectToDatabase();
     const body = await req.json();
-    const { id, patientCode, patientName, phone, dob, gender, address, vaccine, protocolId, dates, dueOverrides, notes } = body;
+    const { id, patientCode, patientName, phone, dob, gender, address, vaccine, protocolId, dates, dueOverrides, notes, called, messaged } = body;
 
     if (!patientName || !vaccine || !protocolId) {
       return NextResponse.json({ message: 'Tên bệnh nhân, Vắc xin và Phác đồ là bắt buộc' }, { status: 400 });
@@ -72,7 +72,9 @@ export async function POST(req: Request) {
           protocolId,
           dates: dates || ['', '', '', '', '', ''],
           dueOverrides: dueOverrides || ['', '', '', '', '', ''],
-          notes: notes || ['', '', '', '', '', '']
+          notes: notes || ['', '', '', '', '', ''],
+          called: called || [false, false, false, false, false, false],
+          messaged: messaged || [false, false, false, false, false, false]
         },
         { new: true }
       );
@@ -89,7 +91,9 @@ export async function POST(req: Request) {
         protocolId,
         dates: dates || ['', '', '', '', '', ''],
         dueOverrides: dueOverrides || ['', '', '', '', '', ''],
-        notes: notes || ['', '', '', '', '', '']
+        notes: notes || ['', '', '', '', '', ''],
+        called: called || [false, false, false, false, false, false],
+        messaged: messaged || [false, false, false, false, false, false]
       });
     }
 

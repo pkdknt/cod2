@@ -12,6 +12,8 @@ export interface ICskhVaccine extends Document {
   dates: string[];           // Array of 6 dates: actual dose dates
   dueOverrides: string[];    // Array of 6 dates: overridden due dates
   notes: string[];           // Array of 6 notes
+  called?: boolean[];        // Array of 6 booleans: called status
+  messaged?: boolean[];      // Array of 6 booleans: messaged status
   createdAt: Date;
   updatedAt: Date;
 }
@@ -28,7 +30,9 @@ const CskhVaccineSchema = new Schema<ICskhVaccine>(
     protocolId: { type: String, required: true, index: true },
     dates: { type: [String], default: ['', '', '', '', '', ''] },
     dueOverrides: { type: [String], default: ['', '', '', '', '', ''] },
-    notes: { type: [String], default: ['', '', '', '', '', ''] }
+    notes: { type: [String], default: ['', '', '', '', '', ''] },
+    called: { type: [Boolean], default: [false, false, false, false, false, false] },
+    messaged: { type: [Boolean], default: [false, false, false, false, false, false] }
   },
   {
     timestamps: true,

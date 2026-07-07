@@ -904,7 +904,7 @@ export default function CskhTiemChungPage() {
 
       {/* TAB: DANH SÁCH NHẮC HẸN */}
       {activeTab === 'remindersSec' && (
-        <RemindersTab data={savedSchedules} />
+        <RemindersTab data={savedSchedules} onRefresh={fetchSavedSchedules} />
       )}
     </div>
   );
