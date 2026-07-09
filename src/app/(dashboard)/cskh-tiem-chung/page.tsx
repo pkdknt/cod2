@@ -708,7 +708,7 @@ export default function CskhTiemChungPage() {
   };
 
   return (
-    <div className="flex flex-col h-full gap-3 min-h-0">
+    <div className="flex flex-col h-auto md:h-full gap-3 min-h-0">
       {/* Title Header */}
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between shrink-0">
         <div>
@@ -1108,7 +1108,7 @@ export default function CskhTiemChungPage() {
           </div>
 
           {/* Database Table view */}
-          <div className="flex-1 bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden flex flex-col min-h-0">
+          <div className="flex-1 bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden flex flex-col min-h-[500px] md:min-h-0">
             <div className="px-5 py-3 border-b border-slate-100 shrink-0">
               <span className="text-xs font-semibold text-slate-400 bg-slate-50 px-2.5 py-0.5 rounded-full">
                 Tổng cộng {savedSchedules.length} hồ sơ theo dõi

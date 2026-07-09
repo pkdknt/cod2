@@ -424,7 +424,7 @@ export default function RemindersTab({ data, onRefresh, onEdit, onDelete }: Remi
   };
 
   return (
-    <div className="flex flex-col h-full gap-4 flex-1 min-h-0">
+    <div className="flex flex-col h-auto md:h-full gap-4 flex-1 min-h-0">
       {/* Filters */}
       <div className="bg-white border border-slate-200 rounded-2xl p-3 shadow-sm flex flex-wrap gap-3 items-end shrink-0">
         <div className="flex-1 min-w-[200px]">
@@ -457,7 +457,7 @@ export default function RemindersTab({ data, onRefresh, onEdit, onDelete }: Remi
       </div>
 
       {/* Table Card */}
-      <div className="flex-1 bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden flex flex-col min-h-0">
+      <div className="flex-1 bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden flex flex-col min-h-[500px] md:min-h-0">
         <div className="px-5 py-3 border-b border-slate-100 flex items-center justify-between bg-slate-50 shrink-0">
           <h2 className="font-bold text-slate-800 flex items-center gap-2">
             Kết quả thống kê <span className="text-xs bg-teal-100 text-teal-800 px-2 py-0.5 rounded-full">{reminders.length} mũi</span>
