@@ -1,4 +1,4 @@
-import mongoose, { Schema, Document, model, models } from 'mongoose';
+import { Schema, Document, model, models } from 'mongoose';
 
 export interface ICskhVaccine extends Document {
   patientCode?: string;

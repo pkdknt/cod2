@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Bìa bệnh án YHCT</title>
+<title>Bìa bệnh án RHM</title>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -14,7 +14,7 @@
   .toolbar h2{font-size:19px;margin:0 12px 0 0}.toolbar input,.toolbar button,.toolbar select{padding:8px;border-radius:6px;border:1px solid #ddd;font-size:15px}.toolbar button{background:#fff;color:#064e3b;font-weight:bold;cursor:pointer}.toolbar button:hover{background:#dcfce7}.externalStatus{background:#083f37;color:#d1fae5;border:1px solid #2dd4bf;border-radius:999px;padding:7px 10px;font-size:13px;white-space:nowrap}
   .wrap{display:grid;grid-template-columns:380px 1fr;gap:14px;padding:14px}.panel{background:white;border-radius:10px;padding:12px;box-shadow:0 1px 8px #0002}.panel h3{margin:8px 0 10px;color:#0f766e;font-size:19px}.field{margin-bottom:8px}.field label{display:block;font-weight:bold;font-size:14px;margin-bottom:3px}.field input{width:100%;padding:8px;border:1px solid #bbb;border-radius:6px;font-size:15px}.listActions button,.listActions select{font-size:15px}
   .tablebox{max-height:350px;overflow:auto;border:1px solid #ddd;border-radius:8px}table{border-collapse:collapse;width:100%;font-size:13px}th,td{border:1px solid #ddd;padding:5px;white-space:nowrap}th{background:#e0f2fe;position:sticky;top:0}tr.active{background:#fef3c7}.miniBtn{padding:3px 6px;border-radius:4px;border:1px solid #dc2626;background:#fff;color:#b91c1c;font-weight:bold;cursor:pointer;font-size:13px}.sortHead{cursor:pointer}.sortHead:hover{background:#bae6fd}
-  .pageArea{overflow:auto;background:#777;padding:20px;border-radius:10px;position:relative}.previewNav{position:sticky;top:0;z-index:8;margin:0 auto 12px;display:flex;align-items:center;justify-content:center;gap:8px;background:#111827e6;color:#fff;border:1px solid #ffffff33;border-radius:999px;padding:8px 10px;width:max-content;max-width:100%;box-shadow:0 2px 8px #0006}.previewNav button{border:1px solid #d1fae5;background:#ecfdf5;color:#064e3b;border-radius:999px;padding:7px 12px;font-weight:bold;cursor:pointer}.previewNav button:hover{background:#bbf7d0}.previewNav button:disabled{opacity:.45;cursor:not-allowed}.pageIndicator{font-weight:bold;white-space:nowrap;min-width:130px;text-align:center}.sheet{width:420mm;height:297mm;background:white;position:relative;margin:auto;box-shadow:0 0 8px #0008;overflow:hidden}.cover{position:absolute;left:220mm;top:20mm;width:190mm;height:267mm;border:1.4mm solid #111;padding:9mm 7mm;text-align:center;font-family:'Times New Roman',serif;overflow:hidden;--cover-scale:1}.coverContent{transform:scale(var(--cover-scale));transform-origin:top center;width:100%}.topSmall{position:absolute;left:220mm;top:4mm;min-width:42mm;width:max-content;height:13mm;z-index:20;border:0.5mm solid #111;background:white;display:flex;align-items:center;justify-content:center;font-family:'Times New Roman',serif;font-weight:bold;text-align:center;white-space:nowrap;overflow:visible;padding:0 3mm}.topSmall .soLuuTruText{display:inline-block;line-height:1;white-space:nowrap}.clinic{font-weight:bold;font-size:20pt;line-height:1.12}.addr{font-size:10pt;line-height:1.25;white-space:normal;overflow-wrap:anywhere;word-break:break-word}.clinicLine{font-weight:bold;font-size:20pt;line-height:1.12;overflow-wrap:anywhere;word-break:break-word}.addrLine{font-size:10pt;line-height:1.25;overflow-wrap:anywhere;word-break:break-word}.logo{width:42mm;height:42mm;margin:8mm auto 5mm;display:flex;align-items:center;justify-content:center}.logo svg,.logo img{max-width:100%;max-height:100%;object-fit:contain}.title{font-size:32pt;font-weight:bold;margin:5mm 0 8mm;line-height:1.05;white-space:normal;letter-spacing:-0.2mm;overflow-wrap:anywhere;word-break:keep-all}.codeBox{width:110mm;margin:0 auto 14mm;text-align:left;border:0.35mm solid #777;font-size:12pt;line-height:1.45;padding:1.5mm 3mm}.info{margin-top:8mm;text-align:left;font-size:13.5pt;line-height:1.55}.infoRow{display:flex;align-items:flex-start;gap:2mm;margin-bottom:2.3mm;max-width:100%;overflow-wrap:anywhere;word-break:break-word}.info b{display:inline-block;flex:0 0 44mm;width:44mm;min-width:44mm;vertical-align:top}.cccdRow b{white-space:nowrap;flex-basis:64mm;width:64mm;min-width:64mm}.cccdRow .value{max-width:none}.value{font-weight:bold;white-space:normal;overflow-wrap:anywhere;word-break:break-word;max-width:none;min-width:0;display:inline-block;flex:1}.codeBox .value{max-width:calc(100% - 45mm);display:inline-block;vertical-align:top}.hint{font-size:13px;color:#475569;line-height:1.4}.printOnly{display:none}
+  .pageArea{overflow:auto;background:#777;padding:20px;border-radius:10px;position:relative}.previewNav{position:sticky;top:0;z-index:8;margin:0 auto 12px;display:flex;align-items:center;justify-content:center;gap:8px;background:#111827e6;color:#fff;border:1px solid #ffffff33;border-radius:999px;padding:8px 10px;width:max-content;max-width:100%;box-shadow:0 2px 8px #0006}.previewNav button{border:1px solid #d1fae5;background:#ecfdf5;color:#064e3b;border-radius:999px;padding:7px 12px;font-weight:bold;cursor:pointer}.previewNav button:hover{background:#bbf7d0}.previewNav button:disabled{opacity:.45;cursor:not-allowed}.pageIndicator{font-weight:bold;white-space:nowrap;min-width:130px;text-align:center}.sheet{width:420mm;height:297mm;background:white;position:relative;margin:0 auto 18px;box-shadow:0 0 8px #0008;overflow:hidden}.previewPageWrap{margin:0 auto 24px;width:max-content;max-width:100%}.previewPageLabel{background:#0f172a;color:#fff;border-radius:8px;padding:7px 10px;margin:0 auto 8px;width:max-content;max-width:420mm;font-size:14px;font-weight:bold;box-shadow:0 1px 5px #0005}.previewPageWrap.activePreview .sheet{outline:4px solid #facc15;outline-offset:4px}.previewEmpty{background:#fff;border:2px dashed #cbd5e1;border-radius:10px;padding:24px;text-align:center;color:#475569;font-weight:bold}.cover{position:absolute;left:220mm;top:20mm;width:190mm;height:267mm;border:1.4mm solid #111;padding:9mm 7mm;text-align:center;font-family:'Times New Roman',serif;overflow:hidden;--cover-scale:1}.coverContent{transform:scale(var(--cover-scale));transform-origin:top center;width:100%}.topSmall{position:absolute;left:220mm;top:4mm;min-width:42mm;width:max-content;height:13mm;z-index:20;border:0.5mm solid #111;background:white;display:flex;align-items:center;justify-content:center;font-family:'Times New Roman',serif;font-weight:bold;text-align:center;white-space:nowrap;overflow:visible;padding:0 3mm}.topSmall .soLuuTruText{display:inline-block;line-height:1;white-space:nowrap}.clinic{font-weight:bold;font-size:20pt;line-height:1.12}.addr{font-size:10pt;line-height:1.25;white-space:normal;overflow-wrap:anywhere;word-break:break-word}.clinicLine{font-weight:bold;font-size:20pt;line-height:1.12;overflow-wrap:anywhere;word-break:break-word}.addrLine{font-size:10pt;line-height:1.25;overflow-wrap:anywhere;word-break:break-word}.logo{width:42mm;height:42mm;margin:8mm auto 5mm;display:flex;align-items:center;justify-content:center}.logo svg,.logo img{max-width:100%;max-height:100%;object-fit:contain}.title{font-size:32pt;font-weight:bold;margin:5mm 0 8mm;line-height:1.05;white-space:normal;letter-spacing:-0.2mm;overflow-wrap:anywhere;word-break:keep-all}.codeBox{width:110mm;margin:0 auto 14mm;text-align:left;border:0.35mm solid #777;font-size:12pt;line-height:1.45;padding:1.5mm 3mm}.info{margin-top:8mm;text-align:left;font-size:13.5pt;line-height:1.55}.infoRow{display:flex;align-items:flex-start;gap:2mm;margin-bottom:2.3mm;max-width:100%;overflow-wrap:anywhere;word-break:break-word}.info b{display:inline-block;flex:0 0 44mm;width:44mm;min-width:44mm;vertical-align:top}.cccdRow b{white-space:nowrap;flex-basis:64mm;width:64mm;min-width:64mm}.cccdRow .value{max-width:none}.value{font-weight:bold;white-space:normal;overflow-wrap:anywhere;word-break:break-word;max-width:none;min-width:0;display:inline-block;flex:1}.codeBox .value{max-width:calc(100% - 45mm);display:inline-block;vertical-align:top}.hint{font-size:13px;color:#475569;line-height:1.4}.printOnly{display:none}
   @media(max-width:900px){.wrap{grid-template-columns:1fr}.sheet{transform:scale(.36);transform-origin:top left;margin:0;width:420mm;height:297mm}.pageArea{height:460px}}
   @page{size:A3 landscape;margin:0}
   @media print{body{background:white}.toolbar,.panel,.previewNav{display:none!important}.wrap{display:block;padding:0}.pageArea{padding:0;background:white;border-radius:0;overflow:visible}.sheet{box-shadow:none;margin:0;width:420mm;height:297mm}.cover{border:1.4mm solid #111}.printOnly{display:block}}
@@ -22,7 +22,7 @@
 </head>
 <body>
 <div class="toolbar">
-  <h2 id="appTitle">Bìa bệnh án YHCT</h2>
+  <h2 id="appTitle">Bìa bệnh án RHM</h2>
   <input type="file" id="excelFile" accept=".xlsx,.xls,.csv" multiple />
   <label style="background:#fff;color:#064e3b;font-weight:bold;padding:8px;border-radius:6px;cursor:pointer">Chọn logo<input type="file" id="logoFile" accept="image/*" style="display:none"></label>
   <button onclick="saveDataNow()">Lưu dữ liệu</button>
@@ -93,14 +93,14 @@ const DB_KEY='rows';
 const HEADER_DEFAULTS_KEY='headerDefaults';
 const HEADER_STORAGE_KEY='bia_yhct_header_defaults';
 const EXTERNAL_DIR_HANDLE_KEY='externalDriveDirHandle';
-const EXTERNAL_DATA_FILE='BIA_BENH_AN_YHCT_A3_DATA.json';
+const EXTERNAL_DATA_FILE='BIA_BENH_AN_RHM_A3_DATA.json';
 const AUTO_SAVE_DELAY=5000;
 const HEADER_FIELDS=['tenApp','tenBenhAn','soLuuTru','dongPK1','dongPK2','dongPK3'];
 const HEADER_GLOBAL_FIELDS=['tenApp','tenBenhAn','dongPK1','dongPK2','dongPK3'];
 const HEADER_LOCKED_FIELDS=['dongPK1','dongPK2','dongPK3'];
 const DEFAULT_HEADER={
-  tenApp:'Bìa bệnh án YHCT',
-  tenBenhAn:'BỆNH ÁN Y HỌC CỔ TRUYỀN',
+  tenApp:'Bìa bệnh án RHM',
+  tenBenhAn:'BỆNH ÁN RĂNG HÀM MẶT',
   soLuuTru:'',
   dongPK1:'PHÒNG KHÁM ĐA KHOA NHƠN TÂM',
   dongPK2:'Địa chỉ: 469 Nguyễn Văn Tạo, xã Hiệp Phước, TP. HCM',
@@ -154,11 +154,22 @@ async function idbSet(key,value){
 function loadHeaderDefaultsLocal(){
   try{return JSON.parse(localStorage.getItem(HEADER_STORAGE_KEY)||'{}')||{};}catch(e){return {};}
 }
+function isOldYhctTitleText(v){
+  const n=norm(v);
+  return n==='biabenhanyhct' || n==='benhanyhoccotruyen' || n.includes('yhct') || n.includes('yhoccotruyen');
+}
+function isOldRhmAppTitleText(v){
+  const n=norm(v);
+  return n==='benhanranghammat' || n==='biabenhanranghammat';
+}
 function normalizeHeaderDefaults(raw={}){
   const d=Object.assign({},DEFAULT_HEADER);
   HEADER_FIELDS.forEach(k=>{
     if(raw && raw[k]!=null) d[k]=String(raw[k]);
   });
+  // Nếu trình duyệt còn nhớ mẫu YHCT cũ, tự đổi sang Răng Hàm Mặt cho đúng file mới.
+  if(!String(d.tenApp||'').trim() || isOldYhctTitleText(d.tenApp) || isOldRhmAppTitleText(d.tenApp)) d.tenApp=DEFAULT_HEADER.tenApp;
+  if(!String(d.tenBenhAn||'').trim() || isOldYhctTitleText(d.tenBenhAn)) d.tenBenhAn=DEFAULT_HEADER.tenBenhAn;
   return d;
 }
 function getHeaderDefaults(){
@@ -173,6 +184,8 @@ function withHeaderDefaults(row={}){
   // Dòng phòng khám 1-3 luôn lấy theo mẫu đầu bìa đã lưu,
   // không lấy/không giữ giá trị từ Excel để tránh bị ghi đè khi nhập file.
   HEADER_LOCKED_FIELDS.forEach(k=>out[k]=d[k]||'');
+  if(!String(out.tenApp||'').trim() || isOldYhctTitleText(out.tenApp) || isOldRhmAppTitleText(out.tenApp)) out.tenApp=d.tenApp||DEFAULT_HEADER.tenApp;
+  if(!String(out.tenBenhAn||'').trim() || isOldYhctTitleText(out.tenBenhAn)) out.tenBenhAn=d.tenBenhAn||DEFAULT_HEADER.tenBenhAn;
   return out;
 }
 async function loadHeaderDefaults(){
@@ -432,7 +445,7 @@ function mapRow(r){
 function makeForm(){form.innerHTML=FIELDS.map(([k,l])=>`<div class="field"><label>${l}</label><input id="${k}" oninput="updateFromForm()"></div>`).join('')}
 function loadForm(){if(!rows[current])rows[current]=blankRow();rows[current]=withHeaderDefaults(rows[current]);let r=rows[current]||{};FIELDS.forEach(([k])=>{let el=document.getElementById(k);if(el)el.value=r[k]||''});updateAppTitle(r);renderCover(r);updatePreviewNav()}
 function updateFromForm(){if(!rows[current])rows[current]={};FIELDS.forEach(([k])=>{let el=document.getElementById(k);if(el)rows[current][k]=el.value});updateAppTitle(rows[current]);renderCover(rows[current]);updatePreviewNav();renderTable(false);scheduleAutoSave('sửa thông tin')}
-function updateAppTitle(r={}){let t=(r.tenApp&&String(r.tenApp).trim())?r.tenApp:'Bìa bệnh án YHCT';let el=document.getElementById('appTitle');if(el)el.textContent=t;document.title=t;}
+function updateAppTitle(r={}){let t=(r.tenApp&&String(r.tenApp).trim())?r.tenApp:'Bìa bệnh án RHM';let el=document.getElementById('appTitle');if(el)el.textContent=t;document.title=t;}
 function logo(){if(customLogo)return `<img src="${customLogo}" alt="Logo" style="width:100%;height:100%;object-fit:contain">`;return `<div style="font-size:9pt;color:#777;border:0.3mm dashed #bbb;padding:4mm">Chưa chọn logo</div>`}
 const htmlSafe=s=>String(s||"").replace(/[&<>"]/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[m]));
 function soLuuTruHtml(v){v=String(v||'').trim();return `<span class="soLuuTruText" style="font-size:25pt">${htmlSafe(v)}</span>`}
@@ -441,7 +454,7 @@ function getCoverHTML(r={}){
   let dongPK1=(r.dongPK1&&String(r.dongPK1).trim())?r.dongPK1:d.dongPK1;
   let dongPK2=(r.dongPK2&&String(r.dongPK2).trim())?r.dongPK2:d.dongPK2;
   let dongPK3=(r.dongPK3&&String(r.dongPK3).trim())?r.dongPK3:d.dongPK3;
-  return `<div class="coverContent"><div class="clinicLine">${htmlSafe(dongPK1)}</div><div class="addrLine">${htmlSafe(dongPK2)}</div><div class="addrLine">${htmlSafe(dongPK3)}</div><div class="logo">${logo()}</div><div class="title">${htmlSafe(r.tenBenhAn||d.tenBenhAn||"BỆNH ÁN Y HỌC CỔ TRUYỀN")}</div><div class="codeBox"><b>Mã số vào viện:</b> <span class="value">${htmlSafe(r.maVaoVien)}</span><br><b>Mã bệnh nhân:</b> <span class="value">${htmlSafe(r.maBenhNhan)}</span></div><div class="info"><div class="infoRow"><b>Họ và tên bệnh nhân:</b> <span class="value">${htmlSafe(r.hoTen)}</span></div><div class="infoRow"><b>Giới tính:</b> <span class="value">${htmlSafe(r.gioiTinh)}</span></div><div class="infoRow"><b>Năm sinh:</b> <span class="value">${htmlSafe(r.namSinh)}</span></div><div class="infoRow cccdRow"><b>Mã định danh cá nhân/CCCD:</b> <span class="value">${htmlSafe(r.cccd)}</span></div><div class="infoRow"><b>Địa chỉ:</b> <span class="value">${htmlSafe(r.diaChi)}</span></div><div class="infoRow"><b>Mã BHYT:</b> <span class="value">${htmlSafe(r.maBHYT)}</span></div><div class="infoRow"><b>Ngày giờ vào viện:</b> <span class="value">${htmlSafe(r.ngayVaoVien)}</span></div><div class="infoRow"><b>Số điện thoại:</b> <span class="value">${htmlSafe(r.dienThoai)}</span></div></div></div>`;
+  return `<div class="coverContent"><div class="clinicLine">${htmlSafe(dongPK1)}</div><div class="addrLine">${htmlSafe(dongPK2)}</div><div class="addrLine">${htmlSafe(dongPK3)}</div><div class="logo">${logo()}</div><div class="title">${htmlSafe(r.tenBenhAn||d.tenBenhAn||"BỆNH ÁN RĂNG HÀM MẶT")}</div><div class="codeBox"><b>Mã số vào viện:</b> <span class="value">${htmlSafe(r.maVaoVien)}</span><br><b>Mã bệnh nhân:</b> <span class="value">${htmlSafe(r.maBenhNhan)}</span></div><div class="info"><div class="infoRow"><b>Họ và tên bệnh nhân:</b> <span class="value">${htmlSafe(r.hoTen)}</span></div><div class="infoRow"><b>Giới tính:</b> <span class="value">${htmlSafe(r.gioiTinh)}</span></div><div class="infoRow"><b>Năm sinh:</b> <span class="value">${htmlSafe(r.namSinh)}</span></div><div class="infoRow cccdRow"><b>Mã định danh cá nhân/CCCD:</b> <span class="value">${htmlSafe(r.cccd)}</span></div><div class="infoRow"><b>Địa chỉ:</b> <span class="value">${htmlSafe(r.diaChi)}</span></div><div class="infoRow"><b>Mã BHYT:</b> <span class="value">${htmlSafe(r.maBHYT)}</span></div><div class="infoRow"><b>Ngày giờ vào viện:</b> <span class="value">${htmlSafe(r.ngayVaoVien)}</span></div><div class="infoRow"><b>Số điện thoại:</b> <span class="value">${htmlSafe(r.dienThoai)}</span></div></div></div>`;
 }
 function fitCoverText(cover){
   if(!cover)return;
@@ -460,7 +473,31 @@ function fitCoverText(cover){
   }
 }
 function fitAllCovers(){document.querySelectorAll('.cover').forEach(fitCoverText)}
-function renderCover(r={}){let ts=document.getElementById('topSmall');if(ts)ts.innerHTML=soLuuTruHtml(r.soLuuTru||'');let cov=document.getElementById('cover');if(cov){cov.innerHTML=getCoverHTML(r);requestAnimationFrame(()=>fitCoverText(cov));}}
+function renderSingleCover(r={}){let ts=document.getElementById('topSmall');if(ts)ts.innerHTML=soLuuTruHtml(r.soLuuTru||'');let cov=document.getElementById('cover');if(cov){cov.innerHTML=getCoverHTML(r);requestAnimationFrame(()=>fitCoverText(cov));}}
+function getPreviewRows(){
+  const list=(rows||[]).map((r,i)=>({row:withHeaderDefaults(r||{}),index:i})).filter(item=>hasRecordData(item.row));
+  if(list.length) return list;
+  return [{row:withHeaderDefaults((rows&&rows[current])||blankRow()),index:current||0}];
+}
+function renderAllPreviewPages(){
+  const pages=document.getElementById('printPages');
+  if(!pages) return;
+  const previewRows=getPreviewRows();
+  if(!previewRows.length){
+    pages.innerHTML='<div class="previewEmpty">Chưa có mẫu nào đang chờ xuất PDF</div>';
+    updatePreviewNav();
+    return;
+  }
+  pages.innerHTML=previewRows.map((item,idx)=>{
+    const r=item.row;
+    const active=item.index===current?' activePreview':'';
+    const labelName=(r.hoTen&&String(r.hoTen).trim())?' - '+htmlSafe(String(r.hoTen).trim()):'';
+    return `<div class="previewPageWrap${active}" onclick="showPrintPage(${item.index})"><div class="previewPageLabel">Mẫu ${idx+1}/${previewRows.length}${labelName}</div><div class="sheet"><div class="topSmall">${soLuuTruHtml(r.soLuuTru||'')}</div><div class="cover">${getCoverHTML(r)}</div></div></div>`;
+  }).join('');
+  requestAnimationFrame(()=>fitAllCovers());
+  updatePreviewNav();
+}
+function renderCover(r={}){renderAllPreviewPages();}
 
 function updatePreviewNav(){
   const total=Math.max(rows.length,1);
@@ -553,7 +590,7 @@ excelFile.addEventListener('change',async e=>{
         let json=XLSX.utils.sheet_to_json(ws,{defval:'',raw:true});
         let imported=[];
         for(let i=0;i<json.length;i++){
-          let m=mapRow(json[i]);
+          let m=withHeaderDefaults(mapRow(json[i]));
           if(hasRecordData(m)) imported.push(m);
           if(i%1000===0) await new Promise(r=>setTimeout(r,0));
         }
@@ -578,11 +615,11 @@ async function saveData(){await idbSet(DB_KEY,rows);try{localStorage.setItem('bi
 async function clearData(){if(confirm('Xóa toàn bộ dữ liệu đã lưu?')){rows=[];current=0;await saveData();renderTable();}}
 
 function exportBackup(){
-  const data={app:'APP_BIA_BENH_AN_YHCT_A3',version:'google-drive-backup-v3',createdAt:new Date().toISOString(),rows,customLogo,headerDefaults:getHeaderDefaults()};
+  const data={app:'APP_BIA_BENH_AN_RHM_A3',version:'google-drive-backup-v3',createdAt:new Date().toISOString(),rows,customLogo,headerDefaults:getHeaderDefaults()};
   const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json;charset=utf-8'});
   const a=document.createElement('a');
   const d=new Date();
-  const name='SAO_LUU_BIA_BENH_AN_YHCT_A3_'+d.getFullYear()+String(d.getMonth()+1).padStart(2,'0')+String(d.getDate()).padStart(2,'0')+'.json';
+  const name='SAO_LUU_BIA_BENH_AN_RHM_A3_'+d.getFullYear()+String(d.getMonth()+1).padStart(2,'0')+String(d.getDate()).padStart(2,'0')+'.json';
   a.href=URL.createObjectURL(blob);
   a.download=name;
   document.body.appendChild(a);
@@ -621,7 +658,7 @@ function updateExternalStatus(text){
 }
 function makeBackupPayload(){
   return {
-    app:'APP_BIA_BENH_AN_YHCT_A3',
+    app:'APP_BIA_BENH_AN_RHM_A3',
     version:'external-folder-autosave-v4',
     savedAt:new Date().toISOString(),
     savedAtLocal:new Date().toLocaleString('vi-VN'),
@@ -930,7 +967,7 @@ async function exportPDF(){
     const pdf=new jspdf.jsPDF('landscape','mm','a3');
     pdf.addImage(img,'JPEG',0,0,420,297);
     const safeName=(r.hoTen?String(r.hoTen).replace(/[\/:*?"<>|]+/g,'_').trim()+'_':'');
-    const name='BIA_BENH_AN_YHCT_A3_'+safeName+new Date().toISOString().slice(0,10)+'.pdf';
+    const name='BIA_BENH_AN_RHM_A3_'+safeName+new Date().toISOString().slice(0,10)+'.pdf';
     pdf.save(name);
   }catch(err){
     alert('Không xuất được PDF. Vui lòng thử lại. Lỗi: ' + err.message);
@@ -969,7 +1006,7 @@ async function exportAllPDF(){
       if(i > 0) pdf.addPage('a3', 'landscape');
       pdf.addImage(img,'JPEG',0,0,420,297);
     }
-    const name='BIA_BENH_AN_YHCT_A3_ALL_'+new Date().toISOString().slice(0,10)+'.pdf';
+    const name='BIA_BENH_AN_RHM_A3_ALL_'+new Date().toISOString().slice(0,10)+'.pdf';
     pdf.save(name);
   }catch(err){
     alert('Không xuất được PDF. Vui lòng thử lại. Lỗi: ' + err.message);

@@ -20,7 +20,7 @@ export function signToken(payload: { userId: string; username: string; role: str
 export function verifyToken(token: string) {
   try {
     return jwt.verify(token, JWT_SECRET) as { userId: string; username: string; role: string; fullName: string };
-  } catch (error) {
+  } catch {
     return null;
   }
 }

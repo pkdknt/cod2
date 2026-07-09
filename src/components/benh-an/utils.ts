@@ -109,12 +109,12 @@ export function formatNgayGioVaoVien(v: any) {
 
 export function extractBirthDate(v: any) {
   if (v == null) return '';
-  let s = String(v).trim();
+  const s = String(v).trim();
   if (v instanceof Date && !isNaN(v.getTime())) {
     return String(v.getDate()).padStart(2, '0') + '/' + String(v.getMonth() + 1).padStart(2, '0') + '/' + v.getFullYear();
   }
   if (typeof v === 'number' && v > 20000 && v < 80000) {
-    let d = XLSX.SSF.parse_date_code(v);
+    const d = XLSX.SSF.parse_date_code(v);
     if (d) return String(d.d).padStart(2, '0') + '/' + String(d.m).padStart(2, '0') + '/' + d.y;
   }
   

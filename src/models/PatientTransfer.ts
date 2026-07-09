@@ -1,4 +1,4 @@
-import mongoose, { Schema, Document, model, models } from 'mongoose';
+import { Schema, Document, model, models } from 'mongoose';
 
 export interface IPatientTransfer extends Document {
   date?: string;               // yyyy-mm-dd

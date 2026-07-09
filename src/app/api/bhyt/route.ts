@@ -74,7 +74,7 @@ export async function GET(req: NextRequest) {
     }
 
     // Build Sorting
-    let sort: any = {};
+    const sort: any = {};
     if (sortBy === 'name') {
       sort.name = 1;
     } else if (sortBy === 'expiry' || sortBy === 'days') {

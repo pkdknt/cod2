@@ -42,7 +42,6 @@ export default function Sidebar() {
 
 
   const otherItems = [
-    { name: 'Tra cứu nhanh', href: '/tra-cuu-nhanh', icon: Search },
     { name: 'CSKH Tiêm Chủng', href: '/cskh-tiem-chung', icon: ClipboardList },
     { name: 'Bảng giá Vắc xin', href: '/vaccine-prices', icon: DollarSign },
   ];
@@ -150,7 +149,6 @@ export default function Sidebar() {
           const isActive = pathname === item.href;
           // Shorten names for mobile to avoid wrapping
           let mobileName = item.name;
-          if (mobileName === 'Tra cứu nhanh') mobileName = 'Tra cứu';
           if (mobileName === 'CSKH Tiêm Chủng') mobileName = 'CSKH';
           if (mobileName === 'Bảng giá Vắc xin') mobileName = 'Giá';
           

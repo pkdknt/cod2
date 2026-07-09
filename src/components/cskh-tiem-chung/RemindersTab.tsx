@@ -244,7 +244,7 @@ export default function RemindersTab({ data, onRefresh, onEdit, onDelete }: Remi
     });
 
     // Apply sorting
-    let sortedList = [...list];
+    const sortedList = [...list];
     if (sortKey === 'due') {
       sortedList.sort((a, b) => sortDirection === 'asc' ? a.due.getTime() - b.due.getTime() : b.due.getTime() - a.due.getTime());
     } else if (sortKey === 'patientCode') {

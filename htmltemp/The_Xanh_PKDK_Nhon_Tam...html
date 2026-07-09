@@ -462,6 +462,15 @@ function val(row, selectId) {
   const key = $(selectId).value;
   return key ? (row[key] == null ? '' : row[key]) : '';
 }
+
+function toUpperVietnameseName(value) {
+  // Tự động đổi họ tên tiếng Việt có dấu sang CHỮ IN HOA, giữ dấu chuẩn Unicode.
+  return String(value == null ? '' : value)
+    .replace(/\s+/g, ' ')
+    .trim()
+    .toLocaleUpperCase('vi-VN');
+}
+
 function displayVal(row, selectId) {
   const raw = val(row, selectId);
   if (raw instanceof Date && !isNaN(raw)) return formatDate(raw);
@@ -471,6 +480,7 @@ function displayVal(row, selectId) {
     const n = Number(text);
     if (n > 20000 && n < 70000) return excelDateToText(n);
   }
+  if (selectId === 'colName') return toUpperVietnameseName(text);
   return text;
 }
 function formatDate(d) {
@@ -980,7 +990,7 @@ function getManualInputRow() {
   return {
     __manual: true,
     __code: String($('manualCodeInput').value || '').trim(),
-    __name: String($('manualNameInput').value || '').trim(),
+    __name: toUpperVietnameseName($('manualNameInput').value || ''),
     __birth: String($('manualBirthInput').value || '').trim(),
     __gender: String($('manualGenderInput').value || '').trim(),
     __address: String($('manualAddressInput').value || '').trim(),
@@ -1040,6 +1050,13 @@ function toggleManualPanel() {
   const hidden = panel.classList.contains('collapsed');
   $('manualPanelToggleBtn').textContent = hidden ? 'Hiện vùng này' : 'Ẩn vùng này';
 }
+
+
+['change','blur'].forEach(evt => {
+  $('manualNameInput').addEventListener(evt, () => {
+    $('manualNameInput').value = toUpperVietnameseName($('manualNameInput').value);
+  });
+});
 
 $('toggleManualBtn').addEventListener('click', toggleManualPanel);
 $('manualPanelToggleBtn').addEventListener('click', toggleManualPanel);

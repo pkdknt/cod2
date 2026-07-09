@@ -1,4 +1,4 @@
-import mongoose, { Schema, Document, model, models } from 'mongoose';
+import { Schema, Document, model, models } from 'mongoose';
 
 export interface IDailyVisitReport extends Document {
   month: string;           // yyyy-mm (e.g., "2026-06")

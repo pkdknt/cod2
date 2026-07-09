@@ -32,7 +32,7 @@ export default function TheXanhPreview({
 
   const getDisplayValue = (row: ExcelRow, key: string) => {
     if (!key) return '';
-    let val = row[key];
+    const val = row[key];
     if (val == null) return '';
     // Format if it's a date object
     if (val instanceof Date) {

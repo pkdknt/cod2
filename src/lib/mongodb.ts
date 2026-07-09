@@ -1,5 +1,4 @@
 import mongoose from 'mongoose';
-import dns from 'dns';
 
 // Default DNS servers are used by default
 

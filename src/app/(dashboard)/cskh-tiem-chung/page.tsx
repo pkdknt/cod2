@@ -374,12 +374,12 @@ export default function CskhTiemChungPage() {
           return matchKey ? String(row[matchKey]).trim() : '';
         };
 
-        let dates = [1, 2, 3, 4, 5, 6].map(idx => {
+        const dates = [1, 2, 3, 4, 5, 6].map(idx => {
           const v = findDateVal(idx);
           return v ? maskDateText(v) : '';
         });
 
-        let dueOverrides = Array(6).fill('');
+        const dueOverrides = Array(6).fill('');
 
         // Fallback: If no separate dose columns exist, search for single actual date and next planned date
         const hasSeparateDoseCols = dates.some(d => d !== '');
@@ -395,7 +395,7 @@ export default function CskhTiemChungPage() {
           }
         }
 
-        let notes = Array(6).fill('');
+        const notes = Array(6).fill('');
         const canBoTiem = findVal(['cán bộ tiêm', 'can bo tiem', 'người tiêm', 'nguoi tiem', 'bác sĩ', 'bac si', 'y tá', 'y ta', 'điều dưỡng', 'dieu duong']);
         if (canBoTiem) {
           notes[doseIndex] = `CB tiêm: ${canBoTiem}`;
@@ -456,8 +456,8 @@ export default function CskhTiemChungPage() {
   const getRecommendedProtocols = () => {
     if (!selectedVaccine) return [];
     
-    let raw = selectedVaccine || "";
-    let q = norm(raw.includes(" - ") ? raw.split(" - ").slice(-1)[0] : raw);
+    const raw = selectedVaccine || "";
+    const q = norm(raw.includes(" - ") ? raw.split(" - ").slice(-1)[0] : raw);
     if (!q) return [];
     
     // Filter protocols by chosen vaccine
