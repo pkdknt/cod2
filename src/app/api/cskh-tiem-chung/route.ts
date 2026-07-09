@@ -53,17 +53,46 @@ export async function POST(req: Request) {
 
     if (Array.isArray(body)) {
       const results = [];
+      const processedSignatures = new Set();
+
       for (const item of body) {
         if (!item.patientName || !item.vaccine || !item.protocolId) continue;
         
+        const pCode = item.patientCode ? String(item.patientCode).trim() : '';
+        const pName = String(item.patientName).trim();
+        const pDob = item.dob || '';
+        const pVaccine = String(item.vaccine).trim();
+
+        const signature = `${pCode || pName}|${pDob}|${pVaccine}`;
+        if (processedSignatures.has(signature)) {
+          continue;
+        }
+        processedSignatures.add(signature);
+
+        const query: any = {
+          dob: pDob,
+          vaccine: pVaccine
+        };
+
+        if (pCode) {
+          query.patientCode = pCode;
+        } else {
+          query.patientName = pName;
+        }
+
+        const existing = await CskhVaccine.findOne(query);
+        if (existing) {
+          continue;
+        }
+
         const schedule = await CskhVaccine.create({
-          patientCode: item.patientCode ? String(item.patientCode).trim() : undefined,
-          patientName: String(item.patientName).trim(),
+          patientCode: pCode || undefined,
+          patientName: pName,
           phone: item.phone ? String(item.phone).trim() : undefined,
-          dob: item.dob || '',
+          dob: pDob,
           gender: item.gender || '',
           address: item.address ? String(item.address).trim() : undefined,
-          vaccine: String(item.vaccine).trim(),
+          vaccine: pVaccine,
           protocolId: String(item.protocolId).trim(),
           dates: item.dates || ['', '', '', '', '', ''],
           dueOverrides: item.dueOverrides || ['', '', '', '', '', ''],
