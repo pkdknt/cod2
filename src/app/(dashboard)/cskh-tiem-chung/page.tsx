@@ -708,33 +708,33 @@ export default function CskhTiemChungPage() {
   };
 
   return (
-    <div className="flex flex-col h-full gap-4 min-h-0">
+    <div className="flex flex-col h-full gap-3 min-h-0">
       {/* Title Header */}
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between shrink-0">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between shrink-0">
         <div>
-          <h1 className="text-2xl font-black text-slate-800 tracking-tight flex items-center gap-2">
-            <ClipboardList className="h-6 w-6 text-teal-600" /> QUẢN LÝ CSKH TIÊM CHỦNG
+          <h1 className="text-xl md:text-2xl font-black text-slate-800 tracking-tight flex items-center gap-2">
+            <ClipboardList className="h-5 w-5 md:h-6 md:w-6 text-teal-600" /> QUẢN LÝ CSKH TIÊM CHỦNG
           </h1>
-          <p className="text-xs text-slate-500 font-semibold mt-1">
+          <p className="text-[11px] md:text-xs text-slate-500 font-semibold mt-0.5">
             Lập kế hoạch, theo dõi tiến độ và xuất danh sách nhắc hẹn vắc xin CSKH.
           </p>
         </div>
         <div className="flex flex-wrap gap-2">
           <button
             onClick={() => setShowImportModal(true)}
-            className="inline-flex items-center gap-1.5 rounded-xl border border-teal-250 bg-teal-50 px-4 py-2.5 text-xs font-bold text-teal-700 hover:bg-teal-100 transition-colors"
+            className="inline-flex items-center gap-1.5 rounded-lg border border-teal-250 bg-teal-50 px-3 py-2 text-xs font-bold text-teal-700 hover:bg-teal-100 transition-colors"
           >
             <Upload className="h-4 w-4" /> Nhập Excel Khách Hàng
           </button>
           <button
             onClick={() => window.print()}
-            className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-xs font-bold text-slate-700 transition-all hover:bg-slate-55"
+            className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-bold text-slate-700 transition-all hover:bg-slate-55"
           >
             <Printer className="h-4 w-4" /> In Phiếu Tiêm Chủng
           </button>
           <button
             onClick={handleSaveSchedule}
-            className="inline-flex items-center gap-1.5 rounded-xl bg-teal-600 px-5 py-2.5 text-xs font-bold text-white shadow-md shadow-teal-900/10 hover:bg-teal-500"
+            className="inline-flex items-center gap-1.5 rounded-lg bg-teal-600 px-4 py-2 text-xs font-bold text-white shadow hover:bg-teal-500"
           >
             Lưu Lịch Tiêm
           </button>
@@ -1074,9 +1074,9 @@ export default function CskhTiemChungPage() {
 
       {/* TAB 2: DANH SÁCH LỊCH TIÊM ĐÃ LƯU */}
       {activeTab === 'savedSec' && (
-        <div className="flex-1 min-h-0 flex flex-col gap-4">
+        <div className="flex-1 min-h-0 flex flex-col gap-3">
           {/* Quick Filters */}
-          <div className="bg-white border border-slate-200 rounded-3xl p-6 shadow-sm shrink-0">
+          <div className="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm shrink-0">
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-4">
               <div>
                 <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">Tìm nhanh</label>
@@ -1108,8 +1108,8 @@ export default function CskhTiemChungPage() {
           </div>
 
           {/* Database Table view */}
-          <div className="flex-1 bg-white border border-slate-200 rounded-3xl shadow-sm overflow-hidden flex flex-col min-h-0">
-            <div className="px-6 py-4 border-b border-slate-100 shrink-0">
+          <div className="flex-1 bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden flex flex-col min-h-0">
+            <div className="px-5 py-3 border-b border-slate-100 shrink-0">
               <span className="text-xs font-semibold text-slate-400 bg-slate-50 px-2.5 py-0.5 rounded-full">
                 Tổng cộng {savedSchedules.length} hồ sơ theo dõi
               </span>

@@ -426,7 +426,7 @@ export default function RemindersTab({ data, onRefresh, onEdit, onDelete }: Remi
   return (
     <div className="flex flex-col h-full gap-4 flex-1 min-h-0">
       {/* Filters */}
-      <div className="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm flex flex-wrap gap-4 items-end shrink-0">
+      <div className="bg-white border border-slate-200 rounded-2xl p-3 shadow-sm flex flex-wrap gap-3 items-end shrink-0">
         <div className="flex-1 min-w-[200px]">
           <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">Tìm kiếm nhanh</label>
           <div className="relative">
@@ -436,7 +436,7 @@ export default function RemindersTab({ data, onRefresh, onEdit, onDelete }: Remi
               placeholder="Tên, Mã BN, SĐT, Vắc xin..."
               value={qSearch}
               onChange={(e) => setQSearch(e.target.value)}
-              className="w-full pl-9 rounded-xl border border-slate-200 p-2.5 text-xs font-semibold outline-none focus:border-teal-500"
+              className="w-full pl-9 rounded-xl border border-slate-200 p-2 text-xs font-semibold outline-none focus:border-teal-500"
             />
           </div>
         </div>
@@ -445,7 +445,7 @@ export default function RemindersTab({ data, onRefresh, onEdit, onDelete }: Remi
           <select
             value={filterDays}
             onChange={(e) => setFilterDays(e.target.value)}
-            className="w-full rounded-xl border border-slate-200 p-2.5 text-xs font-semibold outline-none focus:border-teal-500"
+            className="w-full rounded-xl border border-slate-200 p-2 text-xs font-semibold outline-none focus:border-teal-500"
           >
             <option value="overdue">Đã quá hạn</option>
             <option value="today">Trong hôm nay</option>
@@ -457,8 +457,8 @@ export default function RemindersTab({ data, onRefresh, onEdit, onDelete }: Remi
       </div>
 
       {/* Table Card */}
-      <div className="flex-1 bg-white border border-slate-200 rounded-3xl shadow-sm overflow-hidden flex flex-col min-h-0">
-        <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50 shrink-0">
+      <div className="flex-1 bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden flex flex-col min-h-0">
+        <div className="px-5 py-3 border-b border-slate-100 flex items-center justify-between bg-slate-50 shrink-0">
           <h2 className="font-bold text-slate-800 flex items-center gap-2">
             Kết quả thống kê <span className="text-xs bg-teal-100 text-teal-800 px-2 py-0.5 rounded-full">{reminders.length} mũi</span>
           </h2>
