@@ -708,9 +708,9 @@ export default function CskhTiemChungPage() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="flex flex-col h-full gap-4 min-h-0">
       {/* Title Header */}
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between shrink-0">
         <div>
           <h1 className="text-2xl font-black text-slate-800 tracking-tight flex items-center gap-2">
             <ClipboardList className="h-6 w-6 text-teal-600" /> QUẢN LÝ CSKH TIÊM CHỦNG
@@ -742,7 +742,7 @@ export default function CskhTiemChungPage() {
       </div>
 
       {/* Tabs */}
-      <div className="flex bg-slate-100 p-1 rounded-xl w-full max-w-[500px] gap-1">
+      <div className="flex bg-slate-100 p-1 rounded-xl w-full max-w-[500px] gap-1 shrink-0">
         <button
           onClick={() => setActiveTab('plannerSec')}
           className={`flex-1 flex items-center justify-center gap-2 py-2.5 text-xs font-bold rounded-lg transition-all ${
@@ -780,7 +780,7 @@ export default function CskhTiemChungPage() {
 
       {/* TAB 1: LẬP LỊCH TIÊM */}
       {activeTab === 'plannerSec' && (
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 flex-1 min-h-0 overflow-y-auto">
           {/* Patient Profile Form + Vaccine choosing */}
           <div className="lg:col-span-1 bg-white border border-slate-200 rounded-3xl p-6 shadow-sm space-y-4">
             <h3 className="font-extrabold text-slate-800 text-sm uppercase tracking-wider border-b border-slate-100 pb-2">
@@ -1074,9 +1074,9 @@ export default function CskhTiemChungPage() {
 
       {/* TAB 2: DANH SÁCH LỊCH TIÊM ĐÃ LƯU */}
       {activeTab === 'savedSec' && (
-        <div className="space-y-4">
+        <div className="flex-1 min-h-0 flex flex-col gap-4">
           {/* Quick Filters */}
-          <div className="bg-white border border-slate-200 rounded-3xl p-6 shadow-sm">
+          <div className="bg-white border border-slate-200 rounded-3xl p-6 shadow-sm shrink-0">
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-4">
               <div>
                 <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">Tìm nhanh</label>
@@ -1108,14 +1108,14 @@ export default function CskhTiemChungPage() {
           </div>
 
           {/* Database Table view */}
-          <div className="bg-white border border-slate-200 rounded-3xl shadow-sm overflow-hidden">
-            <div className="px-6 py-4 border-b border-slate-100">
+          <div className="flex-1 bg-white border border-slate-200 rounded-3xl shadow-sm overflow-hidden flex flex-col min-h-0">
+            <div className="px-6 py-4 border-b border-slate-100 shrink-0">
               <span className="text-xs font-semibold text-slate-400 bg-slate-50 px-2.5 py-0.5 rounded-full">
                 Tổng cộng {savedSchedules.length} hồ sơ theo dõi
               </span>
             </div>
 
-            <div className="overflow-x-auto max-h-[60vh] relative scrollbar-thin scrollbar-thumb-slate-200">
+            <div className="flex-1 overflow-auto relative scrollbar-thin scrollbar-thumb-slate-200 min-h-0">
               {selectedIds.length > 0 && (
                 <div className="mb-3 px-6 py-2 bg-teal-50 border border-teal-100 rounded-xl flex items-center justify-between">
                   <span className="text-xs font-bold text-teal-800">Đã chọn {selectedIds.length} hồ sơ</span>
@@ -1197,13 +1197,13 @@ export default function CskhTiemChungPage() {
                   </div>
                 </div>
               )}
-              <table className="w-full text-xs text-left border-collapse border border-slate-200">
-                <thead>
+              <table className="w-full text-xs text-left border-collapse border border-slate-200 relative">
+                <thead className="sticky top-0 z-30 shadow-sm bg-slate-50">
                   <tr className="bg-slate-50 text-slate-700 font-bold h-10 border-b border-slate-200 uppercase text-[10px]">
-                    <th className="pl-4 w-10 text-center border border-slate-200">
+                    <th className="pl-4 border border-slate-200 sticky top-0 left-0 z-40 bg-slate-50" style={{ minWidth: '40px', maxWidth: '40px' }}>
                       <input 
                         type="checkbox" 
-                        className="rounded border-slate-300 text-teal-600 focus:ring-teal-500"
+                        className="rounded border-slate-300 text-teal-600 focus:ring-teal-500 cursor-pointer"
                         checked={savedSchedules.length > 0 && selectedIds.length === savedSchedules.length}
                         onChange={(e) => {
                           if (e.target.checked) {
@@ -1214,26 +1214,26 @@ export default function CskhTiemChungPage() {
                         }}
                       />
                     </th>
-                    <th className="text-center w-12 border border-slate-200">STT</th>
-                    <th className="pl-4 border border-slate-200 py-2 cursor-pointer select-none group hover:bg-slate-50 hover:text-slate-700 transition-colors" onClick={() => requestSort('name')}>
+                    <th className="text-center border border-slate-200 sticky top-0 z-40 bg-slate-50" style={{ left: '40px', minWidth: '48px', maxWidth: '48px' }}>STT</th>
+                    <th className="pl-4 border border-slate-200 py-2 cursor-pointer select-none group hover:bg-slate-100 hover:text-slate-700 transition-colors sticky top-0 z-20 bg-slate-50" onClick={() => requestSort('name')}>
                       <div className="flex items-center gap-1">Họ tên người tiêm {renderSortIcon('name')}</div>
                     </th>
-                    <th className="w-28 text-center border border-slate-200 cursor-pointer select-none group hover:bg-slate-50 hover:text-slate-700 transition-colors" onClick={() => requestSort('phone')}>
+                    <th className="w-28 text-center border border-slate-200 cursor-pointer select-none group hover:bg-slate-100 hover:text-slate-700 transition-colors sticky top-0 z-20 bg-slate-50" onClick={() => requestSort('phone')}>
                       <div className="flex items-center justify-center gap-1">Điện thoại {renderSortIcon('phone')}</div>
                     </th>
-                    <th className="w-28 text-center border border-slate-200 cursor-pointer select-none group hover:bg-slate-50 hover:text-slate-700 transition-colors" onClick={() => requestSort('dob')}>
+                    <th className="w-28 text-center border border-slate-200 cursor-pointer select-none group hover:bg-slate-100 hover:text-slate-700 transition-colors sticky top-0 z-20 bg-slate-50" onClick={() => requestSort('dob')}>
                       <div className="flex items-center justify-center gap-1">Ngày sinh {renderSortIcon('dob')}</div>
                     </th>
-                    <th className="w-32 text-center border border-slate-200 cursor-pointer select-none group hover:bg-slate-50 hover:text-slate-700 transition-colors" onClick={() => requestSort('vaccine')}>
+                    <th className="w-32 text-center border border-slate-200 cursor-pointer select-none group hover:bg-slate-100 hover:text-slate-700 transition-colors sticky top-0 z-20 bg-slate-50" onClick={() => requestSort('vaccine')}>
                       <div className="flex items-center justify-center gap-1">Vắc xin theo dõi {renderSortIcon('vaccine')}</div>
                     </th>
-                    <th className="w-44 pl-4 border border-slate-200 cursor-pointer select-none group hover:bg-slate-50 hover:text-slate-700 transition-colors" onClick={() => requestSort('protocol')}>
+                    <th className="w-44 pl-4 border border-slate-200 cursor-pointer select-none group hover:bg-slate-100 hover:text-slate-700 transition-colors sticky top-0 z-20 bg-slate-50" onClick={() => requestSort('protocol')}>
                       <div className="flex items-center gap-1">Phác đồ áp dụng {renderSortIcon('protocol')}</div>
                     </th>
-                    <th className="w-40 text-center border border-slate-200 cursor-pointer select-none group hover:bg-slate-50 hover:text-slate-700 transition-colors" onClick={() => requestSort('progress')}>
+                    <th className="w-40 text-center border border-slate-200 cursor-pointer select-none group hover:bg-slate-100 hover:text-slate-700 transition-colors sticky top-0 z-20 bg-slate-50" onClick={() => requestSort('progress')}>
                       <div className="flex items-center justify-center gap-1">Tiến độ tiêm gần nhất {renderSortIcon('progress')}</div>
                     </th>
-                    <th className="w-24 text-center border border-slate-200">Tác vụ</th>
+                    <th className="w-24 text-center border border-slate-200 sticky top-0 z-20 bg-slate-50">Tác vụ</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -1252,11 +1252,11 @@ export default function CskhTiemChungPage() {
                       const actualDoseCount = item.dates ? item.dates.filter((d: string) => d !== '').length : 0;
                       
                       return (
-                        <tr key={item._id} className="border-b border-slate-100 h-10 hover:bg-slate-50 transition-colors">
-                          <td className="pl-4 text-center border border-slate-200">
+                        <tr key={item._id} className="group border-b border-slate-100 h-10 bg-white hover:bg-slate-50 transition-colors">
+                          <td className="pl-4 text-center border border-slate-200 sticky left-0 z-10 bg-white group-hover:bg-slate-50" style={{ minWidth: '40px', maxWidth: '40px' }}>
                             <input 
                               type="checkbox" 
-                              className="rounded border-slate-300 text-teal-600 focus:ring-teal-500"
+                              className="rounded border-slate-300 text-teal-600 focus:ring-teal-500 cursor-pointer"
                               checked={selectedIds.includes(item._id)}
                               onChange={(e) => {
                                 if (e.target.checked) {
@@ -1267,7 +1267,7 @@ export default function CskhTiemChungPage() {
                               }}
                             />
                           </td>
-                          <td className="text-center text-slate-400 font-bold border border-slate-200">{index + 1}</td>
+                          <td className="text-center text-slate-400 font-bold border border-slate-200 sticky z-10 bg-white group-hover:bg-slate-50" style={{ left: '40px', minWidth: '48px', maxWidth: '48px' }}>{index + 1}</td>
                           <td className="pl-4 font-bold text-slate-800 border border-slate-200 py-1.5">
                             {item.patientCode && <div className="text-[10px] text-teal-600 mb-0.5">{item.patientCode}</div>}
                             {item.patientName}

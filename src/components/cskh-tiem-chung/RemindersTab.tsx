@@ -424,9 +424,9 @@ export default function RemindersTab({ data, onRefresh, onEdit, onDelete }: Remi
   };
 
   return (
-    <div className="space-y-6">
+    <div className="flex flex-col h-full gap-4 flex-1 min-h-0">
       {/* Filters */}
-      <div className="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm flex flex-wrap gap-4 items-end">
+      <div className="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm flex flex-wrap gap-4 items-end shrink-0">
         <div className="flex-1 min-w-[200px]">
           <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">Tìm kiếm nhanh</label>
           <div className="relative">
@@ -457,8 +457,8 @@ export default function RemindersTab({ data, onRefresh, onEdit, onDelete }: Remi
       </div>
 
       {/* Table Card */}
-      <div className="bg-white border border-slate-200 rounded-3xl shadow-sm overflow-hidden">
-        <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50">
+      <div className="flex-1 bg-white border border-slate-200 rounded-3xl shadow-sm overflow-hidden flex flex-col min-h-0">
+        <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50 shrink-0">
           <h2 className="font-bold text-slate-800 flex items-center gap-2">
             Kết quả thống kê <span className="text-xs bg-teal-100 text-teal-800 px-2 py-0.5 rounded-full">{reminders.length} mũi</span>
           </h2>
@@ -471,44 +471,44 @@ export default function RemindersTab({ data, onRefresh, onEdit, onDelete }: Remi
           </button>
         </div>
 
-        <div className="overflow-x-auto">
+        <div className="flex-1 overflow-auto min-h-0 relative">
           <table className="w-full text-xs text-left min-w-[1200px] border-collapse border border-slate-200">
-            <thead>
+            <thead className="sticky top-0 z-30 shadow-sm bg-slate-50">
               <tr className="bg-slate-50 text-slate-700 font-bold h-11 border-b border-slate-200 uppercase text-[10px]">
-                <th className="pl-6 w-12 border border-slate-200 text-center">STT</th>
-                <th className="w-32 border border-slate-200 px-3 cursor-pointer select-none group hover:bg-slate-50 hover:text-slate-700 transition-colors" onClick={() => requestSort('patientCode')}>
+                <th className="pl-6 border border-slate-200 text-center sticky top-0 left-0 z-30 bg-slate-50" style={{ minWidth: '48px', maxWidth: '48px' }}>STT</th>
+                <th className="border border-slate-200 px-3 cursor-pointer select-none group hover:bg-slate-100 hover:text-slate-700 transition-colors sticky top-0 z-30 bg-slate-50" style={{ left: '48px', minWidth: '128px', maxWidth: '128px' }} onClick={() => requestSort('patientCode')}>
                   <div className="flex items-center gap-1">Mã đối tượng {renderSortIcon('patientCode')}</div>
                 </th>
-                <th className="w-44 border border-slate-200 px-3 cursor-pointer select-none group hover:bg-slate-50 hover:text-slate-700 transition-colors" onClick={() => requestSort('name')}>
+                <th className="border border-slate-200 px-3 cursor-pointer select-none group hover:bg-slate-100 hover:text-slate-700 transition-colors sticky top-0 z-30 bg-slate-50" style={{ left: '176px', minWidth: '176px', maxWidth: '176px' }} onClick={() => requestSort('name')}>
                   <div className="flex items-center gap-1">Họ tên {renderSortIcon('name')}</div>
                 </th>
-                <th className="w-28 border border-slate-200 text-center px-3 cursor-pointer select-none group hover:bg-slate-50 hover:text-slate-700 transition-colors" onClick={() => requestSort('phone')}>
+                <th className="border border-slate-200 text-center px-3 cursor-pointer select-none group hover:bg-slate-100 hover:text-slate-700 transition-colors sticky top-0 z-30 bg-slate-50" style={{ left: '352px', minWidth: '112px', maxWidth: '112px' }} onClick={() => requestSort('phone')}>
                   <div className="flex items-center justify-center gap-1">Số điện thoại {renderSortIcon('phone')}</div>
                 </th>
-                <th className="w-24 border border-slate-200 text-center px-3 cursor-pointer select-none group hover:bg-slate-50 hover:text-slate-700 transition-colors" onClick={() => requestSort('dob')}>
+                <th className="border border-slate-200 text-center px-3 cursor-pointer select-none group hover:bg-slate-100 hover:text-slate-700 transition-colors sticky top-0 z-30 bg-slate-50" style={{ left: '464px', minWidth: '96px', maxWidth: '96px' }} onClick={() => requestSort('dob')}>
                   <div className="flex items-center justify-center gap-1">Ngày sinh {renderSortIcon('dob')}</div>
                 </th>
-                <th className="w-20 border border-slate-200 text-center px-3 cursor-pointer select-none group hover:bg-slate-50 hover:text-slate-700 transition-colors" onClick={() => requestSort('gender')}>
+                <th className="w-20 border border-slate-200 text-center px-3 cursor-pointer select-none group hover:bg-slate-100 hover:text-slate-700 transition-colors sticky top-0 z-20 bg-slate-50" onClick={() => requestSort('gender')}>
                   <div className="flex items-center justify-center gap-1">Giới tính {renderSortIcon('gender')}</div>
                 </th>
-                <th className="min-w-[120px] max-w-[200px] border border-slate-200 px-3 cursor-pointer select-none group hover:bg-slate-50 hover:text-slate-700 transition-colors" onClick={() => requestSort('address')}>
+                <th className="min-w-[120px] max-w-[200px] border border-slate-200 px-3 cursor-pointer select-none group hover:bg-slate-100 hover:text-slate-700 transition-colors sticky top-0 z-20 bg-slate-50" onClick={() => requestSort('address')}>
                   <div className="flex items-center gap-1">Địa chỉ {renderSortIcon('address')}</div>
                 </th>
-                <th className="w-32 border border-slate-200 px-3 cursor-pointer select-none group hover:bg-slate-50 hover:text-slate-700 transition-colors" onClick={() => requestSort('vaccineAndDose')}>
+                <th className="w-32 border border-slate-200 px-3 cursor-pointer select-none group hover:bg-slate-100 hover:text-slate-700 transition-colors sticky top-0 z-20 bg-slate-50" onClick={() => requestSort('vaccineAndDose')}>
                   <div className="flex items-center gap-1">Mũi tiêm {renderSortIcon('vaccineAndDose')}</div>
                 </th>
-                <th className="w-28 border border-slate-200 text-center px-3">Ngày tiêm</th>
-                <th className="w-28 border border-slate-200 text-center px-3 cursor-pointer select-none group hover:bg-slate-50 hover:text-slate-700 transition-colors" onClick={() => requestSort('due')}>
+                <th className="w-28 border border-slate-200 text-center px-3 sticky top-0 z-20 bg-slate-50">Ngày tiêm</th>
+                <th className="w-28 border border-slate-200 text-center px-3 cursor-pointer select-none group hover:bg-slate-100 hover:text-slate-700 transition-colors sticky top-0 z-20 bg-slate-50" onClick={() => requestSort('due')}>
                   <div className="flex items-center justify-center gap-1">Kế hoạch tiêm {renderSortIcon('due')}</div>
                 </th>
-                <th className="w-20 border border-slate-200 text-center px-3">Đã tiêm</th>
-                <th className="w-20 border border-slate-200 text-center px-3">Đã gọi</th>
-                <th className="w-20 border border-slate-200 text-center px-3">Đã nhắn</th>
-                <th className="w-40 border border-slate-200 px-3">Ghi chú nhắc hẹn</th>
-                <th className="w-28 border border-slate-200 px-3 cursor-pointer select-none group hover:bg-slate-50 hover:text-slate-700 transition-colors" onClick={() => requestSort('diff')}>
+                <th className="w-20 border border-slate-200 text-center px-3 sticky top-0 z-20 bg-slate-50">Đã tiêm</th>
+                <th className="w-20 border border-slate-200 text-center px-3 sticky top-0 z-20 bg-slate-50">Đã gọi</th>
+                <th className="w-20 border border-slate-200 text-center px-3 sticky top-0 z-20 bg-slate-50">Đã nhắn</th>
+                <th className="w-40 border border-slate-200 px-3 sticky top-0 z-20 bg-slate-50">Ghi chú nhắc hẹn</th>
+                <th className="w-28 border border-slate-200 px-3 cursor-pointer select-none group hover:bg-slate-100 hover:text-slate-700 transition-colors sticky top-0 z-20 bg-slate-50" onClick={() => requestSort('diff')}>
                   <div className="flex items-center justify-center gap-1">Trạng thái {renderSortIcon('diff')}</div>
                 </th>
-                <th className="w-24 border border-slate-200 text-center pr-6">Thao tác</th>
+                <th className="w-24 border border-slate-200 text-center pr-6 sticky top-0 z-20 bg-slate-50">Thao tác</th>
               </tr>
             </thead>
             <tbody>
@@ -533,12 +533,12 @@ export default function RemindersTab({ data, onRefresh, onEdit, onDelete }: Remi
                   const status = savingStatus[item.patientId] || 'idle';
 
                   return (
-                    <tr key={item._id} className="border-b border-slate-100 h-12 hover:bg-slate-50 transition-colors">
-                      <td className="pl-6 text-slate-400 font-bold border border-slate-200 text-center">{index + 1}</td>
-                      <td className="font-semibold text-slate-600 border border-slate-200 px-3">{item.patientCode}</td>
-                      <td className="font-bold text-slate-800 uppercase border border-slate-200 px-3">{item.patientName}</td>
-                      <td className="text-center text-slate-650 font-semibold border border-slate-200 px-3">{item.phone || '—'}</td>
-                      <td className="text-center text-slate-550 border border-slate-200 px-3">{item.dob}</td>
+                    <tr key={item._id} className="group border-b border-slate-100 h-12 bg-white hover:bg-slate-50 transition-colors">
+                      <td className="pl-6 text-slate-400 font-bold border border-slate-200 text-center sticky left-0 z-10 bg-white group-hover:bg-slate-50" style={{ minWidth: '48px', maxWidth: '48px' }}>{index + 1}</td>
+                      <td className="font-semibold text-slate-600 border border-slate-200 px-3 sticky z-10 bg-white group-hover:bg-slate-50" style={{ left: '48px', minWidth: '128px', maxWidth: '128px' }}>{item.patientCode}</td>
+                      <td className="font-bold text-slate-800 uppercase border border-slate-200 px-3 sticky z-10 bg-white group-hover:bg-slate-50" style={{ left: '176px', minWidth: '176px', maxWidth: '176px' }}>{item.patientName}</td>
+                      <td className="text-center text-slate-650 font-semibold border border-slate-200 px-3 sticky z-10 bg-white group-hover:bg-slate-50" style={{ left: '352px', minWidth: '112px', maxWidth: '112px' }}>{item.phone || '—'}</td>
+                      <td className="text-center text-slate-550 border border-slate-200 px-3 sticky z-10 bg-white group-hover:bg-slate-50" style={{ left: '464px', minWidth: '96px', maxWidth: '96px' }}>{item.dob}</td>
                       <td className="text-center text-slate-500 font-semibold border border-slate-200 px-3">
                         {item.gender === 'Nữ' ? <span className="text-pink-500">♀</span> : item.gender === 'Nam' ? <span className="text-blue-500">♂</span> : ''}
                       </td>

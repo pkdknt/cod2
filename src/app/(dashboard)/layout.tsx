@@ -30,7 +30,7 @@ export default function DashboardLayout({
         {/* Dynamic Content Views */}
         <main className="flex-1 overflow-auto p-3 md:p-8 pb-20 md:pb-8 relative">
           <div className="absolute inset-0 bg-gradient-to-br from-slate-50/50 to-teal-50/10 pointer-events-none" />
-          <div className="relative z-10">{children}</div>
+          <div className="relative z-10 h-full">{children}</div>
         </main>
       </div>
     </div>
