@@ -13,7 +13,11 @@ export function parseVnDate(dateStr: string | undefined): Date | null {
   
   const day = parseInt(parts[0], 10);
   const month = parseInt(parts[1], 10) - 1; // 0-indexed month
-  const year = parseInt(parts[2], 10);
+  let year = parseInt(parts[2], 10);
+  
+  if (year < 100) {
+    year += year >= 50 ? 1900 : 2000;
+  }
   
   const date = new Date(year, month, day);
   if (isNaN(date.getTime())) return null;

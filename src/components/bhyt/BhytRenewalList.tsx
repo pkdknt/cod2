@@ -81,7 +81,7 @@ export default function BhytRenewalList({
   const getDaysRemainingText = (expiryStr: string | undefined) => {
     const days = getDaysRemaining(expiryStr);
     if (days === null) return 'Chưa xác định';
-    if (days < 0) return `Quá ${Math.abs(days)} ngày`;
+    if (days < 0) return `${days}`;
     if (days === 0) return 'Hết hạn hôm nay';
     return `Còn ${days} ngày`;
   };
