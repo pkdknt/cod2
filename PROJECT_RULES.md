@@ -11,10 +11,14 @@ Tài liệu này xác định các tiêu chuẩn kỹ thuật bắt buộc phả
 
 ---
 
-## 2. Quy ước Thiết kế UI (CSS & TailwindCSS v4)
+## 2. Quy ước Thiết kế UI (CSS & TailwindCSS v4 - Modern Minimalist)
 - **Thiết kế Responsive**: Mọi trang phải hoạt động tốt trên cả màn hình di động (dọc/ngang) và desktop. Sử dụng lớp `md:` hoặc `lg:` để ẩn/hiện sidebar và chuyển đổi bố cục bảng sang dạng lưới thu gọn.
+- **Phông chữ thống nhất**: Sử dụng font Google (`Plus Jakarta Sans` hoặc `Inter`) với subset `vietnamese`. Thiết lập font-sans thống nhất qua cấu hình `@theme` của Tailwind v4. Không sử dụng font Arial hoặc Sans-serif hệ thống mặc định.
+- **Hài hòa màu sắc & Hạn chế Gradient**: Không lạm dụng màu gradient sặc sỡ hoặc hiệu ứng phát sáng. Sử dụng bảng màu nền sáng tinh tế (`bg-slate-50`, `bg-white`) kết hợp với các đường viền mỏng (`border-slate-100`, `border-slate-200/60`). Màu xanh mòng két (`teal-600`) là màu nhấn chính cho y tế, không pha trộn nhiều tông màu nóng lạnh khác nhau trên cùng một trang.
+- **Độ tương phản & Khả dụng (Accessibility)**: Tất cả chữ và nút bấm phải đạt tỷ lệ tương phản WCAG AA (tối thiểu 4.5:1 đối với văn bản thường và 3:1 đối với văn bản lớn). Nút bấm phải có chữ rõ ràng, không bị xuống dòng ở desktop.
+- **Tương tác vật lý (Tactile Feedback)**: Các nút bấm hoặc thẻ có thể click phải tích hợp hiệu ứng nhấn thực tế: `:active` sử dụng `scale-[0.98]` hoặc `-translate-y-[1px]`.
+- **Độ bo góc & Bóng đổ**: Đồng bộ tỷ lệ bo góc (ví dụ: `rounded-xl` cho thẻ nhỏ, `rounded-3xl` cho panel chính). Tránh dùng bóng đổ đen thô trên nền sáng; hãy sử dụng bóng đổ nhạt được tint nhẹ theo màu nền (ví dụ: `shadow-slate-200/50`).
 - **Tailwind Class Order**: Bố trí các class theo thứ tự: Bố cục (`flex`, `grid`, `block`) → Kích thước (`w-`, `h-`) → Khoảng cách (`p-`, `m-`) → Trang trí (`bg-`, `border-`, `rounded-`) → Trạng thái (`hover:`, `focus:`).
-- **Hài hòa màu sắc**: Tránh dùng màu sắc chói thô. Sử dụng các nhóm màu dịu mát mắt của hệ thống: màu xanh mòng két (`teal`) và ngọc lục bảo (`emerald`) làm chủ đạo cho y tế, màu hổ phách (`amber`) cho cảnh báo nhẹ, và màu đỏ dịu (`red-600/bg-red-50`) cho cảnh báo nguy cấp.
 
 ---
 

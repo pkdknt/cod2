@@ -50,28 +50,28 @@ export default function Sidebar() {
   return (
     <>
       {/* Desktop Sidebar */}
-      <aside className="hidden md:flex w-64 bg-slate-900 text-slate-100 flex-col h-screen border-r border-slate-800 shrink-0">
+      <aside className="hidden md:flex w-64 bg-zinc-950 text-zinc-100 flex-col h-screen border-r border-zinc-900 shrink-0">
         {/* Brand Header */}
-        <div className="h-16 flex items-center gap-3 px-6 border-b border-slate-800 bg-slate-950/40">
-          <div className="h-8 w-8 rounded-lg bg-teal-600 flex items-center justify-center text-white shadow-md">
-            <Activity className="h-5 w-5" />
+        <div className="h-16 flex items-center gap-3 px-6 border-b border-zinc-900/80 bg-transparent">
+          <div className="h-8 w-8 rounded-lg bg-teal-600 flex items-center justify-center text-white">
+            <Activity className="h-4.5 w-4.5" />
           </div>
           <div>
-            <h1 className="font-extrabold text-sm tracking-wide text-white">NHƠN TÂM CLINIC</h1>
-            <span className="text-[10px] text-teal-400 font-semibold uppercase tracking-wider">Management</span>
+            <h1 className="font-semibold text-xs tracking-wider text-white">NHƠN TÂM CLINIC</h1>
+            <span className="text-[9px] text-teal-500 font-bold uppercase tracking-widest block -mt-0.5">Management</span>
           </div>
         </div>
 
         {/* User Profile Area */}
-        <div className="px-6 py-5 border-b border-slate-800 bg-slate-800/30">
+        <div className="px-6 py-4 border-b border-zinc-900/60 bg-transparent">
           <div className="flex items-center gap-3">
-            <div className="h-10 w-10 rounded-full bg-gradient-to-tr from-teal-500 to-emerald-400 flex items-center justify-center shadow-lg shadow-teal-500/20 text-white font-bold">
+            <div className="h-8 w-8 rounded-full border border-zinc-800 bg-zinc-900/50 flex items-center justify-center text-zinc-200 text-xs font-semibold">
               {user.fullName.charAt(0)}
             </div>
             <div>
-              <p className="font-bold text-sm text-white truncate max-w-[140px]">{user.fullName}</p>
-              <p className="text-xs text-teal-400 font-semibold flex items-center gap-1 mt-0.5">
-                <span className="h-1.5 w-1.5 rounded-full bg-teal-400 inline-block animate-pulse"></span>
+              <p className="font-medium text-xs text-zinc-200 truncate max-w-[140px]">{user.fullName}</p>
+              <p className="text-[10px] text-teal-500 font-semibold flex items-center gap-1 mt-0.5">
+                <span className="h-1 w-1 rounded-full bg-teal-500 inline-block"></span>
                 Trực tuyến
               </p>
             </div>
@@ -79,26 +79,26 @@ export default function Sidebar() {
         </div>
 
         {/* Navigation Items */}
-        <div className="flex-1 overflow-y-auto py-6 px-4 space-y-8">
+        <div className="flex-1 overflow-y-auto py-5 px-4 space-y-6 scrollbar-none">
           
           {/* Main Menu */}
           <div>
-            <p className="px-3 text-xs font-bold tracking-widest text-slate-500 uppercase mb-3">Chức năng chính</p>
-            <nav className="space-y-1">
+            <p className="px-3 text-[10px] font-bold tracking-widest text-zinc-500 uppercase mb-2">Chức năng chính</p>
+            <nav className="space-y-0.5">
               {navItems.map((item) => {
                 const isActive = pathname === item.href;
                 return (
                   <Link
                     key={item.name}
                     href={item.href}
-                    className={`group flex items-center gap-3 px-3 py-2.5 rounded-xl font-semibold transition-all duration-200 ${
+                    className={`group flex items-center gap-2.5 px-3 py-2 rounded-lg font-medium transition-all duration-150 active:scale-[0.98] ${
                       isActive 
-                        ? 'bg-teal-600/10 text-teal-400' 
-                        : 'text-slate-400 hover:bg-slate-800 hover:text-slate-100'
+                        ? 'bg-zinc-900 text-teal-400 border border-zinc-850' 
+                        : 'text-zinc-400 hover:bg-zinc-900/30 hover:text-zinc-200'
                     }`}
                   >
-                    <item.icon className={`h-5 w-5 transition-colors ${isActive ? 'text-teal-400' : 'text-slate-500 group-hover:text-teal-400'}`} />
-                    <span className="text-sm">{item.name}</span>
+                    <item.icon className={`h-4 w-4 transition-colors ${isActive ? 'text-teal-400' : 'text-zinc-500 group-hover:text-teal-400'}`} />
+                    <span className="text-xs">{item.name}</span>
                   </Link>
                 );
               })}
@@ -107,22 +107,22 @@ export default function Sidebar() {
 
           {/* Tools Menu */}
           <div>
-            <p className="px-3 text-xs font-bold tracking-widest text-slate-500 uppercase mb-3">Tiện ích</p>
-            <nav className="space-y-1">
+            <p className="px-3 text-[10px] font-bold tracking-widest text-zinc-500 uppercase mb-2">Tiện ích</p>
+            <nav className="space-y-0.5">
               {otherItems.map((item) => {
                 const isActive = pathname === item.href;
                 return (
                   <Link
                     key={item.name}
                     href={item.href}
-                    className={`group flex items-center gap-3 px-3 py-2.5 rounded-xl font-semibold transition-all duration-200 ${
+                    className={`group flex items-center gap-2.5 px-3 py-2 rounded-lg font-medium transition-all duration-150 active:scale-[0.98] ${
                       isActive 
-                        ? 'bg-teal-600/10 text-teal-400' 
-                        : 'text-slate-400 hover:bg-slate-800 hover:text-slate-100'
+                        ? 'bg-zinc-900 text-teal-400 border border-zinc-850' 
+                        : 'text-zinc-400 hover:bg-zinc-900/30 hover:text-zinc-200'
                     }`}
                   >
-                    <item.icon className={`h-5 w-5 transition-colors ${isActive ? 'text-teal-400' : 'text-slate-500 group-hover:text-teal-400'}`} />
-                    <span className="text-sm">{item.name}</span>
+                    <item.icon className={`h-4 w-4 transition-colors ${isActive ? 'text-teal-400' : 'text-zinc-500 group-hover:text-teal-400'}`} />
+                    <span className="text-xs">{item.name}</span>
                   </Link>
                 );
               })}
@@ -131,24 +131,23 @@ export default function Sidebar() {
         </div>
 
         {/* System Status / Footer */}
-        <div className="p-4 border-t border-slate-800 bg-slate-950/40">
-          <div className="bg-slate-800/50 rounded-xl p-3 border border-slate-700/50">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-xs font-bold text-slate-400">Server Load</span>
-              <span className="text-xs font-bold text-teal-400">Stable</span>
+        <div className="p-4 border-t border-zinc-900 bg-transparent">
+          <div className="bg-zinc-900/20 rounded-xl p-3 border border-zinc-900/60">
+            <div className="flex items-center justify-between mb-1.5">
+              <span className="text-[10px] font-medium text-zinc-500">Server Load</span>
+              <span className="text-[10px] font-medium text-teal-500">Stable</span>
             </div>
-            <div className="h-1.5 w-full bg-slate-700 rounded-full overflow-hidden">
-              <div className="h-full bg-teal-500 w-1/4 rounded-full" />
+            <div className="h-1 w-full bg-zinc-900 rounded-full overflow-hidden">
+              <div className="h-full bg-teal-500/80 w-1/4 rounded-full" />
             </div>
           </div>
         </div>
       </aside>
 
       {/* Mobile Bottom Navigation */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 flex items-center overflow-x-auto whitespace-nowrap h-16 z-50 shadow-[0_-4px_20px_rgba(0,0,0,0.05)] pb-safe scrollbar-none px-2 gap-1">
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-md border-t border-slate-100 flex items-center overflow-x-auto whitespace-nowrap h-16 z-50 shadow-[0_-4px_20px_rgba(0,0,0,0.02)] pb-safe scrollbar-none px-2 gap-1">
         {[...navItems, ...otherItems].map((item) => {
           const isActive = pathname === item.href;
-          // Shorten names for mobile to avoid wrapping
           let mobileName = item.name;
           if (mobileName === 'CSKH Tiêm Chủng') mobileName = 'CSKH';
           if (mobileName === 'Bảng giá Vắc xin') mobileName = 'Giá';
@@ -157,12 +156,12 @@ export default function Sidebar() {
             <Link
               key={item.name}
               href={item.href}
-              className={`flex flex-col items-center justify-center min-w-[72px] flex-1 h-full space-y-1 transition-colors ${
+              className={`flex flex-col items-center justify-center min-w-[72px] flex-1 h-full space-y-1 transition-all duration-150 active:scale-[0.96] ${
                 isActive ? 'text-teal-600' : 'text-slate-400 hover:text-slate-600'
               }`}
             >
-              <item.icon className={`h-5 w-5 ${isActive ? 'stroke-[2.5px]' : 'stroke-2'}`} />
-              <span className={`text-[9px] font-bold ${isActive ? 'text-teal-700' : 'text-slate-500'}`}>
+              <item.icon className={`h-4.5 w-4.5 ${isActive ? 'stroke-[2.2px]' : 'stroke-2'}`} />
+              <span className={`text-[9px] font-medium ${isActive ? 'text-teal-700' : 'text-slate-500'}`}>
                 {mobileName}
               </span>
             </Link>

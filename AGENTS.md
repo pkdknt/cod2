@@ -41,4 +41,9 @@ Hệ thống tuân thủ nghiêm ngặt các nguyên lý SOLID:
 - **Mongoose Models**: Đặt tên dạng số ít (ví dụ: `BhytCustomer`, `PatientTransfer`).
 - **Autosave Pattern**: Bảng dữ liệu hỗ trợ chỉnh sửa trực tiếp (inline edit) phải lưu tự động sau 1.5 - 2 giây không gõ phím sử dụng mẫu debounce (`setTimeout` + `clearTimeout` được lưu trữ qua React `useRef`).
 - **Excel Handling**: Mọi tác vụ đọc và ghi Excel đều sử dụng `xlsx-js-style` nạp động client-side (`import('xlsx-js-style')`) để giảm dung lượng file bundle ban đầu và ngăn lỗi SSR.
+- **Modern Minimalist UI Conventions**:
+  - *Typography*: Luôn ưu tiên font chữ Google Sans (`Plus Jakarta Sans` hoặc `Inter`) cho hiển thị bảng biểu và dữ liệu lâm sàng.
+  - *Color & Aesthetics*: Màu nền sáng mỏng nhẹ, không lạm dụng dải gradient nhiều màu hoặc shadow màu tối. Các card/ô thông số sử dụng nền trắng viền mỏng `border-slate-200/60` và shadow mờ tinh tế.
+  - *Accessibility*: Toàn bộ text và CTAs phải đảm bảo độ tương phản rõ ràng. Nút bấm sử dụng một dòng duy nhất ở màn hình desktop, không bị ngắt/xuống dòng.
+  - *Theme consistency*: Giữ vững màu nhấn chủ đạo (Ví dụ: `teal-600` cho y tế). Không thay đổi màu sắc lung tung giữa các phân hệ hay các thẻ cạnh nhau.
 
