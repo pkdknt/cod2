@@ -453,7 +453,7 @@ export default function CskhTiemChungPage() {
   );
 
   // Dynamic protocol recommendation logic
-  const getRecommendedProtocols = () => {
+  const getAllProtocolsForVaccine = () => {
     if (!selectedVaccine) return [];
     
     const raw = selectedVaccine || "";
@@ -461,34 +461,37 @@ export default function CskhTiemChungPage() {
     if (!q) return [];
     
     // Filter protocols by chosen vaccine
-    const matching = DATA.protocols.filter(
+    return DATA.protocols.filter(
       (p) =>
         norm(p.vaccine) === q ||
         norm(p.vaccine).includes(q) ||
         q.includes(norm(p.vaccine))
     );
+  };
 
-    // If DOB is entered, refine list by patient age range
+  const availableProtocols = getAllProtocolsForVaccine();
+
+  const getRecommendedProtocolId = () => {
+    if (availableProtocols.length === 0) return '';
     const parsedDob = parseDate(dob);
     if (parsedDob) {
       const ageInMonths = monthsAge(parsedDob, new Date());
-      return matching.filter((p) => {
+      const ageMatching = availableProtocols.filter((p) => {
         const { min, max } = parseAgeRange(p.object);
         if (min !== null && ageInMonths < min) return false;
         if (max !== null && ageInMonths > max) return false;
         return true;
       });
+      if (ageMatching.length > 0) return ageMatching[0].id;
     }
-
-    return matching;
+    return availableProtocols[0].id;
   };
 
-  const recommendedProtocols = getRecommendedProtocols();
-
   useEffect(() => {
-    // Automatically select the first recommended protocol when lists refresh
-    if (recommendedProtocols.length > 0 && !selectedProtocolId) {
-      setSelectedProtocolId(recommendedProtocols[0].id);
+    // Automatically select the recommended protocol when lists refresh
+    const recId = getRecommendedProtocolId();
+    if (recId && !selectedProtocolId) {
+      setSelectedProtocolId(recId);
     }
   }, [selectedVaccine, dob]);
 
@@ -918,10 +921,10 @@ export default function CskhTiemChungPage() {
                     onChange={(e) => setSelectedProtocolId(e.target.value)}
                     className="w-full rounded-xl border border-slate-200 p-2.5 text-xs font-semibold outline-none focus:border-teal-500"
                   >
-                    {recommendedProtocols.length === 0 ? (
-                      <option value="">Lưu ý: Không tìm thấy phác đồ khớp độ tuổi</option>
+                    {availableProtocols.length === 0 ? (
+                      <option value="">Lưu ý: Không tìm thấy phác đồ khớp</option>
                     ) : (
-                      recommendedProtocols.map((p) => (
+                      availableProtocols.map((p) => (
                         <option key={p.id} value={p.id}>
                           {p.object} (Dòng {p.sourceRow})
                         </option>

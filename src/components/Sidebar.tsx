@@ -37,12 +37,13 @@ export default function Sidebar() {
 
   const navItems = [
     { name: 'Dashboard', href: '/', icon: LayoutDashboard },
+    { name: 'Nhơn Tâm BHYT 2026', href: '/bhyt', icon: FileBadge },
     { name: 'Số ca BHYT', href: '/bhyt/so-ca', icon: ShieldCheck },
   ];
 
-
   const otherItems = [
     { name: 'CSKH Tiêm Chủng', href: '/cskh-tiem-chung', icon: ClipboardList },
+    { name: 'Chuyển viện', href: '/chuyen-vien', icon: Hospital },
     { name: 'Bảng giá Vắc xin', href: '/vaccine-prices', icon: DollarSign },
   ];
 
