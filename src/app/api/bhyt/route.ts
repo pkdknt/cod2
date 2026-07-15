@@ -12,7 +12,10 @@ export async function GET(req: NextRequest) {
     const statusFilter = searchParams.get('statusFilter') || '';
     const callFilter = searchParams.get('callFilter') || '';
     const renewFilter = searchParams.get('renewFilter') || '';
+    const workflowFilter = searchParams.get('workflowFilter') || '';
+    const phoneFilter = searchParams.get('phoneFilter') || '';
     const sortBy = searchParams.get('sortBy') || 'days';
+    const sortDir = searchParams.get('sortDir') || 'asc';
     const page = parseInt(searchParams.get('page') || '1', 10);
     const pageSize = parseInt(searchParams.get('pageSize') || '500', 10);
 
@@ -35,30 +38,35 @@ export async function GET(req: NextRequest) {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
+    const fifteenDaysLater = new Date(today.getTime() + 15 * 24 * 60 * 60 * 1000);
     const thirtyDaysLater = new Date(today.getTime() + 30 * 24 * 60 * 60 * 1000);
-    const sixtyDaysLater = new Date(today.getTime() + 60 * 24 * 60 * 60 * 1000);
-    const ninetyDaysLater = new Date(today.getTime() + 90 * 24 * 60 * 60 * 1000);
 
-    // Status Filter
+    // Status Filter (expiryFilter)
     if (statusFilter) {
       switch (statusFilter) {
         case 'expired':
           query.expiryDate = { $lt: today };
           break;
-        case '30':
-          query.expiryDate = { $gte: today, $lte: thirtyDaysLater };
+        case 'due15':
+          query.expiryDate = { $gte: today, $lte: fifteenDaysLater };
           break;
-        case '60':
-          query.expiryDate = { $gt: thirtyDaysLater, $lte: sixtyDaysLater };
+        case 'due30':
+          query.expiryDate = { $gt: fifteenDaysLater, $lte: thirtyDaysLater };
           break;
-        case '90':
-          query.expiryDate = { $gt: sixtyDaysLater, $lte: ninetyDaysLater };
+        case 'active':
+          query.expiryDate = { $gt: today };
           break;
-        case 'ok':
-          query.expiryDate = { $gt: ninetyDaysLater };
-          break;
-        case 'missing':
+        case 'unknown':
           query.$or = [{ expiryDate: { $exists: false } }, { expiryDate: null }];
+          break;
+        case 'priority':
+          query.expiryDate = { $lte: fifteenDaysLater };
+          break;
+        case 'due30_all':
+          query.expiryDate = { $lte: thirtyDaysLater };
+          break;
+        case 'all':
+          query.expiryDate = { $exists: true, $ne: null };
           break;
       }
     }
@@ -73,16 +81,41 @@ export async function GET(req: NextRequest) {
       query.renewType = renewFilter;
     }
 
+    // Workflow status filter
+    if (workflowFilter) {
+      query.workflowStatus = workflowFilter;
+    }
+
+    // Phone filter
+    if (phoneFilter) {
+      if (phoneFilter === 'has') {
+        query.phone = { $ne: null, $exists: true, $regex: /\d+/ };
+      } else if (phoneFilter === 'missing') {
+        query.$or = [
+          { phone: { $exists: false } },
+          { phone: null },
+          { phone: '' }
+        ];
+      }
+    }
+
     // Build Sorting
     const sort: any = {};
+    const dirMultiplier = sortDir === 'desc' ? -1 : 1;
     if (sortBy === 'name') {
-      sort.name = 1;
+      sort.name = dirMultiplier;
+    } else if (sortBy === 'bhxh') {
+      sort.bhxh = dirMultiplier;
+    } else if (sortBy === 'phone') {
+      sort.phone = dirMultiplier;
+    } else if (sortBy === 'kcb') {
+      sort.kcb = dirMultiplier;
     } else if (sortBy === 'expiry' || sortBy === 'days') {
-      sort.expiryDate = 1;
-    } else if (sortBy === 'callDate') {
-      sort.callDate = -1;
+      sort.expiryDate = dirMultiplier;
+    } else if (sortBy === 'workflow') {
+      sort.workflowStatus = dirMultiplier;
     } else {
-      sort.expiryDate = 1;
+      sort.expiryDate = dirMultiplier;
     }
 
     // Execute query with pagination
@@ -95,16 +128,6 @@ export async function GET(req: NextRequest) {
     const totalFiltered = await BhytCustomer.countDocuments(query);
     const totalCustomers = await BhytCustomer.countDocuments();
 
-    // Calculate dynamic stats
-    const expiredCount = await BhytCustomer.countDocuments({ expiryDate: { $lt: today } });
-    const count30 = await BhytCustomer.countDocuments({ expiryDate: { $gte: today, $lte: thirtyDaysLater } });
-    const count60 = await BhytCustomer.countDocuments({ expiryDate: { $gt: thirtyDaysLater, $lte: sixtyDaysLater } });
-    const count90 = await BhytCustomer.countDocuments({ expiryDate: { $gt: sixtyDaysLater, $lte: ninetyDaysLater } });
-    const needCallCount = await BhytCustomer.countDocuments({ needCall: 'Có' });
-    const missingCount = await BhytCustomer.countDocuments({
-      $or: [{ expiryDate: { $exists: false } }, { expiryDate: null }],
-    });
-
     return NextResponse.json({
       success: true,
       items,
@@ -113,16 +136,7 @@ export async function GET(req: NextRequest) {
         pageSize,
         totalFiltered,
         totalCustomers,
-      },
-      stats: {
-        totalCustomers,
-        expiredCount,
-        count30,
-        count60,
-        count90,
-        needCallCount,
-        missingCount,
-      },
+      }
     });
   } catch (error: any) {
     console.error('Error fetching BHYT:', error);
@@ -155,7 +169,7 @@ export async function POST(req: Request) {
       dobDate,
     });
 
-    return NextResponse.json({ success: true, customer: newCustomer });
+    return NextResponse.json({ success: true, item: newCustomer });
   } catch (error: any) {
     console.error('Error creating BHYT customer:', error);
     return NextResponse.json({ message: 'Lỗi khi thêm khách hàng: ' + error.message }, { status: 500 });

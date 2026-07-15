@@ -3,9 +3,13 @@ import { connectToDatabase } from '@/lib/mongodb';
 import PatientTransfer from '@/models/PatientTransfer';
 import { parseVnDate } from '@/lib/utils';
 
-export async function PUT(req: Request, { params }: { params: { id: string } }) {
+export async function PUT(
+  req: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
   try {
     await connectToDatabase();
+    const { id } = await params;
     const data = await req.json();
 
     const updateData = { ...data };
@@ -18,7 +22,7 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
       updateData.bhytExpiryDate = parseVnDate(data.bhytExpiry);
     }
 
-    const updatedItem = await PatientTransfer.findByIdAndUpdate(params.id, updateData, { new: true });
+    const updatedItem = await PatientTransfer.findByIdAndUpdate(id, updateData, { new: true });
     
     if (!updatedItem) {
       return NextResponse.json({ message: 'Không tìm thấy hồ sơ' }, { status: 404 });
@@ -31,11 +35,15 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
   }
 }
 
-export async function DELETE(req: Request, { params }: { params: { id: string } }) {
+export async function DELETE(
+  req: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
   try {
     await connectToDatabase();
+    const { id } = await params;
     
-    const deleted = await PatientTransfer.findByIdAndDelete(params.id);
+    const deleted = await PatientTransfer.findByIdAndDelete(id);
     if (!deleted) {
       return NextResponse.json({ message: 'Không tìm thấy hồ sơ' }, { status: 404 });
     }

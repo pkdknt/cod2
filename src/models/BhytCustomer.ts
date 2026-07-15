@@ -24,6 +24,7 @@ export interface IBhytCustomer extends Document {
   relation?: string;
   note?: string;
   contactStatus?: string;// 'Chưa liên hệ' | 'Đã gọi' | 'Zalo' | 'Hẹn lại'
+  workflowStatus?: string; // 'Chưa liên hệ' | 'Đã gửi tin' | 'Đã gọi' | 'Hẹn liên hệ lại' | 'Đã gia hạn' | 'Không liên lạc được' | 'Không có nhu cầu'
   createdAt: Date;
   updatedAt: Date;
 }
@@ -53,6 +54,7 @@ const BhytCustomerSchema = new Schema<IBhytCustomer>(
     relation: { type: String },
     note: { type: String },
     contactStatus: { type: String, default: 'Chưa liên hệ' },
+    workflowStatus: { type: String, default: 'Chưa liên hệ', index: true },
   },
   {
     timestamps: true,

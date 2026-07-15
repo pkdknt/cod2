@@ -1,4 +1,5 @@
 import { fetchJson } from '@/lib/apiUtils';
+import { ICrudService, IBulkOperationService, IImportExportService } from './interfaces/IBaseService';
 
 export interface BhytCustomerData {
   _id?: string;
@@ -23,23 +24,34 @@ export interface BhytCustomerData {
   relation?: string;
   note?: string;
   contactStatus?: string;
+  workflowStatus?: string; // 'Chưa liên hệ' | 'Đã gửi tin' | 'Đã gọi' | 'Hẹn liên hệ lại' | 'Đã gia hạn' | 'Không liên lạc được' | 'Không có nhu cầu'
   createdAt?: string;
   updatedAt?: string;
 }
 
-export class BhytService {
+export interface BhytFilters {
+  q?: string;
+  statusFilter?: string;
+  callFilter?: string;
+  renewFilter?: string;
+  workflowFilter?: string;
+  phoneFilter?: string;
+  sortBy?: string;
+  sortDir?: string;
+  page?: number;
+  pageSize?: number;
+}
+
+export class BhytService 
+  implements 
+    ICrudService<BhytCustomerData, BhytFilters>, 
+    IBulkOperationService<BhytCustomerData>, 
+    IImportExportService<BhytCustomerData> 
+{
   /**
    * Fetches BHYT customers from the API using filter parameters
    */
-  public static async getAll(filters: {
-    q?: string;
-    statusFilter?: string;
-    callFilter?: string;
-    renewFilter?: string;
-    sortBy?: string;
-    page?: number;
-    pageSize?: number;
-  }): Promise<{ items: BhytCustomerData[]; pagination: any; stats: any }> {
+  public static async getAll(filters: BhytFilters): Promise<{ items: BhytCustomerData[]; pagination: any; stats?: any }> {
     const params = new URLSearchParams();
     Object.entries(filters).forEach(([key, val]) => {
       if (val !== undefined && val !== null && val !== '') {
@@ -48,6 +60,13 @@ export class BhytService {
     });
 
     return fetchJson(`/api/bhyt?${params.toString()}`);
+  }
+
+  /**
+   * Fetches BHYT statistics for dashboard cards
+   */
+  public static async getStats(): Promise<any> {
+    return fetchJson('/api/bhyt/stats');
   }
 
   /**
@@ -111,4 +130,12 @@ export class BhytService {
       body: JSON.stringify({ items })
     });
   }
+
+  // Non-static implementations of interface if instantiation is required, but keeping static methods for standard use
+  async getAll(filters: BhytFilters) { return BhytService.getAll(filters); }
+  async create(data: BhytCustomerData) { return BhytService.create(data); }
+  async update(id: string, data: Partial<BhytCustomerData>) { return BhytService.update(id, data); }
+  async delete(id: string) { return BhytService.delete(id); }
+  async bulkDelete(ids: string[]) { return BhytService.bulkDelete(ids); }
+  async importExcel(items: any[]) { return BhytService.importExcel(items); }
 }
