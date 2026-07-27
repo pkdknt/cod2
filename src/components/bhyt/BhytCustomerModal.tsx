@@ -29,6 +29,28 @@ export default function BhytCustomerModal({ customer, onClose, onSave }: BhytCus
 
   const [errors, setErrors] = useState<Record<string, string>>({});
 
+  const convertDateToInputFormat = (dateStr: string | undefined) => {
+    if (!dateStr) return '';
+    // If already in yyyy-mm-dd
+    if (/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) return dateStr;
+    // If in dd/mm/yyyy
+    const parts = dateStr.split('/');
+    if (parts.length === 3) {
+      return `${parts[2]}-${parts[1].padStart(2, '0')}-${parts[0].padStart(2, '0')}`;
+    }
+    return dateStr;
+  };
+
+  const convertDateToDisplayFormat = (dateStr: string | undefined) => {
+    if (!dateStr) return '';
+    // If in yyyy-mm-dd
+    if (/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) {
+      const parts = dateStr.split('-');
+      return `${parts[2]}/${parts[1]}/${parts[0]}`;
+    }
+    return dateStr;
+  };
+
   useEffect(() => {
     if (customer) {
       setFormData({
@@ -58,28 +80,6 @@ export default function BhytCustomerModal({ customer, onClose, onSave }: BhytCus
     }
     setErrors({});
   }, [customer]);
-
-  const convertDateToInputFormat = (dateStr: string | undefined) => {
-    if (!dateStr) return '';
-    // If already in yyyy-mm-dd
-    if (/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) return dateStr;
-    // If in dd/mm/yyyy
-    const parts = dateStr.split('/');
-    if (parts.length === 3) {
-      return `${parts[2]}-${parts[1].padStart(2, '0')}-${parts[0].padStart(2, '0')}`;
-    }
-    return dateStr;
-  };
-
-  const convertDateToDisplayFormat = (dateStr: string | undefined) => {
-    if (!dateStr) return '';
-    // If in yyyy-mm-dd
-    if (/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) {
-      const parts = dateStr.split('-');
-      return `${parts[2]}/${parts[1]}/${parts[0]}`;
-    }
-    return dateStr;
-  };
 
   const handleChange = (field: keyof BhytCustomerData, val: string) => {
     setFormData((prev) => ({ ...prev, [field]: val }));

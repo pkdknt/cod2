@@ -7,12 +7,12 @@ export async function POST(req: Request) {
     await connectToDatabase();
     const { action, ids, resetAll } = await req.json();
 
-    if (action === 'delete') {
-      if (resetAll === true) {
-        await BhytCustomer.deleteMany({});
-        return NextResponse.json({ success: true, message: 'Đã xóa toàn bộ cơ sở dữ liệu khách hàng BHYT' });
-      }
+    if (action === 'clearAll' || (action === 'delete' && resetAll === true)) {
+      await BhytCustomer.deleteMany({});
+      return NextResponse.json({ success: true, message: 'Đã xóa toàn bộ cơ sở dữ liệu khách hàng BHYT' });
+    }
 
+    if (action === 'delete') {
       if (!ids || !Array.isArray(ids) || ids.length === 0) {
         return NextResponse.json({ message: 'Danh sách ID không hợp lệ' }, { status: 400 });
       }

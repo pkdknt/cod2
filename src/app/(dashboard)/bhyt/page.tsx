@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { LayoutDashboard, Users, Clock, Upload, Settings, Plus } from 'lucide-react';
+import { LayoutDashboard, Users, Clock, Upload, Settings, Plus, Trash2 } from 'lucide-react';
 import { BhytService, BhytCustomerData } from '@/services/BhytService';
 import BhytDashboard from '@/components/bhyt/BhytDashboard';
 import BhytCustomerTable from '@/components/bhyt/BhytCustomerTable';
@@ -369,6 +369,14 @@ export default function BhytPage() {
           </p>
         </div>
         <div className="flex gap-2">
+          {activeTab !== 'settings' && activeTab !== 'dashboard' && (
+            <button
+              onClick={handleResetData}
+              className="inline-flex items-center gap-1.5 rounded-xl border border-red-200 bg-red-50 px-4 py-2.5 text-xs font-bold text-red-700 hover:bg-red-100 transition-colors shadow-sm"
+            >
+              <Trash2 className="h-4 w-4" /> Xóa toàn bộ danh sách
+            </button>
+          )}
           <button
             onClick={() => {
               setEditingCustomer(null);
