@@ -56,7 +56,7 @@ export interface IMedicalRecord extends Document {
 
 const MedicalRecordSchema = new Schema<IMedicalRecord>(
   {
-    recordType: { type: String, required: true, enum: ['ngoai-tru', 'bia-rhm', 'rhm', 'yhct'], index: true },
+    recordType: { type: String, required: true, enum: ['ngoai-tru', 'bia-rhm', 'rhm', 'yhct'], default: 'yhct', index: true },
     soNgoaiTru: { type: String, index: true },
     soLuuTru: { type: String, index: true },
     maBenhNhan: { type: String, index: true },

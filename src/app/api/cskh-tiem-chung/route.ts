@@ -166,7 +166,12 @@ export async function DELETE(req: Request) {
     const id = searchParams.get('id');
     const idsParam = searchParams.get('ids');
 
-    if (idsParam) {
+    const deleteAll = searchParams.get('all') === 'true';
+
+    if (deleteAll) {
+      await CskhVaccine.deleteMany({});
+      return NextResponse.json({ message: 'Đã xóa toàn bộ danh sách thành công!' });
+    } else if (idsParam) {
       const ids = idsParam.split(',');
       await CskhVaccine.deleteMany({ _id: { $in: ids } });
       return NextResponse.json({ message: 'Đã xóa các mục đã chọn' });

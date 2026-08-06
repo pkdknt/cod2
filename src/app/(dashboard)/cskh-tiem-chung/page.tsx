@@ -694,6 +694,21 @@ export default function CskhTiemChungPage() {
     }
   };
 
+  const handleDeleteAllSchedules = async () => {
+    if (confirm('Bạn có CỰC KỲ CHẮC CHẮN muốn xóa TOÀN BỘ danh sách lịch tiêm chủng hiện tại không? Thao tác này không thể hoàn tác!')) {
+      try {
+        const res = await fetch('/api/cskh-tiem-chung?all=true', { method: 'DELETE' });
+        const result = await res.json();
+        if (!res.ok) throw new Error(result.message);
+        alert(result.message);
+        setSelectedIds([]);
+        fetchSavedSchedules();
+      } catch (err: any) {
+        alert(err.message);
+      }
+    }
+  };
+
   const handleResetPlanner = () => {
     setActiveEditId(null);
     setPatientCode('');
@@ -1112,10 +1127,18 @@ export default function CskhTiemChungPage() {
 
           {/* Database Table view */}
           <div className="flex-1 bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden flex flex-col min-h-[500px] md:min-h-0">
-            <div className="px-5 py-3 border-b border-slate-100 shrink-0">
+            <div className="px-5 py-3 border-b border-slate-100 shrink-0 flex items-center justify-between">
               <span className="text-xs font-semibold text-slate-400 bg-slate-50 px-2.5 py-0.5 rounded-full">
                 Tổng cộng {savedSchedules.length} hồ sơ theo dõi
               </span>
+              {savedSchedules.length > 0 && (
+                <button
+                  onClick={handleDeleteAllSchedules}
+                  className="inline-flex items-center gap-1.5 rounded-lg border border-red-200 bg-red-50 px-3 py-1.5 text-xs font-bold text-red-700 hover:bg-red-100 transition-colors cursor-pointer"
+                >
+                  <Trash2 className="h-3.5 w-3.5" /> Xóa Toàn Bộ Danh Sách
+                </button>
+              )}
             </div>
 
             <div className="flex-1 overflow-auto relative scrollbar-thin scrollbar-thumb-slate-200 min-h-0">

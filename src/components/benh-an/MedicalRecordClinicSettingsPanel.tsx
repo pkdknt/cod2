@@ -15,7 +15,7 @@ export interface MedicalRecordClinicSettings {
 export const MEDICAL_RECORD_CLINIC_DEFAULT: MedicalRecordClinicSettings = {
   soYTe: 'SỞ Y TẾ TP. HỒ CHÍ MINH',
   tenPhongKham: 'PHÒNG KHÁM ĐA KHOA NHƠN TÂM',
-  khoa: 'Khoa: Răng Hàm Mặt',
+  khoa: 'Khoa: Y học cổ truyền',
   diaChi: 'Địa chỉ: 469 Nguyễn Văn Tạo, xã Hiệp Phước, TP. HCM',
   hotline: 'ĐT: 028 3780 1479 – Hotline: 0987 519 115',
   giamDoc: 'GIÁM ĐỐC PHÒNG KHÁM',

@@ -16,7 +16,7 @@ export default function MedicalRecordImportModal({ onClose, onImportSuccess }: M
   const [selectedSheet, setSelectedSheet] = useState('');
   const [importStatus, setImportStatus] = useState('');
   const [isImporting, setIsImporting] = useState(false);
-  const [importRecordType, setImportRecordType] = useState<'ngoai-tru' | 'bia-rhm' | 'rhm' | 'yhct'>('ngoai-tru');
+  const [importRecordType, setImportRecordType] = useState<'ngoai-tru' | 'bia-rhm' | 'rhm' | 'yhct'>('yhct');
 
   useEffect(() => {
     if (typeof window !== 'undefined') {

@@ -84,15 +84,21 @@
 <script>
 const FIELDS=[['tenApp','Tên app'],['tenBenhAn','Tên bệnh án'],['soLuuTru','Số lưu trữ'],['dongPK1','Dòng phòng khám 1'],['dongPK2','Dòng phòng khám 2'],['dongPK3','Dòng phòng khám 3'],['maVaoVien','Mã số vào viện'],['maBenhNhan','Mã bệnh nhân'],['hoTen','Họ và tên bệnh nhân'],['gioiTinh','Giới tính'],['namSinh','Năm sinh'],['cccd','Mã định danh cá nhân/ CCCD'],['diaChi','Địa chỉ'],['maBHYT','Mã BHYT'],['ngayVaoVien','Ngày giờ vào viện'],['dienThoai','Số điện thoại']];
 
+const logoFile = document.getElementById('logoFile');
+const excelFile = document.getElementById('excelFile');
+const dataTable = document.getElementById('dataTable');
+const form = document.getElementById('form');
+
 let rows=[];
 let current=0;
-let customLogo=localStorage.getItem('bia_yhct_logo')||'';
-const DB_NAME='bia_yhct_a3_db_v2';
-const DB_STORE='data';
-const DB_KEY='rows';
-const HEADER_DEFAULTS_KEY='headerDefaults';
-const HEADER_STORAGE_KEY='bia_yhct_header_defaults';
-const EXTERNAL_DIR_HANDLE_KEY='externalDriveDirHandle';
+let customLogo='';
+try{customLogo=localStorage.getItem('bia_ngoaitru_logo_ngoaitru')||'';}catch(e){}
+const DB_NAME='bia_ngoaitru_a3_db_v2';
+const DB_STORE='data_ngoaitru';
+const DB_KEY='rows_ngoaitru';
+const HEADER_DEFAULTS_KEY='headerDefaults_ngoaitru';
+const HEADER_STORAGE_KEY='bia_ngoaitru_header_defaults_ngoaitru';
+const EXTERNAL_DIR_HANDLE_KEY='externalDriveDirHandle_ngoaitru';
 const EXTERNAL_DATA_FILE='BIA_BENH_AN_NGOAI_TRU_A3_DATA.json';
 const AUTO_SAVE_DELAY=5000;
 const HEADER_FIELDS=['tenApp','tenBenhAn','soLuuTru','dongPK1','dongPK2','dongPK3'];
@@ -147,7 +153,7 @@ async function idbSet(key,value){
       tx.onerror=()=>reject(tx.error);
     });
   }catch(err){
-    try{localStorage.setItem('bia_yhct_rows',JSON.stringify(value));}catch(e){}
+    try{localStorage.setItem('bia_ngoaitru_rows_ngoaitru',JSON.stringify(value));}catch(e){}
     return false;
   }
 }
@@ -201,7 +207,7 @@ async function loadSavedRows(){
   await loadHeaderDefaults();
   let saved=await idbGet(DB_KEY);
   if(!Array.isArray(saved)){
-    try{saved=JSON.parse(localStorage.getItem('bia_yhct_rows')||'[]');}catch(e){saved=[];}
+    try{saved=JSON.parse(localStorage.getItem('bia_ngoaitru_rows_ngoaitru')||'[]');}catch(e){saved=[];}
   }
   rows=Array.isArray(saved)?saved:[];
   rows=rows.map(r=>withHeaderDefaults(r));
@@ -568,7 +574,7 @@ function prepareRowsForOutput(){
   return getOutputRows();
 }
 
-logoFile.addEventListener('change',e=>{let file=e.target.files[0];if(!file)return;let rd=new FileReader();rd.onload=()=>{customLogo=rd.result;try{localStorage.setItem('bia_yhct_logo',customLogo);}catch(err){console.warn('Logo quá lớn',err);alert('Logo có dung lượng khá lớn, sẽ chỉ lưu tạm thời cho lần in này.');}renderCover(rows[current]||{});scheduleAutoSave('đổi logo');alert('Đã cập nhật logo thành công!');};rd.readAsDataURL(file);});
+logoFile.addEventListener('change',e=>{let file=e.target.files[0];if(!file)return;let rd=new FileReader();rd.onload=()=>{customLogo=rd.result;try{localStorage.setItem('bia_ngoaitru_logo_ngoaitru',customLogo);}catch(err){console.warn('Logo quá lớn',err);alert('Logo có dung lượng khá lớn, sẽ chỉ lưu tạm thời cho lần in này.');}renderCover(rows[current]||{});scheduleAutoSave('đổi logo');alert('Đã cập nhật logo thành công!');};rd.readAsDataURL(file);});
 
 excelFile.addEventListener('change',async e=>{
   let files=Array.from(e.target.files||[]);
@@ -605,7 +611,7 @@ excelFile.addEventListener('change',async e=>{
     e.target.value='';
   }
 });
-async function saveData(){await idbSet(DB_KEY,rows);try{localStorage.setItem('bia_yhct_rows_backup_small',JSON.stringify(rows.slice(-200)));}catch(e){}}
+async function saveData(){await idbSet(DB_KEY,rows);try{localStorage.setItem('bia_ngoaitru_rows_backup_small_ngoaitru',JSON.stringify(rows.slice(-200)));}catch(e){}}
 async function clearData(){if(confirm('Xóa toàn bộ dữ liệu đã lưu?')){rows=[];current=0;await saveData();renderTable();}}
 
 function exportBackup(){
@@ -708,7 +714,7 @@ async function applyBackupPayload(data){
   if(data.headerDefaults) await saveHeaderDefaults(data.headerDefaults);
   if(data.customLogo){
     customLogo=data.customLogo;
-    try{localStorage.setItem('bia_yhct_logo',customLogo);}catch(e){}
+    try{localStorage.setItem('bia_ngoaitru_logo_ngoaitru',customLogo);}catch(e){}
   }
   rows=rows.map(r=>withHeaderDefaults(r));
   if(rows.length===0) rows=[blankRow()];
