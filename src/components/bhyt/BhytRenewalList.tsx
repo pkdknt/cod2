@@ -87,38 +87,25 @@ export default function BhytRenewalList({
   };
 
   return (
-    <div className="space-y-4">
-      {/* Header action with Copy button */}
-      <div className="flex justify-between items-center bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex-wrap gap-3">
-        <div>
-          <h3 className="font-extrabold text-slate-800 text-sm tracking-wide uppercase">Danh sách nhắc gia hạn</h3>
-          <p className="text-xs text-slate-400 font-semibold mt-0.5">Ưu tiên liên hệ khách hàng sắp hoặc đã quá hạn</p>
-        </div>
-        <button
-          onClick={onCopyPhones}
-          className="inline-flex items-center gap-1.5 rounded-xl border border-teal-200 bg-teal-50 px-4 py-2.5 text-xs font-bold text-teal-700 hover:bg-teal-100 transition-colors shadow-sm"
-        >
-          <Copy className="h-4 w-4" /> Sao chép danh sách SĐT
-        </button>
-      </div>
-
-      {/* Filter Options */}
-      <div className="bg-white p-4 rounded-2xl shadow-sm border border-slate-200 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 items-center">
-        <div className="relative">
+    <div className="space-y-3">
+      {/* Compact combined header + filters bar */}
+      <div className="bg-white px-4 py-3 rounded-2xl shadow-sm border border-slate-200 flex flex-wrap items-center gap-3">
+        {/* Search */}
+        <div className="relative flex-1 min-w-[160px]">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
           <input
             type="text"
             placeholder="Tìm khách cần nhắc..."
             value={q}
             onChange={(e) => onSearchChange(e.target.value)}
-            className="w-full pl-9 pr-4 py-2.5 text-sm rounded-xl border border-slate-200 focus:border-teal-500 focus:ring-2 focus:ring-teal-200 outline-none transition-all"
+            className="w-full pl-9 pr-4 py-2 text-sm rounded-xl border border-slate-200 focus:border-teal-500 focus:ring-2 focus:ring-teal-200 outline-none transition-all"
           />
         </div>
 
         <select
           value={renewalScope}
           onChange={(e) => onScopeChange(e.target.value)}
-          className="text-sm rounded-xl border border-slate-200 px-3 py-2.5 outline-none focus:border-teal-500 bg-white font-semibold text-slate-700"
+          className="text-sm rounded-xl border border-slate-200 px-3 py-2 outline-none focus:border-teal-500 bg-white font-semibold text-slate-700"
         >
           <option value="priority">Ưu tiên: hết hạn + ≤15 ngày</option>
           <option value="expired">Chỉ đã hết hạn</option>
@@ -130,7 +117,7 @@ export default function BhytRenewalList({
         <select
           value={workflowFilter}
           onChange={(e) => onWorkflowFilterChange(e.target.value)}
-          className="text-sm rounded-xl border border-slate-200 px-3 py-2.5 outline-none focus:border-teal-500 bg-white font-semibold text-slate-700"
+          className="text-sm rounded-xl border border-slate-200 px-3 py-2 outline-none focus:border-teal-500 bg-white font-semibold text-slate-700"
         >
           <option value="">Tất cả xử lý</option>
           <option value="Chưa liên hệ">Chưa liên hệ</option>
@@ -145,12 +132,19 @@ export default function BhytRenewalList({
         <select
           value={phoneFilter}
           onChange={(e) => onPhoneFilterChange(e.target.value)}
-          className="text-sm rounded-xl border border-slate-200 px-3 py-2.5 outline-none focus:border-teal-500 bg-white font-semibold text-slate-700"
+          className="text-sm rounded-xl border border-slate-200 px-3 py-2 outline-none focus:border-teal-500 bg-white font-semibold text-slate-700"
         >
-          <option value="">Tất cả số điện thoại</option>
+          <option value="">Tất cả SĐT</option>
           <option value="has">Có số điện thoại</option>
           <option value="missing">Thiếu số điện thoại</option>
         </select>
+
+        <button
+          onClick={onCopyPhones}
+          className="inline-flex items-center gap-1.5 rounded-xl border border-teal-200 bg-teal-50 px-3 py-2 text-xs font-bold text-teal-700 hover:bg-teal-100 transition-colors shadow-sm shrink-0"
+        >
+          <Copy className="h-3.5 w-3.5" /> Sao chép SĐT
+        </button>
       </div>
 
       {/* Renewal Queue Table */}
