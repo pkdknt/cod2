@@ -162,7 +162,7 @@ export default function BhytCustomerTable({
 
       {/* Table Section */}
       <div className="bg-white border border-slate-200 rounded-3xl shadow-sm overflow-hidden">
-        <div className="overflow-x-auto relative max-h-[60vh] scrollbar-thin">
+        <div className="overflow-x-auto relative max-h-[calc(100vh-220px)] scrollbar-thin">
           <table className="w-full text-xs text-left border-collapse min-w-[1000px]">
             <thead className="sticky top-0 z-10">
               <tr className="bg-slate-50 border-b-2 border-slate-200 text-slate-600 font-extrabold h-11">
