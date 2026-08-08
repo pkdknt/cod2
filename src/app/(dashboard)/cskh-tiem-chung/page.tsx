@@ -457,7 +457,7 @@ export default function CskhTiemChungPage() {
     if (!selectedVaccine) return [];
     
     const raw = selectedVaccine || "";
-    const q = norm(raw.includes(" - ") ? raw.split(" - ").slice(-1)[0] : raw);
+    const q = norm(raw.includes(" - ") ? raw.split(" - ").slice(1).join(" - ") : raw);
     if (!q) return [];
     
     // Filter protocols by chosen vaccine
