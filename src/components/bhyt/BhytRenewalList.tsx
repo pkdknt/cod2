@@ -157,8 +157,8 @@ export default function BhytRenewalList({
       <div className="bg-white border border-slate-200 rounded-3xl shadow-sm overflow-hidden">
         <div className="overflow-x-auto relative max-h-[64vh] scrollbar-thin">
           <table className="w-full text-xs text-left border-collapse min-w-[1000px]">
-            <thead>
-              <tr className="bg-slate-50 border-b border-slate-200 text-slate-600 font-extrabold h-11">
+            <thead className="sticky top-0 z-10">
+              <tr className="bg-slate-50 border-b-2 border-slate-200 text-slate-600 font-extrabold h-11">
                 <th className="px-4 text-left cursor-pointer hover:bg-slate-100" onClick={() => onSort('name')}>
                   Khách hàng {renderSortIcon('name')}
                 </th>
