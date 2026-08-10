@@ -70,6 +70,49 @@ export default function BhytCustomerTable({
   // Debounce timers per customer
   const noteTimers = useRef<Record<string, ReturnType<typeof setTimeout>>>({});
 
+  // ── Inline CallDate Edit State ──────────────────────────────────
+  const [callDateDrafts, setCallDateDrafts] = useState<Record<string, string>>({});
+  const [callDateSaveStatus, setCallDateSaveStatus] = useState<Record<string, 'idle' | 'saving' | 'saved'>>({});
+  const callDateTimers = useRef<Record<string, ReturnType<typeof setTimeout>>>({});
+
+  // Convert dd/MM/yyyy → yyyy-MM-dd (for HTML date input value)
+  const toInputDate = (vnDate: string | undefined): string => {
+    if (!vnDate) return '';
+    const parts = vnDate.split('/');
+    if (parts.length !== 3) return '';
+    return `${parts[2]}-${parts[1].padStart(2,'0')}-${parts[0].padStart(2,'0')}`;
+  };
+
+  // Convert yyyy-MM-dd → dd/MM/yyyy (for storing)
+  const toVnDate = (isoDate: string): string => {
+    if (!isoDate) return '';
+    const [y, m, d] = isoDate.split('-');
+    return `${d}/${m}/${y}`;
+  };
+
+  const handleCallDateChange = useCallback(
+    (cust: BhytCustomerData, isoValue: string) => {
+      const id = cust._id!;
+      setCallDateDrafts(prev => ({ ...prev, [id]: isoValue }));
+      setCallDateSaveStatus(prev => ({ ...prev, [id]: 'idle' }));
+
+      if (callDateTimers.current[id]) clearTimeout(callDateTimers.current[id]);
+      callDateTimers.current[id] = setTimeout(async () => {
+        setCallDateSaveStatus(prev => ({ ...prev, [id]: 'saving' }));
+        try {
+          await BhytService.update(id, { callDate: toVnDate(isoValue) });
+          setCallDateSaveStatus(prev => ({ ...prev, [id]: 'saved' }));
+          setTimeout(() => {
+            setCallDateSaveStatus(prev => ({ ...prev, [id]: 'idle' }));
+          }, 2000);
+        } catch {
+          setCallDateSaveStatus(prev => ({ ...prev, [id]: 'idle' }));
+        }
+      }, 800);
+    },
+    []
+  );
+
   // Auto-resize textarea helper
   const autoResize = (el: HTMLTextAreaElement) => {
     el.style.height = 'auto';
@@ -107,9 +150,17 @@ export default function BhytCustomerTable({
     setNoteDrafts(prev => {
       const next = { ...prev };
       customers.forEach(c => {
-        // Only set if no active draft (don't overwrite what user is typing)
         if (!(c._id! in next)) {
           next[c._id!] = c.note ?? '';
+        }
+      });
+      return next;
+    });
+    setCallDateDrafts(prev => {
+      const next = { ...prev };
+      customers.forEach(c => {
+        if (!(c._id! in next)) {
+          next[c._id!] = toInputDate(c.callDate);
         }
       });
       return next;
@@ -263,6 +314,8 @@ export default function BhytCustomerTable({
                 customers.map((cust) => {
                   const saveStatus = noteSaveStatus[cust._id!] ?? 'idle';
                   const noteDraft = noteDrafts[cust._id!] ?? cust.note ?? '';
+                  const callDateStatus = callDateSaveStatus[cust._id!] ?? 'idle';
+                  const callDateInput = callDateDrafts[cust._id!] ?? toInputDate(cust.callDate);
                   return (
                   <tr key={cust._id} className="border-b border-slate-100 hover:bg-slate-50/50 transition-colors align-top">
                     <td className="px-4 py-2.5 font-bold text-slate-800">
@@ -298,8 +351,24 @@ export default function BhytCustomerTable({
                         {cust.workflowStatus || 'Chưa liên hệ'}
                       </span>
                     </td>
-                    <td className="px-4 py-2.5 whitespace-nowrap text-slate-500 font-medium">
-                      {cust.callDate || <span className="text-slate-300">—</span>}
+                    {/* ── Ngày liên hệ inline ─────────────────────────── */}
+                    <td className="px-2 py-1.5">
+                      <div className="relative">
+                        <input
+                          type="date"
+                          value={callDateInput}
+                          onChange={(e) => handleCallDateChange(cust, e.target.value)}
+                          className="w-full rounded-lg border border-transparent bg-transparent px-2 py-1 text-xs text-slate-600 transition-all
+                            focus:outline-none focus:border-teal-300 focus:bg-white focus:shadow-sm
+                            hover:border-slate-200 hover:bg-slate-50 cursor-pointer"
+                        />
+                        {callDateStatus === 'saving' && (
+                          <Loader2 className="absolute right-2 top-1.5 h-3 w-3 text-slate-400 animate-spin pointer-events-none" />
+                        )}
+                        {callDateStatus === 'saved' && (
+                          <Check className="absolute right-2 top-1.5 h-3 w-3 text-teal-500 pointer-events-none" />
+                        )}
+                      </div>
                     </td>
 
                     {/* ── Ghi chú inline ─────────────────────────────────── */}
