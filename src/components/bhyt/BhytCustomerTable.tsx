@@ -241,6 +241,7 @@ export default function BhytCustomerTable({
                 <th className="px-4 text-left cursor-pointer hover:bg-slate-100" onClick={() => onSort('workflow')}>
                   Xử lý {renderSortIcon('workflow')}
                 </th>
+                <th className="px-4 text-left whitespace-nowrap">Ngày liên hệ</th>
                 <th className="px-4 text-left min-w-[180px]">Ghi chú</th>
                 <th className="px-4 text-center">Thao tác</th>
               </tr>
@@ -248,13 +249,13 @@ export default function BhytCustomerTable({
             <tbody>
               {loading ? (
                 <tr>
-                  <td colSpan={9} className="text-center py-20 text-slate-500 font-bold text-sm">
+                  <td colSpan={10} className="text-center py-20 text-slate-500 font-bold text-sm">
                     Đang tải dữ liệu khách hàng...
                   </td>
                 </tr>
               ) : customers.length === 0 ? (
                 <tr>
-                  <td colSpan={9} className="text-center py-20 text-slate-400 font-bold text-sm">
+                  <td colSpan={10} className="text-center py-20 text-slate-400 font-bold text-sm">
                     Không tìm thấy khách hàng phù hợp
                   </td>
                 </tr>
@@ -296,6 +297,9 @@ export default function BhytCustomerTable({
                       <span className="inline-block bg-slate-100 text-slate-700 text-[10px] font-bold px-2 py-0.5 rounded-md">
                         {cust.workflowStatus || 'Chưa liên hệ'}
                       </span>
+                    </td>
+                    <td className="px-4 py-2.5 whitespace-nowrap text-slate-500 font-medium">
+                      {cust.callDate || <span className="text-slate-300">—</span>}
                     </td>
 
                     {/* ── Ghi chú inline ─────────────────────────────────── */}
