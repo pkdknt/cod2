@@ -5,6 +5,19 @@ import XLSX from 'xlsx-js-style';
 import { Search, ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react';
 import { DATA, parseDate, parseSchedule, addInterval, sequentialInterval, fmtDate, DOSE_LABELS } from '@/lib/vaccineData';
 
+// Chuyển họ tên có dấu → không dấu, IN HOA, giữ khoảng trắng
+function toUpperNoAccent(s: string): string {
+  return (s || '')
+    .toString()
+    .replace(/[đĐ]/g, 'D')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toUpperCase()
+    .replace(/[^A-Z0-9\s]/g, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
 interface RemindersTabProps {
   data: any[];
   onRefresh?: () => void;
@@ -286,6 +299,7 @@ export default function RemindersTab({ data, onRefresh, onEdit, onDelete }: Remi
       'STT',
       'Mã đối tượng',
       'Họ tên',
+      'Họ tên không dấu',
       'Số điện thoại',
       'Ngày sinh',
       'Giới tính',
@@ -305,6 +319,7 @@ export default function RemindersTab({ data, onRefresh, onEdit, onDelete }: Remi
         index + 1,
         item.patientCode,
         item.patientName,
+        toUpperNoAccent(item.patientName || ''),
         item.phone,
         item.dob,
         item.gender,
@@ -328,9 +343,9 @@ export default function RemindersTab({ data, onRefresh, onEdit, onDelete }: Remi
 
     const ws = XLSX.utils.aoa_to_sheet(aoa);
 
-    // Merge columns A to N for the title in Row 1
+    // Merge columns A to O for the title in Row 1
     ws['!merges'] = [
-      { s: { c: 0, r: 0 }, e: { c: 13, r: 0 } }
+      { s: { c: 0, r: 0 }, e: { c: 14, r: 0 } }
     ];
 
     // Set row heights for padding
@@ -482,10 +497,13 @@ export default function RemindersTab({ data, onRefresh, onEdit, onDelete }: Remi
                 <th className="border border-slate-200 px-3 cursor-pointer select-none group hover:bg-slate-100 hover:text-slate-700 transition-colors sticky top-0 z-30 bg-slate-50" style={{ left: '176px', minWidth: '176px', maxWidth: '176px' }} onClick={() => requestSort('name')}>
                   <div className="flex items-center gap-1">Họ tên {renderSortIcon('name')}</div>
                 </th>
-                <th className="border border-slate-200 text-center px-3 cursor-pointer select-none group hover:bg-slate-100 hover:text-slate-700 transition-colors sticky top-0 z-30 bg-slate-50" style={{ left: '352px', minWidth: '112px', maxWidth: '112px' }} onClick={() => requestSort('phone')}>
+                <th className="border border-slate-200 px-3 sticky top-0 z-30 bg-slate-50" style={{ left: '352px', minWidth: '160px', maxWidth: '160px' }}>
+                  <div className="flex items-center gap-1 text-slate-500">Họ tên không dấu</div>
+                </th>
+                <th className="border border-slate-200 text-center px-3 cursor-pointer select-none group hover:bg-slate-100 hover:text-slate-700 transition-colors sticky top-0 z-30 bg-slate-50" style={{ left: '512px', minWidth: '112px', maxWidth: '112px' }} onClick={() => requestSort('phone')}>
                   <div className="flex items-center justify-center gap-1">Số điện thoại {renderSortIcon('phone')}</div>
                 </th>
-                <th className="border border-slate-200 text-center px-3 cursor-pointer select-none group hover:bg-slate-100 hover:text-slate-700 transition-colors sticky top-0 z-30 bg-slate-50" style={{ left: '464px', minWidth: '96px', maxWidth: '96px' }} onClick={() => requestSort('dob')}>
+                <th className="border border-slate-200 text-center px-3 cursor-pointer select-none group hover:bg-slate-100 hover:text-slate-700 transition-colors sticky top-0 z-30 bg-slate-50" style={{ left: '624px', minWidth: '96px', maxWidth: '96px' }} onClick={() => requestSort('dob')}>
                   <div className="flex items-center justify-center gap-1">Ngày sinh {renderSortIcon('dob')}</div>
                 </th>
                 <th className="w-20 border border-slate-200 text-center px-3 cursor-pointer select-none group hover:bg-slate-100 hover:text-slate-700 transition-colors sticky top-0 z-20 bg-slate-50" onClick={() => requestSort('gender')}>
@@ -514,7 +532,7 @@ export default function RemindersTab({ data, onRefresh, onEdit, onDelete }: Remi
             <tbody>
               {reminders.length === 0 ? (
                 <tr>
-                  <td colSpan={16} className="text-center py-20 text-slate-400 font-bold">
+                  <td colSpan={17} className="text-center py-20 text-slate-400 font-bold">
                     Không có lịch hẹn nào thỏa mãn điều kiện.
                   </td>
                 </tr>
@@ -537,8 +555,9 @@ export default function RemindersTab({ data, onRefresh, onEdit, onDelete }: Remi
                       <td className="pl-6 text-slate-400 font-bold border border-slate-200 text-center sticky left-0 z-10 bg-white group-hover:bg-slate-50" style={{ minWidth: '48px', maxWidth: '48px' }}>{index + 1}</td>
                       <td className="font-semibold text-slate-600 border border-slate-200 px-3 sticky z-10 bg-white group-hover:bg-slate-50" style={{ left: '48px', minWidth: '128px', maxWidth: '128px' }}>{item.patientCode}</td>
                       <td className="font-bold text-slate-800 uppercase border border-slate-200 px-3 sticky z-10 bg-white group-hover:bg-slate-50" style={{ left: '176px', minWidth: '176px', maxWidth: '176px' }}>{item.patientName}</td>
-                      <td className="text-center text-slate-650 font-semibold border border-slate-200 px-3 sticky z-10 bg-white group-hover:bg-slate-50" style={{ left: '352px', minWidth: '112px', maxWidth: '112px' }}>{item.phone || '—'}</td>
-                      <td className="text-center text-slate-550 border border-slate-200 px-3 sticky z-10 bg-white group-hover:bg-slate-50" style={{ left: '464px', minWidth: '96px', maxWidth: '96px' }}>{item.dob}</td>
+                      <td className="font-semibold text-slate-500 border border-slate-200 px-3 sticky z-10 bg-white group-hover:bg-slate-50 tracking-wide text-[11px]" style={{ left: '352px', minWidth: '160px', maxWidth: '160px' }}>{toUpperNoAccent(item.patientName || '')}</td>
+                      <td className="text-center text-slate-650 font-semibold border border-slate-200 px-3 sticky z-10 bg-white group-hover:bg-slate-50" style={{ left: '512px', minWidth: '112px', maxWidth: '112px' }}>{item.phone || '—'}</td>
+                      <td className="text-center text-slate-550 border border-slate-200 px-3 sticky z-10 bg-white group-hover:bg-slate-50" style={{ left: '624px', minWidth: '96px', maxWidth: '96px' }}>{item.dob}</td>
                       <td className="text-center text-slate-500 font-semibold border border-slate-200 px-3">
                         {item.gender === 'Nữ' ? <span className="text-pink-500">♀</span> : item.gender === 'Nam' ? <span className="text-blue-500">♂</span> : ''}
                       </td>
