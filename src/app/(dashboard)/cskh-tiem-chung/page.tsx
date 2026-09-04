@@ -48,6 +48,19 @@ import {
   matchSearch
 } from '@/lib/vaccineData';
 
+// Chuyển họ tên có dấu → không dấu, IN HOA, giữ khoảng trắng
+function toUpperNoAccent(s: string): string {
+  return (s || '')
+    .toString()
+    .replace(/[đĐ]/g, 'D')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toUpperCase()
+    .replace(/[^A-Z0-9\s]/g, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
 export default function CskhTiemChungPage() {
   const [activeTab, setActiveTab] = useState('plannerSec');
 
@@ -1272,6 +1285,9 @@ export default function CskhTiemChungPage() {
                     <th className="pl-4 border border-slate-200 py-2 cursor-pointer select-none group hover:bg-slate-100 hover:text-slate-700 transition-colors sticky top-0 z-20 bg-slate-50" onClick={() => requestSort('name')}>
                       <div className="flex items-center gap-1">Họ tên người tiêm {renderSortIcon('name')}</div>
                     </th>
+                    <th className="pl-4 border border-slate-200 py-2 sticky top-0 z-20 bg-slate-50" style={{ minWidth: '140px' }}>
+                      <div className="flex items-center gap-1 text-slate-500">Họ tên không dấu</div>
+                    </th>
                     <th className="w-28 text-center border border-slate-200 cursor-pointer select-none group hover:bg-slate-100 hover:text-slate-700 transition-colors sticky top-0 z-20 bg-slate-50" onClick={() => requestSort('phone')}>
                       <div className="flex items-center justify-center gap-1">Điện thoại {renderSortIcon('phone')}</div>
                     </th>
@@ -1293,7 +1309,7 @@ export default function CskhTiemChungPage() {
                 <tbody>
                   {sortedSchedules.length === 0 ? (
                     <tr>
-                      <td colSpan={9} className="text-center py-20 text-slate-400 font-bold border border-slate-200">
+                      <td colSpan={10} className="text-center py-20 text-slate-400 font-bold border border-slate-200">
                         Không tìm thấy hồ sơ theo dõi tiêm chủng nào.
                       </td>
                     </tr>
@@ -1326,6 +1342,9 @@ export default function CskhTiemChungPage() {
                             {item.patientCode && <div className="text-[10px] text-teal-600 mb-0.5">{item.patientCode}</div>}
                             {item.patientName}
                             {item.address && <div className="text-[9px] text-slate-400 font-normal mt-0.5 max-w-[120px] truncate">{item.address}</div>}
+                          </td>
+                          <td className="pl-4 font-semibold text-slate-500 border border-slate-200 py-1.5 tracking-wide text-[11px]">
+                            {toUpperNoAccent(item.patientName || '')}
                           </td>
                           <td className="text-center text-slate-650 font-semibold border border-slate-200">{item.phone || 'Chưa có'}</td>
                           <td className="text-center text-slate-500 border border-slate-200">{item.dob || ''}</td>
