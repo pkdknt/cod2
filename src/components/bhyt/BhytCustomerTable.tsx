@@ -522,6 +522,15 @@ export default function BhytCustomerTable({
                             </div>
                           </div>
                           <div className="absolute -top-1 -right-1 flex gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity z-10">
+                            <a
+                              href={cust.cccdImage}
+                              download={`CCCD_${cust.name.replace(/\s+/g, '_')}_${cust.bhxh}.jpg`}
+                              onClick={(e) => e.stopPropagation()}
+                              className="p-1 bg-white rounded-full border border-slate-200 text-slate-600 hover:text-blue-600 hover:border-blue-300 shadow-sm"
+                              title="Tải ảnh CCCD về máy tính"
+                            >
+                              <Download className="h-2.5 w-2.5" />
+                            </a>
                             <label
                               className="p-1 bg-white rounded-full border border-slate-200 text-slate-600 hover:text-teal-600 hover:border-teal-300 shadow-sm cursor-pointer"
                               title="Thay ảnh CCCD khác"

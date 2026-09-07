@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { X, Upload, Trash2, Image as ImageIcon } from 'lucide-react';
+import { X, Upload, Trash2, Download, Image as ImageIcon } from 'lucide-react';
 import { BhytCustomerData } from '@/services/BhytService';
 import { compressImageFile } from '@/lib/utils';
 
@@ -216,27 +216,39 @@ export default function BhytCustomerModal({ customer, onClose, onSave }: BhytCus
                   </div>
                 )}
 
-                <div className="flex-1 space-y-1">
-                  <label className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-teal-200 bg-teal-50 hover:bg-teal-100 text-teal-700 text-xs font-bold cursor-pointer transition-colors shadow-2xs">
-                    <Upload className="h-3.5 w-3.5" />
-                    <span>{formData.cccdImage ? 'Thay ảnh CCCD khác' : 'Tải lên ảnh thẻ CCCD'}</span>
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={async (e) => {
-                        const file = e.target.files?.[0];
-                        if (file) {
-                          try {
-                            const base64 = await compressImageFile(file);
-                            handleChange('cccdImage', base64);
-                          } catch (err: any) {
-                            alert('Lỗi xử lý ảnh: ' + (err?.message || 'Không thể đọc file'));
+                <div className="flex-1 space-y-1.5">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <label className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-teal-200 bg-teal-50 hover:bg-teal-100 text-teal-700 text-xs font-bold cursor-pointer transition-colors shadow-2xs">
+                      <Upload className="h-3.5 w-3.5" />
+                      <span>{formData.cccdImage ? 'Thay ảnh CCCD khác' : 'Tải lên ảnh thẻ CCCD'}</span>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={async (e) => {
+                          const file = e.target.files?.[0];
+                          if (file) {
+                            try {
+                              const base64 = await compressImageFile(file);
+                              handleChange('cccdImage', base64);
+                            } catch (err: any) {
+                              alert('Lỗi xử lý ảnh: ' + (err?.message || 'Không thể đọc file'));
+                            }
                           }
-                        }
-                      }}
-                      className="hidden"
-                    />
-                  </label>
+                        }}
+                        className="hidden"
+                      />
+                    </label>
+                    {formData.cccdImage && (
+                      <a
+                        href={formData.cccdImage}
+                        download={`CCCD_${(formData.name || 'Khach_Hang').replace(/\s+/g, '_')}_${formData.bhxh || ''}.jpg`}
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-blue-200 bg-blue-50 hover:bg-blue-100 text-blue-700 text-xs font-bold transition-colors shadow-2xs"
+                      >
+                        <Download className="h-3.5 w-3.5" />
+                        <span>Tải ảnh về máy</span>
+                      </a>
+                    )}
+                  </div>
                   <p className="text-[10px] text-slate-400 font-medium">Hỗ trợ JPG, PNG, WEBP. Ảnh sẽ được tự động tối ưu dung lượng.</p>
                 </div>
               </div>
