@@ -6,6 +6,7 @@ export interface BhytCustomerData {
   name: string;
   bhxh: string; // Số thẻ BHYT / Mã BHXH
   cccd?: string;
+  cccdImage?: string;
   dob?: string;
   gender?: string;
   birthPlace?: string;

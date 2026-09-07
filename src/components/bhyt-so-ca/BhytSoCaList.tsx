@@ -1,6 +1,6 @@
-import React, { useState, useMemo } from 'react';
-import { Search, ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react';
-import { BhytSoCaData } from '@/services/BhytSoCaService';
+import React, { useState, useMemo, useRef, useCallback, useEffect } from 'react';
+import { Search, ArrowUpDown, ArrowUp, ArrowDown, Check, Loader2 } from 'lucide-react';
+import { BhytSoCaData, BhytSoCaService } from '@/services/BhytSoCaService';
 
 interface BhytSoCaListProps {
   items: BhytSoCaData[];
@@ -14,6 +14,7 @@ interface BhytSoCaListProps {
   onEdit: (item: BhytSoCaData) => void;
   onDelete: (id: string) => void;
   monthsList: string[];
+  onItemUpdate?: (item: Partial<BhytSoCaData> & { _id: string }) => void;
 }
 
 export default function BhytSoCaList({
@@ -27,10 +28,84 @@ export default function BhytSoCaList({
   onTypeFilterChange,
   onEdit,
   onDelete,
-  monthsList
+  monthsList,
+  onItemUpdate
 }: BhytSoCaListProps) {
   const [sortKey, setSortKey] = useState<string>('');
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
+
+  // Inline Note Edit State
+  const [noteDrafts, setNoteDrafts] = useState<Record<string, string>>({});
+  const [noteSaveStatus, setNoteSaveStatus] = useState<Record<string, 'idle' | 'saving' | 'saved'>>({});
+  const noteTimers = useRef<Record<string, ReturnType<typeof setTimeout>>>({});
+
+  const saveNoteImmediately = useCallback(
+    async (item: BhytSoCaData, value: string) => {
+      const id = item._id!;
+      if (noteTimers.current[id]) clearTimeout(noteTimers.current[id]);
+      setNoteSaveStatus(prev => ({ ...prev, [id]: 'saving' }));
+      try {
+        await BhytSoCaService.update(id, { note: value });
+        setNoteSaveStatus(prev => ({ ...prev, [id]: 'saved' }));
+        onItemUpdate?.({ _id: id, note: value });
+        setTimeout(() => {
+          setNoteSaveStatus(prev => ({ ...prev, [id]: 'idle' }));
+        }, 2000);
+      } catch {
+        setNoteSaveStatus(prev => ({ ...prev, [id]: 'idle' }));
+      }
+    },
+    [onItemUpdate]
+  );
+
+  const handleNoteChange = useCallback(
+    (item: BhytSoCaData, value: string) => {
+      const id = item._id!;
+      setNoteDrafts(prev => ({ ...prev, [id]: value }));
+      setNoteSaveStatus(prev => ({ ...prev, [id]: 'idle' }));
+
+      if (noteTimers.current[id]) clearTimeout(noteTimers.current[id]);
+      noteTimers.current[id] = setTimeout(() => {
+        saveNoteImmediately(item, value);
+      }, 1500);
+    },
+    [saveNoteImmediately]
+  );
+
+  const handleNoteBlur = useCallback(
+    (item: BhytSoCaData) => {
+      const id = item._id!;
+      const currentDraft = noteDrafts[id];
+      if (currentDraft !== undefined && currentDraft !== (item.note ?? '')) {
+        saveNoteImmediately(item, currentDraft);
+      }
+    },
+    [noteDrafts, saveNoteImmediately]
+  );
+
+  const handleEditClick = (item: BhytSoCaData) => {
+    const id = item._id!;
+    const draftNote = noteDrafts[id] !== undefined ? noteDrafts[id] : (item.note ?? '');
+
+    if (draftNote !== (item.note ?? '')) {
+      saveNoteImmediately(item, draftNote);
+    }
+
+    onEdit({
+      ...item,
+      note: draftNote
+    });
+  };
+
+  useEffect(() => {
+    setNoteDrafts(prev => {
+      const next = { ...prev };
+      items.forEach(i => {
+        next[i._id!] = i.note ?? '';
+      });
+      return next;
+    });
+  }, [items]);
 
   const requestSort = (key: string) => {
     let direction: 'asc' | 'desc' = 'asc';
@@ -143,7 +218,7 @@ export default function BhytSoCaList({
                 <th className="w-24 text-center cursor-pointer select-none group hover:bg-slate-50 hover:text-slate-705 transition-colors border border-slate-200" onClick={() => requestSort('qty')}>
                   <div className="flex items-center justify-center gap-1">Số ca {renderSortIcon('qty')}</div>
                 </th>
-                <th className="pl-4 cursor-pointer select-none group hover:bg-slate-50 hover:text-slate-705 transition-colors border border-slate-200" onClick={() => requestSort('note')}>
+                <th className="pl-4 cursor-pointer select-none group hover:bg-slate-50 hover:text-slate-705 transition-colors border border-slate-200 min-w-[200px]" onClick={() => requestSort('note')}>
                   <div className="flex items-center gap-1">Ghi chú {renderSortIcon('note')}</div>
                 </th>
                 <th className="w-32 text-center">Tác vụ</th>
@@ -163,11 +238,14 @@ export default function BhytSoCaList({
                   </td>
                 </tr>
               ) : (
-                sortedItems.map((item, idx) => (
-                  <tr key={item._id} className="border-b border-slate-100 h-10 hover:bg-slate-55 transition-colors">
-                    <td className="text-center pl-4 font-bold text-slate-400">{idx + 1}</td>
-                    <td className="text-center text-slate-700">{formatVnDate(item.date)}</td>
-                    <td className="text-center">
+                sortedItems.map((item, idx) => {
+                  const saveStatus = noteSaveStatus[item._id!] ?? 'idle';
+                  const noteDraft = noteDrafts[item._id!] ?? item.note ?? '';
+                  return (
+                  <tr key={item._id} className="border-b border-slate-100 h-10 hover:bg-slate-55 transition-colors align-top">
+                    <td className="text-center pl-4 py-2 font-bold text-slate-400">{idx + 1}</td>
+                    <td className="text-center py-2 text-slate-700">{formatVnDate(item.date)}</td>
+                    <td className="text-center py-2">
                       <span className={`px-2 py-0.5 rounded-full text-[9px] font-bold ${
                         item.type === 'Mua mới'
                           ? 'bg-teal-100 text-teal-850'
@@ -176,11 +254,30 @@ export default function BhytSoCaList({
                         {item.type}
                       </span>
                     </td>
-                    <td className="text-center font-bold text-slate-800">{item.qty}</td>
-                    <td className="pl-4 text-slate-500">{item.note || '-'}</td>
-                    <td className="text-center space-x-2.5">
+                    <td className="text-center py-2 font-bold text-slate-800">{item.qty}</td>
+                    <td className="px-2 py-1 min-w-[200px]">
+                      <div className="relative group">
+                        <input
+                          type="text"
+                          value={noteDraft}
+                          placeholder="Thêm ghi chú..."
+                          onChange={(e) => handleNoteChange(item, e.target.value)}
+                          onBlur={() => handleNoteBlur(item)}
+                          className="w-full rounded-lg border border-transparent bg-transparent px-2 py-1 text-xs text-slate-700 placeholder-slate-300 transition-all
+                            focus:outline-none focus:border-teal-300 focus:bg-white focus:shadow-sm
+                            hover:border-slate-200 hover:bg-slate-50"
+                        />
+                        {saveStatus === 'saving' && (
+                          <Loader2 className="absolute right-2 top-1.5 h-3 w-3 text-slate-400 animate-spin" />
+                        )}
+                        {saveStatus === 'saved' && (
+                          <Check className="absolute right-2 top-1.5 h-3 w-3 text-teal-500" />
+                        )}
+                      </div>
+                    </td>
+                    <td className="text-center py-2 space-x-2.5">
                       <button
-                        onClick={() => onEdit(item)}
+                        onClick={() => handleEditClick(item)}
                         className="text-teal-600 hover:text-teal-800 font-bold"
                       >
                         Sửa
@@ -193,7 +290,8 @@ export default function BhytSoCaList({
                       </button>
                     </td>
                   </tr>
-                ))
+                  );
+                })
               )}
             </tbody>
           </table>

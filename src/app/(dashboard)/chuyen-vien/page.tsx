@@ -181,6 +181,22 @@ export default function PatientTransferPage() {
     );
   };
 
+  const saveCellImmediately = async (id: string, field: string, value: string) => {
+    const timerKey = `${id}-${field}`;
+    if (saveTimeoutRef.current[timerKey]) {
+      clearTimeout(saveTimeoutRef.current[timerKey]);
+    }
+    try {
+      await PatientTransferService.update(id, { [field]: value });
+    } catch (err: any) {
+      console.error('Autosave error:', err);
+    }
+  };
+
+  const handleCellBlur = (id: string, field: string, value: string) => {
+    saveCellImmediately(id, field, value);
+  };
+
   const handleCellEdit = (id: string, field: string, value: string) => {
     setRecords((prev) => prev.map((r) => (r._id === id ? { ...r, [field]: value } : r)));
     
@@ -189,12 +205,8 @@ export default function PatientTransferPage() {
       clearTimeout(saveTimeoutRef.current[timerKey]);
     }
 
-    saveTimeoutRef.current[timerKey] = setTimeout(async () => {
-      try {
-        await PatientTransferService.update(id, { [field]: value });
-      } catch (err: any) {
-        console.error('Autosave error:', err);
-      }
+    saveTimeoutRef.current[timerKey] = setTimeout(() => {
+      saveCellImmediately(id, field, value);
     }, 1500);
   };
 
@@ -514,22 +526,22 @@ export default function PatientTransferPage() {
                         </td>
                         <td className="text-center text-slate-500 font-medium border-r border-slate-100">{index + 1 + (page - 1) * pageSize}</td>
                         <td className="border-r border-slate-100 p-0">
-                          <input type="date" value={r.date || ''} onChange={(e) => handleCellEdit(r._id as string, 'date', e.target.value)} className="w-full h-full text-center bg-transparent border-0 outline-none focus:bg-blue-50" />
+                          <input type="date" value={r.date || ''} onChange={(e) => handleCellEdit(r._id as string, 'date', e.target.value)} onBlur={(e) => handleCellBlur(r._id as string, 'date', e.target.value)} className="w-full h-full text-center bg-transparent border-0 outline-none focus:bg-blue-50" />
                         </td>
                         <td className="border-r border-slate-100 p-0 font-bold text-slate-800">
-                          <input type="text" value={r.name || ''} onChange={(e) => handleCellEdit(r._id as string, 'name', e.target.value)} className="w-full h-full px-4 bg-transparent border-0 outline-none focus:bg-blue-50" />
+                          <input type="text" value={r.name || ''} onChange={(e) => handleCellEdit(r._id as string, 'name', e.target.value)} onBlur={(e) => handleCellBlur(r._id as string, 'name', e.target.value)} className="w-full h-full px-4 bg-transparent border-0 outline-none focus:bg-blue-50" />
                         </td>
                         <td className="border-r border-slate-100 p-0 text-blue-600 font-bold text-center">
-                          <input type="text" value={r.phone || ''} onChange={(e) => handleCellEdit(r._id as string, 'phone', e.target.value)} className="w-full h-full text-center bg-transparent border-0 outline-none focus:bg-blue-50" />
+                          <input type="text" value={r.phone || ''} onChange={(e) => handleCellEdit(r._id as string, 'phone', e.target.value)} onBlur={(e) => handleCellBlur(r._id as string, 'phone', e.target.value)} className="w-full h-full text-center bg-transparent border-0 outline-none focus:bg-blue-50" />
                         </td>
                         <td className="border-r border-slate-100 p-0 text-center">
-                          <input type="text" value={r.patientCode || ''} onChange={(e) => handleCellEdit(r._id as string, 'patientCode', e.target.value)} className="w-full h-full text-center bg-transparent border-0 outline-none focus:bg-blue-50" />
+                          <input type="text" value={r.patientCode || ''} onChange={(e) => handleCellEdit(r._id as string, 'patientCode', e.target.value)} onBlur={(e) => handleCellBlur(r._id as string, 'patientCode', e.target.value)} className="w-full h-full text-center bg-transparent border-0 outline-none focus:bg-blue-50" />
                         </td>
                         <td className="border-r border-slate-100 p-0 text-slate-700">
-                          <input type="text" value={r.destinationHospital || ''} onChange={(e) => handleCellEdit(r._id as string, 'destinationHospital', e.target.value)} className="w-full h-full px-4 bg-transparent border-0 outline-none focus:bg-blue-50" />
+                          <input type="text" value={r.destinationHospital || ''} onChange={(e) => handleCellEdit(r._id as string, 'destinationHospital', e.target.value)} onBlur={(e) => handleCellBlur(r._id as string, 'destinationHospital', e.target.value)} className="w-full h-full px-4 bg-transparent border-0 outline-none focus:bg-blue-50" />
                         </td>
                         <td className="border-r border-slate-100 p-0 text-slate-600">
-                          <input type="text" value={r.diagnosis || ''} onChange={(e) => handleCellEdit(r._id as string, 'diagnosis', e.target.value)} className="w-full h-full px-4 bg-transparent border-0 outline-none focus:bg-blue-50" />
+                          <input type="text" value={r.diagnosis || ''} onChange={(e) => handleCellEdit(r._id as string, 'diagnosis', e.target.value)} onBlur={(e) => handleCellBlur(r._id as string, 'diagnosis', e.target.value)} className="w-full h-full px-4 bg-transparent border-0 outline-none focus:bg-blue-50" />
                         </td>
                         <td className="border-r border-slate-100 p-0 text-center font-bold">
                           <select value={r.status || 'Mới'} onChange={(e) => handleCellEdit(r._id as string, 'status', e.target.value)} className="w-full h-full bg-transparent border-0 outline-none text-center focus:bg-blue-50">
@@ -551,7 +563,7 @@ export default function PatientTransferPage() {
                           </select>
                         </td>
                         <td className="border-r border-slate-100 p-0 text-slate-500">
-                          <input type="text" value={r.note || ''} onChange={(e) => handleCellEdit(r._id as string, 'note', e.target.value)} className="w-full h-full px-4 bg-transparent border-0 outline-none focus:bg-blue-50" />
+                          <input type="text" value={r.note || ''} onChange={(e) => handleCellEdit(r._id as string, 'note', e.target.value)} onBlur={(e) => handleCellBlur(r._id as string, 'note', e.target.value)} className="w-full h-full px-4 bg-transparent border-0 outline-none focus:bg-blue-50" />
                         </td>
                         <td className="text-center p-0">
                           <button onClick={() => deleteRecord(r._id as string)} className="w-full h-full flex items-center justify-center text-red-400 hover:text-red-650 hover:bg-red-50 transition-colors">

@@ -237,10 +237,17 @@ export default function BhytPage() {
     }
   };
 
+  const handleCustomerUpdate = (updated: Partial<BhytCustomerData> & { _id: string }) => {
+    setCustomers(prev =>
+      prev.map(c => (c._id === updated._id ? { ...c, ...updated } : c))
+    );
+  };
+
   const handleSave = async (data: BhytCustomerData) => {
     try {
       if (data._id) {
         await BhytService.update(data._id, data);
+        handleCustomerUpdate(data as any);
       } else {
         await BhytService.create(data);
       }
@@ -461,6 +468,7 @@ export default function BhytPage() {
             onDelete={handleDelete}
             onSendMessage={handleSendMessage}
             onCall={handleCall}
+            onCustomerUpdate={handleCustomerUpdate}
           />
         )}
 
@@ -483,6 +491,7 @@ export default function BhytPage() {
             onEdit={handleEdit}
             onSendMessage={handleSendMessage}
             onCall={handleCall}
+            onCustomerUpdate={handleCustomerUpdate}
           />
         )}
 

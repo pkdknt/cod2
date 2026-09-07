@@ -128,7 +128,36 @@ export default function RemindersTab({ data, onRefresh, onEdit, onDelete }: Remi
 
     timersRef.current[patientId] = setTimeout(() => {
       savePatient(patientId, { dates, notes, called, messaged });
-    }, 10000);
+    }, 1500);
+  };
+
+  const handleInputBlur = (patientId: string) => {
+    if (timersRef.current[patientId]) {
+      clearTimeout(timersRef.current[patientId]);
+    }
+    const currentEdits = localEdits[patientId];
+    if (currentEdits) {
+      savePatient(patientId, currentEdits);
+    }
+  };
+
+  const handleEditClick = (item: any) => {
+    const patientId = item.patientId;
+    if (timersRef.current[patientId]) {
+      clearTimeout(timersRef.current[patientId]);
+    }
+    const edits = localEdits[patientId];
+    if (edits) {
+      savePatient(patientId, edits);
+    }
+    const mergedPatient = {
+      ...item.patient,
+      dates: edits?.dates || item.patient.dates,
+      notes: edits?.notes || item.patient.notes,
+      called: edits?.called || item.patient.called,
+      messaged: edits?.messaged || item.patient.messaged
+    };
+    if (onEdit) onEdit(mergedPatient);
   };
 
   const savePatient = async (patientId: string, edits: any) => {
@@ -608,6 +637,7 @@ export default function RemindersTab({ data, onRefresh, onEdit, onDelete }: Remi
                           onChange={(e) => {
                             handleChange(item.patientId, item.doseIndex, 'notes', e.target.value);
                           }}
+                          onBlur={() => handleInputBlur(item.patientId)}
                           className="w-full max-w-[130px] text-xs px-2 py-1.5 border border-slate-200 rounded-xl outline-none focus:border-teal-500"
                         />
                       </td>
@@ -628,7 +658,7 @@ export default function RemindersTab({ data, onRefresh, onEdit, onDelete }: Remi
                           )}
                           {status === 'dirty' && (
                             <div className="flex flex-col items-center gap-0.5">
-                              <span className="text-[9px] text-amber-600 font-semibold">Chờ 10s...</span>
+                              <span className="text-[9px] text-amber-600 font-semibold">Chờ 1.5s...</span>
                               <button
                                 onClick={() => {
                                   if (timersRef.current[item.patientId]) {
@@ -651,7 +681,7 @@ export default function RemindersTab({ data, onRefresh, onEdit, onDelete }: Remi
                           <div className="flex gap-2.5 justify-center border-t border-slate-100 pt-1 w-full">
                             {onEdit && (
                               <button
-                                onClick={() => onEdit(item.patient)}
+                                onClick={() => handleEditClick(item)}
                                 className="text-teal-600 hover:text-teal-800 font-bold text-[10px]"
                                 title="Chỉnh sửa hồ sơ"
                               >

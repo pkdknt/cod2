@@ -110,7 +110,8 @@
     @media screen and (max-width: 900px) { .page { zoom:.55; } }
     .break { break-after:page; }
 
-    @page { size:A4 landscape; margin:0; }
+    /* margin 4mm mỗi phía để viền không bị máy in cắt (vùng in còn lại: 289mm×202mm) */
+    @page { size:A4 landscape; margin:4mm; }
     @media print {
       html, body {
         width:29.7cm !important;
@@ -155,29 +156,40 @@
         overflow:visible !important;
       }
       .page {
-        width:29.7cm !important;
-        height:21cm !important;
+        /* vùng in thực tế sau margin 4mm mỗi phía: 297-8=289mm × 210-8=202mm */
+        width:289mm !important;
+        height:202mm !important;
         margin:0 !important;
-        padding:.60cm .25cm !important;
+        padding:0 !important;
         box-shadow:none !important;
         display:grid !important;
-        grid-template-columns:14.6cm 14.6cm !important;
-        grid-template-rows:9.9cm 9.9cm !important;
+        /* 2 cột: 289mm/2 = 144.5mm, lấy 144mm để bảo thủ */
+        grid-template-columns:144mm 144mm !important;
+        /* 2 hàng: 202mm/2 = 101mm, lấy 100mm để bảo thủ */
+        grid-template-rows:100mm 100mm !important;
         column-gap:0 !important;
         row-gap:0 !important;
         page-break-after:always;
         break-after:page;
         zoom:1 !important;
         transform:none !important;
-        overflow:hidden !important;
+        overflow:visible !important;
       }
       .page:last-child { page-break-after:auto; break-after:auto; }
       .card {
-        width:14.6cm !important;
-        height:9.9cm !important;
+        width:144mm !important;
+        height:100mm !important;
+        /* Dùng outline thay border để không bị grid clip mất viền ngoài */
+        border:none !important;
+        outline:1px solid var(--border) !important;
+        outline-offset:-1px !important;
         break-inside:avoid;
         page-break-inside:avoid;
         overflow:hidden !important;
+      }
+      /* Giữ nguyên viền kép bên trong, inset 1mm so với outline ngoài */
+      .card::after {
+        inset:1mm !important;
       }
     }
   </style>

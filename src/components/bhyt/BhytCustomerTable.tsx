@@ -1,9 +1,9 @@
 'use client';
 
 import React, { useState, useRef, useCallback, useEffect } from 'react';
-import { Search, ChevronLeft, ChevronRight, Edit3, MessageSquare, PhoneCall, Trash2, ArrowUpDown, ArrowUp, ArrowDown, Check, Loader2 } from 'lucide-react';
+import { Search, ChevronLeft, ChevronRight, Edit3, MessageSquare, PhoneCall, Trash2, ArrowUpDown, ArrowUp, ArrowDown, Check, Loader2, Upload, Eye, X, Download, Image as ImageIcon } from 'lucide-react';
 import { BhytCustomerData, BhytService } from '@/services/BhytService';
-import { getDaysRemaining, formatVnDate, parseVnDate } from '@/lib/utils';
+import { getDaysRemaining, formatVnDate, parseVnDate, compressImageFile } from '@/lib/utils';
 
 interface BhytCustomerTableProps {
   customers: BhytCustomerData[];
@@ -34,6 +34,7 @@ interface BhytCustomerTableProps {
   onDelete: (id: string) => void;
   onSendMessage: (customer: BhytCustomerData) => void;
   onCall: (customer: BhytCustomerData) => void;
+  onCustomerUpdate?: (customer: Partial<BhytCustomerData> & { _id: string }) => void;
 }
 
 export default function BhytCustomerTable({
@@ -58,7 +59,8 @@ export default function BhytCustomerTable({
   onEdit,
   onDelete,
   onSendMessage,
-  onCall
+  onCall,
+  onCustomerUpdate
 }: BhytCustomerTableProps) {
   const pages = Math.max(1, Math.ceil(totalFiltered / pageSize));
 
@@ -75,6 +77,47 @@ export default function BhytCustomerTable({
   const [callDateSaveStatus, setCallDateSaveStatus] = useState<Record<string, 'idle' | 'saving' | 'saved'>>({});
   const callDateTimers = useRef<Record<string, ReturnType<typeof setTimeout>>>({});
 
+  // ── CCCD Image State & Lightbox ────────────────────────────────
+  const [uploadingCccdId, setUploadingCccdId] = useState<string | null>(null);
+  const [previewCccd, setPreviewCccd] = useState<{ url: string; cust: BhytCustomerData } | null>(null);
+
+  const handleCccdUpload = async (cust: BhytCustomerData, e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !cust._id) return;
+
+    setUploadingCccdId(cust._id);
+    try {
+      const base64 = await compressImageFile(file);
+      await BhytService.update(cust._id, { cccdImage: base64 });
+      onCustomerUpdate?.({ _id: cust._id, cccdImage: base64 });
+    } catch (err: any) {
+      alert('Lỗi tải ảnh CCCD: ' + (err?.message || 'Không thể xử lý ảnh'));
+    } finally {
+      setUploadingCccdId(null);
+      // reset file input
+      e.target.value = '';
+    }
+  };
+
+  const handleCccdDelete = async (cust: BhytCustomerData, e?: React.MouseEvent) => {
+    if (e) e.stopPropagation();
+    if (!cust._id) return;
+    if (!confirm(`Xóa ảnh thẻ CCCD của khách hàng ${cust.name}?`)) return;
+
+    setUploadingCccdId(cust._id);
+    try {
+      await BhytService.update(cust._id, { cccdImage: '' });
+      onCustomerUpdate?.({ _id: cust._id, cccdImage: '' });
+      if (previewCccd?.cust._id === cust._id) {
+        setPreviewCccd(null);
+      }
+    } catch (err: any) {
+      alert('Lỗi xóa ảnh CCCD: ' + (err?.message || 'Thao tác thất bại'));
+    } finally {
+      setUploadingCccdId(null);
+    }
+  };
+
   // Convert dd/MM/yyyy → yyyy-MM-dd (for HTML date input value)
   const toInputDate = (vnDate: string | undefined): string => {
     if (!vnDate) return '';
@@ -90,6 +133,26 @@ export default function BhytCustomerTable({
     return `${d}/${m}/${y}`;
   };
 
+  const saveCallDateImmediately = useCallback(
+    async (cust: BhytCustomerData, isoValue: string) => {
+      const id = cust._id!;
+      if (callDateTimers.current[id]) clearTimeout(callDateTimers.current[id]);
+      setCallDateSaveStatus(prev => ({ ...prev, [id]: 'saving' }));
+      const vnDate = toVnDate(isoValue);
+      try {
+        await BhytService.update(id, { callDate: vnDate });
+        setCallDateSaveStatus(prev => ({ ...prev, [id]: 'saved' }));
+        onCustomerUpdate?.({ _id: id, callDate: vnDate });
+        setTimeout(() => {
+          setCallDateSaveStatus(prev => ({ ...prev, [id]: 'idle' }));
+        }, 2000);
+      } catch {
+        setCallDateSaveStatus(prev => ({ ...prev, [id]: 'idle' }));
+      }
+    },
+    [onCustomerUpdate]
+  );
+
   const handleCallDateChange = useCallback(
     (cust: BhytCustomerData, isoValue: string) => {
       const id = cust._id!;
@@ -97,20 +160,11 @@ export default function BhytCustomerTable({
       setCallDateSaveStatus(prev => ({ ...prev, [id]: 'idle' }));
 
       if (callDateTimers.current[id]) clearTimeout(callDateTimers.current[id]);
-      callDateTimers.current[id] = setTimeout(async () => {
-        setCallDateSaveStatus(prev => ({ ...prev, [id]: 'saving' }));
-        try {
-          await BhytService.update(id, { callDate: toVnDate(isoValue) });
-          setCallDateSaveStatus(prev => ({ ...prev, [id]: 'saved' }));
-          setTimeout(() => {
-            setCallDateSaveStatus(prev => ({ ...prev, [id]: 'idle' }));
-          }, 2000);
-        } catch {
-          setCallDateSaveStatus(prev => ({ ...prev, [id]: 'idle' }));
-        }
+      callDateTimers.current[id] = setTimeout(() => {
+        saveCallDateImmediately(cust, isoValue);
       }, 800);
     },
-    []
+    [saveCallDateImmediately]
   );
 
   // Auto-resize textarea helper
@@ -119,6 +173,25 @@ export default function BhytCustomerTable({
     el.style.height = el.scrollHeight + 'px';
   };
 
+  const saveNoteImmediately = useCallback(
+    async (cust: BhytCustomerData, value: string) => {
+      const id = cust._id!;
+      if (noteTimers.current[id]) clearTimeout(noteTimers.current[id]);
+      setNoteSaveStatus(prev => ({ ...prev, [id]: 'saving' }));
+      try {
+        await BhytService.update(id, { note: value });
+        setNoteSaveStatus(prev => ({ ...prev, [id]: 'saved' }));
+        onCustomerUpdate?.({ _id: id, note: value });
+        setTimeout(() => {
+          setNoteSaveStatus(prev => ({ ...prev, [id]: 'idle' }));
+        }, 2000);
+      } catch {
+        setNoteSaveStatus(prev => ({ ...prev, [id]: 'idle' }));
+      }
+    },
+    [onCustomerUpdate]
+  );
+
   const handleNoteChange = useCallback(
     (cust: BhytCustomerData, value: string, textareaEl: HTMLTextAreaElement) => {
       const id = cust._id!;
@@ -126,42 +199,69 @@ export default function BhytCustomerTable({
       setNoteSaveStatus(prev => ({ ...prev, [id]: 'idle' }));
       autoResize(textareaEl);
 
-      // Debounce 1.5s
       if (noteTimers.current[id]) clearTimeout(noteTimers.current[id]);
-      noteTimers.current[id] = setTimeout(async () => {
-        setNoteSaveStatus(prev => ({ ...prev, [id]: 'saving' }));
-        try {
-          await BhytService.update(id, { note: value });
-          setNoteSaveStatus(prev => ({ ...prev, [id]: 'saved' }));
-          // Clear 'saved' indicator after 2s
-          setTimeout(() => {
-            setNoteSaveStatus(prev => ({ ...prev, [id]: 'idle' }));
-          }, 2000);
-        } catch {
-          setNoteSaveStatus(prev => ({ ...prev, [id]: 'idle' }));
-        }
+      noteTimers.current[id] = setTimeout(() => {
+        saveNoteImmediately(cust, value);
       }, 1500);
     },
-    []
+    [saveNoteImmediately]
   );
 
-  // Initialise draft from props when customers list refreshes
+  const handleNoteBlur = useCallback(
+    (cust: BhytCustomerData) => {
+      const id = cust._id!;
+      const currentDraft = noteDrafts[id];
+      if (currentDraft !== undefined && currentDraft !== (cust.note ?? '')) {
+        saveNoteImmediately(cust, currentDraft);
+      }
+    },
+    [noteDrafts, saveNoteImmediately]
+  );
+
+  const handleCallDateBlur = useCallback(
+    (cust: BhytCustomerData) => {
+      const id = cust._id!;
+      const currentDraft = callDateDrafts[id];
+      if (currentDraft !== undefined && currentDraft !== toInputDate(cust.callDate)) {
+        saveCallDateImmediately(cust, currentDraft);
+      }
+    },
+    [callDateDrafts, saveCallDateImmediately]
+  );
+
+  const handleEditClick = (cust: BhytCustomerData) => {
+    const id = cust._id!;
+    const draftNote = noteDrafts[id] !== undefined ? noteDrafts[id] : (cust.note ?? '');
+    const draftCallDateInput = callDateDrafts[id] !== undefined ? callDateDrafts[id] : toInputDate(cust.callDate);
+    const draftCallDateVn = toVnDate(draftCallDateInput);
+
+    if (draftNote !== (cust.note ?? '')) {
+      saveNoteImmediately(cust, draftNote);
+    }
+    if (draftCallDateInput !== toInputDate(cust.callDate)) {
+      saveCallDateImmediately(cust, draftCallDateInput);
+    }
+
+    onEdit({
+      ...cust,
+      note: draftNote,
+      callDate: draftCallDateVn || cust.callDate
+    });
+  };
+
+  // Synchronise drafts from props whenever customers list updates
   useEffect(() => {
     setNoteDrafts(prev => {
       const next = { ...prev };
       customers.forEach(c => {
-        if (!(c._id! in next)) {
-          next[c._id!] = c.note ?? '';
-        }
+        next[c._id!] = c.note ?? '';
       });
       return next;
     });
     setCallDateDrafts(prev => {
       const next = { ...prev };
       customers.forEach(c => {
-        if (!(c._id! in next)) {
-          next[c._id!] = toInputDate(c.callDate);
-        }
+        next[c._id!] = toInputDate(c.callDate);
       });
       return next;
     });
@@ -294,19 +394,20 @@ export default function BhytCustomerTable({
                 </th>
                 <th className="px-4 text-left whitespace-nowrap">Ngày liên hệ</th>
                 <th className="px-4 text-left min-w-[180px]">Ghi chú</th>
+                <th className="px-3 text-center whitespace-nowrap">Ảnh CCCD</th>
                 <th className="px-4 text-center">Thao tác</th>
               </tr>
             </thead>
             <tbody>
               {loading ? (
                 <tr>
-                  <td colSpan={10} className="text-center py-20 text-slate-500 font-bold text-sm">
+                  <td colSpan={11} className="text-center py-20 text-slate-500 font-bold text-sm">
                     Đang tải dữ liệu khách hàng...
                   </td>
                 </tr>
               ) : customers.length === 0 ? (
                 <tr>
-                  <td colSpan={10} className="text-center py-20 text-slate-400 font-bold text-sm">
+                  <td colSpan={11} className="text-center py-20 text-slate-400 font-bold text-sm">
                     Không tìm thấy khách hàng phù hợp
                   </td>
                 </tr>
@@ -358,6 +459,7 @@ export default function BhytCustomerTable({
                           type="date"
                           value={callDateInput}
                           onChange={(e) => handleCallDateChange(cust, e.target.value)}
+                          onBlur={() => handleCallDateBlur(cust)}
                           className="w-full rounded-lg border border-transparent bg-transparent px-2 py-1 text-xs text-slate-600 transition-all
                             focus:outline-none focus:border-teal-300 focus:bg-white focus:shadow-sm
                             hover:border-slate-200 hover:bg-slate-50 cursor-pointer"
@@ -378,8 +480,10 @@ export default function BhytCustomerTable({
                           rows={1}
                           value={noteDraft}
                           placeholder="Thêm ghi chú..."
+                          spellCheck={false}
                           onChange={(e) => handleNoteChange(cust, e.target.value, e.currentTarget)}
                           onFocus={(e) => autoResize(e.currentTarget)}
+                          onBlur={() => handleNoteBlur(cust)}
                           className="w-full resize-none overflow-hidden rounded-lg border border-transparent bg-transparent px-2 py-1 text-xs text-slate-700 placeholder-slate-300 leading-relaxed transition-all
                             focus:outline-none focus:border-teal-300 focus:bg-white focus:shadow-sm
                             hover:border-slate-200 hover:bg-slate-50"
@@ -395,10 +499,69 @@ export default function BhytCustomerTable({
                       </div>
                     </td>
 
+                    {/* ── Ảnh CCCD ───────────────────────────────────── */}
+                    <td className="px-3 py-2 text-center align-middle">
+                      {uploadingCccdId === cust._id ? (
+                        <div className="flex items-center justify-center gap-1 text-slate-400 font-medium text-[10px]">
+                          <Loader2 className="h-4 w-4 animate-spin text-teal-600" />
+                        </div>
+                      ) : cust.cccdImage ? (
+                        <div className="relative group inline-block">
+                          <div
+                            onClick={() => setPreviewCccd({ url: cust.cccdImage!, cust })}
+                            className="w-12 h-8 rounded-lg border border-slate-200 shadow-2xs overflow-hidden bg-slate-100 cursor-pointer relative hover:ring-2 hover:ring-teal-400 hover:scale-105 transition-all"
+                            title="Bấm để xem ảnh CCCD phóng to"
+                          >
+                            <img
+                              src={cust.cccdImage}
+                              alt={`CCCD ${cust.name}`}
+                              className="w-full h-full object-cover"
+                            />
+                            <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
+                              <Eye className="h-3 w-3 text-white drop-shadow" />
+                            </div>
+                          </div>
+                          <div className="absolute -top-1 -right-1 flex gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity z-10">
+                            <label
+                              className="p-1 bg-white rounded-full border border-slate-200 text-slate-600 hover:text-teal-600 hover:border-teal-300 shadow-sm cursor-pointer"
+                              title="Thay ảnh CCCD khác"
+                            >
+                              <Upload className="h-2.5 w-2.5" />
+                              <input
+                                type="file"
+                                accept="image/*"
+                                onChange={(e) => handleCccdUpload(cust, e)}
+                                className="hidden"
+                              />
+                            </label>
+                            <button
+                              type="button"
+                              onClick={(e) => handleCccdDelete(cust, e)}
+                              className="p-1 bg-white rounded-full border border-slate-200 text-slate-600 hover:text-red-600 hover:border-red-300 shadow-sm"
+                              title="Xóa ảnh CCCD"
+                            >
+                              <Trash2 className="h-2.5 w-2.5" />
+                            </button>
+                          </div>
+                        </div>
+                      ) : (
+                        <label className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl border border-dashed border-teal-300 bg-teal-50/60 hover:bg-teal-100/70 text-teal-700 font-bold text-[11px] cursor-pointer transition-colors shadow-2xs">
+                          <Upload className="h-3 w-3 shrink-0" />
+                          <span>Tải ảnh</span>
+                          <input
+                            type="file"
+                            accept="image/*"
+                            onChange={(e) => handleCccdUpload(cust, e)}
+                            className="hidden"
+                          />
+                        </label>
+                      )}
+                    </td>
+
                     <td className="px-4 py-2.5 text-center">
                       <div className="flex justify-center items-center gap-1.5">
                         <button
-                          onClick={() => onEdit(cust)}
+                          onClick={() => handleEditClick(cust)}
                           title="Sửa thông tin"
                           className="p-1.5 rounded-lg border border-slate-200 hover:bg-teal-50 hover:text-teal-600 hover:border-teal-200 text-slate-600 transition-colors"
                         >
@@ -461,6 +624,80 @@ export default function BhytCustomerTable({
           </div>
         </div>
       </div>
+
+      {/* CCCD Image Preview Lightbox Modal */}
+      {previewCccd && (
+        <div className="fixed inset-0 bg-slate-900/75 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl max-w-3xl w-full overflow-hidden shadow-2xl border border-slate-100 flex flex-col max-h-[90vh] animate-fade-in">
+            {/* Lightbox Header */}
+            <div className="px-6 py-4 border-b border-slate-100 bg-slate-50 flex items-center justify-between">
+              <div>
+                <h3 className="font-extrabold text-slate-800 text-sm flex items-center gap-2">
+                  <ImageIcon className="h-4 w-4 text-teal-600" />
+                  Ảnh thẻ CCCD — {previewCccd.cust.name}
+                </h3>
+                <div className="text-[11px] font-semibold text-slate-500 mt-0.5">
+                  Mã BHXH: <span className="font-mono text-slate-700">{previewCccd.cust.bhxh}</span>
+                  {previewCccd.cust.cccd && (
+                    <> · Số CCCD: <span className="font-mono text-slate-700">{previewCccd.cust.cccd}</span></>
+                  )}
+                </div>
+              </div>
+              <button
+                onClick={() => setPreviewCccd(null)}
+                className="p-1.5 rounded-xl border border-slate-200 hover:bg-slate-200/60 text-slate-600 transition-colors"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+
+            {/* Image Container */}
+            <div className="flex-1 p-6 bg-slate-900/95 flex items-center justify-center overflow-auto min-h-[320px]">
+              <img
+                src={previewCccd.url}
+                alt={`Ảnh thẻ CCCD của ${previewCccd.cust.name}`}
+                className="max-h-[65vh] w-auto max-w-full object-contain rounded-xl shadow-2xl border border-white/10"
+              />
+            </div>
+
+            {/* Lightbox Footer Actions */}
+            <div className="px-6 py-3 border-t border-slate-100 bg-slate-50 flex flex-wrap items-center justify-between gap-3 text-xs font-bold">
+              <div className="flex items-center gap-2">
+                <label className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-100 text-slate-700 cursor-pointer transition-colors shadow-2xs">
+                  <Upload className="h-3.5 w-3.5 text-teal-600" />
+                  <span>Tải ảnh mới thay thế</span>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => {
+                      handleCccdUpload(previewCccd.cust, e);
+                      setPreviewCccd(null);
+                    }}
+                    className="hidden"
+                  />
+                </label>
+                <button
+                  type="button"
+                  onClick={() => handleCccdDelete(previewCccd.cust)}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-red-200 bg-red-50 hover:bg-red-100 text-red-600 transition-colors shadow-2xs"
+                >
+                  <Trash2 className="h-3.5 w-3.5" />
+                  <span>Xóa ảnh này</span>
+                </button>
+              </div>
+
+              <a
+                href={previewCccd.url}
+                download={`CCCD_${previewCccd.cust.name.replace(/\s+/g, '_')}_${previewCccd.cust.bhxh}.jpg`}
+                className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-xl bg-teal-600 hover:bg-teal-500 text-white transition-colors shadow-sm"
+              >
+                <Download className="h-3.5 w-3.5" />
+                <span>Tải file về máy</span>
+              </a>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

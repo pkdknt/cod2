@@ -1,8 +1,9 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { X } from 'lucide-react';
+import { X, Upload, Trash2, Image as ImageIcon } from 'lucide-react';
 import { BhytCustomerData } from '@/services/BhytService';
+import { compressImageFile } from '@/lib/utils';
 
 interface BhytCustomerModalProps {
   customer: BhytCustomerData | null; // Null means create new
@@ -15,6 +16,7 @@ export default function BhytCustomerModal({ customer, onClose, onSave }: BhytCus
     name: '',
     bhxh: '',
     cccd: '',
+    cccdImage: '',
     phone: '',
     dob: '',
     gender: '',
@@ -55,6 +57,7 @@ export default function BhytCustomerModal({ customer, onClose, onSave }: BhytCus
     if (customer) {
       setFormData({
         ...customer,
+        cccdImage: customer.cccdImage || '',
         // Convert to yyyy-mm-dd format if they are in dd/mm/yyyy for HTML5 date inputs
         dob: convertDateToInputFormat(customer.dob),
         expiry: convertDateToInputFormat(customer.expiry),
@@ -66,6 +69,7 @@ export default function BhytCustomerModal({ customer, onClose, onSave }: BhytCus
         name: '',
         bhxh: '',
         cccd: '',
+        cccdImage: '',
         phone: '',
         dob: '',
         gender: '',
@@ -109,6 +113,7 @@ export default function BhytCustomerModal({ customer, onClose, onSave }: BhytCus
       name: formData.name!.trim(),
       bhxh: formData.bhxh!.trim(),
       cccd: formData.cccd?.trim() || '',
+      cccdImage: formData.cccdImage || '',
       phone: formData.phone?.trim() || '',
       dob: convertDateToDisplayFormat(formData.dob),
       gender: formData.gender || '',
@@ -182,6 +187,59 @@ export default function BhytCustomerModal({ customer, onClose, onSave }: BhytCus
                 className="w-full px-3 py-2 text-sm rounded-xl border border-slate-200 focus:border-teal-500 outline-none focus:ring-2 focus:ring-teal-200 transition-all"
                 placeholder="12 chữ số"
               />
+            </div>
+
+            {/* Ảnh thẻ CCCD */}
+            <div className="space-y-1 md:col-span-2">
+              <label className="text-xs font-bold text-slate-600 block">Ảnh thẻ CCCD</label>
+              <div className="flex items-center gap-4 bg-slate-50 border border-slate-200 rounded-2xl p-3">
+                {formData.cccdImage ? (
+                  <div className="relative group shrink-0">
+                    <img
+                      src={formData.cccdImage}
+                      alt="Ảnh thẻ CCCD"
+                      className="w-24 h-16 object-cover rounded-xl border border-slate-300 shadow-sm"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => handleChange('cccdImage', '')}
+                      className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 shadow hover:bg-red-600 transition-colors"
+                      title="Xóa ảnh thẻ"
+                    >
+                      <Trash2 className="h-3 w-3" />
+                    </button>
+                  </div>
+                ) : (
+                  <div className="w-24 h-16 rounded-xl border border-dashed border-slate-300 bg-white flex flex-col items-center justify-center text-slate-400 text-[10px] font-bold shrink-0">
+                    <ImageIcon className="h-5 w-5 mb-0.5 text-slate-300" />
+                    <span>Chưa có ảnh</span>
+                  </div>
+                )}
+
+                <div className="flex-1 space-y-1">
+                  <label className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-teal-200 bg-teal-50 hover:bg-teal-100 text-teal-700 text-xs font-bold cursor-pointer transition-colors shadow-2xs">
+                    <Upload className="h-3.5 w-3.5" />
+                    <span>{formData.cccdImage ? 'Thay ảnh CCCD khác' : 'Tải lên ảnh thẻ CCCD'}</span>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={async (e) => {
+                        const file = e.target.files?.[0];
+                        if (file) {
+                          try {
+                            const base64 = await compressImageFile(file);
+                            handleChange('cccdImage', base64);
+                          } catch (err: any) {
+                            alert('Lỗi xử lý ảnh: ' + (err?.message || 'Không thể đọc file'));
+                          }
+                        }
+                      }}
+                      className="hidden"
+                    />
+                  </label>
+                  <p className="text-[10px] text-slate-400 font-medium">Hỗ trợ JPG, PNG, WEBP. Ảnh sẽ được tự động tối ưu dung lượng.</p>
+                </div>
+              </div>
             </div>
 
             <div className="space-y-1">

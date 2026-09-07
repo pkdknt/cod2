@@ -1,8 +1,8 @@
 'use client';
 
-import React from 'react';
-import { Search, Copy, Edit3, MessageSquare, PhoneCall, ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react';
-import { BhytCustomerData } from '@/services/BhytService';
+import React, { useState, useRef, useCallback, useEffect } from 'react';
+import { Search, Copy, Edit3, MessageSquare, PhoneCall, ArrowUpDown, ArrowUp, ArrowDown, Check, Loader2 } from 'lucide-react';
+import { BhytCustomerData, BhytService } from '@/services/BhytService';
 import { getDaysRemaining, formatVnDate } from '@/lib/utils';
 
 interface BhytRenewalListProps {
@@ -27,6 +27,7 @@ interface BhytRenewalListProps {
   onEdit: (customer: BhytCustomerData) => void;
   onSendMessage: (customer: BhytCustomerData) => void;
   onCall: (customer: BhytCustomerData) => void;
+  onCustomerUpdate?: (customer: Partial<BhytCustomerData> & { _id: string }) => void;
 }
 
 export default function BhytRenewalList({
@@ -46,8 +47,87 @@ export default function BhytRenewalList({
   onCopyPhones,
   onEdit,
   onSendMessage,
-  onCall
+  onCall,
+  onCustomerUpdate
 }: BhytRenewalListProps) {
+  // ── Inline Note Edit State ───────────────────────────────────────────────
+  const [noteDrafts, setNoteDrafts] = useState<Record<string, string>>({});
+  const [noteSaveStatus, setNoteSaveStatus] = useState<Record<string, 'idle' | 'saving' | 'saved'>>({});
+  const noteTimers = useRef<Record<string, ReturnType<typeof setTimeout>>>({});
+
+  const autoResize = (el: HTMLTextAreaElement) => {
+    el.style.height = 'auto';
+    el.style.height = el.scrollHeight + 'px';
+  };
+
+  const saveNoteImmediately = useCallback(
+    async (cust: BhytCustomerData, value: string) => {
+      const id = cust._id!;
+      if (noteTimers.current[id]) clearTimeout(noteTimers.current[id]);
+      setNoteSaveStatus(prev => ({ ...prev, [id]: 'saving' }));
+      try {
+        await BhytService.update(id, { note: value });
+        setNoteSaveStatus(prev => ({ ...prev, [id]: 'saved' }));
+        onCustomerUpdate?.({ _id: id, note: value });
+        setTimeout(() => {
+          setNoteSaveStatus(prev => ({ ...prev, [id]: 'idle' }));
+        }, 2000);
+      } catch {
+        setNoteSaveStatus(prev => ({ ...prev, [id]: 'idle' }));
+      }
+    },
+    [onCustomerUpdate]
+  );
+
+  const handleNoteChange = useCallback(
+    (cust: BhytCustomerData, value: string, textareaEl: HTMLTextAreaElement) => {
+      const id = cust._id!;
+      setNoteDrafts(prev => ({ ...prev, [id]: value }));
+      setNoteSaveStatus(prev => ({ ...prev, [id]: 'idle' }));
+      autoResize(textareaEl);
+
+      if (noteTimers.current[id]) clearTimeout(noteTimers.current[id]);
+      noteTimers.current[id] = setTimeout(() => {
+        saveNoteImmediately(cust, value);
+      }, 1500);
+    },
+    [saveNoteImmediately]
+  );
+
+  const handleNoteBlur = useCallback(
+    (cust: BhytCustomerData) => {
+      const id = cust._id!;
+      const currentDraft = noteDrafts[id];
+      if (currentDraft !== undefined && currentDraft !== (cust.note ?? '')) {
+        saveNoteImmediately(cust, currentDraft);
+      }
+    },
+    [noteDrafts, saveNoteImmediately]
+  );
+
+  const handleEditClick = (cust: BhytCustomerData) => {
+    const id = cust._id!;
+    const draftNote = noteDrafts[id] !== undefined ? noteDrafts[id] : (cust.note ?? '');
+
+    if (draftNote !== (cust.note ?? '')) {
+      saveNoteImmediately(cust, draftNote);
+    }
+
+    onEdit({
+      ...cust,
+      note: draftNote
+    });
+  };
+
+  useEffect(() => {
+    setNoteDrafts(prev => {
+      const next = { ...prev };
+      customers.forEach(c => {
+        next[c._id!] = c.note ?? '';
+      });
+      return next;
+    });
+  }, [customers]);
 
   const renderSortIcon = (key: string) => {
     if (sortBy !== key) {
@@ -171,7 +251,7 @@ export default function BhytRenewalList({
                 <th className="px-4 text-left cursor-pointer hover:bg-slate-100" onClick={() => onSort('workflow')}>
                   Xử lý {renderSortIcon('workflow')}
                 </th>
-                <th className="px-4 text-left">Ghi chú</th>
+                <th className="px-4 text-left min-w-[180px]">Ghi chú</th>
                 <th className="px-4 text-center">Thao tác</th>
               </tr>
             </thead>
@@ -189,16 +269,19 @@ export default function BhytRenewalList({
                   </td>
                 </tr>
               ) : (
-                customers.map((cust) => (
-                  <tr key={cust._id} className="border-b border-slate-100 hover:bg-slate-50/50 transition-colors h-11">
-                    <td className="px-4 font-bold text-slate-800">
+                customers.map((cust) => {
+                  const saveStatus = noteSaveStatus[cust._id!] ?? 'idle';
+                  const noteDraft = noteDrafts[cust._id!] ?? cust.note ?? '';
+                  return (
+                  <tr key={cust._id} className="border-b border-slate-100 hover:bg-slate-50/50 transition-colors h-11 align-top">
+                    <td className="px-4 py-2.5 font-bold text-slate-800">
                       <div>{cust.name}</div>
                       <span className={`inline-block text-[9px] px-1.5 py-0.5 rounded-full font-bold mt-1 ${getBadgeClass(cust.expiry)}`}>
                         {getBadgeLabel(cust.expiry)}
                       </span>
                     </td>
-                    <td className="px-4 font-mono font-medium text-slate-600">{cust.bhxh}</td>
-                    <td className="px-4 font-bold text-slate-700">
+                    <td className="px-4 py-2.5 font-mono font-medium text-slate-600">{cust.bhxh}</td>
+                    <td className="px-4 py-2.5 font-bold text-slate-700">
                       {cust.phone ? (
                         <a href={`tel:${cust.phone}`} className="text-teal-600 hover:underline">
                           {cust.phone}
@@ -207,17 +290,39 @@ export default function BhytRenewalList({
                         <span className="text-slate-300 font-medium">Chưa có</span>
                       )}
                     </td>
-                    <td className="px-4 font-bold text-slate-700">{cust.expiry || '—'}</td>
-                    <td className="px-4 font-semibold text-slate-700">{getDaysRemainingText(cust.expiry)}</td>
-                    <td className="px-4">
+                    <td className="px-4 py-2.5 font-bold text-slate-700">{cust.expiry || '—'}</td>
+                    <td className="px-4 py-2.5 font-semibold text-slate-700">{getDaysRemainingText(cust.expiry)}</td>
+                    <td className="px-4 py-2.5">
                       <span className="inline-block bg-slate-100 text-slate-700 text-[10px] font-bold px-2 py-0.5 rounded-md">
                         {cust.workflowStatus || 'Chưa liên hệ'}
                       </span>
                     </td>
-                    <td className="px-4 text-slate-600 max-w-[200px] truncate" title={cust.note}>
-                      {cust.note || '—'}
+                    {/* ── Ghi chú inline ─────────────────────────────────── */}
+                    <td className="px-2 py-1.5 min-w-[180px]">
+                      <div className="relative group">
+                        <textarea
+                          rows={1}
+                          value={noteDraft}
+                          placeholder="Thêm ghi chú..."
+                          spellCheck={false}
+                          onChange={(e) => handleNoteChange(cust, e.target.value, e.currentTarget)}
+                          onFocus={(e) => autoResize(e.currentTarget)}
+                          onBlur={() => handleNoteBlur(cust)}
+                          className="w-full resize-none overflow-hidden rounded-lg border border-transparent bg-transparent px-2 py-1 text-xs text-slate-700 placeholder-slate-300 leading-relaxed transition-all
+                            focus:outline-none focus:border-teal-300 focus:bg-white focus:shadow-sm
+                            hover:border-slate-200 hover:bg-slate-50"
+                          style={{ minHeight: '28px' }}
+                        />
+                        {/* Save status indicator */}
+                        {saveStatus === 'saving' && (
+                          <Loader2 className="absolute right-2 top-1.5 h-3 w-3 text-slate-400 animate-spin" />
+                        )}
+                        {saveStatus === 'saved' && (
+                          <Check className="absolute right-2 top-1.5 h-3 w-3 text-teal-500" />
+                        )}
+                      </div>
                     </td>
-                    <td className="px-4 text-center">
+                    <td className="px-4 py-2.5 text-center">
                       <div className="flex justify-center items-center gap-1.5">
                         <button
                           onClick={() => onSendMessage(cust)}
@@ -234,7 +339,7 @@ export default function BhytRenewalList({
                           <PhoneCall className="h-3.5 w-3.5" />
                         </button>
                         <button
-                          onClick={() => onEdit(cust)}
+                          onClick={() => handleEditClick(cust)}
                           title="Sửa thông tin"
                           className="p-1.5 rounded-lg border border-slate-200 hover:bg-teal-50 hover:text-teal-600 hover:border-teal-200 text-slate-600 transition-colors"
                         >
@@ -243,7 +348,8 @@ export default function BhytRenewalList({
                       </div>
                     </td>
                   </tr>
-                ))
+                  );
+                })
               )}
             </tbody>
           </table>
@@ -252,3 +358,4 @@ export default function BhytRenewalList({
     </div>
   );
 }
+

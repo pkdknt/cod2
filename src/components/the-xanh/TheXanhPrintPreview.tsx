@@ -62,12 +62,20 @@ export default function TheXanhPrintPreview({
             position: absolute;
             left: 0;
             top: 0;
-            width: 297mm !important;
-            height: 210mm !important;
           }
+          /* 4mm safe margin mỗi phía để border không bị máy in cắt */
           @page {
             size: A4 landscape;
-            margin: 0;
+            margin: 4mm;
+          }
+          /* Đảm bảo mỗi trang in ngắt đúng */
+          .print-page {
+            page-break-after: always;
+            break-after: page;
+          }
+          .print-page:last-child {
+            page-break-after: avoid;
+            break-after: avoid;
           }
         }
       `}} />
@@ -91,18 +99,25 @@ export default function TheXanhPrintPreview({
           </div>
         ) : (
           pages.map((pageItems, pageIdx) => (
+            /*
+             * Trang A4 landscape: 297mm × 210mm, margin máy in 4mm mỗi phía
+             * => vùng in còn lại: 289mm × 202mm
+             * 2 cột × 14.4cm = 28.8cm  ✓  (còn 0.9mm lề mỗi bên)
+             * 2 hàng × 9.8cm  = 19.6cm  ✓  (còn 1.2mm lề trên/dưới)
+             * Không dùng padding trên container để tránh overflow clip border
+             */
             <div
               key={pageIdx}
-              className="bg-white border border-slate-350 shadow-2xl mx-auto flex flex-wrap w-[297mm] h-[210mm] relative overflow-hidden print:shadow-none print:border-0 print:m-0"
+              className={`print-page bg-white border border-slate-300 shadow-2xl mx-auto print:shadow-none print:border-0 print:m-0`}
               style={{
-                padding: '0.60cm 0.25cm',
+                width: '289mm',
+                height: '202mm',
                 display: 'grid',
-                gridTemplateColumns: '14.6cm 14.6cm',
-                gridTemplateRows: '9.9cm 9.9cm',
-                columnGap: '0',
-                rowGap: '0',
-                breakAfter: 'page',
-                pageBreakAfter: 'always'
+                gridTemplateColumns: '144mm 144mm',
+                gridTemplateRows: '100mm 100mm',
+                gap: '0',
+                boxSizing: 'border-box',
+                overflow: 'visible'
               }}
             >
               {/* Render 4 card cells */}
@@ -112,7 +127,7 @@ export default function TheXanhPrintPreview({
 
                 if (!card) {
                   // Blank placeholder to preserve grid alignment
-                  return <div key={cellIdx} className="w-[14.6cm] h-[9.9cm]" />;
+                  return <div key={cellIdx} style={{ width: '144mm', height: '100mm' }} />;
                 }
 
                 const signer = getSignerInfo(itemIdx);
@@ -121,17 +136,21 @@ export default function TheXanhPrintPreview({
                 return (
                   <div
                     key={cellIdx}
-                    className="relative overflow-hidden bg-white text-slate-900 border border-slate-900"
+                    className="relative bg-white text-slate-900"
                     style={{
-                      width: '14.6cm',
-                      height: '9.9cm',
+                      width: '144mm',
+                      height: '100mm',
+                      /* Dùng border thật thay vì outline để tránh bị clip khi in 1 khung đơn */
+                      border: '1px solid #0f172a',
+                      boxSizing: 'border-box',
+                      overflow: 'hidden',
                       fontFamily: '"Times New Roman", Times, serif',
                       fontSize: '11.2pt',
                       lineHeight: '1.28'
                     }}
                   >
-                    {/* Double border effect */}
-                    <div className="absolute inset-[0.07cm] border-[0.45px] border-slate-900 pointer-events-none" />
+                    {/* Đường viền kép bên trong (cách viền ngoài 1mm) */}
+                    <div style={{ position: 'absolute', inset: '1mm', border: '0.3px solid #0f172a', pointerEvents: 'none' }} />
 
                     {/* Clinic Branding Header */}
                     <div className="absolute left-[1.05cm] top-[0.18cm] w-[4.15cm] text-center text-[8.4pt] leading-[1.03] font-normal overflow-hidden">
