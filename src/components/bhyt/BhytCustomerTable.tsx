@@ -4,6 +4,7 @@ import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { Search, ChevronLeft, ChevronRight, Edit3, MessageSquare, PhoneCall, Trash2, ArrowUpDown, ArrowUp, ArrowDown, Check, Loader2, Upload, Eye, X, Download, Image as ImageIcon } from 'lucide-react';
 import { BhytCustomerData, BhytService } from '@/services/BhytService';
 import { getDaysRemaining, formatVnDate, parseVnDate, compressImageFile } from '@/lib/utils';
+import CccdImageModal from './CccdImageModal';
 
 interface BhytCustomerTableProps {
   customers: BhytCustomerData[];
@@ -636,76 +637,18 @@ export default function BhytCustomerTable({
 
       {/* CCCD Image Preview Lightbox Modal */}
       {previewCccd && (
-        <div className="fixed inset-0 bg-slate-900/75 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl max-w-3xl w-full overflow-hidden shadow-2xl border border-slate-100 flex flex-col max-h-[90vh] animate-fade-in">
-            {/* Lightbox Header */}
-            <div className="px-6 py-4 border-b border-slate-100 bg-slate-50 flex items-center justify-between">
-              <div>
-                <h3 className="font-extrabold text-slate-800 text-sm flex items-center gap-2">
-                  <ImageIcon className="h-4 w-4 text-teal-600" />
-                  Ảnh thẻ CCCD — {previewCccd.cust.name}
-                </h3>
-                <div className="text-[11px] font-semibold text-slate-500 mt-0.5">
-                  Mã BHXH: <span className="font-mono text-slate-700">{previewCccd.cust.bhxh}</span>
-                  {previewCccd.cust.cccd && (
-                    <> · Số CCCD: <span className="font-mono text-slate-700">{previewCccd.cust.cccd}</span></>
-                  )}
-                </div>
-              </div>
-              <button
-                onClick={() => setPreviewCccd(null)}
-                className="p-1.5 rounded-xl border border-slate-200 hover:bg-slate-200/60 text-slate-600 transition-colors"
-              >
-                <X className="h-4 w-4" />
-              </button>
-            </div>
-
-            {/* Image Container */}
-            <div className="flex-1 p-6 bg-slate-900/95 flex items-center justify-center overflow-auto min-h-[320px]">
-              <img
-                src={previewCccd.url}
-                alt={`Ảnh thẻ CCCD của ${previewCccd.cust.name}`}
-                className="max-h-[65vh] w-auto max-w-full object-contain rounded-xl shadow-2xl border border-white/10"
-              />
-            </div>
-
-            {/* Lightbox Footer Actions */}
-            <div className="px-6 py-3 border-t border-slate-100 bg-slate-50 flex flex-wrap items-center justify-between gap-3 text-xs font-bold">
-              <div className="flex items-center gap-2">
-                <label className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-100 text-slate-700 cursor-pointer transition-colors shadow-2xs">
-                  <Upload className="h-3.5 w-3.5 text-teal-600" />
-                  <span>Tải ảnh mới thay thế</span>
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={(e) => {
-                      handleCccdUpload(previewCccd.cust, e);
-                      setPreviewCccd(null);
-                    }}
-                    className="hidden"
-                  />
-                </label>
-                <button
-                  type="button"
-                  onClick={() => handleCccdDelete(previewCccd.cust)}
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-red-200 bg-red-50 hover:bg-red-100 text-red-600 transition-colors shadow-2xs"
-                >
-                  <Trash2 className="h-3.5 w-3.5" />
-                  <span>Xóa ảnh này</span>
-                </button>
-              </div>
-
-              <a
-                href={previewCccd.url}
-                download={`CCCD_${previewCccd.cust.name.replace(/\s+/g, '_')}_${previewCccd.cust.bhxh}.jpg`}
-                className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-xl bg-teal-600 hover:bg-teal-500 text-white transition-colors shadow-sm"
-              >
-                <Download className="h-3.5 w-3.5" />
-                <span>Tải file về máy</span>
-              </a>
-            </div>
-          </div>
-        </div>
+        <CccdImageModal
+          url={previewCccd.url}
+          customerName={previewCccd.cust.name}
+          bhxh={previewCccd.cust.bhxh}
+          cccd={previewCccd.cust.cccd}
+          onClose={() => setPreviewCccd(null)}
+          onUploadNew={(e) => {
+            handleCccdUpload(previewCccd.cust, e);
+            setPreviewCccd(null);
+          }}
+          onDelete={() => handleCccdDelete(previewCccd.cust)}
+        />
       )}
     </div>
   );

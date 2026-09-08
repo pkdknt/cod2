@@ -1,9 +1,10 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { X, Upload, Trash2, Download, Image as ImageIcon } from 'lucide-react';
+import { X, Upload, Trash2, Download, Image as ImageIcon, Eye } from 'lucide-react';
 import { BhytCustomerData } from '@/services/BhytService';
 import { compressImageFile } from '@/lib/utils';
+import CccdImageModal from './CccdImageModal';
 
 interface BhytCustomerModalProps {
   customer: BhytCustomerData | null; // Null means create new
@@ -30,6 +31,7 @@ export default function BhytCustomerModal({ customer, onClose, onSave }: BhytCus
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [showZoomModal, setShowZoomModal] = useState<boolean>(false);
 
   const convertDateToInputFormat = (dateStr: string | undefined) => {
     if (!dateStr) return '';
@@ -195,15 +197,24 @@ export default function BhytCustomerModal({ customer, onClose, onSave }: BhytCus
               <div className="flex items-center gap-4 bg-slate-50 border border-slate-200 rounded-2xl p-3">
                 {formData.cccdImage ? (
                   <div className="relative group shrink-0">
-                    <img
-                      src={formData.cccdImage}
-                      alt="Ảnh thẻ CCCD"
-                      className="w-24 h-16 object-cover rounded-xl border border-slate-300 shadow-sm"
-                    />
+                    <div
+                      onClick={() => setShowZoomModal(true)}
+                      className="w-24 h-16 rounded-xl border border-slate-300 shadow-sm overflow-hidden bg-slate-100 cursor-pointer relative hover:ring-2 hover:ring-teal-400 transition-all"
+                      title="Bấm để xem ảnh CCCD phóng to"
+                    >
+                      <img
+                        src={formData.cccdImage}
+                        alt="Ảnh thẻ CCCD"
+                        className="w-full h-full object-cover"
+                      />
+                      <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
+                        <Eye className="h-4 w-4 text-white drop-shadow" />
+                      </div>
+                    </div>
                     <button
                       type="button"
                       onClick={() => handleChange('cccdImage', '')}
-                      className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 shadow hover:bg-red-600 transition-colors"
+                      className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 shadow hover:bg-red-600 transition-colors z-10"
                       title="Xóa ảnh thẻ"
                     >
                       <Trash2 className="h-3 w-3" />
@@ -387,6 +398,21 @@ export default function BhytCustomerModal({ customer, onClose, onSave }: BhytCus
             </button>
           </div>
         </form>
+
+        {/* CCCD Image Zoom Modal */}
+        {showZoomModal && formData.cccdImage && (
+          <CccdImageModal
+            url={formData.cccdImage}
+            customerName={formData.name || 'Khách hàng'}
+            bhxh={formData.bhxh}
+            cccd={formData.cccd}
+            onClose={() => setShowZoomModal(false)}
+            onDelete={() => {
+              handleChange('cccdImage', '');
+              setShowZoomModal(false);
+            }}
+          />
+        )}
       </div>
     </div>
   );
