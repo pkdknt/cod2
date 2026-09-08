@@ -79,6 +79,9 @@ export default function BhytCustomerTable({
   const [callDateSaveStatus, setCallDateSaveStatus] = useState<Record<string, 'idle' | 'saving' | 'saved'>>({});
   const callDateTimers = useRef<Record<string, ReturnType<typeof setTimeout>>>({});
 
+  // ── Inline Workflow Status Save Status ────────────────────────
+  const [workflowSaveStatus, setWorkflowSaveStatus] = useState<Record<string, 'idle' | 'saving' | 'saved'>>({});
+
   // ── CCCD Image State & Lightbox ────────────────────────────────
   const [uploadingCccdId, setUploadingCccdId] = useState<string | null>(null);
   const [previewCccd, setPreviewCccd] = useState<{ cust: BhytCustomerData } | null>(null);
@@ -184,6 +187,25 @@ export default function BhytCustomerTable({
     el.style.height = 'auto';
     el.style.height = el.scrollHeight + 'px';
   };
+
+  /** Inline workflow status change — save immediately */
+  const handleWorkflowChange = useCallback(
+    async (cust: BhytCustomerData, newStatus: string) => {
+      const id = cust._id!;
+      setWorkflowSaveStatus(prev => ({ ...prev, [id]: 'saving' }));
+      try {
+        await BhytService.update(id, { workflowStatus: newStatus });
+        onCustomerUpdate?.({ _id: id, workflowStatus: newStatus });
+        setWorkflowSaveStatus(prev => ({ ...prev, [id]: 'saved' }));
+        setTimeout(() => {
+          setWorkflowSaveStatus(prev => ({ ...prev, [id]: 'idle' }));
+        }, 1500);
+      } catch {
+        setWorkflowSaveStatus(prev => ({ ...prev, [id]: 'idle' }));
+      }
+    },
+    [onCustomerUpdate]
+  );
 
   const saveNoteImmediately = useCallback(
     async (cust: BhytCustomerData, value: string) => {
@@ -473,10 +495,45 @@ export default function BhytCustomerTable({
                       </span>
                     </td>
                     <td className="px-4 py-2.5 font-semibold text-slate-700">{getDaysRemainingText(cust.expiry)}</td>
-                    <td className="px-4 py-2.5">
-                      <span className="inline-block bg-slate-100 text-slate-700 text-[10px] font-bold px-2 py-0.5 rounded-md">
-                        {cust.workflowStatus || 'Chưa liên hệ'}
-                      </span>
+                    <td className="px-2 py-1.5">
+                      {(() => {
+                        const wfStatus = cust.workflowStatus || 'Chưa liên hệ';
+                        const wfSave = workflowSaveStatus[cust._id!] ?? 'idle';
+                        const colorMap: Record<string, string> = {
+                          'Chưa liên hệ':       'bg-slate-100 text-slate-600 border-slate-200',
+                          'Đã gửi tin':         'bg-blue-50 text-blue-700 border-blue-200',
+                          'Đã gọi':             'bg-indigo-50 text-indigo-700 border-indigo-200',
+                          'Hẹn liên hệ lại':  'bg-amber-50 text-amber-700 border-amber-200',
+                          'Đã gia hạn':         'bg-emerald-50 text-emerald-700 border-emerald-200',
+                          'Không liên lạc được': 'bg-red-50 text-red-600 border-red-200',
+                          'Không có nhu cầu':  'bg-rose-50 text-rose-600 border-rose-200',
+                        };
+                        const badgeColor = colorMap[wfStatus] ?? 'bg-slate-100 text-slate-600 border-slate-200';
+                        return (
+                          <div className="relative">
+                            <select
+                              value={wfStatus}
+                              onChange={(e) => handleWorkflowChange(cust, e.target.value)}
+                              className={`text-[10px] font-bold px-2 py-0.5 pr-5 rounded-md border appearance-none cursor-pointer transition-all outline-none focus:ring-2 focus:ring-teal-200 focus:border-teal-400 hover:opacity-80 ${badgeColor}`}
+                              title="Click để thay đổi trạng thái xử lý"
+                            >
+                              <option value="Chưa liên hệ">Chưa liên hệ</option>
+                              <option value="Đã gửi tin">Đã gửi tin</option>
+                              <option value="Đã gọi">Đã gọi</option>
+                              <option value="Hẹn liên hệ lại">Hẹn liên hệ lại</option>
+                              <option value="Đã gia hạn">Đã gia hạn</option>
+                              <option value="Không liên lạc được">Không liên lạc được</option>
+                              <option value="Không có nhu cầu">Không có nhu cầu</option>
+                            </select>
+                            {wfSave === 'saving' && (
+                              <Loader2 className="absolute right-0.5 top-0.5 h-3 w-3 text-teal-500 animate-spin pointer-events-none" />
+                            )}
+                            {wfSave === 'saved' && (
+                              <Check className="absolute right-0.5 top-0.5 h-3 w-3 text-teal-500 pointer-events-none" />
+                            )}
+                          </div>
+                        );
+                      })()}
                     </td>
 
                     {/* ── Ngày liên hệ inline ─────────────────────────── */}
