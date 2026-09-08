@@ -7,6 +7,9 @@ import { BhytCustomerData } from '@/services/BhytService';
 interface BhytImportExportProps {
   onImportExcel: (items: any[], mode: 'replace' | 'append') => Promise<void>;
   onExportExcel: () => void;
+  onExportExcelWithImages?: () => void;
+  isExporting?: boolean;
+  exportProgress?: { current: number; total: number } | null;
   onExportCsv: () => void;
   onBackupJson: () => void;
   onResetData: () => void;
@@ -16,6 +19,9 @@ interface BhytImportExportProps {
 export default function BhytImportExport({
   onImportExcel,
   onExportExcel,
+  onExportExcelWithImages,
+  isExporting = false,
+  exportProgress = null,
   onExportCsv,
   onBackupJson,
   onResetData,
@@ -178,7 +184,7 @@ export default function BhytImportExport({
   };
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 relative">
       {/* Import Card */}
       <div className="bg-white border border-slate-200 rounded-3xl p-6 shadow-sm flex flex-col justify-between">
         <div>
@@ -231,16 +237,36 @@ export default function BhytImportExport({
           </div>
 
           <div className="space-y-3">
+            {/* Primary Excel Export with Images */}
+            <div className="flex items-center justify-between p-3.5 rounded-2xl border-2 border-teal-500/30 bg-teal-50/40 hover:bg-teal-50 transition-colors shadow-2xs">
+              <div>
+                <strong className="text-xs font-black text-teal-900 flex items-center gap-1.5">
+                  🖼️ Xuất Excel Kèm Ảnh (.xlsx)
+                </strong>
+                <span className="text-[10px] text-teal-700 font-semibold block mt-0.5">
+                  Xuất toàn bộ danh sách, chèn trực tiếp ảnh CCCD/BHYT vào từng ô Excel
+                </span>
+              </div>
+              <button
+                onClick={onExportExcelWithImages || onExportExcel}
+                disabled={isExporting}
+                className="bg-teal-600 text-white hover:bg-teal-500 font-bold px-3.5 py-2 rounded-xl text-xs shadow-md shadow-teal-900/10 transition-all flex items-center gap-1 disabled:opacity-60 shrink-0"
+              >
+                {isExporting ? 'Đang xuất...' : 'Tải về (Kèm Ảnh)'}
+              </button>
+            </div>
+
             <div className="flex items-center justify-between p-3 rounded-2xl border border-slate-100 hover:bg-slate-50 transition-colors">
               <div>
-                <strong className="text-xs font-extrabold text-slate-800 block">Xuất Excel (.xlsx)</strong>
-                <span className="text-[10px] text-slate-400 font-semibold block mt-0.5">Tải danh sách định dạng bảng Excel chuẩn</span>
+                <strong className="text-xs font-extrabold text-slate-800 block">Xuất Excel nhanh (.xlsx)</strong>
+                <span className="text-[10px] text-slate-400 font-semibold block mt-0.5">Tải nhanh dữ liệu dạng chữ (không nạp ảnh)</span>
               </div>
               <button
                 onClick={onExportExcel}
-                className="bg-teal-50 text-teal-700 hover:bg-teal-100 font-bold px-3 py-1.5 rounded-lg text-xs"
+                disabled={isExporting}
+                className="bg-slate-100 text-slate-700 hover:bg-slate-200 font-bold px-3 py-1.5 rounded-lg text-xs"
               >
-                Tải về .xlsx
+                Tải Excel nhanh
               </button>
             </div>
 
@@ -251,7 +277,7 @@ export default function BhytImportExport({
               </div>
               <button
                 onClick={onExportCsv}
-                className="bg-teal-50 text-teal-700 hover:bg-teal-100 font-bold px-3 py-1.5 rounded-lg text-xs"
+                className="bg-slate-100 text-slate-700 hover:bg-slate-200 font-bold px-3 py-1.5 rounded-lg text-xs"
               >
                 Tải về .csv
               </button>

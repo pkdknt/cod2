@@ -18,6 +18,8 @@ interface BhytCustomerTableProps {
   phoneFilter: string;
   onPhoneFilterChange: (val: string) => void;
   onClearFilters: () => void;
+  onExportExcel?: () => void;
+  isExporting?: boolean;
   
   // Sorting
   sortBy: string;
@@ -50,6 +52,8 @@ export default function BhytCustomerTable({
   phoneFilter,
   onPhoneFilterChange,
   onClearFilters,
+  onExportExcel,
+  isExporting = false,
   sortBy,
   sortDir,
   onSort,
@@ -308,7 +312,7 @@ export default function BhytCustomerTable({
   return (
     <div className="space-y-4">
       {/* Search and Filters Bar */}
-      <div className="bg-white p-4 rounded-2xl shadow-sm border border-slate-200 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-3 items-center">
+      <div className="bg-white p-4 rounded-2xl shadow-sm border border-slate-200 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-3 items-center">
         <div className="relative">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
           <input
@@ -364,6 +368,18 @@ export default function BhytCustomerTable({
         >
           Xóa bộ lọc
         </button>
+
+        {onExportExcel && (
+          <button
+            onClick={onExportExcel}
+            disabled={isExporting}
+            className="w-full py-2.5 rounded-xl border border-teal-200 bg-teal-50 hover:bg-teal-100 text-xs font-bold text-teal-800 transition-colors inline-flex items-center justify-center gap-1.5 shadow-2xs disabled:opacity-60"
+            title="Xuất toàn bộ danh sách hiện tại ra file Excel (.xlsx) kèm ảnh CCCD"
+          >
+            {isExporting ? <Loader2 className="h-3.5 w-3.5 animate-spin text-teal-600" /> : <Download className="h-3.5 w-3.5 text-teal-600" />}
+            <span>{isExporting ? 'Đang xuất...' : 'Xuất Excel'}</span>
+          </button>
+        )}
       </div>
 
       {/* Table Section */}

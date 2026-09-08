@@ -132,6 +132,27 @@ export class BhytService
     });
   }
 
+  /**
+   * Exports ALL customers (or filtered list) to Excel including embedded CCCD images.
+   */
+  public static async exportAllToExcel(
+    filters: BhytFilters = {},
+    onProgress?: (current: number, total: number) => void
+  ): Promise<void> {
+    const { exportBhytCustomersToExcel } = await import('@/lib/excelBhytExport');
+    
+    // Fetch all matching records without pagination limit (up to 10,000)
+    const exportFilters = { ...filters, page: 1, pageSize: 10000 };
+    const res = await this.getAll(exportFilters);
+    const items = res.items || [];
+
+    if (items.length === 0) {
+      throw new Error('Không có dữ liệu khách hàng nào để xuất file Excel.');
+    }
+
+    await exportBhytCustomersToExcel(items, 'Danh_sach_BHYT', onProgress);
+  }
+
   // Non-static implementations of interface if instantiation is required, but keeping static methods for standard use
   async getAll(filters: BhytFilters) { return BhytService.getAll(filters); }
   async create(data: BhytCustomerData) { return BhytService.create(data); }

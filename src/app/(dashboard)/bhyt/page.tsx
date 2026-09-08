@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { LayoutDashboard, Users, Clock, Upload, Settings, Plus, Trash2, Lock, Unlock } from 'lucide-react';
+import { LayoutDashboard, Users, Clock, Upload, Settings, Plus, Trash2, Lock, Unlock, Loader2 } from 'lucide-react';
 import { BhytService, BhytCustomerData } from '@/services/BhytService';
 import BhytDashboard from '@/components/bhyt/BhytDashboard';
 import BhytCustomerTable from '@/components/bhyt/BhytCustomerTable';
@@ -57,6 +57,10 @@ export default function BhytPage() {
   // Modal editor
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingCustomer, setEditingCustomer] = useState<BhytCustomerData | null>(null);
+
+  // Export progress
+  const [isExporting, setIsExporting] = useState(false);
+  const [exportProgress, setExportProgress] = useState<{ current: number; total: number } | null>(null);
 
   // System Settings
   const [appSettings, setAppSettings] = useState({
@@ -302,8 +306,35 @@ export default function BhytPage() {
     }
   };
 
+  const handleExportExcelWithImages = async () => {
+    setIsExporting(true);
+    setExportProgress(null);
+    try {
+      const filters: any = {};
+      if (activeTab === 'customers') {
+        filters.q = q;
+        filters.statusFilter = expiryFilter;
+        filters.workflowFilter = workflowFilter;
+        filters.phoneFilter = phoneFilter;
+      } else if (activeTab === 'renewals') {
+        filters.q = q;
+        filters.statusFilter = renewalScope;
+        filters.workflowFilter = renewalWorkflow;
+        filters.phoneFilter = renewalPhone;
+      }
+      await BhytService.exportAllToExcel(filters, (current, total) => {
+        setExportProgress({ current, total });
+      });
+    } catch (e: any) {
+      alert('Lỗi xuất file Excel: ' + (e.message || 'Không thể tạo file'));
+    } finally {
+      setIsExporting(false);
+      setExportProgress(null);
+    }
+  };
+
   const handleExportExcel = () => {
-    // Relying on xlsx-js-style library (dynamic import triggered in Service/Page)
+    // Quick text-only export
     import('xlsx-js-style').then(({ default: XLSX }) => {
       const headers = [
         'Họ và tên', 'Mã BHXH', 'CCCD', 'Ngày sinh', 'Giới tính', 'Nơi khai sinh', 'Nơi KCB ban đầu', 'Điện thoại', 'Hạn thẻ', 'Ghi chú', 'Trạng thái xử lý'
@@ -457,6 +488,8 @@ export default function BhytPage() {
             phoneFilter={phoneFilter}
             onPhoneFilterChange={setPhoneFilter}
             onClearFilters={handleClearFilters}
+            onExportExcel={handleExportExcelWithImages}
+            isExporting={isExporting}
             sortBy={sortBy}
             sortDir={sortDir}
             onSort={handleSort}
@@ -499,6 +532,9 @@ export default function BhytPage() {
           <BhytImportExport
             onImportExcel={handleImportExcel}
             onExportExcel={handleExportExcel}
+            onExportExcelWithImages={handleExportExcelWithImages}
+            isExporting={isExporting}
+            exportProgress={exportProgress}
             onExportCsv={handleExportCsv}
             onBackupJson={handleBackupJson}
             onResetData={handleResetData}
@@ -524,6 +560,36 @@ export default function BhytPage() {
           }}
           onSave={handleSave}
         />
+      )}
+
+      {/* Exporting Progress Overlay Modal */}
+      {isExporting && (
+        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl p-6 max-w-sm w-full shadow-2xl border border-slate-100 flex flex-col items-center text-center space-y-3">
+            <div className="p-3 bg-teal-50 rounded-2xl text-teal-600">
+              <Loader2 className="h-8 w-8 animate-spin" />
+            </div>
+            <div>
+              <h4 className="font-extrabold text-slate-800 text-sm">Đang xuất file Excel...</h4>
+              <p className="text-xs text-slate-500 font-semibold mt-1">
+                Hệ thống đang tải dữ liệu và nhúng toàn bộ hình ảnh CCCD vào file .xlsx
+              </p>
+            </div>
+            {exportProgress && exportProgress.total > 0 && (
+              <div className="w-full space-y-1">
+                <div className="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
+                  <div
+                    className="bg-teal-600 h-full transition-all duration-200"
+                    style={{ width: `${Math.min(100, Math.round((exportProgress.current / exportProgress.total) * 100))}%` }}
+                  />
+                </div>
+                <span className="text-[11px] font-bold text-teal-700 block">
+                  {exportProgress.current} / {exportProgress.total} hồ sơ ({Math.round((exportProgress.current / exportProgress.total) * 100)}%)
+                </span>
+              </div>
+            )}
+          </div>
+        </div>
       )}
     </div>
   );
