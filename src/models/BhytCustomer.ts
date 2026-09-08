@@ -4,7 +4,8 @@ export interface IBhytCustomer extends Document {
   name: string;
   bhxh: string;
   cccd?: string;
-  cccdImage?: string;    // Base64 or URL string of CCCD image
+  cccdImage?: string;    // (Legacy) Single CCCD image – kept for Excel export backward compat
+  cccdImages?: string[]; // Array of base64/URL CCCD images (multi-image support)
   dob?: string;          // Original text display: dd/mm/yyyy
   dobDate?: Date;        // standard Date for query/sort
   gender?: string;
@@ -36,6 +37,7 @@ const BhytCustomerSchema = new Schema<IBhytCustomer>(
     bhxh: { type: String, required: true, index: true, unique: true },
     cccd: { type: String },
     cccdImage: { type: String },
+    cccdImages: { type: [String], default: [] },
     dob: { type: String },
     dobDate: { type: Date, index: true },
     gender: { type: String },

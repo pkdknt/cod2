@@ -70,11 +70,8 @@ export default function BhytCustomerTable({
   const pages = Math.max(1, Math.ceil(totalFiltered / pageSize));
 
   // ── Inline Note Edit State ───────────────────────────────────────────────
-  // Map: customerId → current note draft
   const [noteDrafts, setNoteDrafts] = useState<Record<string, string>>({});
-  // Map: customerId → save status: 'idle' | 'saving' | 'saved'
   const [noteSaveStatus, setNoteSaveStatus] = useState<Record<string, 'idle' | 'saving' | 'saved'>>({});
-  // Debounce timers per customer
   const noteTimers = useRef<Record<string, ReturnType<typeof setTimeout>>>({});
 
   // ── Inline CallDate Edit State ──────────────────────────────────
@@ -84,36 +81,46 @@ export default function BhytCustomerTable({
 
   // ── CCCD Image State & Lightbox ────────────────────────────────
   const [uploadingCccdId, setUploadingCccdId] = useState<string | null>(null);
-  const [previewCccd, setPreviewCccd] = useState<{ url: string; cust: BhytCustomerData } | null>(null);
+  const [previewCccd, setPreviewCccd] = useState<{ cust: BhytCustomerData } | null>(null);
 
-  const handleCccdUpload = async (cust: BhytCustomerData, e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file || !cust._id) return;
+  /** Helper: get all images for a customer (merge legacy cccdImage into cccdImages array) */
+  const getCccdImages = (cust: BhytCustomerData): string[] => {
+    const images = cust.cccdImages ? [...cust.cccdImages] : [];
+    // Backward compat: include legacy single cccdImage if not already in array
+    if (cust.cccdImage && !images.includes(cust.cccdImage)) {
+      images.unshift(cust.cccdImage);
+    }
+    return images.filter(Boolean);
+  };
 
+  /** Upload one or more new images — appends to existing cccdImages */
+  const handleCccdAddImages = async (cust: BhytCustomerData, files: File[]) => {
+    if (!files.length || !cust._id) return;
     setUploadingCccdId(cust._id);
     try {
-      const base64 = await compressImageFile(file);
-      await BhytService.update(cust._id, { cccdImage: base64 });
-      onCustomerUpdate?.({ _id: cust._id, cccdImage: base64 });
+      const newBase64s = await Promise.all(files.map(f => compressImageFile(f)));
+      const existing = getCccdImages(cust);
+      const merged = [...existing, ...newBase64s].slice(0, 10); // max 10 images
+      await BhytService.update(cust._id, { cccdImages: merged });
+      onCustomerUpdate?.({ _id: cust._id, cccdImages: merged });
     } catch (err: any) {
       alert('Lỗi tải ảnh CCCD: ' + (err?.message || 'Không thể xử lý ảnh'));
     } finally {
       setUploadingCccdId(null);
-      // reset file input
-      e.target.value = '';
     }
   };
 
-  const handleCccdDelete = async (cust: BhytCustomerData, e?: React.MouseEvent) => {
-    if (e) e.stopPropagation();
+  /** Delete image at a specific index from cccdImages */
+  const handleCccdDeleteImage = async (cust: BhytCustomerData, index: number) => {
     if (!cust._id) return;
-    if (!confirm(`Xóa ảnh thẻ CCCD của khách hàng ${cust.name}?`)) return;
-
     setUploadingCccdId(cust._id);
     try {
-      await BhytService.update(cust._id, { cccdImage: '' });
-      onCustomerUpdate?.({ _id: cust._id, cccdImage: '' });
-      if (previewCccd?.cust._id === cust._id) {
+      const existing = getCccdImages(cust);
+      const updated = existing.filter((_, i) => i !== index);
+      await BhytService.update(cust._id, { cccdImages: updated, cccdImage: updated[0] ?? '' });
+      onCustomerUpdate?.({ _id: cust._id, cccdImages: updated, cccdImage: updated[0] ?? '' });
+      // Close lightbox if no images remain
+      if (updated.length === 0 && previewCccd?.cust._id === cust._id) {
         setPreviewCccd(null);
       }
     } catch (err: any) {
@@ -434,6 +441,8 @@ export default function BhytCustomerTable({
                   const noteDraft = noteDrafts[cust._id!] ?? cust.note ?? '';
                   const callDateStatus = callDateSaveStatus[cust._id!] ?? 'idle';
                   const callDateInput = callDateDrafts[cust._id!] ?? toInputDate(cust.callDate);
+                  const cccdImgs = getCccdImages(cust);
+                  const cccdCount = cccdImgs.length;
                   return (
                   <tr key={cust._id} className="border-b border-slate-100 hover:bg-slate-50/50 transition-colors align-top">
                     <td className="px-4 py-2.5 font-bold text-slate-800">
@@ -469,6 +478,7 @@ export default function BhytCustomerTable({
                         {cust.workflowStatus || 'Chưa liên hệ'}
                       </span>
                     </td>
+
                     {/* ── Ngày liên hệ inline ─────────────────────────── */}
                     <td className="px-2 py-1.5">
                       <div className="relative">
@@ -501,12 +511,9 @@ export default function BhytCustomerTable({
                           onChange={(e) => handleNoteChange(cust, e.target.value, e.currentTarget)}
                           onFocus={(e) => autoResize(e.currentTarget)}
                           onBlur={() => handleNoteBlur(cust)}
-                          className="w-full resize-none overflow-hidden rounded-lg border border-transparent bg-transparent px-2 py-1 text-xs text-slate-700 placeholder-slate-300 leading-relaxed transition-all
-                            focus:outline-none focus:border-teal-300 focus:bg-white focus:shadow-sm
-                            hover:border-slate-200 hover:bg-slate-50"
+                          className="w-full resize-none overflow-hidden rounded-lg border border-transparent bg-transparent px-2 py-1 text-xs text-slate-700 placeholder-slate-300 leading-relaxed transition-all focus:outline-none focus:border-teal-300 focus:bg-white focus:shadow-sm hover:border-slate-200 hover:bg-slate-50"
                           style={{ minHeight: '28px' }}
                         />
-                        {/* Save status indicator */}
                         {saveStatus === 'saving' && (
                           <Loader2 className="absolute right-2 top-1.5 h-3 w-3 text-slate-400 animate-spin" />
                         )}
@@ -522,15 +529,15 @@ export default function BhytCustomerTable({
                         <div className="flex items-center justify-center gap-1 text-slate-400 font-medium text-[10px]">
                           <Loader2 className="h-4 w-4 animate-spin text-teal-600" />
                         </div>
-                      ) : cust.cccdImage ? (
+                      ) : cccdCount > 0 ? (
                         <div className="relative group inline-block">
                           <div
-                            onClick={() => setPreviewCccd({ url: cust.cccdImage!, cust })}
+                            onClick={() => setPreviewCccd({ cust })}
                             className="w-12 h-8 rounded-lg border border-slate-200 shadow-2xs overflow-hidden bg-slate-100 cursor-pointer relative hover:ring-2 hover:ring-teal-400 hover:scale-105 transition-all"
-                            title="Bấm để xem ảnh CCCD phóng to"
+                            title={`Xem ${cccdCount} ảnh CCCD`}
                           >
                             <img
-                              src={cust.cccdImage}
+                              src={cccdImgs[0]}
                               alt={`CCCD ${cust.name}`}
                               className="w-full h-full object-cover"
                             />
@@ -538,36 +545,31 @@ export default function BhytCustomerTable({
                               <Eye className="h-3 w-3 text-white drop-shadow" />
                             </div>
                           </div>
-                          <div className="absolute -top-1 -right-1 flex gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity z-10">
-                            <a
-                              href={cust.cccdImage}
-                              download={`CCCD_${cust.name.replace(/\s+/g, '_')}_${cust.bhxh}.jpg`}
-                              onClick={(e) => e.stopPropagation()}
-                              className="p-1 bg-white rounded-full border border-slate-200 text-slate-600 hover:text-blue-600 hover:border-blue-300 shadow-sm"
-                              title="Tải ảnh CCCD về máy tính"
-                            >
-                              <Download className="h-2.5 w-2.5" />
-                            </a>
+                          {cccdCount > 1 && (
+                            <span className="absolute -top-1 -right-1 text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-teal-600 text-white shadow pointer-events-none">
+                              {cccdCount}
+                            </span>
+                          )}
+                          {/* Hover: add more button */}
+                          <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 flex gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity z-10">
                             <label
                               className="p-1 bg-white rounded-full border border-slate-200 text-slate-600 hover:text-teal-600 hover:border-teal-300 shadow-sm cursor-pointer"
-                              title="Thay ảnh CCCD khác"
+                              title="Thêm ảnh CCCD"
+                              onClick={(e) => e.stopPropagation()}
                             >
                               <Upload className="h-2.5 w-2.5" />
                               <input
                                 type="file"
                                 accept="image/*"
-                                onChange={(e) => handleCccdUpload(cust, e)}
+                                multiple
+                                onChange={(e) => {
+                                  const files = Array.from(e.target.files ?? []);
+                                  handleCccdAddImages(cust, files);
+                                  e.target.value = '';
+                                }}
                                 className="hidden"
                               />
                             </label>
-                            <button
-                              type="button"
-                              onClick={(e) => handleCccdDelete(cust, e)}
-                              className="p-1 bg-white rounded-full border border-slate-200 text-slate-600 hover:text-red-600 hover:border-red-300 shadow-sm"
-                              title="Xóa ảnh CCCD"
-                            >
-                              <Trash2 className="h-2.5 w-2.5" />
-                            </button>
                           </div>
                         </div>
                       ) : (
@@ -577,7 +579,12 @@ export default function BhytCustomerTable({
                           <input
                             type="file"
                             accept="image/*"
-                            onChange={(e) => handleCccdUpload(cust, e)}
+                            multiple
+                            onChange={(e) => {
+                              const files = Array.from(e.target.files ?? []);
+                              handleCccdAddImages(cust, files);
+                              e.target.value = '';
+                            }}
                             className="hidden"
                           />
                         </label>
@@ -654,16 +661,13 @@ export default function BhytCustomerTable({
       {/* CCCD Image Preview Lightbox Modal */}
       {previewCccd && (
         <CccdImageModal
-          url={previewCccd.url}
+          images={getCccdImages(previewCccd.cust)}
           customerName={previewCccd.cust.name}
           bhxh={previewCccd.cust.bhxh}
           cccd={previewCccd.cust.cccd}
           onClose={() => setPreviewCccd(null)}
-          onUploadNew={(e) => {
-            handleCccdUpload(previewCccd.cust, e);
-            setPreviewCccd(null);
-          }}
-          onDelete={() => handleCccdDelete(previewCccd.cust)}
+          onAddImages={(files) => handleCccdAddImages(previewCccd.cust, files)}
+          onDeleteImage={(idx) => handleCccdDeleteImage(previewCccd.cust, idx)}
         />
       )}
     </div>
