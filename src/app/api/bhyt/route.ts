@@ -3,6 +3,28 @@ import { connectToDatabase } from '@/lib/mongodb';
 import BhytCustomer from '@/models/BhytCustomer';
 import { parseVnDate } from '@/lib/utils';
 
+function createUnaccentRegex(str: string): RegExp {
+  const map: Record<string, string> = {
+    a: '[aAáàảãạăắằẳẵặâấầẩẫậÁÀẢÃẠĂẮẰẲẴẶÂẤẦẨẪẬ]',
+    e: '[eEéèẻẽẹêếềểễệÉÈẺẼẸÊẾỀỂỄỆ]',
+    i: '[iIíìỉĩịÍÌỈĨỊ]',
+    o: '[oOóòỏõọôốồổỗộơớờởỡợÓÒỎÕỌÔỐỒỔỖỘƠỚỜỞỠỢ]',
+    u: '[uUúùủũụưứừửữựÚÙỦŨỤƯỨỪỬỮỰ]',
+    y: '[yYýỳỷỹỵÝỲỶỸỴ]',
+    d: '[dDđĐ]',
+  };
+  let result = '';
+  const noAccentStr = str.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+  for (const char of noAccentStr) {
+    if (map[char]) {
+      result += map[char];
+    } else {
+      result += char.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    }
+  }
+  return new RegExp(result, 'i');
+}
+
 export async function GET(req: NextRequest) {
   try {
     await connectToDatabase();
@@ -24,7 +46,7 @@ export async function GET(req: NextRequest) {
 
     // Text search
     if (q) {
-      const searchRegex = new RegExp(q.trim(), 'i');
+      const searchRegex = createUnaccentRegex(q.trim());
       query.$or = [
         { name: searchRegex },
         { bhxh: searchRegex },

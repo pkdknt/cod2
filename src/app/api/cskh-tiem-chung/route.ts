@@ -2,6 +2,29 @@ import { NextResponse } from 'next/server';
 import { connectToDatabase } from '@/lib/mongodb';
 import CskhVaccine from '@/models/CskhVaccine';
 
+function createUnaccentRegex(str: string): RegExp {
+  const map: Record<string, string> = {
+    a: '[aAáàảãạăắằẳẵặâấầẩẫậÁÀẢÃẠĂẮẰẲẴẶÂẤẦẨẪẬ]',
+    e: '[eEéèẻẽẹêếềểễệÉÈẺẼẸÊẾỀỂỄỆ]',
+    i: '[iIíìỉĩịÍÌỈĨỊ]',
+    o: '[oOóòỏõọôốồổỗộơớờởỡợÓÒỎÕỌÔỐỒỔỖỘƠỚỜỞỠỢ]',
+    u: '[uUúùủũụưứừửữựÚÙỦŨỤƯỨỪỬỮỰ]',
+    y: '[yYýỳỷỹỵÝỲỶỸỴ]',
+    d: '[dDđĐ]',
+  };
+  let result = '';
+  const noAccentStr = str.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+  for (const char of noAccentStr) {
+    if (map[char]) {
+      result += map[char];
+    } else {
+      // Escape regex chars
+      result += char.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    }
+  }
+  return new RegExp(result, 'i');
+}
+
 export async function GET(req: Request) {
   try {
     await connectToDatabase();
@@ -12,7 +35,7 @@ export async function GET(req: Request) {
 
     const query: any = {};
     if (q) {
-      const regex = new RegExp(q.trim(), 'i');
+      const regex = createUnaccentRegex(q.trim());
       query.$or = [
         { patientName: regex },
         { phone: regex },
