@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useState, useMemo, useEffect, useRef } from 'react';
-import XLSX from 'xlsx-js-style';
 import { Search, ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react';
 import { DATA, parseDate, parseSchedule, addInterval, sequentialInterval, fmtDate, DOSE_LABELS } from '@/lib/vaccineData';
 
@@ -323,7 +322,7 @@ export default function RemindersTab({ data, onRefresh, onEdit, onDelete }: Remi
     return sortedList;
   }, [data, filterDays, qSearch, sortKey, sortDirection]);
 
-  const handleExport = () => {
+  const handleExport = async () => {
     const headers = [
       'STT',
       'Mã đối tượng',
@@ -370,6 +369,7 @@ export default function RemindersTab({ data, onRefresh, onEdit, onDelete }: Remi
       ...rows
     ];
 
+    const { default: XLSX } = await import('xlsx-js-style');
     const ws = XLSX.utils.aoa_to_sheet(aoa);
 
     // Merge columns A to O for the title in Row 1
