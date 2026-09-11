@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { FileSpreadsheet } from 'lucide-react';
 import { BhytSoCaService } from '@/services/BhytSoCaService';
 
@@ -10,46 +10,29 @@ interface BhytSoCaImportModalProps {
 }
 
 export default function BhytSoCaImportModal({ onClose, onImportSuccess }: BhytSoCaImportModalProps) {
-  const [xlsxModule, setXlsxModule] = useState<any>(null);
   const [importFile, setImportFile] = useState<File | null>(null);
   const [sheetsList, setSheetsList] = useState<string[]>([]);
   const [selectedSheet, setSelectedSheet] = useState('');
   const [importStatus, setImportStatus] = useState('');
   const [isImporting, setIsImporting] = useState(false);
 
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      import('xlsx').then((module) => {
-        setXlsxModule(module);
-      });
-    }
-  }, []);
-
-  const handleExcelUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleExcelUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-
-    if (!xlsxModule) {
-      setImportStatus('Vui lòng đợi trong giây lát, thư viện Excel đang được tải...');
-      return;
-    }
 
     setImportFile(file);
     setImportStatus('Đang đọc file...');
 
-    const reader = new FileReader();
-    reader.onload = (evt) => {
-      try {
-        const data = new Uint8Array(evt.target?.result as ArrayBuffer);
-        const workbook = xlsxModule.read(data, { type: 'array' });
-        setSheetsList(workbook.SheetNames);
-        setSelectedSheet(workbook.SheetNames[0] || '');
-        setImportStatus('Đọc file thành công. Hãy chọn sheet để nhập.');
-      } catch (err: any) {
-        setImportStatus('Lỗi đọc file: ' + err.message);
-      }
-    };
-    reader.readAsArrayBuffer(file);
+    try {
+      const { default: XLSX } = await import('xlsx-js-style');
+      const data = new Uint8Array(await file.arrayBuffer());
+      const workbook = XLSX.read(data, { type: 'array' });
+      setSheetsList(workbook.SheetNames);
+      setSelectedSheet(workbook.SheetNames[0] || '');
+      setImportStatus('Đọc file thành công. Hãy chọn sheet để nhập.');
+    } catch (err: any) {
+      setImportStatus('Lỗi đọc file: ' + err.message);
+    }
   };
 
   const triggerImport = async () => {
@@ -60,12 +43,12 @@ export default function BhytSoCaImportModal({ onClose, onImportSuccess }: BhytSo
     setIsImporting(true);
     setImportStatus('Đang phân tích và tải lên database...');
     try {
-      if (!xlsxModule) throw new Error('Thư viện Excel chưa được tải');
+      const { default: XLSX } = await import('xlsx-js-style');
       
       const fileData = await importFile.arrayBuffer();
-      const workbook = xlsxModule.read(new Uint8Array(fileData), { type: 'array' });
+      const workbook = XLSX.read(new Uint8Array(fileData), { type: 'array' });
       const sheet = workbook.Sheets[selectedSheet];
-      const json = xlsxModule.utils.sheet_to_json(sheet) as any[];
+      const json = XLSX.utils.sheet_to_json(sheet) as any[];
 
       const mappedItems = json.map((row: any) => {
         const findVal = (keys: string[]) => {
