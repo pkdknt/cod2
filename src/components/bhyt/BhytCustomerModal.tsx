@@ -35,14 +35,36 @@ export default function BhytCustomerModal({ customer, onClose, onSave }: BhytCus
   const [showZoomModal, setShowZoomModal] = useState<boolean>(false);
   const [zoomIndex, setZoomIndex] = useState<number>(0);
 
-  const convertDateToInputFormat = (dateStr: string | undefined) => {
+  const convertDateToInputFormat = (dateStr: string | undefined): string => {
     if (!dateStr) return '';
-    if (/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) return dateStr;
-    const parts = dateStr.split('/');
-    if (parts.length === 3) {
-      return `${parts[2]}-${parts[1].padStart(2, '0')}-${parts[0].padStart(2, '0')}`;
+    // Already ISO YYYY-MM-DD — validate it's a real date
+    if (/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) {
+      const [y, m, d] = dateStr.split('-').map(Number);
+      if (m >= 1 && m <= 12 && d >= 1 && d <= 31 && y >= 1900) return dateStr;
+      return '';
     }
-    return dateStr;
+    // dd/MM/yyyy or dd/MM/yy
+    const slashParts = dateStr.split('/');
+    if (slashParts.length === 3) {
+      let [dd, mm, yy] = slashParts.map(Number);
+      if (yy < 100) yy += yy >= 50 ? 1900 : 2000;
+      if (mm >= 1 && mm <= 12 && dd >= 1 && dd <= 31 && yy >= 1900)
+        return `${yy}-${String(mm).padStart(2, '0')}-${String(dd).padStart(2, '0')}`;
+      return '';
+    }
+    // dd-MM-yyyy or dd-MM-yy (dash-separated, NOT iso — day first)
+    const dashParts = dateStr.split('-');
+    if (dashParts.length === 3) {
+      const [a, b, c] = dashParts.map(Number);
+      // If first part > 31 it's likely YYYY-MM-DD but invalid, skip
+      if (a <= 31) {
+        let [dd, mm, yy] = [a, b, c];
+        if (yy < 100) yy += yy >= 50 ? 1900 : 2000;
+        if (mm >= 1 && mm <= 12 && dd >= 1 && dd <= 31 && yy >= 1900)
+          return `${yy}-${String(mm).padStart(2, '0')}-${String(dd).padStart(2, '0')}`;
+      }
+    }
+    return '';
   };
 
   const convertDateToDisplayFormat = (dateStr: string | undefined) => {

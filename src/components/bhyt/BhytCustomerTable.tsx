@@ -133,12 +133,36 @@ export default function BhytCustomerTable({
     }
   };
 
-  // Convert dd/MM/yyyy → yyyy-MM-dd (for HTML date input value)
+  // Convert dd/MM/yyyy (or dd-MM-yy) → yyyy-MM-dd (for HTML date input value)
   const toInputDate = (vnDate: string | undefined): string => {
     if (!vnDate) return '';
-    const parts = vnDate.split('/');
-    if (parts.length !== 3) return '';
-    return `${parts[2]}-${parts[1].padStart(2,'0')}-${parts[0].padStart(2,'0')}`;
+    // Already ISO YYYY-MM-DD — validate
+    if (/^\d{4}-\d{2}-\d{2}$/.test(vnDate)) {
+      const [y, m, d] = vnDate.split('-').map(Number);
+      if (m >= 1 && m <= 12 && d >= 1 && d <= 31 && y >= 1900) return vnDate;
+      return '';
+    }
+    // dd/MM/yyyy or dd/MM/yy
+    const slashParts = vnDate.split('/');
+    if (slashParts.length === 3) {
+      let [dd, mm, yy] = slashParts.map(Number);
+      if (yy < 100) yy += yy >= 50 ? 1900 : 2000;
+      if (mm >= 1 && mm <= 12 && dd >= 1 && dd <= 31 && yy >= 1900)
+        return `${yy}-${String(mm).padStart(2,'0')}-${String(dd).padStart(2,'0')}`;
+      return '';
+    }
+    // dd-MM-yyyy or dd-MM-yy (day-first dash, not ISO)
+    const dashParts = vnDate.split('-');
+    if (dashParts.length === 3) {
+      const [a, b, c] = dashParts.map(Number);
+      if (a <= 31) {
+        let [dd, mm, yy] = [a, b, c];
+        if (yy < 100) yy += yy >= 50 ? 1900 : 2000;
+        if (mm >= 1 && mm <= 12 && dd >= 1 && dd <= 31 && yy >= 1900)
+          return `${yy}-${String(mm).padStart(2,'0')}-${String(dd).padStart(2,'0')}`;
+      }
+    }
+    return '';
   };
 
   // Convert yyyy-MM-dd → dd/MM/yyyy (for storing)

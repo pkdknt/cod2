@@ -1,8 +1,6 @@
-'use strict';
 'use client';
 
-import React, { useState, useEffect, useMemo } from 'react';
-import XLSX from 'xlsx-js-style';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import {
   CalendarDays,
   User,
@@ -195,9 +193,9 @@ export default function CskhTiemChungPage() {
     setImportStatus('Đang đọc file...');
 
     const reader = new FileReader();
-    reader.onload = (evt) => {
+    reader.onload = async (evt) => {
       try {
-        if (!XLSX) return;
+        const { default: XLSX } = await import('xlsx-js-style');
         const data = new Uint8Array(evt.target?.result as ArrayBuffer);
         const workbook = XLSX.read(data, { type: 'array' });
         setSheetsList(workbook.SheetNames);
@@ -218,7 +216,7 @@ export default function CskhTiemChungPage() {
     setIsImporting(true);
     setImportStatus('Đang phân tích và tải lên database...');
     try {
-      if (!XLSX) throw new Error('Thư viện Excel chưa được tải');
+      const { default: XLSX } = await import('xlsx-js-style');
       
       const fileData = await importFile.arrayBuffer();
       const workbook = XLSX.read(new Uint8Array(fileData), { type: 'array' });
@@ -1188,7 +1186,7 @@ export default function CskhTiemChungPage() {
                   <span className="text-xs font-bold text-teal-800">Đã chọn {selectedIds.length} hồ sơ</span>
                   <div className="flex gap-2">
                     <button 
-                      onClick={() => {
+                      onClick={async () => {
                         const selectedData = savedSchedules
                           .filter(item => selectedIds.includes(item._id))
                           .map(item => ({
@@ -1198,6 +1196,7 @@ export default function CskhTiemChungPage() {
                             'Vắc xin': item.vaccine,
                           }));
                       
+                        const { default: XLSX } = await import('xlsx-js-style');
                         const ws = XLSX.utils.json_to_sheet(selectedData);
                         
                         // Style all cells in the sheet with borders, fonts, alignments, and fills
