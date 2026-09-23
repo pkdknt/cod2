@@ -18,7 +18,11 @@ export async function GET(req: NextRequest) {
     const items = await VaccinePrice.find(query)
       .collation({ locale: 'vi', strength: 1 })
       .sort({ createdAt: -1 });
-    return NextResponse.json({ success: true, items });
+    return NextResponse.json({ success: true, items }, {
+      headers: {
+        'Cache-Control': 'public, s-maxage=30, stale-while-revalidate=60',
+      }
+    });
   } catch (error: any) {
     console.error('Error fetching vaccine prices:', error);
     return NextResponse.json({ message: 'Lỗi lấy danh sách giá vắc xin: ' + error.message }, { status: 500 });

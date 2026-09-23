@@ -62,7 +62,11 @@ export async function GET(req: Request) {
       .collation({ locale: 'vi', strength: 1 })
       .sort({ updatedAt: -1 })
       .lean();
-    return NextResponse.json({ items });
+    return NextResponse.json({ items }, {
+      headers: {
+        'Cache-Control': 'public, s-maxage=30, stale-while-revalidate=60',
+      }
+    });
   } catch (error: any) {
     console.error('Lỗi khi lấy danh sách CSKH Tiêm chủng:', error);
     return NextResponse.json({ message: 'Lỗi server' }, { status: 500 });
