@@ -65,6 +65,13 @@ export class BhytService
   }
 
   /**
+   * Fetches single BHYT customer by ID
+   */
+  public static async getById(id: string): Promise<{ success: boolean; customer: BhytCustomerData }> {
+    return fetchJson(`/api/bhyt/${id}`);
+  }
+
+  /**
    * Fetches BHYT statistics for dashboard cards
    */
   public static async getStats(): Promise<any> {

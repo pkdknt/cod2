@@ -3,6 +3,30 @@ import { connectToDatabase } from '@/lib/mongodb';
 import BhytCustomer from '@/models/BhytCustomer';
 import { parseVnDate } from '@/lib/utils';
 
+export async function GET(
+  req: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    await connectToDatabase();
+    const { id } = await params;
+    
+    if (!id) {
+      return NextResponse.json({ message: 'Thiếu ID khách hàng' }, { status: 400 });
+    }
+
+    const customer = await BhytCustomer.findById(id).lean();
+    if (!customer) {
+      return NextResponse.json({ message: 'Không tìm thấy khách hàng' }, { status: 404 });
+    }
+
+    return NextResponse.json({ success: true, customer });
+  } catch (error: any) {
+    console.error('Error fetching BHYT customer:', error);
+    return NextResponse.json({ message: 'Lỗi khi lấy dữ liệu: ' + error.message }, { status: 500 });
+  }
+}
+
 export async function PUT(
   req: Request,
   { params }: { params: Promise<{ id: string }> }

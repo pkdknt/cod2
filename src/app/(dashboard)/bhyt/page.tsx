@@ -225,9 +225,22 @@ export default function BhytPage() {
     loadCustomers();
   };
 
-  const handleEdit = (cust: BhytCustomerData) => {
-    setEditingCustomer(cust);
-    setIsModalOpen(true);
+  const handleEdit = async (cust: BhytCustomerData) => {
+    try {
+      setLoading(true);
+      const res = await BhytService.getById(cust._id!);
+      if (res.success && res.customer) {
+        setEditingCustomer(res.customer);
+      } else {
+        setEditingCustomer(cust);
+      }
+    } catch (e) {
+      console.error(e);
+      setEditingCustomer(cust);
+    } finally {
+      setLoading(false);
+      setIsModalOpen(true);
+    }
   };
 
   const handleDelete = async (id: string) => {

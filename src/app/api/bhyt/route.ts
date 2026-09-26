@@ -143,9 +143,11 @@ export async function GET(req: NextRequest) {
     // Execute query with pagination
     const skip = (page - 1) * pageSize;
     const items = await BhytCustomer.find(query)
+      .select('-cccdImage -cccdImages')
       .sort(sort)
       .skip(skip)
-      .limit(pageSize);
+      .limit(pageSize)
+      .lean();
 
     const totalFiltered = await BhytCustomer.countDocuments(query);
     const totalCustomers = await BhytCustomer.countDocuments();
