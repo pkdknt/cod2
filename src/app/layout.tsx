@@ -13,8 +13,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Nhơn Tâm Clinic - Hệ thống Quản trị",
-  description: "Hệ thống quản trị dữ liệu bệnh nhân BHYT, CSKH Tiêm chủng, Chuyển viện, Kho Dược và Vật tư y tế",
+  title: "Quản lý Tiêm Chủng - Nhơn Tâm Clinic",
+  description: "Hệ thống quản lý khách hàng tiêm chủng và bảng giá vắc xin",
 };
 
 export default function RootLayout({

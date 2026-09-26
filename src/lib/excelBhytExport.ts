@@ -1,4 +1,5 @@
 import type { BhytCustomerData } from '@/services/BhytService';
+import { getDaysRemaining } from '@/lib/utils';
 
 /**
  * Helper to dynamically load ExcelJS and export BHYT customers to .xlsx format,
@@ -31,6 +32,7 @@ export async function exportBhytCustomersToExcel(
     { header: 'Nơi KCB ban đầu', key: 'kcb', width: 30 },
     { header: 'Điện thoại', key: 'phone', width: 14 },
     { header: 'Hạn thẻ', key: 'expiry', width: 14 },
+    { header: 'Còn lại (ngày)', key: 'daysRemaining', width: 18 },
     { header: 'Trạng thái xử lý', key: 'workflowStatus', width: 18 },
     { header: 'Ghi chú', key: 'note', width: 28 },
     { header: 'Hình ảnh CCCD', key: 'cccdImage', width: 18 },
@@ -72,6 +74,14 @@ export async function exportBhytCustomersToExcel(
     const cust = customers[i];
     const rowIndex = i + 2; // Row 1 is header
 
+    const days = getDaysRemaining(cust.expiry);
+    let daysText = 'Chưa xác định';
+    if (days !== null) {
+      if (days < 0) daysText = `${days}`;
+      else if (days === 0) daysText = 'Hết hạn hôm nay';
+      else daysText = `Còn ${days} ngày`;
+    }
+
     const rowData = {
       stt: i + 1,
       name: cust.name || '',
@@ -83,6 +93,7 @@ export async function exportBhytCustomersToExcel(
       kcb: cust.kcb || '',
       phone: cust.phone || '',
       expiry: cust.expiry || '',
+      daysRemaining: daysText,
       workflowStatus: cust.workflowStatus || 'Chưa liên hệ',
       note: cust.note || '',
       cccdImage: '' // Placeholder for image cell
@@ -105,10 +116,10 @@ export async function exportBhytCustomersToExcel(
       };
 
       // Alignment rules
-      if (colNumber === 1 || colNumber === 5 || colNumber === 6 || colNumber === 9 || colNumber === 10) {
-        // STT, Dob, Gender, Phone, Expiry centered
+      if (colNumber === 1 || colNumber === 5 || colNumber === 6 || colNumber === 9 || colNumber === 10 || colNumber === 11) {
+        // STT, Dob, Gender, Phone, Expiry, DaysRemaining centered
         cell.alignment = { vertical: 'middle', horizontal: 'center' };
-      } else if (colNumber === 3 || colNumber === 4 || colNumber === 11) {
+      } else if (colNumber === 3 || colNumber === 4 || colNumber === 12) {
         // BHXH, CCCD, WorkflowStatus centered
         cell.alignment = { vertical: 'middle', horizontal: 'center' };
       } else {
@@ -138,9 +149,9 @@ export async function exportBhytCustomersToExcel(
           extension
         });
 
-        // Add image to column 13 (Column M) of current row
+        // Add image to column 14 (Column N) of current row
         worksheet.addImage(imageId, {
-          tl: { col: 12, row: rowIndex - 1 },
+          tl: { col: 13, row: rowIndex - 1 },
           ext: { width: 90, height: 55 },
           editAs: 'oneCell'
         });

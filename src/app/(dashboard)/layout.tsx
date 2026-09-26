@@ -19,7 +19,7 @@ export default function DashboardLayout({
         <header className="h-14 md:h-16 border-b border-slate-200/50 bg-white flex items-center justify-between px-4 md:px-8 z-10 shrink-0">
           <div className="flex items-center gap-2">
             <Activity className="h-4 w-4 md:h-5 md:w-5 text-teal-600" />
-            <h2 className="font-semibold text-slate-800 text-sm md:text-base tracking-tight">Hệ Thống Quản Trị</h2>
+            <h2 className="font-semibold text-slate-800 text-sm md:text-base tracking-tight">Hệ Thống Quản Lý Tiêm Chủng</h2>
           </div>
           <div className="text-xs text-slate-500 font-medium">
             Thời gian hệ thống: {new Date().toLocaleDateString('vi-VN')}
