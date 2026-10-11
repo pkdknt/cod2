@@ -1,215 +1,81 @@
 import { NextResponse } from 'next/server';
-import { connectToDatabase } from '@/lib/mongodb';
-import CskhVaccine from '@/models/CskhVaccine';
-
-function createUnaccentRegex(str: string): RegExp {
-  const map: Record<string, string> = {
-    a: '[aAáàảãạăắằẳẵặâấầẩẫậÁÀẢÃẠĂẮẰẲẴẶÂẤẦẨẪẬ]',
-    e: '[eEéèẻẽẹêếềểễệÉÈẺẼẸÊẾỀỂỄỆ]',
-    i: '[iIíìỉĩịÍÌỈĨỊ]',
-    o: '[oOóòỏõọôốồổỗộơớờởỡợÓÒỎÕỌÔỐỒỔỖỘƠỚỜỞỠỢ]',
-    u: '[uUúùủũụưứừửữựÚÙỦŨỤƯỨỪỬỮỰ]',
-    y: '[yYýỳỷỹỵÝỲỶỸỴ]',
-    d: '[dDđĐ]',
-  };
-  let result = '';
-  const noAccentStr = str.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
-  for (const char of noAccentStr) {
-    if (map[char]) {
-      result += map[char];
-    } else {
-      // Escape regex chars
-      result += char.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-    }
-  }
-  return new RegExp(result, 'i');
-}
+import { CskhVaccineService } from '@/services/CskhVaccineService';
+import { parsePageParams } from '@/lib/pagination';
+import type { PatientInput, SortDirection } from '@/lib/types';
 
 export async function GET(req: Request) {
   try {
-    await connectToDatabase();
-    
     const { searchParams } = new URL(req.url);
-    const q = searchParams.get('q') || '';
-    const vaccine = searchParams.get('vaccine') || '';
+    const { page, pageSize } = parsePageParams(searchParams);
 
-    const query: any = {};
-    if (q) {
-      const regex = createUnaccentRegex(q.trim());
-      query.$or = [
-        { patientName: regex },
-        { phone: regex },
-        { vaccine: regex }
-      ];
-    }
-
-    if (vaccine) {
-      if (vaccine.includes(' - ')) {
-        const brand = vaccine.split(' - ').slice(-1)[0];
-        query.$and = query.$and || [];
-        query.$and.push({
-          $or: [
-            { vaccine: vaccine },
-            { vaccine: brand }
-          ]
-        });
-      } else {
-        query.vaccine = vaccine;
-      }
-    }
-
-    const items = await CskhVaccine.find(query)
-      .collation({ locale: 'vi', strength: 1 })
-      .sort({ updatedAt: -1 })
-      .lean();
-    return NextResponse.json({ items }, {
-      headers: {
-        'Cache-Control': 'public, s-maxage=30, stale-while-revalidate=60',
-      }
+    const { items, pagination } = await CskhVaccineService.getAll({
+      q: searchParams.get('q') || '',
+      vaccine: searchParams.get('vaccine') || '',
+      sortKey: searchParams.get('sortKey') || '',
+      sortDir: (searchParams.get('sortDir') as SortDirection) || 'asc',
+      page,
+      pageSize,
     });
-  } catch (error: any) {
+
+    return NextResponse.json({ success: true, items, pagination });
+  } catch (error) {
     console.error('Lỗi khi lấy danh sách CSKH Tiêm chủng:', error);
-    return NextResponse.json({ message: 'Lỗi server' }, { status: 500 });
+    return NextResponse.json({ success: false, message: 'Lỗi server' }, { status: 500 });
   }
 }
 
 export async function POST(req: Request) {
   try {
-    await connectToDatabase();
     const body = await req.json();
 
     if (Array.isArray(body)) {
-      const results = [];
-      const processedSignatures = new Set();
-
-      for (const item of body) {
-        if (!item.patientName || !item.vaccine || !item.protocolId) continue;
-        
-        const pCode = item.patientCode ? String(item.patientCode).trim() : '';
-        const pName = String(item.patientName).trim();
-        const pDob = item.dob || '';
-        const pVaccine = String(item.vaccine).trim();
-
-        const signature = `${pCode || pName}|${pDob}|${pVaccine}`;
-        if (processedSignatures.has(signature)) {
-          continue;
-        }
-        processedSignatures.add(signature);
-
-        const query: any = {
-          dob: pDob,
-          vaccine: pVaccine
-        };
-
-        if (pCode) {
-          query.patientCode = pCode;
-        } else {
-          query.patientName = pName;
-        }
-
-        const existing = await CskhVaccine.findOne(query);
-        if (existing) {
-          continue;
-        }
-
-        const schedule = await CskhVaccine.create({
-          patientCode: pCode || undefined,
-          patientName: pName,
-          phone: item.phone ? String(item.phone).trim() : undefined,
-          dob: pDob,
-          gender: item.gender || '',
-          address: item.address ? String(item.address).trim() : undefined,
-          vaccine: pVaccine,
-          protocolId: String(item.protocolId).trim(),
-          dates: item.dates || ['', '', '', '', '', ''],
-          dueOverrides: item.dueOverrides || ['', '', '', '', '', ''],
-          notes: item.notes || ['', '', '', '', '', ''],
-          called: item.called || [false, false, false, false, false, false],
-          messaged: item.messaged || [false, false, false, false, false, false]
-        });
-        results.push(schedule);
-      }
-      return NextResponse.json({ message: `Đã nhập thành công ${results.length} hồ sơ!`, count: results.length });
-    }
-
-    const { id, patientCode, patientName, phone, dob, gender, address, vaccine, protocolId, dates, dueOverrides, notes, called, messaged } = body;
-
-    if (!patientName || !vaccine || !protocolId) {
-      return NextResponse.json({ message: 'Tên bệnh nhân, Vắc xin và Phác đồ là bắt buộc' }, { status: 400 });
-    }
-
-    let schedule;
-    if (id) {
-      // Update
-      schedule = await CskhVaccine.findByIdAndUpdate(
-        id,
-        {
-          patientCode: patientCode ? patientCode.trim() : undefined,
-          patientName: patientName.trim(),
-          phone: phone ? phone.trim() : undefined,
-          dob,
-          gender,
-          address: address ? address.trim() : undefined,
-          vaccine,
-          protocolId,
-          dates: dates || ['', '', '', '', '', ''],
-          dueOverrides: dueOverrides || ['', '', '', '', '', ''],
-          notes: notes || ['', '', '', '', '', ''],
-          called: called || [false, false, false, false, false, false],
-          messaged: messaged || [false, false, false, false, false, false]
-        },
-        { new: true }
-      );
-    } else {
-      // Create new
-      schedule = await CskhVaccine.create({
-        patientCode: patientCode ? patientCode.trim() : undefined,
-        patientName: patientName.trim(),
-        phone: phone ? phone.trim() : undefined,
-        dob,
-        gender,
-        address: address ? address.trim() : undefined,
-        vaccine,
-        protocolId,
-        dates: dates || ['', '', '', '', '', ''],
-        dueOverrides: dueOverrides || ['', '', '', '', '', ''],
-        notes: notes || ['', '', '', '', '', ''],
-        called: called || [false, false, false, false, false, false],
-        messaged: messaged || [false, false, false, false, false, false]
+      const result = await CskhVaccineService.importMany(body as PatientInput[]);
+      const skipped = result.matched > 0 ? `, bỏ qua ${result.matched} hồ sơ đã tồn tại` : '';
+      return NextResponse.json({
+        success: true,
+        count: result.inserted,
+        message: `Đã nhập thành công ${result.inserted} hồ sơ${skipped}!`,
       });
     }
 
-    return NextResponse.json({ schedule, message: 'Lưu thành công!' });
-  } catch (error: any) {
+    const data = body as PatientInput;
+    if (!data.patientName || !data.vaccine || !data.protocolId) {
+      return NextResponse.json(
+        { success: false, message: 'Tên bệnh nhân, Vắc xin và Phác đồ là bắt buộc' },
+        { status: 400 }
+      );
+    }
+
+    const { item, created } = await CskhVaccineService.upsert(data);
+    return NextResponse.json({
+      success: true,
+      item,
+      message: created ? 'Lưu thành công!' : 'Cập nhật thành công!',
+    });
+  } catch (error) {
     console.error('Lỗi khi lưu CSKH Tiêm chủng:', error);
-    return NextResponse.json({ message: 'Lỗi server' }, { status: 500 });
+    return NextResponse.json({ success: false, message: 'Lỗi server' }, { status: 500 });
   }
 }
 
 export async function DELETE(req: Request) {
   try {
-    await connectToDatabase();
     const { searchParams } = new URL(req.url);
     const id = searchParams.get('id');
     const idsParam = searchParams.get('ids');
 
-    const deleteAll = searchParams.get('all') === 'true';
-
-    if (deleteAll) {
-      await CskhVaccine.deleteMany({});
-      return NextResponse.json({ message: 'Đã xóa toàn bộ danh sách thành công!' });
-    } else if (idsParam) {
-      const ids = idsParam.split(',');
-      await CskhVaccine.deleteMany({ _id: { $in: ids } });
-      return NextResponse.json({ message: 'Đã xóa các mục đã chọn' });
-    } else if (id) {
-      await CskhVaccine.findByIdAndDelete(id);
-      return NextResponse.json({ message: 'Xóa thành công' });
-    } else {
-      return NextResponse.json({ message: 'Missing ID' }, { status: 400 });
+    if (searchParams.get('all') === 'true') {
+      return NextResponse.json(await CskhVaccineService.deleteAll());
     }
-  } catch (error: any) {
+    if (idsParam) {
+      return NextResponse.json(await CskhVaccineService.bulkDelete(idsParam.split(',')));
+    }
+    if (id) {
+      return NextResponse.json(await CskhVaccineService.delete(id));
+    }
+    return NextResponse.json({ success: false, message: 'Missing ID' }, { status: 400 });
+  } catch (error) {
     console.error('Lỗi khi xóa CSKH Tiêm chủng:', error);
-    return NextResponse.json({ message: 'Lỗi server' }, { status: 500 });
+    return NextResponse.json({ success: false, message: 'Lỗi server' }, { status: 500 });
   }
 }

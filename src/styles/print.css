@@ -1,0 +1,49 @@
+/*
+ * Shared print rules. `@page` size is tool-specific and injected by the tool's
+ * own <style> block (only one print tool mounts at a time).
+ */
+
+.print-sheet {
+  background: #fff;
+  color: #000;
+}
+
+@media print {
+  html,
+  body {
+    background: #fff !important;
+  }
+
+  /* Avoid any layout shifting caused by the app shell. */
+  .print-area {
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  .print-sheet {
+    box-shadow: none !important;
+    border: none !important;
+    break-inside: avoid;
+    page-break-inside: avoid;
+    margin: 0 !important;
+  }
+
+  .print-gap {
+    height: 0 !important;
+    margin: 0 !important;
+  }
+
+  /* Force background colours to survive printing (browsers drop them by default). */
+  .print-sheet,
+  .print-sheet * {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+}
+
+/* Screen-only preview frame */
+.print-sheet {
+  box-shadow: 0 1px 3px rgb(15 23 42 / 0.12);
+  border: 1px solid #e2e8f0;
+  margin: 0 auto 24px;
+}

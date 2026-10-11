@@ -22,6 +22,8 @@ const eslintConfig = defineConfig([
     "next-env.d.ts",
     "htmltemp/**",
     "scratch/**",
+    // Third-party UI/UX skill pack (vendored, not project source).
+    ".agents/**",
     "*.js"
   ]),
 ]);

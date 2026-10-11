@@ -1,0 +1,214 @@
+/* Bệnh án Răng Hàm Mặt — A3 landscape, 2 sides (front/back), ported from
+   `Benh_an_RHM_A3_2026 290626.html`. Each sheet = 2 halves (left/right). */
+
+.dr-sheet {
+  width: 420mm;
+  height: 297mm;
+  background: #fff;
+  margin: 0 auto 16px;
+  position: relative;
+  color: #000;
+  box-shadow: 0 3px 15px rgb(15 23 42 / 0.3);
+  padding: 8mm;
+  font-family: 'Times New Roman', serif;
+  font-size: 11pt;
+  line-height: 1.35;
+  overflow: hidden;
+}
+
+.dr-head {
+  text-align: center;
+  border-bottom: 1px solid #111;
+  padding-bottom: 2mm;
+  margin-bottom: 1mm;
+}
+
+.dr-head .syte {
+  font-size: 11pt;
+}
+
+.dr-head .pk {
+  font-weight: bold;
+  font-size: 13pt;
+}
+
+.dr-head .tieude {
+  font-size: 15pt;
+  font-weight: bold;
+  letter-spacing: 0.5px;
+  margin-top: 1mm;
+}
+
+.dr-head .khoa {
+  font-size: 11pt;
+  font-style: italic;
+}
+
+.dr-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6mm;
+  height: calc(297mm - 30mm);
+}
+
+.dr-half {
+  min-width: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: 2mm;
+}
+
+.dr-title {
+  text-align: center;
+  font-weight: bold;
+  font-size: 12pt;
+  border: 1px solid #111;
+  background: #f1f5f9;
+  padding: 1mm;
+}
+
+.dr-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 10pt;
+}
+
+.dr-table th,
+.dr-table td {
+  border: 1px solid #111;
+  padding: 0.6mm 1.2mm;
+  vertical-align: top;
+}
+
+.dr-table th {
+  background: #f8fafc;
+  text-align: center;
+  font-weight: bold;
+  font-size: 9.5pt;
+}
+
+.dr-vital {
+  color: #334155;
+  font-size: 9.5pt;
+}
+
+.dr-section {
+  border: 1px solid #111;
+  padding: 2mm;
+  margin-bottom: 2mm;
+}
+
+.dr-section-title {
+  font-weight: bold;
+  font-size: 11.5pt;
+  margin-bottom: 1mm;
+}
+
+.dr-row {
+  margin: 0.6mm 0;
+}
+
+.dr-row .lbl {
+  font-weight: bold;
+}
+
+.dr-doi-tuong {
+  display: flex;
+  gap: 5mm;
+  font-size: 10pt;
+  margin-top: 1mm;
+}
+
+.dr-box {
+  display: inline-block;
+  width: 4mm;
+  height: 4mm;
+  border: 1px solid #111;
+  margin-left: 1mm;
+  text-align: center;
+  line-height: 4mm;
+  font-size: 8pt;
+}
+
+.dr-lesion-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2mm;
+  text-align: center;
+}
+
+.dr-lesion-box {
+  height: 46mm;
+  border: 1px dotted #333;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #94a3b8;
+  font-size: 9pt;
+}
+
+.dr-lesion-label {
+  font-size: 9pt;
+  font-weight: bold;
+  margin-top: 0.5mm;
+}
+
+.dr-sign {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4mm;
+  margin-top: auto;
+  text-align: center;
+  font-size: 11pt;
+}
+
+.dr-sign .role {
+  font-weight: bold;
+}
+
+.dr-sign .space {
+  height: 16mm;
+}
+
+.dr-page-no {
+  position: absolute;
+  bottom: 3mm;
+  left: 0;
+  right: 0;
+  text-align: center;
+  font-size: 8pt;
+  color: #64748b;
+}
+
+/* Sheets outside the selected print range / side. */
+.dr-hidden {
+  display: none !important;
+}
+
+/* The last visible sheet must not force a trailing blank page. */
+.dr-no-break {
+  break-after: auto !important;
+  page-break-after: auto !important;
+}
+
+@media print {
+  .dr-sheet {
+    box-shadow: none !important;
+    margin: 0 !important;
+    break-after: page;
+    page-break-after: always;
+  }
+  .dr-sheet:last-child {
+    break-after: auto;
+    page-break-after: auto;
+  }
+  .dr-sheet,
+  .dr-sheet * {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  .dr-sheet .dr-half {
+    break-inside: avoid;
+  }
+}

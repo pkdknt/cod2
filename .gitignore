@@ -39,3 +39,10 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# legacy html templates & scratch scripts (kept locally, not deployed)
+/htmltemp/
+/scratch/
+/extract_paths.js
+/fix_mongoose.js
+/update_html.js

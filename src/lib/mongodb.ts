@@ -1,38 +1,50 @@
-import mongoose from 'mongoose';
-
-// Default DNS servers are used by default
+import mongoose, { type Mongoose } from 'mongoose';
 
 const MONGODB_URI = process.env.MONGODB_URI;
 
-if (!MONGODB_URI) {
-  throw new Error('Please define the MONGODB_URI environment variable inside .env.local');
+interface MongooseCache {
+  conn: Mongoose | null;
+  promise: Promise<Mongoose> | null;
 }
 
 /**
  * Global is used here to maintain a cached connection across hot reloads
- * in development. This prevents connections from growing exponentially
- * during API Route usage.
+ * in development and across invocations on serverless platforms. This prevents
+ * connections from growing exponentially and exhausting the Atlas connection limit.
  */
-let cached = (global as any).mongoose;
+const cached: MongooseCache = (global as unknown as { mongoose?: MongooseCache }).mongoose ?? {
+  conn: null,
+  promise: null,
+};
 
-if (!cached) {
-  cached = (global as any).mongoose = { conn: null, promise: null };
+if (!(global as unknown as { mongoose?: MongooseCache }).mongoose) {
+  (global as unknown as { mongoose?: MongooseCache }).mongoose = cached;
 }
 
-export async function connectToDatabase() {
+const MONGOOSE_OPTIONS = {
+  bufferCommands: false,
+  dbName: 'nhontam_db',
+  // Serverless / Atlas M0 friendly pool sizing to avoid connection exhaustion.
+  maxPoolSize: 5,
+  minPoolSize: 0,
+  // Fail fast instead of hanging ~30s when Atlas is unreachable or cold.
+  serverSelectionTimeoutMS: 5000,
+  connectTimeoutMS: 10000,
+  socketTimeoutMS: 30000,
+  maxIdleTimeMS: 10000,
+};
+
+export async function connectToDatabase(): Promise<Mongoose> {
   if (cached.conn) {
     return cached.conn;
   }
 
-  if (!cached.promise) {
-    const opts = {
-      bufferCommands: false,
-      dbName: 'nhontam_db',
-    };
+  if (!MONGODB_URI) {
+    throw new Error('Please define the MONGODB_URI environment variable inside .env.local');
+  }
 
-    cached.promise = mongoose.connect(MONGODB_URI!, opts).then((mongooseInstance) => {
-      return mongooseInstance;
-    });
+  if (!cached.promise) {
+    cached.promise = mongoose.connect(MONGODB_URI, MONGOOSE_OPTIONS);
   }
 
   try {

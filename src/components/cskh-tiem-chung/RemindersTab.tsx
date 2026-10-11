@@ -1,53 +1,37 @@
 'use client';
 
-import React, { useState, useMemo, useEffect, useRef } from 'react';
-import { Search, ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react';
-import { DATA, parseDate, parseSchedule, addInterval, sequentialInterval, fmtDate, DOSE_LABELS } from '@/lib/vaccineData';
-
-// Chuyển họ tên có dấu → không dấu, IN HOA, giữ khoảng trắng
-function toUpperNoAccent(s: string): string {
-  return (s || '')
-    .toString()
-    .replace(/[đĐ]/g, 'D')
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .toUpperCase()
-    .replace(/[^A-Z0-9\s]/g, '')
-    .replace(/\s+/g, ' ')
-    .trim();
-}
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { Search } from 'lucide-react';
+import { fmtDate } from '@/lib/vaccineData';
+import { useDebouncedValue } from '@/hooks/useDebouncedValue';
+import { useSortableTable } from '@/hooks/useSortableTable';
+import { toUpperNoAccent } from '@/lib/format';
+import { applyCellStyle, loadXLSX, THIN_BORDER, writeSheet } from '@/lib/excel';
+import Pagination from '@/components/ui/Pagination';
+import type { Pagination as PaginationType, PatientRecord, ReminderFilter, ReminderRow } from '@/lib/types';
 
 interface RemindersTabProps {
-  data: any[];
-  onRefresh?: () => void;
-  onEdit?: (item: any) => void;
+  onEdit?: (patient: PatientRecord) => void;
   onDelete?: (id: string) => void;
 }
 
-export default function RemindersTab({ data, onRefresh, onEdit, onDelete }: RemindersTabProps) {
-  const [filterDays, setFilterDays] = useState('30'); // Default < 1 month
+const PAGE_SIZE = 100;
+
+export default function RemindersTab({ onEdit, onDelete }: RemindersTabProps) {
+  const [filterDays, setFilterDays] = useState<ReminderFilter>('30');
   const [qSearch, setQSearch] = useState('');
-  const [sortKey, setSortKey] = useState<string>('due');
-  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
+  const debouncedQ = useDebouncedValue(qSearch, 400);
 
-  const requestSort = (key: string) => {
-    let direction: 'asc' | 'desc' = 'asc';
-    if (sortKey === key && sortDirection === 'asc') {
-      direction = 'desc';
-    }
-    setSortKey(key);
-    setSortDirection(direction);
-  };
+  const { sortKey, sortDirection, requestSort, renderSortIcon } = useSortableTable('due');
 
-  const renderSortIcon = (key: string) => {
-    if (sortKey !== key) {
-      return <ArrowUpDown className="inline-block ml-1 h-3 w-3 opacity-40 text-slate-400 group-hover:opacity-100 transition-opacity" />;
-    }
-    if (sortDirection === 'asc') {
-      return <ArrowUp className="inline-block ml-1 h-3 w-3 text-teal-600 font-bold" />;
-    }
-    return <ArrowDown className="inline-block ml-1 h-3 w-3 text-teal-600 font-bold" />;
-  };
+  const [rows, setRows] = useState<ReminderRow[]>([]);
+  const [pagination, setPagination] = useState<PaginationType>({
+    page: 1,
+    pageSize: PAGE_SIZE,
+    totalFiltered: 0,
+    totalPages: 1,
+  });
+  const [loading, setLoading] = useState(false);
 
   // Local state to keep track of live edits so that the UI updates immediately
   const [localEdits, setLocalEdits] = useState<{
@@ -56,24 +40,69 @@ export default function RemindersTab({ data, onRefresh, onEdit, onDelete }: Remi
       called?: boolean[];
       messaged?: boolean[];
       notes?: string[];
-    }
+    };
   }>({});
 
-  const [savingStatus, setSavingStatus] = useState<{ [patientId: string]: 'idle' | 'dirty' | 'saving' | 'saved' | 'error' }>({});
-  const [unsavedPatientIds, setUnsavedPatientIds] = useState<Set<string>>(new Set());
+  const [savingStatus, setSavingStatus] = useState<{
+    [patientId: string]: 'idle' | 'dirty' | 'saving' | 'saved' | 'error';
+  }>({});
   const timersRef = useRef<{ [patientId: string]: NodeJS.Timeout }>({});
 
+  const patientById = useMemo(() => {
+    const map = new Map<string, PatientRecord>();
+    rows.forEach((row) => map.set(row.patientId, row.patient));
+    return map;
+  }, [rows]);
+
   useEffect(() => {
+    const timers = timersRef.current;
     return () => {
-      // Clear all timers on unmount
-      Object.values(timersRef.current).forEach(t => clearTimeout(t));
+      Object.values(timers).forEach((t) => clearTimeout(t));
     };
   }, []);
 
-  const getPatientValue = (patient: any, doseIndex: number) => {
+  const abortRef = useRef<AbortController | null>(null);
+
+  const fetchReminders = useCallback(async () => {
+    abortRef.current?.abort();
+    const controller = new AbortController();
+    abortRef.current = controller;
+
+    setLoading(true);
+    try {
+      const params = new URLSearchParams({
+        filter: filterDays,
+        q: debouncedQ,
+        sortKey,
+        sortDir: sortDirection,
+        page: String(pagination.page),
+        pageSize: String(PAGE_SIZE),
+      });
+      const res = await fetch(`/api/cskh-tiem-chung/reminders?${params.toString()}`, { signal: controller.signal });
+      if (!res.ok) throw new Error('API query failed');
+      const result = await res.json();
+      if (controller.signal.aborted) return;
+      setRows(result.items || []);
+      if (result.pagination) setPagination(result.pagination);
+    } catch (e) {
+      if ((e as Error).name !== 'AbortError') console.error(e);
+    } finally {
+      if (!controller.signal.aborted) setLoading(false);
+    }
+  }, [filterDays, debouncedQ, sortKey, sortDirection, pagination.page]);
+
+  useEffect(() => {
+    setPagination((prev) => (prev.page === 1 ? prev : { ...prev, page: 1 }));
+  }, [filterDays, debouncedQ]);
+
+  useEffect(() => {
+    fetchReminders();
+  }, [fetchReminders]);
+
+  const getPatientValue = (patient: PatientRecord, doseIndex: number) => {
     const patientId = patient._id;
     const edits = localEdits[patientId] || {};
-    
+
     const dates = edits.dates || patient.dates || Array(6).fill('');
     const notes = edits.notes || patient.notes || Array(6).fill('');
     const called = edits.called || patient.called || Array(6).fill(false);
@@ -84,86 +113,15 @@ export default function RemindersTab({ data, onRefresh, onEdit, onDelete }: Remi
       dateStr: dates[doseIndex] || '',
       noteStr: notes[doseIndex] || '',
       isCalled: !!called[doseIndex],
-      isMessaged: !!messaged[doseIndex]
+      isMessaged: !!messaged[doseIndex],
     };
   };
 
-  const handleChange = (patientId: string, doseIndex: number, field: string, value: any) => {
-    const patient = data.find(p => p._id === patientId);
+  const savePatient = async (patientId: string, edits: Record<string, unknown>) => {
+    const patient = patientById.get(patientId);
     if (!patient) return;
 
-    const currentEdits = localEdits[patientId] || {};
-    const dates = [...(currentEdits.dates || patient.dates || Array(6).fill(''))];
-    const notes = [...(currentEdits.notes || patient.notes || Array(6).fill(''))];
-    const called = [...(currentEdits.called || patient.called || Array(6).fill(false))];
-    const messaged = [...(currentEdits.messaged || patient.messaged || Array(6).fill(false))];
-
-    if (field === 'dates') {
-      dates[doseIndex] = value;
-    } else if (field === 'notes') {
-      notes[doseIndex] = value;
-    } else if (field === 'called') {
-      called[doseIndex] = value;
-    } else if (field === 'messaged') {
-      messaged[doseIndex] = value;
-    }
-
-    setLocalEdits(prev => ({
-      ...prev,
-      [patientId]: { dates, notes, called, messaged }
-    }));
-
-    setUnsavedPatientIds(prev => {
-      const next = new Set(prev);
-      next.add(patientId);
-      return next;
-    });
-
-    setSavingStatus(prev => ({ ...prev, [patientId]: 'dirty' }));
-
-    if (timersRef.current[patientId]) {
-      clearTimeout(timersRef.current[patientId]);
-    }
-
-    timersRef.current[patientId] = setTimeout(() => {
-      savePatient(patientId, { dates, notes, called, messaged });
-    }, 1500);
-  };
-
-  const handleInputBlur = (patientId: string) => {
-    if (timersRef.current[patientId]) {
-      clearTimeout(timersRef.current[patientId]);
-    }
-    const currentEdits = localEdits[patientId];
-    if (currentEdits) {
-      savePatient(patientId, currentEdits);
-    }
-  };
-
-  const handleEditClick = (item: any) => {
-    const patientId = item.patientId;
-    if (timersRef.current[patientId]) {
-      clearTimeout(timersRef.current[patientId]);
-    }
-    const edits = localEdits[patientId];
-    if (edits) {
-      savePatient(patientId, edits);
-    }
-    const mergedPatient = {
-      ...item.patient,
-      dates: edits?.dates || item.patient.dates,
-      notes: edits?.notes || item.patient.notes,
-      called: edits?.called || item.patient.called,
-      messaged: edits?.messaged || item.patient.messaged
-    };
-    if (onEdit) onEdit(mergedPatient);
-  };
-
-  const savePatient = async (patientId: string, edits: any) => {
-    const patient = data.find(p => p._id === patientId);
-    if (!patient) return;
-
-    setSavingStatus(prev => ({ ...prev, [patientId]: 'saving' }));
+    setSavingStatus((prev) => ({ ...prev, [patientId]: 'saving' }));
 
     try {
       const res = await fetch('/api/cskh-tiem-chung', {
@@ -183,288 +141,139 @@ export default function RemindersTab({ data, onRefresh, onEdit, onDelete }: Remi
           dates: edits.dates,
           notes: edits.notes,
           called: edits.called,
-          messaged: edits.messaged
-        })
+          messaged: edits.messaged,
+        }),
       });
 
       if (!res.ok) throw new Error('Auto-save failed');
 
-      setSavingStatus(prev => ({ ...prev, [patientId]: 'saved' }));
-      
-      setUnsavedPatientIds(prev => {
-        const next = new Set(prev);
-        next.delete(patientId);
-        return next;
-      });
-
-      setTimeout(() => {
-        if (onRefresh) onRefresh();
-      }, 800);
-
+      setSavingStatus((prev) => ({ ...prev, [patientId]: 'saved' }));
+      setTimeout(() => fetchReminders(), 800);
     } catch (e) {
       console.error(e);
-      setSavingStatus(prev => ({ ...prev, [patientId]: 'error' }));
+      setSavingStatus((prev) => ({ ...prev, [patientId]: 'error' }));
     }
   };
 
-  // Compute upcoming doses for all patients
-  const reminders = useMemo(() => {
-    const list: any[] = [];
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
+  const handleChange = (patientId: string, doseIndex: number, field: string, value: unknown) => {
+    const patient = patientById.get(patientId);
+    if (!patient) return;
 
-    data.forEach((patient) => {
-      const protocol = DATA.protocols.find(p => p.id === patient.protocolId);
-      if (!protocol) return;
+    const currentEdits = localEdits[patientId] || {};
+    const dates = [...(currentEdits.dates || patient.dates || Array(6).fill(''))];
+    const notes = [...(currentEdits.notes || patient.notes || Array(6).fill(''))];
+    const called = [...(currentEdits.called || patient.called || Array(6).fill(false))];
+    const messaged = [...(currentEdits.messaged || patient.messaged || Array(6).fill(false))];
 
-      const plan = parseSchedule(protocol.schedule);
-      const computed: (Date | null)[] = Array(6).fill(null);
-      const dates = patient.dates || Array(6).fill('');
-      const dueOverrides = patient.dueOverrides || Array(6).fill('');
+    if (field === 'dates') dates[doseIndex] = value as string;
+    else if (field === 'notes') notes[doseIndex] = value as string;
+    else if (field === 'called') called[doseIndex] = value as boolean;
+    else if (field === 'messaged') messaged[doseIndex] = value as boolean;
 
-      // Math for dates
-      for (let i = 0; i < 6; i++) {
-        const actual = parseDate(dates[i]);
-        const override = parseDate(dueOverrides[i]);
+    setLocalEdits((prev) => ({ ...prev, [patientId]: { dates, notes, called, messaged } }));
+    setSavingStatus((prev) => ({ ...prev, [patientId]: 'dirty' }));
 
-        if (actual) {
-          computed[i] = actual;
-        } else if (i >= 1 && override) {
-          computed[i] = override;
-        } else {
-          const it = plan.intervals[i];
-          if (i === 0) {
-            computed[i] = null;
-          } else {
-            const prevActual = parseDate(dates[i - 1]) || parseDate(dueOverrides[i - 1]) || computed[i - 1];
-            const seq = prevActual ? sequentialInterval(plan, i) : null;
-            if (seq && computed[i - 1]) {
-              computed[i] = addInterval(computed[i - 1] as Date, seq);
-            } else if (it && computed[it.from]) {
-              computed[i] = addInterval(computed[it.from] as Date, it);
-            }
-          }
-        }
+    if (timersRef.current[patientId]) clearTimeout(timersRef.current[patientId]);
+    timersRef.current[patientId] = setTimeout(() => {
+      savePatient(patientId, { dates, notes, called, messaged });
+    }, 1500);
+  };
 
-        // Check if this dose is NOT injected yet
-        if (!actual) {
-          const activeDue = override || computed[i];
-          if (activeDue) {
-            const diff = Math.round((activeDue.getTime() - today.getTime()) / 86400000);
-            
-            // Apply filter based on dropdown
-            let isMatch = false;
-            if (filterDays === 'all') isMatch = true;
-            else if (filterDays === 'overdue') isMatch = diff < 0;
-            else if (filterDays === 'today') isMatch = diff === 0;
-            else isMatch = diff <= parseInt(filterDays);
+  const handleInputBlur = (patientId: string) => {
+    if (timersRef.current[patientId]) clearTimeout(timersRef.current[patientId]);
+    const currentEdits = localEdits[patientId];
+    if (currentEdits) savePatient(patientId, currentEdits);
+  };
 
-            if (isMatch) {
-              list.push({
-                _id: patient._id + '_' + i,
-                patientId: patient._id,
-                patientCode: patient.patientCode || '',
-                patientName: patient.patientName || '',
-                phone: patient.phone || '',
-                dob: patient.dob || '',
-                gender: patient.gender || '',
-                address: patient.address || '',
-                vaccineAndDose: `${patient.vaccine} ${DOSE_LABELS[i].replace('Mũi ', '')}`,
-                doseLabel: DOSE_LABELS[i],
-                actualDateStr: dates[i] || '',
-                plannedDateStr: fmtDate(activeDue),
-                diff,
-                due: activeDue,
-                doseIndex: i,
-                patient: patient
-              });
-            }
-          }
-        }
-      }
-    });
+  const handleEditClick = (item: ReminderRow) => {
+    const patientId = item.patientId;
+    if (timersRef.current[patientId]) clearTimeout(timersRef.current[patientId]);
+    const edits = localEdits[patientId];
+    if (edits) savePatient(patientId, edits);
 
-    // Apply sorting
-    const sortedList = [...list];
-    if (sortKey === 'due') {
-      sortedList.sort((a, b) => sortDirection === 'asc' ? a.due.getTime() - b.due.getTime() : b.due.getTime() - a.due.getTime());
-    } else if (sortKey === 'patientCode') {
-      sortedList.sort((a, b) => sortDirection === 'asc' ? a.patientCode.localeCompare(b.patientCode) : b.patientCode.localeCompare(a.patientCode));
-    } else if (sortKey === 'name') {
-      sortedList.sort((a, b) => sortDirection === 'asc' 
-        ? a.patientName.localeCompare(b.patientName, 'vi', { sensitivity: 'accent' }) 
-        : b.patientName.localeCompare(a.patientName, 'vi', { sensitivity: 'accent' }));
-    } else if (sortKey === 'phone') {
-      sortedList.sort((a, b) => sortDirection === 'asc' ? a.phone.localeCompare(b.phone) : b.phone.localeCompare(a.phone));
-    } else if (sortKey === 'dob') {
-      sortedList.sort((a, b) => sortDirection === 'asc' ? a.dob.localeCompare(b.dob) : b.dob.localeCompare(a.dob));
-    } else if (sortKey === 'gender') {
-      sortedList.sort((a, b) => sortDirection === 'asc' ? a.gender.localeCompare(b.gender) : b.gender.localeCompare(a.gender));
-    } else if (sortKey === 'address') {
-      sortedList.sort((a, b) => sortDirection === 'asc' ? a.address.localeCompare(b.address) : b.address.localeCompare(a.address));
-    } else if (sortKey === 'vaccineAndDose') {
-      sortedList.sort((a, b) => sortDirection === 'asc' ? a.vaccineAndDose.localeCompare(b.vaccineAndDose) : b.vaccineAndDose.localeCompare(a.vaccineAndDose));
-    } else if (sortKey === 'diff') {
-      sortedList.sort((a, b) => sortDirection === 'asc' ? a.diff - b.diff : b.diff - a.diff);
-    }
-
-    // Apply text search filter
-    if (qSearch) {
-      const q = qSearch.toLowerCase();
-      return sortedList.filter(item => 
-        item.patientName.toLowerCase().includes(q) ||
-        item.patientCode.toLowerCase().includes(q) ||
-        item.vaccineAndDose.toLowerCase().includes(q) ||
-        item.phone.toLowerCase().includes(q)
-      );
-    }
-
-    return sortedList;
-  }, [data, filterDays, qSearch, sortKey, sortDirection]);
+    const mergedPatient: PatientRecord = {
+      ...item.patient,
+      dates: edits?.dates || item.patient.dates,
+      notes: edits?.notes || item.patient.notes,
+      called: edits?.called || item.patient.called,
+      messaged: edits?.messaged || item.patient.messaged,
+    };
+    if (onEdit) onEdit(mergedPatient);
+  };
 
   const handleExport = async () => {
-    const headers = [
-      'STT',
-      'Mã đối tượng',
-      'Họ tên',
-      'Họ tên không dấu',
-      'Số điện thoại',
-      'Ngày sinh',
-      'Giới tính',
-      'Địa chỉ',
-      'Mũi tiêm',
-      'Ngày tiêm',
-      'Kế hoạch tiêm',
-      'Đã tiêm',
-      'Đã gọi',
-      'Đã nhắn tin',
-      'Ghi chú nhắc hẹn'
-    ];
-
-    const rows = reminders.map((item, index) => {
-      const vals = getPatientValue(item.patient, item.doseIndex);
-      return [
-        index + 1,
-        item.patientCode,
-        item.patientName,
-        toUpperNoAccent(item.patientName || ''),
-        item.phone,
-        item.dob,
-        item.gender,
-        item.address,
-        item.vaccineAndDose,
-        vals.dateStr,
-        item.plannedDateStr,
-        vals.hasDate ? 'Đã tiêm' : 'Chưa tiêm',
-        vals.isCalled ? 'Đã gọi' : 'Chưa gọi',
-        vals.isMessaged ? 'Đã nhắn tin' : 'Chưa nhắn tin',
-        vals.noteStr
-      ];
-    });
-
-    const aoa = [
-      ['DANH SÁCH NHẮC HẸN TIÊM VẮC XIN'],
-      [],
-      headers,
-      ...rows
-    ];
-
-    const { default: XLSX } = await import('xlsx-js-style');
-    const ws = XLSX.utils.aoa_to_sheet(aoa);
-
-    // Merge columns A to O for the title in Row 1
-    ws['!merges'] = [
-      { s: { c: 0, r: 0 }, e: { c: 14, r: 0 } }
-    ];
-
-    // Set row heights for padding
-    ws['!rows'] = [
-      { hpt: 30 },
-      { hpt: 15 },
-      { hpt: 22 }
-    ];
-    
-    // Style all cells in the sheet with borders, fonts, alignments, and fills
-    const range = XLSX.utils.decode_range(ws['!ref'] || 'A1:A1');
-    for (let R = range.s.r; R <= range.e.r; ++R) {
-      for (let C = range.s.c; C <= range.e.c; ++C) {
-        const cell_ref = XLSX.utils.encode_cell({ c: C, r: R });
-        
-        // Ensure the cell exists so we can style it (especially for merged cells)
-        if (!ws[cell_ref]) {
-          ws[cell_ref] = { t: 'z', v: '' };
-        }
-
-        if (R === 0) {
-          // Styled Title row
-          ws[cell_ref].s = {
-            font: {
-              name: 'Arial',
-              sz: 14,
-              bold: true,
-              color: { rgb: '0F766E' }
-            },
-            alignment: {
-              horizontal: 'center',
-              vertical: 'center'
-            }
-          };
-          continue;
-        }
-
-        if (R === 1) {
-          // Spacer row
-          continue;
-        }
-
-        if (R === 2) {
-          // Table header row
-          ws[cell_ref].s = {
-            border: {
-              top: { style: 'thin', color: { rgb: 'A0A0A0' } },
-              bottom: { style: 'thin', color: { rgb: 'A0A0A0' } },
-              left: { style: 'thin', color: { rgb: 'A0A0A0' } },
-              right: { style: 'thin', color: { rgb: 'A0A0A0' } }
-            },
-            font: {
-              name: 'Arial',
-              sz: 10,
-              bold: true
-            },
-            alignment: {
-              horizontal: 'center',
-              vertical: 'center'
-            },
-            fill: {
-              fgColor: { rgb: 'F2F2F2' }
-            }
-          };
-          continue;
-        }
-
-        // Data rows (R >= 3)
-        ws[cell_ref].s = {
-          border: {
-            top: { style: 'thin', color: { rgb: 'A0A0A0' } },
-            bottom: { style: 'thin', color: { rgb: 'A0A0A0' } },
-            left: { style: 'thin', color: { rgb: 'A0A0A0' } },
-            right: { style: 'thin', color: { rgb: 'A0A0A0' } }
-          },
-          font: {
-            name: 'Arial',
-            sz: 10
-          },
-          alignment: {
-            horizontal: (C === 0 || C === 3 || C === 4 || C === 5 || C === 8 || C === 9 || C === 10 || C === 11 || C === 12) ? 'center' : 'left',
-            vertical: 'center'
-          }
-        };
+    setLoading(true);
+    try {
+      const params = new URLSearchParams({
+        filter: filterDays,
+        q: debouncedQ,
+        sortKey,
+        sortDir: sortDirection,
+        all: 'true',
+      });
+      const res = await fetch(`/api/cskh-tiem-chung/reminders?${params.toString()}`);
+      const result = await res.json();
+      const exportRows: ReminderRow[] = result.items || [];
+      if (exportRows.length === 0) {
+        alert('Không có dữ liệu để xuất.');
+        return;
       }
-    }
 
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, "Nhac_Hen");
-    XLSX.writeFile(wb, "DanhSachNhacHenTiem.xlsx");
+      const headers = [
+        'STT', 'Mã đối tượng', 'Họ tên', 'Họ tên không dấu', 'Số điện thoại', 'Ngày sinh',
+        'Giới tính', 'Địa chỉ', 'Mũi tiêm', 'Ngày tiêm', 'Kế hoạch tiêm', 'Đã tiêm',
+        'Đã gọi', 'Đã nhắn tin', 'Ghi chú nhắc hẹn',
+      ];
+
+      const dataRows = exportRows.map((item, index) => {
+        const vals = getPatientValue(item.patient, item.doseIndex);
+        return [
+          index + 1, item.patientCode, item.patientName, toUpperNoAccent(item.patientName || ''),
+          item.phone, item.dob, item.gender, item.address, item.vaccineAndDose, vals.dateStr,
+          item.plannedDateStr, vals.hasDate ? 'Đã tiêm' : 'Chưa tiêm',
+          vals.isCalled ? 'Đã gọi' : 'Chưa gọi', vals.isMessaged ? 'Đã nhắn tin' : 'Chưa nhắn tin', vals.noteStr,
+        ];
+      });
+
+      const XLSX = await loadXLSX();
+      const aoa = [['DANH SÁCH NHẮC HẸN TIÊM VẮC XIN'], [], headers, ...dataRows];
+      const ws = XLSX.utils.aoa_to_sheet(aoa);
+
+      applyCellStyle(XLSX, ws, (R, C) => {
+        if (R === 0) {
+          return { font: { name: 'Arial', sz: 14, bold: true, color: { rgb: '0F766E' } }, alignment: { horizontal: 'center', vertical: 'center' } };
+        }
+        if (R === 1) return undefined;
+        if (R === 2) {
+          return {
+            border: THIN_BORDER,
+            font: { name: 'Arial', sz: 10, bold: true },
+            alignment: { horizontal: 'center', vertical: 'center' },
+            fill: { fgColor: { rgb: 'F2F2F2' } },
+          };
+        }
+        return {
+          border: THIN_BORDER,
+          font: { name: 'Arial', sz: 10 },
+          alignment: {
+            horizontal: [0, 3, 4, 5, 8, 9, 10, 11, 12].includes(C) ? 'center' : 'left',
+            vertical: 'center',
+          },
+        };
+      }, { createMissing: true });
+
+      writeSheet(XLSX, {
+        ws,
+        sheetName: 'Nhac_Hen',
+        fileName: 'DanhSachNhacHenTiem.xlsx',
+        merges: [{ s: { c: 0, r: 0 }, e: { c: 14, r: 0 } }],
+        rows: [{ hpt: 30 }, { hpt: 15 }, { hpt: 22 }],
+      });
+    } catch (e) {
+      alert('Không thể xuất Excel: ' + (e as Error).message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -488,7 +297,7 @@ export default function RemindersTab({ data, onRefresh, onEdit, onDelete }: Remi
           <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">Thời gian giới hạn</label>
           <select
             value={filterDays}
-            onChange={(e) => setFilterDays(e.target.value)}
+            onChange={(e) => setFilterDays(e.target.value as ReminderFilter)}
             className="w-full rounded-xl border border-slate-200 p-2 text-xs font-semibold outline-none focus:border-teal-500"
           >
             <option value="overdue">Đã quá hạn</option>
@@ -504,11 +313,14 @@ export default function RemindersTab({ data, onRefresh, onEdit, onDelete }: Remi
       <div className="flex-1 bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden flex flex-col min-h-[500px] md:min-h-0">
         <div className="px-5 py-3 border-b border-slate-100 flex items-center justify-between bg-slate-50 shrink-0">
           <h2 className="font-bold text-slate-800 flex items-center gap-2">
-            Kết quả thống kê <span className="text-xs bg-teal-100 text-teal-800 px-2 py-0.5 rounded-full">{reminders.length} mũi</span>
+            Kết quả thống kê
+            <span className="text-xs bg-teal-100 text-teal-800 px-2 py-0.5 rounded-full">
+              {pagination.totalFiltered} mũi
+            </span>
           </h2>
           <button
             onClick={handleExport}
-            disabled={reminders.length === 0}
+            disabled={loading || pagination.totalFiltered === 0}
             className="inline-flex items-center gap-1.5 rounded-lg bg-teal-600 px-4 py-2 text-xs font-bold text-white shadow hover:bg-teal-500 disabled:opacity-50"
           >
             Xuất Danh Sách
@@ -559,15 +371,15 @@ export default function RemindersTab({ data, onRefresh, onEdit, onDelete }: Remi
               </tr>
             </thead>
             <tbody>
-              {reminders.length === 0 ? (
+              {rows.length === 0 ? (
                 <tr>
                   <td colSpan={17} className="text-center py-20 text-slate-400 font-bold">
-                    Không có lịch hẹn nào thỏa mãn điều kiện.
+                    {loading ? 'Đang tải...' : 'Không có lịch hẹn nào thỏa mãn điều kiện.'}
                   </td>
                 </tr>
               ) : (
-                reminders.map((item, index) => {
-                  let statusBadge = null;
+                rows.map((item, index) => {
+                  let statusBadge;
                   if (item.diff < 0) {
                     statusBadge = <span className="px-2 py-0.5 rounded text-[10px] bg-red-100 text-red-700 font-bold border border-red-200">Quá hạn {Math.abs(item.diff)} ngày</span>;
                   } else if (item.diff === 0) {
@@ -581,7 +393,7 @@ export default function RemindersTab({ data, onRefresh, onEdit, onDelete }: Remi
 
                   return (
                     <tr key={item._id} className="group border-b border-slate-100 h-12 bg-white hover:bg-slate-50 transition-colors">
-                      <td className="pl-6 text-slate-400 font-bold border border-slate-200 text-center sticky left-0 z-10 bg-white group-hover:bg-slate-50" style={{ minWidth: '48px', maxWidth: '48px' }}>{index + 1}</td>
+                      <td className="pl-6 text-slate-400 font-bold border border-slate-200 text-center sticky left-0 z-10 bg-white group-hover:bg-slate-50" style={{ minWidth: '48px', maxWidth: '48px' }}>{(pagination.page - 1) * PAGE_SIZE + index + 1}</td>
                       <td className="font-semibold text-slate-600 border border-slate-200 px-3 sticky z-10 bg-white group-hover:bg-slate-50" style={{ left: '48px', minWidth: '128px', maxWidth: '128px' }}>{item.patientCode}</td>
                       <td className="font-bold text-slate-800 uppercase border border-slate-200 px-3 sticky z-10 bg-white group-hover:bg-slate-50" style={{ left: '176px', minWidth: '176px', maxWidth: '176px' }}>{item.patientName}</td>
                       <td className="font-semibold text-slate-500 border border-slate-200 px-3 sticky z-10 bg-white group-hover:bg-slate-50 tracking-wide text-[11px]" style={{ left: '352px', minWidth: '160px', maxWidth: '160px' }}>{toUpperNoAccent(item.patientName || '')}</td>
@@ -594,8 +406,7 @@ export default function RemindersTab({ data, onRefresh, onEdit, onDelete }: Remi
                       <td className="font-bold text-teal-800 border border-slate-200 px-3">{item.vaccineAndDose}</td>
                       <td className="text-center text-slate-500 font-semibold border border-slate-200 px-3">{vals.dateStr || '—'}</td>
                       <td className="text-center font-bold text-slate-700 border border-slate-200 px-3">{item.plannedDateStr}</td>
-                      
-                      {/* Checkboxes */}
+
                       <td className="text-center border border-slate-200">
                         <input
                           type="checkbox"
@@ -611,9 +422,7 @@ export default function RemindersTab({ data, onRefresh, onEdit, onDelete }: Remi
                         <input
                           type="checkbox"
                           checked={vals.isCalled}
-                          onChange={(e) => {
-                            handleChange(item.patientId, item.doseIndex, 'called', e.target.checked);
-                          }}
+                          onChange={(e) => handleChange(item.patientId, item.doseIndex, 'called', e.target.checked)}
                           className="w-4 h-4 rounded border-slate-350 text-teal-600 focus:ring-teal-500 cursor-pointer"
                         />
                       </td>
@@ -621,49 +430,35 @@ export default function RemindersTab({ data, onRefresh, onEdit, onDelete }: Remi
                         <input
                           type="checkbox"
                           checked={vals.isMessaged}
-                          onChange={(e) => {
-                            handleChange(item.patientId, item.doseIndex, 'messaged', e.target.checked);
-                          }}
+                          onChange={(e) => handleChange(item.patientId, item.doseIndex, 'messaged', e.target.checked)}
                           className="w-4 h-4 rounded border-slate-350 text-teal-600 focus:ring-teal-500 cursor-pointer"
                         />
                       </td>
-                      
-                      {/* Note Input */}
+
                       <td className="py-1 border border-slate-200 px-3">
                         <input
                           type="text"
                           value={vals.noteStr}
                           placeholder="Ghi chú..."
-                          onChange={(e) => {
-                            handleChange(item.patientId, item.doseIndex, 'notes', e.target.value);
-                          }}
+                          onChange={(e) => handleChange(item.patientId, item.doseIndex, 'notes', e.target.value)}
                           onBlur={() => handleInputBlur(item.patientId)}
                           className="w-full max-w-[130px] text-xs px-2 py-1.5 border border-slate-200 rounded-xl outline-none focus:border-teal-500"
                         />
                       </td>
-                      
+
                       <td className="border border-slate-200 px-3">{statusBadge}</td>
-                      
-                      {/* Thao tác (Save Status / Manual Save / Edit & Delete) */}
+
                       <td className="pr-6 text-center border border-slate-200">
                         <div className="flex flex-col items-center gap-1.5 justify-center min-w-[80px] py-1">
-                          {status === 'saving' && (
-                            <span className="text-[10px] text-teal-600 font-bold animate-pulse">Đang lưu...</span>
-                          )}
-                          {status === 'saved' && (
-                            <span className="text-[10px] text-emerald-600 font-bold">Đã lưu</span>
-                          )}
-                          {status === 'error' && (
-                            <span className="text-[10px] text-red-500 font-bold">Lỗi lưu!</span>
-                          )}
+                          {status === 'saving' && <span className="text-[10px] text-teal-600 font-bold animate-pulse">Đang lưu...</span>}
+                          {status === 'saved' && <span className="text-[10px] text-emerald-600 font-bold">Đã lưu</span>}
+                          {status === 'error' && <span className="text-[10px] text-red-500 font-bold">Lỗi lưu!</span>}
                           {status === 'dirty' && (
                             <div className="flex flex-col items-center gap-0.5">
                               <span className="text-[9px] text-amber-600 font-semibold">Chờ 1.5s...</span>
                               <button
                                 onClick={() => {
-                                  if (timersRef.current[item.patientId]) {
-                                    clearTimeout(timersRef.current[item.patientId]);
-                                  }
+                                  if (timersRef.current[item.patientId]) clearTimeout(timersRef.current[item.patientId]);
                                   const currentEdits = localEdits[item.patientId] || {};
                                   savePatient(item.patientId, currentEdits);
                                 }}
@@ -673,27 +468,16 @@ export default function RemindersTab({ data, onRefresh, onEdit, onDelete }: Remi
                               </button>
                             </div>
                           )}
-                          {(!status || status === 'idle') && (
-                            <span className="text-[10px] text-slate-400 font-semibold">—</span>
-                          )}
+                          {(!status || status === 'idle') && <span className="text-[10px] text-slate-400 font-semibold">—</span>}
 
-                          {/* Divider and Actions */}
                           <div className="flex gap-2.5 justify-center border-t border-slate-100 pt-1 w-full">
                             {onEdit && (
-                              <button
-                                onClick={() => handleEditClick(item)}
-                                className="text-teal-600 hover:text-teal-800 font-bold text-[10px]"
-                                title="Chỉnh sửa hồ sơ"
-                              >
+                              <button onClick={() => handleEditClick(item)} className="text-teal-600 hover:text-teal-800 font-bold text-[10px]" title="Chỉnh sửa hồ sơ">
                                 Sửa
                               </button>
                             )}
                             {onDelete && (
-                              <button
-                                onClick={() => onDelete(item.patientId)}
-                                className="text-red-500 hover:text-red-700 font-bold text-[10px]"
-                                title="Xóa lịch hẹn"
-                              >
+                              <button onClick={() => onDelete(item.patientId)} className="text-red-500 hover:text-red-700 font-bold text-[10px]" title="Xóa lịch hẹn">
                                 Xóa
                               </button>
                             )}
@@ -707,6 +491,14 @@ export default function RemindersTab({ data, onRefresh, onEdit, onDelete }: Remi
             </tbody>
           </table>
         </div>
+
+        <Pagination
+          page={pagination.page}
+          totalPages={pagination.totalPages}
+          totalFiltered={pagination.totalFiltered}
+          pageSize={PAGE_SIZE}
+          onPageChange={(p) => setPagination((prev) => ({ ...prev, page: p }))}
+        />
       </div>
     </div>
   );

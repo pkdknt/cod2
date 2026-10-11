@@ -2,11 +2,42 @@
 
 @theme {
   --font-sans: var(--font-plus-jakarta-sans), ui-sans-serif, system-ui, sans-serif;
+
+  /* ---- Semantic palette (medical teal-600 primary, per PROJECT_RULES §2) ---- */
+  --color-primary: #0d9488;        /* teal-600 */
+  --color-primary-strong: #0f766e; /* teal-700 */
+  --color-primary-soft: #f0fdfa;   /* teal-50 */
+  --color-primary-ring: #14b8a6;   /* teal-500 */
+
+  --color-canvas: #f8fafc;         /* slate-50 */
+  --color-surface: #ffffff;
+  --color-line: #e2e8f0;           /* slate-200 */
+  --color-line-strong: #cbd5e1;    /* slate-300 */
+
+  --color-ink: #0f172a;            /* slate-900 */
+  --color-ink-soft: #475569;       /* slate-600 */
+  --color-ink-muted: #64748b;      /* slate-500 */
+
+  --color-success: #16a34a;
+  --color-success-soft: #f0fdf4;
+  --color-warning: #b45309;
+  --color-warning-soft: #fffbeb;
+  --color-danger: #dc2626;
+  --color-danger-soft: #fef2f2;
+  --color-info: #0284c7;
+  --color-info-soft: #f0f9ff;
+
+  /* ---- Elevation: soft, tinted shadows (no harsh black) ---- */
+  --shadow-card: 0 1px 2px 0 rgb(15 23 42 / 0.04), 0 1px 3px 0 rgb(15 23 42 / 0.03);
+  --shadow-pop: 0 12px 32px -12px rgb(15 23 42 / 0.18);
 }
 
 :root {
-  --background: #f8fafc;
-  --foreground: #0f172a;
+  --background: var(--color-canvas);
+  --foreground: var(--color-ink);
+  --ring-width: 2px;
+  --ring-color: var(--color-primary-ring);
+  --transition-base: 160ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 body {
@@ -17,12 +48,58 @@ body {
   padding: 0;
 }
 
+/* ---- Accessibility: visible focus for keyboard navigation ---- */
+:focus-visible {
+  outline: none;
+  box-shadow:
+    0 0 0 var(--ring-width) #ffffff,
+    0 0 0 calc(var(--ring-width) + 2px) var(--ring-color);
+  border-radius: 0.5rem;
+}
+
+/* ---- Respect reduced motion ---- */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ---- Interactive elements: pointer cursor + tactile press (PROJECT_RULES §2) ---- */
+button:not(:disabled),
+[role='button']:not([aria-disabled='true']),
+label[for],
+select {
+  cursor: pointer;
+}
+
+.pressable {
+  transition:
+    transform var(--transition-base),
+    background-color var(--transition-base),
+    border-color var(--transition-base),
+    color var(--transition-base),
+    box-shadow var(--transition-base);
+}
+.pressable:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
 /* Hide scrollbar for Chrome, Safari and Opera */
 .scrollbar-none::-webkit-scrollbar {
   display: none;
 }
 /* Hide scrollbar for IE, Edge and Firefox */
 .scrollbar-none {
-  -ms-overflow-style: none;  /* IE and Edge */
-  scrollbar-width: none;  /* Firefox */
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+}
+
+/* Keep single-line labels on buttons (PROJECT_RULES: no wrapping at desktop) */
+.nowrap-label {
+  white-space: nowrap;
 }

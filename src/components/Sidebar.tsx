@@ -5,19 +5,15 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
   Activity,
-  LayoutDashboard,
-  ShieldCheck,
-  Hospital,
+  BarChart3,
   ClipboardList,
-  Package,
-  Syringe,
-  Car,
+  DollarSign,
   FileBadge,
   FileText,
-  Settings,
-  ChevronDown,
-  DollarSign,
-  Search
+  MessageSquare,
+  Send,
+  ShieldCheck,
+  Syringe
 } from 'lucide-react';
 
 interface UserSession {
@@ -36,15 +32,24 @@ export default function Sidebar() {
 
   const navItems = [
     { name: 'CSKH Tiêm Chủng', href: '/cskh-tiem-chung', icon: ClipboardList },
+    { name: 'Chuyển viện', href: '/chuyen-vien', icon: Send },
+    { name: 'BHYT', href: '/bhyt', icon: ShieldCheck },
     { name: 'Bảng giá Vắc xin', href: '/vaccine-prices', icon: DollarSign },
   ];
 
-  const otherItems: any[] = [];
+  const otherItems = [
+    { name: 'Tính lịch tiêm', href: '/lich-tiem', icon: Syringe },
+    { name: 'Số ca BHYT', href: '/so-ca-bhyt', icon: BarChart3 },
+    { name: 'SMS nhắc tiêm', href: '/sms-tiem', icon: MessageSquare },
+    { name: 'Thẻ Sức Khỏe', href: '/the-xanh', icon: FileBadge },
+    { name: 'Bìa bệnh án', href: '/bia-benh-an', icon: FileText },
+    { name: 'Bệnh án RHM', href: '/benh-an-rhm', icon: FileText },
+  ];
 
   return (
     <>
       {/* Desktop Sidebar */}
-      <aside className="hidden md:flex w-64 bg-zinc-950 text-zinc-100 flex-col h-screen border-r border-zinc-900 shrink-0">
+      <aside className="hidden md:flex w-64 bg-zinc-950 text-zinc-100 flex-col h-screen border-r border-zinc-900 shrink-0 print:hidden">
         {/* Brand Header */}
         <div className="h-16 flex items-center gap-3 px-6 border-b border-zinc-900/80 bg-transparent">
           <div className="h-8 w-8 rounded-lg bg-teal-600 flex items-center justify-center text-white">
@@ -139,7 +144,7 @@ export default function Sidebar() {
       </aside>
 
       {/* Mobile Bottom Navigation */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-md border-t border-slate-100 flex items-center overflow-x-auto whitespace-nowrap h-16 z-50 shadow-[0_-4px_20px_rgba(0,0,0,0.02)] pb-safe scrollbar-none px-2 gap-1">
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-md border-t border-slate-100 flex items-center overflow-x-auto whitespace-nowrap h-16 z-50 shadow-[0_-4px_20px_rgba(0,0,0,0.02)] pb-safe scrollbar-none px-2 gap-1 print:hidden">
         {[...navItems, ...otherItems].map((item) => {
           const isActive = pathname === item.href;
           let mobileName = item.name;

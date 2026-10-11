@@ -1,0 +1,13 @@
+# Taste — User Preferences
+- Communicates in Vietnamese and expects responses, plans, and code comments/messages shown to them in Vietnamese. Confidence: 0.85
+- When asking for optimization/refactoring, explicitly requires that existing features and behavior stay intact — no regressions, no functionality broken in the process. Confidence: 0.75
+- Values maintainable, well-organized code that follows the project's documented conventions/rules; dislikes heavy, loosely-structured code that is hard to maintain or extend. Confidence: 0.6
+- Cares about runtime resource efficiency (serverless invocation counts, payload size, DB round-trips) and prefers concrete, phased optimization plans over one-shot rewrites. Confidence: 0.5
+- Workflow: explicitly asks for a written plan first and expects it presented for approval before any implementation begins ("lên kế hoạch... nhé"). Confidence: 0.8
+- After implementation, asks for verification passes — checking that all features work and hunting for bugs/logic errors before considering work done. Confidence: 0.75
+- Prefers non-destructive cleanup: for legacy/reference files, chose gitignore + keep locally over deleting outright; wants data backed up before risky changes. Confidence: 0.7
+- Cares about cohesive, professional UI/UX: wants a shared design system (tokens + reusable components) established first, then applied consistently across all modules; dislikes clunky UX like raw browser alert()/confirm(). Confidence: 0.7
+- Comfortable with structured multiple-choice decision prompts before large scope decisions (priority order, storage model, print output method, UI approach) — answers them to lock scope, then expects the plan to follow those choices exactly. Confidence: 0.75
+- Drives work with very short continuation prompts ("Tiếp tục") and expects the assistant to resume from the phased todo list without re-explaining context or re-asking settled questions. Confidence: 0.8
+- Comfortable pulling third-party AI/dev tooling into the project (e.g. installing a UX skill CLI and wiring it into the repo) and tells the assistant to use it freely — leans on external tooling rather than hand-rolling everything. Confidence: 0.6
+- Treats legacy/standalone artifacts (old HTML apps, scripts) as a backlog of unimplemented functionality and expects those features to be ported into and integrated with the main app, not abandoned. Confidence: 0.7

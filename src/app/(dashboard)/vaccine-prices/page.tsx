@@ -1,14 +1,12 @@
 'use client';
 
-import React, { useState, useEffect, useMemo, useRef } from 'react';
+import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 import { 
   Search, 
-  Plus, 
   Trash2, 
   Edit2, 
   DollarSign, 
   Save, 
-  X, 
   Activity, 
   ChevronDown, 
   ArrowUpDown, 
@@ -19,22 +17,14 @@ import {
   Database
 } from 'lucide-react';
 import { DATA, matchSearch } from '@/lib/vaccineData';
-
-// Helpers to format inputs with thousands separator dots
-const formatNumberWithDots = (val: string | number) => {
-  if (val === undefined || val === null) return '';
-  const clean = val.toString().replace(/[^0-9]/g, '');
-  if (!clean) return '';
-  return new Intl.NumberFormat('vi-VN').format(Number(clean));
-};
-
-const parseNumberFromDots = (val: string) => {
-  return val.replace(/[^0-9]/g, '');
-};
+import { useDebouncedValue } from '@/hooks/useDebouncedValue';
+import { formatCurrency, formatNumberWithDots, parseNumberFromDots } from '@/lib/format';
 
 export default function VaccinePricesPage() {
   const [items, setItems] = useState<any[]>([]);
+  const [total, setTotal] = useState(0);
   const [qSearch, setQSearch] = useState('');
+  const debouncedQ = useDebouncedValue(qSearch, 400);
   
   // Selection states
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
@@ -128,21 +118,27 @@ export default function VaccinePricesPage() {
 
   const filteredVaccines = DATA.vaccines.filter((v: string) => matchSearch(v, name));
 
-  const fetchItems = async () => {
+  const fetchItems = useCallback(async () => {
     try {
-      const qParams = new URLSearchParams({ q: qSearch });
+      const qParams = new URLSearchParams({ q: debouncedQ, pageSize: '200' });
       const res = await fetch(`/api/vaccine-prices?${qParams.toString()}`);
       if (!res.ok) throw new Error('Failed to fetch');
       const result = await res.json();
       setItems(result.items || []);
+      if (result.pagination) setTotal(result.pagination.totalFiltered);
+      else setTotal((result.items || []).length);
     } catch (e) {
       console.error(e);
     }
-  };
+  }, [debouncedQ]);
 
   useEffect(() => {
     fetchItems();
-  }, [qSearch]);
+  }, [fetchItems]);
+
+  useEffect(() => {
+    setSelectedIds([]);
+  }, [debouncedQ]);
 
   const handleResetForm = () => {
     setActiveEditId(null);
@@ -342,7 +338,7 @@ export default function VaccinePricesPage() {
         alignment: { horizontal: 'right' }
       };
 
-      const rows = items.map((item, index) => {
+      const rows = sortedItems.map((item, index) => {
         const checkup = item.checkupPrice || 0;
         const total = item.price + checkup;
         return [
@@ -469,11 +465,6 @@ export default function VaccinePricesPage() {
     } finally {
       if (e.target) e.target.value = '';
     }
-  };
-
-  // Format number to currency
-  const formatCurrency = (val: number) => {
-    return new Intl.NumberFormat('vi-VN').format(val);
   };
 
   return (
@@ -704,7 +695,7 @@ export default function VaccinePricesPage() {
           <div className="bg-white border border-slate-200/80 rounded-3xl shadow-sm overflow-hidden">
             <div className="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
               <span className="text-xs font-semibold text-slate-500">
-                Tổng cộng <strong className="text-teal-700">{items.length}</strong> vắc xin trong hệ thống
+                Tổng cộng <strong className="text-teal-700">{total}</strong> vắc xin trong hệ thống
               </span>
             </div>
             

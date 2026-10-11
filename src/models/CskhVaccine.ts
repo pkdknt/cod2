@@ -20,14 +20,14 @@ export interface ICskhVaccine extends Document {
 
 const CskhVaccineSchema = new Schema<ICskhVaccine>(
   {
-    patientCode: { type: String, index: true },
-    patientName: { type: String, required: true, index: true },
-    phone: { type: String, index: true },
+    patientCode: { type: String },
+    patientName: { type: String, required: true },
+    phone: { type: String },
     dob: { type: String },
     gender: { type: String },
     address: { type: String },
-    vaccine: { type: String, required: true, index: true },
-    protocolId: { type: String, required: true, index: true },
+    vaccine: { type: String, required: true },
+    protocolId: { type: String, required: true },
     dates: { type: [String], default: ['', '', '', '', '', ''] },
     dueOverrides: { type: [String], default: ['', '', '', '', '', ''] },
     notes: { type: [String], default: ['', '', '', '', '', ''] },
@@ -38,5 +38,13 @@ const CskhVaccineSchema = new Schema<ICskhVaccine>(
     timestamps: true,
   }
 );
+
+// Indexes tuned for the actual query patterns:
+// - dedup lookup during Excel/bulk import (dob + vaccine + code/name)
+// - exact vaccine filter + newest-first listing
+CskhVaccineSchema.index({ patientCode: 1, dob: 1, vaccine: 1 });
+CskhVaccineSchema.index({ patientName: 1, dob: 1, vaccine: 1 });
+CskhVaccineSchema.index({ vaccine: 1 });
+CskhVaccineSchema.index({ updatedAt: -1 });
 
 export default models.CskhVaccine || model<ICskhVaccine>('CskhVaccine', CskhVaccineSchema);
