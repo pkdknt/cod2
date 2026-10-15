@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useMemo, useRef, useState } from 'react';
-import { Search, Trash2 } from 'lucide-react';
+import { RotateCcw, Search, Trash2 } from 'lucide-react';
 import { DATA } from '@/lib/vaccineData';
 import { toUpperNoAccent } from '@/lib/format';
 import { applyCellStyle, loadXLSX, THIN_BORDER, writeSheet } from '@/lib/excel';
@@ -79,8 +79,8 @@ export default function SavedCustomersTab({
     <div className="flex-1 min-h-0 flex flex-col gap-3">
       {/* Quick Filters */}
       <div className="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm shrink-0">
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-4">
-          <div>
+        <div className="flex flex-wrap items-end gap-4">
+          <div className="flex-1 min-w-[160px]">
             <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">Tìm nhanh</label>
             <div className="relative">
               <Search className="absolute left-3 top-3 h-4 w-4 text-slate-400" />
@@ -93,7 +93,7 @@ export default function SavedCustomersTab({
               />
             </div>
           </div>
-          <div>
+          <div className="flex-1 min-w-[160px]">
             <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">Lọc loại Vắc xin</label>
             <select
               value={list.filterVaccine}
@@ -106,6 +106,21 @@ export default function SavedCustomersTab({
               ))}
             </select>
           </div>
+          {(list.qSearch || list.filterVaccine) && (
+            <div className="shrink-0">
+              <button
+                onClick={() => {
+                  list.setQSearch('');
+                  list.setFilterVaccine('');
+                }}
+                className="inline-flex items-center gap-1.5 rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-xs font-bold text-amber-700 hover:bg-amber-100 transition-colors"
+                title="Reset toàn bộ bộ lọc danh sách"
+              >
+                <RotateCcw className="h-3.5 w-3.5" />
+                Reset bộ lọc
+              </button>
+            </div>
+          )}
         </div>
       </div>
 
